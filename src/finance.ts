@@ -11,7 +11,7 @@
  *  - Unico: margine = prezzo di rivendita − acquisto − ristrutturazione.
  */
 
-import { Project, Furnishing, MatericoRequest, UnicoDeal } from './types';
+import { Project, Furnishing, MatericoRequest, UnicoDeal, UnicoRoeConfig } from './types';
 
 /** Le 4 società della holding. */
 export type Company = 'studio' | 'strategico' | 'materico' | 'unico';
@@ -257,6 +257,73 @@ export function matericoMargin(req: MatericoRequest): MatericoMarginResult {
 /** Margine operazione Unico: rivendita − acquisto − ristrutturazione. */
 export function unicoMargin(deal: UnicoDeal): number {
   return (deal.targetSalePrice || 0) - (deal.acquisitionCost || 0) - (deal.renovationBudget || 0);
+}
+
+// ============================================================
+// Cascata ROE di Unico (visione Aulico) — default override-abili.
+// Vedi docs/SCHEMA-COMMESSE-INTERNE.md §2.
+// ============================================================
+export const UNICO_AGENCY_PCT = 3;       // % commissione agenzia su acquisto (landCost)
+export const UNICO_ONIRICO_PCT = 15;     // % progettazione+DL Onirico su costo realizzazione (worksCost)
+export const UNICO_STRATEGICO_FEE = 10000; // € promozione Strategico (fisso)
+export const UNICO_RESALE_PCT = 4;       // % commissione rivendita su prezzo finale (resalePrice)
+
+export interface RoeResult {
+  agencyCost: number;     // landCost * agencyPct%
+  oniricoCost: number;    // worksCost * oniricoPct%   → commessa interna a Onirico
+  strategicoCost: number; // strategicoFee (fisso)     → commessa interna a Strategico
+  resaleCost: number;     // resalePrice * resalePct%
+  totalCost: number;      // land + agency + notary + onirico + works + strategico + resale
+  netMargin: number;      // resalePrice − totalCost
+  equity: number;         // capitale conferito (cap table)
+  roe: number;            // netMargin / equity (0 se equity = 0)
+  paybackMonths: number | null; // mesi tra acquisto e rivendita (se date presenti)
+}
+
+/** Differenza in mesi (arrotondata) tra due date ISO; null se mancanti/non valide. */
+function monthsBetween(from?: string | null, to?: string | null): number | null {
+  if (!from || !to) return null;
+  const a = new Date(from).getTime();
+  const b = new Date(to).getTime();
+  if (isNaN(a) || isNaN(b) || b < a) return null;
+  return Math.round((b - a) / (1000 * 60 * 60 * 24 * 30.4375));
+}
+
+/**
+ * Calcola la cascata ROE di un'operazione Unico (funzione PURA).
+ * `equity` = capitale conferito dagli investitori (dalla cap table del deal).
+ * Le percentuali assenti usano i default `UNICO_*`.
+ */
+export function unicoRoe(cfg: UnicoRoeConfig, equity: number): RoeResult {
+  const landCost = cfg.landCost || 0;
+  const notaryCost = cfg.notaryCost || 0;
+  const worksCost = cfg.worksCost || 0;
+  const resalePrice = cfg.resalePrice || 0;
+  const agencyPct = cfg.agencyPct ?? UNICO_AGENCY_PCT;
+  const oniricoPct = cfg.oniricoPct ?? UNICO_ONIRICO_PCT;
+  const strategicoFee = cfg.strategicoFee ?? UNICO_STRATEGICO_FEE;
+  const resalePct = cfg.resalePct ?? UNICO_RESALE_PCT;
+
+  const agencyCost = landCost * (agencyPct / 100);
+  const oniricoCost = worksCost * (oniricoPct / 100);
+  const strategicoCost = strategicoFee;
+  const resaleCost = resalePrice * (resalePct / 100);
+  const totalCost = landCost + agencyCost + notaryCost + oniricoCost + worksCost + strategicoCost + resaleCost;
+  const netMargin = resalePrice - totalCost;
+  const eq = equity || 0;
+  const roe = eq > 0 ? netMargin / eq : 0;
+
+  return {
+    agencyCost,
+    oniricoCost,
+    strategicoCost,
+    resaleCost,
+    totalCost,
+    netMargin,
+    equity: eq,
+    roe,
+    paybackMonths: monthsBetween(cfg.purchaseDate, cfg.resaleDate),
+  };
 }
 
 export interface CompanyBook {
