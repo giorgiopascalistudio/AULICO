@@ -3467,7 +3467,7 @@ export default function App() {
       <div className="min-h-screen bg-[#F5F5F3] p-8 flex flex-col justify-center items-center select-none font-sans">
         <div className="w-full max-w-[440px] mx-auto text-center animate-[popIn_0.35s_ease_both]">
           <h1 className="font-black text-[30px] tracking-tight text-[#161616]">
-            Onirico Studio <span className="text-stone-400 font-light">· OS</span>
+            Aulico
           </h1>
           <div className="bg-white border border-[#e2e2e2] rounded-[24px] shadow-sm p-7 mt-6 flex flex-col items-center gap-3">
             <div className="w-12 h-12 rounded-full flex items-center justify-center bg-amber-50 text-amber-600">

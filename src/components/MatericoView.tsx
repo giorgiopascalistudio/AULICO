@@ -47,7 +47,7 @@ Importo lavori impresa: ${eur(partnerAmount)}
 Corrispettivo al committente (gestione e coordinamento Materico inclusi): ${eur(clientPrice)}
 
 Materico coordina e controlla l'esecuzione delle lavorazioni. Pagamenti secondo
-SAL. Il presente documento è una bozza generata automaticamente da Onirico OS.`;
+SAL. Il presente documento è una bozza generata automaticamente da Aulico.`;
 };
 
 export const MatericoView: React.FC<MatericoViewProps> = ({
