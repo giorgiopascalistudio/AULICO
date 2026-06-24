@@ -482,6 +482,46 @@ export interface UnicoRoeConfig {
   resaleDate?: string | null;
 }
 
+/* ---------- Incentivi & Point system (team interno + subappaltatori) ---------- */
+
+/** A chi si applica un'attività a punti. */
+export type PointAudience = 'team' | 'partner' | 'both';
+
+/** Voce del catalogo attività a punti (default in src/points.ts, override futuri). */
+export interface PointActivity {
+  id: string;
+  label: string;
+  points: number;          // positivo = merito; negativo = penalità (precisione/affidabilità)
+  category: string;        // es. 'Produttività','Qualità','Puntualità','Relazione'
+  audience: PointAudience;
+}
+
+/** Evento punti assegnato (nodo pointEvents/<id>). */
+export interface PointEvent {
+  id: string;
+  uid: string;             // chi riceve i punti (team o partner)
+  activityId: string;      // id catalogo oppure 'manual'
+  label: string;           // descrizione (denormalizzata)
+  points: number;          // anche negativo
+  date: string;            // yyyy-mm-dd
+  note?: string | null;
+  refType?: string | null; // 'project'|'task'|'cantiere'|'materico'…
+  refId?: string | null;
+  by?: string | null;      // chi ha assegnato
+  byName?: string | null;
+  createdAt: number;
+}
+
+/** Soglia/fascia bonus (ranking). */
+export interface BonusTier {
+  id: string;
+  label: string;           // es. 'Bronzo','Argento','Oro','Platino'
+  minPoints: number;
+  bonusPct?: number;       // % bonus sul compenso (team)
+  perk?: string;           // descrizione vantaggio
+  color: string;
+}
+
 /* ---------- Vetrina cinematica Unico (pagina "villa-omnia") ---------- */
 // Una scena = un punto temporale del video continuo, con titolo e testo.
 export interface UnicoShowcaseScene {
