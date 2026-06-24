@@ -87,6 +87,7 @@ import {
   AccessLevel,
   InternalOrder,
   PointEvent,
+  MatericoPenalty,
 } from './types';
 
 import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, canAdmin, canAnywhere } from './access';
@@ -180,6 +181,9 @@ import {
   COMPANY_INVOICE_PREFIX,
   UNICO_ONIRICO_PCT,
   UNICO_STRATEGICO_FEE,
+  matericoMargin,
+  matericoPenalty,
+  delayDays,
 } from './finance';
 import { dealToShowcaseEntry, dealToInvestorPositions } from './showcaseData';
 
@@ -1321,6 +1325,42 @@ export default function App() {
   };
   const handleUpdateMatericoRequest = (req: MatericoRequest) => {
     saveMatericoRequest({ ...req, updatedAt: Date.now() });
+  };
+  /**
+   * Applica la penale di ritardo a una richiesta Materico: nota di credito
+   * (fattura passiva NEGATIVA su Materico → riduce il costo partner) + punti
+   * negativi di affidabilità al partner. Importi via finance.ts (proposta auto
+   * calcolata in UI, qui la conferma).
+   */
+  const handleApplyMatericoPenalty = (reqId: string) => {
+    const r = matericoRequests[reqId];
+    if (!r) return;
+    const base = matericoMargin(r).baseCost;
+    const days = delayDays(r.agreedDeliveryDate, r.completedDate);
+    if (days <= 0 || base <= 0) { showToast('Nessun ritardo da penalizzare.', 'err'); return; }
+    const calc = matericoPenalty(base, days);
+    if (calc.amount <= 0) return;
+    const partnerName = (r.selectedPartnerUid && r.offers?.[r.selectedPartnerUid]?.partnerName) || 'Partner';
+    const invId = financeRecord({
+      sector: 'materico', kind: 'passive', amount: -calc.amount,
+      description: `Penale ritardo ${days}gg · ${r.title}`,
+      counterparty: partnerName, date: new Date().toISOString().slice(0, 10),
+    });
+    if (r.selectedPartnerUid) {
+      handleAddPointEvent({
+        id: `pt-pen-${reqId}`, uid: r.selectedPartnerUid, activityId: 'ritardo_grave',
+        label: `Penale ritardo ${days}gg · ${r.title}`, points: -12,
+        date: new Date().toISOString().slice(0, 10), note: `Penale ${eur(calc.amount)}`,
+        refType: 'materico', refId: reqId, createdAt: Date.now(),
+      });
+    }
+    const penalty: MatericoPenalty = {
+      days, pctPerDay: calc.pctPerDay, capPct: calc.capPct, base, amount: calc.amount,
+      capped: calc.capped, status: 'applicata', invoiceId: invId,
+      appliedAt: Date.now(), appliedBy: currentUser?.uid || null,
+    };
+    saveMatericoRequest({ ...r, penalty, updatedAt: Date.now() });
+    showToast(`Penale di ${eur(calc.amount)} applicata.`, 'ok');
   };
   const handleDeleteMatericoRequest = (id: string) => {
     const r = matericoRequests[id];
@@ -4033,6 +4073,7 @@ export default function App() {
             matericoSuppliers={crmSuppliers}
             onUpdateMatericoRequest={handleUpdateMatericoRequest}
             onDeleteMatericoRequest={handleDeleteMatericoRequest}
+            onApplyMatericoPenalty={handleApplyMatericoPenalty}
             unicoDeals={unicoDeals}
             onSaveUnicoDeals={saveUnicoDeals}
             onNotifyUnicoInvestors={notifyUnicoInvestors}

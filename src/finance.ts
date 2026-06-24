@@ -289,6 +289,42 @@ export function matericoMargin(req: MatericoRequest): MatericoMarginResult {
   };
 }
 
+// --- Penali Materico per ritardo (override-abili) ---
+export const MATERICO_PENALTY_PCT_PER_DAY = 1;  // 1% al giorno di ritardo
+export const MATERICO_PENALTY_CAP_PCT = 10;     // tetto 10% sul costo partner
+
+export interface MatericoPenaltyResult {
+  days: number;
+  pctPerDay: number;
+  capPct: number;
+  base: number;
+  amount: number;
+  capped: boolean;
+}
+
+/** Giorni di ritardo tra scadenza concordata e consegna (0 se non in ritardo). */
+export function delayDays(agreed?: string | null, completed?: string | null): number {
+  if (!agreed || !completed) return 0;
+  const a = new Date(agreed).getTime();
+  const c = new Date(completed).getTime();
+  if (isNaN(a) || isNaN(c) || c <= a) return 0;
+  return Math.ceil((c - a) / (1000 * 60 * 60 * 24));
+}
+
+/** Penale = base × %/giorno × giorni, con tetto. Funzione PURA. */
+export function matericoPenalty(
+  base: number,
+  days: number,
+  pctPerDay: number = MATERICO_PENALTY_PCT_PER_DAY,
+  capPct: number = MATERICO_PENALTY_CAP_PCT,
+): MatericoPenaltyResult {
+  const b = base || 0;
+  const raw = b * (pctPerDay / 100) * (days || 0);
+  const cap = b * (capPct / 100);
+  const amount = Math.min(raw, cap);
+  return { days: days || 0, pctPerDay, capPct, base: b, amount, capped: raw > cap };
+}
+
 /** Margine operazione Unico: rivendita − acquisto − ristrutturazione. */
 export function unicoMargin(deal: UnicoDeal): number {
   return (deal.targetSalePrice || 0) - (deal.acquisitionCost || 0) - (deal.renovationBudget || 0);

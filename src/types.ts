@@ -875,8 +875,26 @@ export interface MatericoRequest {
   marginPct?: number;
   clientPrice?: number | null; // prezzo finale al cliente (con margine Materico)
   contractText?: string | null;
+  // ---- Penali per ritardo (subappalto) ----
+  agreedDeliveryDate?: string | null;  // scadenza concordata col partner
+  completedDate?: string | null;       // consegna effettiva
+  penalty?: MatericoPenalty | null;
   createdAt: number;
   updatedAt?: number;
+}
+
+/** Penale per ritardo del partner (% al giorno con tetto). */
+export interface MatericoPenalty {
+  days: number;            // giorni di ritardo
+  pctPerDay: number;       // % al giorno applicata
+  capPct: number;          // tetto % sul costo partner
+  base: number;            // costo partner (base di calcolo)
+  amount: number;          // importo penale (con tetto)
+  capped: boolean;         // true se ha raggiunto il tetto
+  status: 'proposta' | 'applicata' | 'annullata';
+  invoiceId?: string | null; // nota di credito (fattura passiva negativa) collegata
+  appliedAt?: number | null;
+  appliedBy?: string | null;
 }
 
 // ============================================================
