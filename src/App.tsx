@@ -1673,6 +1673,8 @@ export default function App() {
           setMoodboard3d((m) => ({ ...m, [pid]: v || {} }));
         }, () => {}));
       });
+      // Point system: il portale legge i propri eventi punti (pointEvents/<uid>)
+      subs.push(watchNode(`pointEvents/${currentUser.uid}`, (v) => setPointEvents(Object.values(v || {}) as PointEvent[]), () => {}));
       // Partner: elenca i cantieri assegnati via indice inverso, poi sottoscrive per-cid.
       if (currentUser.role === 'partner') {
         const watched = new Set<string>();
@@ -3753,6 +3755,7 @@ export default function App() {
         onDeleteFurnishing={handleDeleteFurnishing}
         moodboard3d={moodboard3d}
         onSaveMoodboard3d={handleSaveMoodboard3d}
+        myPoints={pointEvents}
         onLogout={handleLogout}
         estimates={Object.values(estimates)}
         onSaveEstimate={handleSaveEstimate}

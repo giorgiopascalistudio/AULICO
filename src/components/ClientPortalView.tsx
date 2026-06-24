@@ -45,7 +45,8 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Project, UserProfile, MatericoEstimate, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, UnicoShowcaseEntry, UnicoInvestorPosition, MarketingEvent, Survey, SurveyResponse, RsvpStatus, ClientRequest } from '../types';
+import { Project, UserProfile, MatericoEstimate, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, UnicoShowcaseEntry, UnicoInvestorPosition, MarketingEvent, Survey, SurveyResponse, RsvpStatus, ClientRequest, PointEvent } from '../types';
+import { totalPoints, tierFor, nextTier, reliabilityScore } from '../points';
 import { FurnishingsBoard } from './FurnishingsBoard';
 import { ClientRequestPanel } from './ClientRequestPanel';
 import { CantiereBoard } from './CantiereBoard';
@@ -94,6 +95,8 @@ interface ClientPortalViewProps {
   onDeleteFurnishing?: (pid: string, itemId: string) => void;
   moodboard3d?: Record<string, any>;
   onSaveMoodboard3d?: (pid: string, elements: any[]) => void;
+  /** Eventi punti dell'utente (affidabilità partner). */
+  myPoints?: PointEvent[];
   onLogout: () => void;
   isPreview?: boolean;
   onExitPreview?: () => void;
@@ -155,6 +158,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   onDeleteFurnishing,
   moodboard3d = {},
   onSaveMoodboard3d,
+  myPoints = [],
   onLogout,
   isPreview = false,
   onExitPreview,
@@ -632,6 +636,51 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           members={studioMembers}
           onRequest={onRequestAppointment}
         />
+      )}
+
+      {profile.role === 'partner' && (
+        <div className="max-w-[1100px] w-full mx-auto px-4 sm:px-6 pt-6">
+          {(() => {
+            const pts = totalPoints(myPoints, profile.uid);
+            const score = reliabilityScore(myPoints, profile.uid);
+            const tier = tierFor(pts);
+            const nt = nextTier(pts);
+            const recent = [...myPoints].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 5);
+            return (
+              <div className="bg-white border border-[#e5e5e5] rounded-[22px] p-5">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <h3 className="text-[15px] font-extrabold text-[#161616]">La tua affidabilità</h3>
+                  <span className="text-[12px] font-bold px-3 py-1 rounded-full border" style={{ color: tier.color, borderColor: tier.color }}>{tier.label}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-3 mt-4">
+                  <div className="text-center">
+                    <div className="text-[26px] font-extrabold leading-none" style={{ color: score >= 70 ? '#059669' : score >= 40 ? '#d97706' : '#dc2626' }}>{score}</div>
+                    <div className="text-[11px] text-[#8a8a8a] mt-1">Indice 0–100</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[26px] font-extrabold leading-none text-[#161616]">{pts}</div>
+                    <div className="text-[11px] text-[#8a8a8a] mt-1">Punti totali</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[26px] font-extrabold leading-none text-[#161616]">{nt ? nt.remaining : '—'}</div>
+                    <div className="text-[11px] text-[#8a8a8a] mt-1">{nt ? `pt a ${nt.tier.label}` : 'Livello max'}</div>
+                  </div>
+                </div>
+                {recent.length > 0 && (
+                  <div className="mt-4 flex flex-col gap-1.5">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Ultime valutazioni</span>
+                    {recent.map((e) => (
+                      <div key={e.id} className="flex items-center justify-between gap-3 text-[12.5px] py-1 border-b border-[#f0f0f0] last:border-0">
+                        <span className="truncate text-[#161616]">{e.label}</span>
+                        <span className="font-bold shrink-0" style={{ color: e.points >= 0 ? '#059669' : '#dc2626' }}>{e.points >= 0 ? '+' : ''}{e.points}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </div>
       )}
 
       {matericoRequests && (profile.role === 'partner' || (profile.role === 'cliente' && (profile.sector === 'materico' || (matericoRequests || []).some((r) => r.clientUid === profile.uid)))) && (
