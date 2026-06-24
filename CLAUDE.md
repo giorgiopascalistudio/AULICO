@@ -378,6 +378,12 @@ reporting/redditività, integrazioni esterne
   ⚠️ Aggiunto il nodo **`trash`** (Cestino, §20 — read/write team attivo non-cliente):
   **ripubblicare le regole**, altrimenti il Cestino resta vuoto e i ripristini falliscono
   (le eliminazioni continuano a funzionare ma senza copia di sicurezza).
+  ⚠️ **RBAC granulare** (visione Aulico): aggiunto il campo `users/<uid>/access` (AccessMap
+  per-società/modulo) con `.validate` che **consente la modifica solo ad admin/manager** (anti
+  auto-promozione: la write del proprio nodo è permessa, ma `access` no). **Ripubblicare le regole**,
+  altrimenti chi assegna i permessi da Team→Modifica iscritto riceve "permission denied". Finché un
+  utente non ha `access` esplicito, vale il **fallback dal ruolo** (`src/access.ts`), quindi il
+  comportamento attuale resta invariato.
   ⚠️ Aggiunto il nodo **`unicoShowcase`** (vetrina Unico pubblicata, §21 — read ogni autenticato,
   write admin/manager): **ripubblicare le regole**, altrimenti la pubblicazione vetrina fallisce
   in silenzio e i clienti continuano a vedere i dati demo.
