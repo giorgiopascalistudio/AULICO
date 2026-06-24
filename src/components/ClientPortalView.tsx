@@ -47,6 +47,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, UserProfile, MatericoEstimate, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, UnicoShowcaseEntry, UnicoInvestorPosition, MarketingEvent, Survey, SurveyResponse, RsvpStatus, ClientRequest, PointEvent } from '../types';
 import { totalPoints, tierFor, nextTier, reliabilityScore } from '../points';
+import { clientGame } from '../gamification';
 import { FurnishingsBoard } from './FurnishingsBoard';
 import { ClientRequestPanel } from './ClientRequestPanel';
 import { CantiereBoard } from './CantiereBoard';
@@ -636,6 +637,50 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           members={studioMembers}
           onRequest={onRequestAppointment}
         />
+      )}
+
+      {profile.role === 'cliente' && (
+        <div className="max-w-[1100px] w-full mx-auto px-4 sm:px-6 pt-6">
+          {(() => {
+            const myProjects = (projects || []).filter((p) => p.clientUid === profile.uid || (profile.projectIds || {})[p.id]);
+            const myPids = new Set(myProjects.map((p) => p.id));
+            const furnishingCount = Object.entries(furnishings || {}).filter(([pid]) => myPids.has(pid))
+              .reduce((s, [, m]) => s + Object.keys(m || {}).length, 0);
+            const moodboardElements = Object.entries(moodboard3d || {}).filter(([pid]) => myPids.has(pid))
+              .reduce((s, [, v]: any) => s + ((v?.elements || []).length), 0);
+            const messageCount = Object.entries(projectMessages || {}).filter(([pid]) => myPids.has(pid))
+              .reduce((s, [, m]: any) => s + Object.values(m || {}).filter((msg: any) => msg.from === profile.uid).length, 0);
+            const g = clientGame({ profile, projects: myProjects, furnishingCount, moodboardElements, messageCount });
+            const pct = g.max > 0 ? Math.round((g.points / g.max) * 100) : 0;
+            return (
+              <div className="bg-white border border-[#e5e5e5] rounded-[22px] p-5">
+                <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+                  <h3 className="text-[15px] font-extrabold text-[#161616]">Il tuo percorso</h3>
+                  <span className="text-[12px] font-bold px-3 py-1 rounded-full border" style={{ color: g.level.color, borderColor: g.level.color }}>{g.level.label}</span>
+                </div>
+                <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: g.level.color }} />
+                </div>
+                <div className="flex items-center justify-between mt-1.5 text-[11.5px] text-[#8a8a8a]">
+                  <span>{g.completed}/{g.objectives.length} obiettivi</span>
+                  <span>{g.next ? `${g.next.remaining} pt a "${g.next.level.label}"` : 'Livello massimo 🎉'}</span>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-2 mt-4">
+                  {g.objectives.map((o) => (
+                    <div key={o.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${o.done ? 'border-emerald-200 bg-emerald-50' : 'border-[#ececec] bg-[#fafafa]'}`}>
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${o.done ? 'bg-emerald-500 text-white' : 'bg-[#e2e2e2] text-[#8a8a8a]'}`}>{o.done ? '✓' : ''}</span>
+                      <div className="min-w-0 flex-1">
+                        <div className={`text-[12.5px] font-bold truncate ${o.done ? 'text-emerald-900' : 'text-[#161616]'}`}>{o.label}</div>
+                        <div className="text-[11px] text-[#8a8a8a] truncate">{o.hint}</div>
+                      </div>
+                      <span className="text-[11px] font-bold text-[#8a8a8a] shrink-0">+{o.points}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
       )}
 
       {profile.role === 'partner' && (
