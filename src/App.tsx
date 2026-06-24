@@ -173,6 +173,8 @@ import {
   FinanceRecordInput,
   COMPANY_LABEL,
   COMPANY_INVOICE_PREFIX,
+  UNICO_ONIRICO_PCT,
+  UNICO_STRATEGICO_FEE,
 } from './finance';
 import { dealToShowcaseEntry, dealToInvestorPositions } from './showcaseData';
 
@@ -664,6 +666,63 @@ export default function App() {
       if (!nextUids.has(uid)) removeNode(`unicoInvestorPositions/${uid}`).catch(() => {});
     });
     prevInvestorUidsRef.current = nextUids;
+    // Auto-generazione commesse interne dalla cascata ROE (decisione §6.2).
+    syncDealInternalOrders(arr);
+  };
+
+  /**
+   * Materializza/aggiorna le 3 commesse interne (Onirico 15% / Materico opere /
+   * Strategico €10k) per ogni deal con `roe`. Idempotente (id deterministico
+   * `io-<dealId>-<suffix>`); aggiorna gli importi solo finché la commessa è in
+   * `bozza` (per non desincronizzare la finanza già scritta alla conferma).
+   * NON scrive finanza: quella avviene alla conferma (handleConfirmInternalOrder).
+   */
+  const syncDealInternalOrders = (deals: UnicoDeal[]) => {
+    if (!deals.some((d) => d.roe)) return;
+    const next: InternalOrder[] = [...internalOrders];
+    let codeCounter = next.reduce((m, o) => {
+      const n = parseInt((o.code || '').replace(/^CI-/, ''), 10);
+      return isNaN(n) ? m : Math.max(m, n);
+    }, 0);
+    let changed = false;
+    const upsert = (o: InternalOrder) => {
+      const i = next.findIndex((x) => x.id === o.id);
+      if (i >= 0) next[i] = o; else next.push(o);
+      changed = true;
+    };
+    deals.forEach((deal) => {
+      const r = deal.roe;
+      if (!r) return;
+      const works = (r.worksCost || deal.renovationBudget || 0);
+      const oniricoPct = r.oniricoPct ?? UNICO_ONIRICO_PCT;
+      const strategicoFee = r.strategicoFee ?? UNICO_STRATEGICO_FEE;
+      const specs: { suffix: string; type: InternalOrder['type']; fornitore: InternalOrder['fornitore']['company']; amount: number; basis: InternalOrder['basis']; label: string }[] = [
+        { suffix: 'onirico', type: 'progettazione_dl', fornitore: 'studio', amount: works * (oniricoPct / 100), basis: { mode: 'percent', pct: oniricoPct, ofAmount: works }, label: 'Progettazione + DL (Onirico)' },
+        { suffix: 'materico', type: 'ristrutturazione', fornitore: 'materico', amount: works, basis: { mode: 'manual', amount: works }, label: 'Ristrutturazione (Materico)' },
+        { suffix: 'strategico', type: 'promozione', fornitore: 'strategico', amount: strategicoFee, basis: { mode: 'fixed', amount: strategicoFee }, label: 'Promozione & vendita (Strategico)' },
+      ];
+      specs.forEach((s) => {
+        const id = `io-${deal.id}-${s.suffix}`;
+        const existing = next.find((o) => o.id === id);
+        const title = `${s.label} – ${deal.title}`;
+        if (existing) {
+          if (existing.status === 'bozza' && (existing.amount !== s.amount || existing.title !== title)) {
+            upsert({ ...existing, title, amount: s.amount, basis: s.basis });
+          }
+        } else {
+          codeCounter += 1;
+          upsert({
+            id, code: `CI-${String(codeCounter).padStart(3, '0')}`, type: s.type, title, status: 'bozza',
+            committente: { company: 'unico', refType: 'deal', refId: deal.id }, fornitore: { company: s.fornitore },
+            basis: s.basis, amount: s.amount, createdAt: Date.now(), createdBy: currentUser?.uid || null,
+          });
+        }
+      });
+    });
+    if (changed) {
+      setInternalOrders(next);
+      writeNode('internalOrders', next).catch(() => {});
+    }
   };
   // Notifica in-app agli investitori collegati di un'operazione Unico (es. nuovo aggiornamento
   // o distribuzione). I link puntano al portale → sezione "I miei investimenti".
@@ -3929,6 +3988,9 @@ export default function App() {
             unicoDeals={unicoDeals}
             onSaveUnicoDeals={saveUnicoDeals}
             onNotifyUnicoInvestors={notifyUnicoInvestors}
+            internalOrders={internalOrders}
+            onConfirmInternalOrder={handleConfirmInternalOrder}
+            onDeleteInternalOrder={handleDeleteInternalOrder}
             mktEvents={Object.values(mktEvents)}
             mktCampaigns={Object.values(mktCampaigns)}
             mktSurveys={Object.values(mktSurveys)}

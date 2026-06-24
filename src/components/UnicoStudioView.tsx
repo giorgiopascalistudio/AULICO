@@ -19,8 +19,10 @@ import {
 import type {
   UnicoDeal, UnicoInvestor, UnicoDealStatus, UnicoShowcaseConfig, Project,
   UnicoUpdate, UnicoDistribution, UnicoDistributionKind, UserProfile,
+  UnicoRoeConfig, InternalOrder,
 } from '../types';
 import { eur } from '../utils';
+import { unicoRoe } from '../finance';
 import { UnicoShowcaseEditor } from './UnicoShowcaseEditor';
 
 const IN = 'w-full h-10 px-3 text-[14px] border border-[#e2e2e2] rounded-lg bg-white outline-none focus:border-[#161616]';
@@ -61,9 +63,13 @@ interface Props {
   askDelete?: (title: string, message: string | null, onConfirm: () => void) => void;
   /** Sposta l'elemento eliminato nel Cestino condiviso. */
   onTrashItem?: (section: string, label: string, payload: any, meta?: Record<string, string>, detail?: string) => void;
+  /** Commesse interne (intercompany) generate dalla cascata ROE. */
+  internalOrders?: InternalOrder[];
+  onConfirmInternalOrder?: (id: string) => void;
+  onDeleteInternalOrder?: (id: string) => void;
 }
 
-export const UnicoStudioView: React.FC<Props> = ({ deals, onSave, projects, users, canEdit, onNotifyInvestors, askDelete, onTrashItem }) => {
+export const UnicoStudioView: React.FC<Props> = ({ deals, onSave, projects, users, canEdit, onNotifyInvestors, askDelete, onTrashItem, internalOrders = [], onConfirmInternalOrder, onDeleteInternalOrder }) => {
   const [tab, setTab] = useState<'operazioni' | 'investitori' | 'rendiconto'>('operazioni');
   const [editing, setEditing] = useState<UnicoDeal | null>(null);
   const [isNew, setIsNew] = useState(false);
@@ -176,6 +182,9 @@ export const UnicoStudioView: React.FC<Props> = ({ deals, onSave, projects, user
             canEdit={canEdit}
             onClose={() => { setEditing(null); setIsNew(false); }}
             onSave={saveDeal}
+            orders={internalOrders.filter((o) => o.committente.refId === editing.id)}
+            onConfirmOrder={onConfirmInternalOrder}
+            onDeleteOrder={onDeleteInternalOrder}
           />
         )}
         {showcaseFor && (
@@ -375,7 +384,10 @@ const TYPES = ['Trullo', 'Masseria', 'Villa', 'Palazzo', 'Appartamento', 'Attico
 const DealModal: React.FC<{
   deal: UnicoDeal; projects: Project[]; users?: Record<string, UserProfile>; canEdit: boolean;
   onClose: () => void; onSave: (d: UnicoDeal) => void;
-}> = ({ deal, projects, users, canEdit, onClose, onSave }) => {
+  orders?: InternalOrder[];
+  onConfirmOrder?: (id: string) => void;
+  onDeleteOrder?: (id: string) => void;
+}> = ({ deal, projects, users, canEdit, onClose, onSave, orders = [], onConfirmOrder, onDeleteOrder }) => {
   const [d, setD] = useState<UnicoDeal>({ ...deal, investors: deal.investors || [] });
   const [invName, setInvName] = useState('');
   const [invAmount, setInvAmount] = useState('');
@@ -430,6 +442,13 @@ const DealModal: React.FC<{
   const raised = raisedOf(d);
   const fundedPct = d.capitalGoal ? Math.min(100, Math.round((raised / d.capitalGoal) * 100)) : 0;
   const unicoProjects = projects.filter((p) => p.division === 'unico' || p.division === 'materico');
+  // Cascata ROE (override-abile). Defaults derivati dagli Economics.
+  const roeDefaults = (): UnicoRoeConfig => ({
+    landCost: d.acquisitionCost || 0, notaryCost: 0,
+    worksCost: d.renovationBudget || 0, resalePrice: d.targetSalePrice || 0,
+  });
+  const setRoe = (patch: Partial<UnicoRoeConfig>) => set({ roe: { ...roeDefaults(), ...(d.roe || {}), ...patch } });
+  const roeResult = d.roe ? unicoRoe(d.roe, raised) : null;
   const invName_ = (id: string) => (d.investors || []).find((i) => i.id === id)?.name || '—';
 
   return (
@@ -482,6 +501,74 @@ const DealModal: React.FC<{
               <span className="flex items-center gap-1.5 font-semibold"><TrendingUp className="w-4 h-4 text-emerald-600" /> Profitto atteso: <b>{eur(profitOf(d))}</b></span>
               <span className="flex items-center gap-1.5 font-semibold"><Percent className="w-4 h-4 text-[#4338ca]" /> Margine: <b style={{ color: marginOf(d) >= 0 ? '#059669' : '#dc2626' }}>{marginOf(d).toFixed(1)}%</b></span>
             </div>
+          </div>
+
+          {/* Cascata ROE + commesse interne intercompany */}
+          <div className="border-t border-[#ececec] pt-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><HandCoins className="w-3.5 h-3.5" /> Cascata ROE · commesse interne</span>
+              {canEdit && !d.roe && (
+                <button onClick={() => set({ roe: roeDefaults() })} className="text-[11.5px] font-bold text-[#4338ca] hover:underline cursor-pointer bg-transparent border-none">+ Attiva cascata</button>
+              )}
+              {canEdit && d.roe && (
+                <button onClick={() => set({ roe: undefined })} className="text-[11.5px] font-bold text-stone-400 hover:text-red-600 cursor-pointer bg-transparent border-none">Disattiva</button>
+              )}
+            </div>
+            {!d.roe ? (
+              <p className="text-[12px] text-stone-500 mt-2">Attiva la cascata per ripartire i costi del gruppo (agenzia 3%, progettazione Onirico 15%, promozione Strategico €10k, rivendita 4%) e generare le <b>commesse interne</b> verso Onirico/Materico/Strategico al salvataggio.</p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+                  <FieldEl label="Immobile/terreno €"><input type="number" className={IN} value={d.roe.landCost || ''} onChange={(e) => setRoe({ landCost: num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="Notaio/oneri €"><input type="number" className={IN} value={d.roe.notaryCost || ''} onChange={(e) => setRoe({ notaryCost: num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="Opere (Materico) €"><input type="number" className={IN} value={d.roe.worksCost || ''} onChange={(e) => setRoe({ worksCost: num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="Rivendita €"><input type="number" className={IN} value={d.roe.resalePrice || ''} onChange={(e) => setRoe({ resalePrice: num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+                  <FieldEl label="Agenzia %"><input type="number" className={IN} value={d.roe.agencyPct ?? ''} placeholder="3" onChange={(e) => setRoe({ agencyPct: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="Onirico %"><input type="number" className={IN} value={d.roe.oniricoPct ?? ''} placeholder="15" onChange={(e) => setRoe({ oniricoPct: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="Strategico € fisso"><input type="number" className={IN} value={d.roe.strategicoFee ?? ''} placeholder="10000" onChange={(e) => setRoe({ strategicoFee: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="Rivendita %"><input type="number" className={IN} value={d.roe.resalePct ?? ''} placeholder="4" onChange={(e) => setRoe({ resalePct: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                </div>
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <FieldEl label="Data acquisto"><input type="date" className={IN} value={d.roe.purchaseDate || ''} onChange={(e) => setRoe({ purchaseDate: e.target.value || null })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="Data rivendita"><input type="date" className={IN} value={d.roe.resaleDate || ''} onChange={(e) => setRoe({ resaleDate: e.target.value || null })} disabled={!canEdit} /></FieldEl>
+                </div>
+                {roeResult && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
+                    <Mini label="Costo totale" value={eur(roeResult.totalCost)} />
+                    <Mini label="Margine netto" value={eur(roeResult.netMargin)} />
+                    <Mini label="ROE" value={`${(roeResult.roe * 100).toFixed(1)}%`} />
+                    <Mini label="Payback" value={roeResult.paybackMonths != null ? `${roeResult.paybackMonths} mesi` : '—'} />
+                  </div>
+                )}
+                {/* Commesse interne generate */}
+                <div className="mt-3 flex flex-col gap-2">
+                  {orders.length === 0 && (
+                    <p className="text-[12px] text-stone-500">Le commesse interne vengono generate al <b>salvataggio</b> dell'operazione.</p>
+                  )}
+                  {orders.sort((a, b) => a.code.localeCompare(b.code)).map((o) => (
+                    <div key={o.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-[#ececec] bg-[#fafafa]">
+                      <div className="min-w-0">
+                        <div className="text-[12.5px] font-bold text-[#161616] truncate">{o.code} · {o.title}</div>
+                        <div className="text-[11.5px] text-stone-500">{eur(o.amount)} · {o.status === 'confermata' ? 'registrata in finanza' : 'bozza'}</div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {canEdit && o.status === 'bozza' && onConfirmOrder && (
+                          <button onClick={() => onConfirmOrder(o.id)} className="text-[11.5px] font-bold px-2.5 py-1.5 rounded-lg bg-[#4338ca] text-white cursor-pointer border-none hover:bg-[#3730a3]">Conferma</button>
+                        )}
+                        {o.status === 'confermata' && (
+                          <span className="text-[11px] font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">✓</span>
+                        )}
+                        {canEdit && onDeleteOrder && (
+                          <button onClick={() => onDeleteOrder(o.id)} className="w-7 h-7 rounded-lg hover:bg-red-50 text-stone-400 hover:text-red-600 flex items-center justify-center cursor-pointer border-none bg-transparent"><Trash2 className="w-4 h-4" /></button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           {/* SPV — società veicolo + cap table */}

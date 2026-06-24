@@ -737,7 +737,13 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
     return base;
   }, [activeInvoices, passiveInvoices, matericoRequests, unicoDeals]);
 
-  const consolidatedBooks = useMemo(() => consolidato(companyBooks), [companyBooks]);
+  // Giri interni (commesse interne intercompany): elisi dal totale di gruppo.
+  const intercompanyTotals = useMemo(() => ({
+    ricavi: activeInvoices.filter((i) => i.intercompany).reduce((s, i) => s + (i.amount || 0), 0),
+    costi: passiveInvoices.filter((p) => p.intercompany).reduce((s, p) => s + (p.amount || 0), 0),
+  }), [activeInvoices, passiveInvoices]);
+
+  const consolidatedBooks = useMemo(() => consolidato(companyBooks, intercompanyTotals), [companyBooks, intercompanyTotals]);
 
   // Piano SAL derivato dalla parcella: quote uguali sulle fasi del progetto.
   const salPlanForProject = (proj: Project) => {
