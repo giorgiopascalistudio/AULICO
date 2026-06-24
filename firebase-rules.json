@@ -1,0 +1,472 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "users": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || !root.child('users').exists())",
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+        ".write": "auth != null && (!root.child('users').exists() || auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+        "role": {
+          ".validate": "root.child('users').child(auth.uid).child('role').val() == 'admin' || auth.token.email == 'giorgio.pascali990@gmail.com' || !root.child('users').exists() || newData.val() == data.val() || (auth.uid == $uid && newData.val() == 'cliente') || (root.child('users').child(auth.uid).child('role').val() == 'manager' && newData.val() != 'admin')"
+        },
+        "active": {
+          ".validate": "root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || auth.token.email == 'giorgio.pascali990@gmail.com' || !root.child('users').exists() || newData.val() == data.val() || newData.val() == false"
+        },
+        "status": {
+          ".validate": "root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || auth.token.email == 'giorgio.pascali990@gmail.com' || newData.val() == 'pending' || newData.val() == 'rejected' || newData.val() == data.val() || (newData.val() == 'approved' && newData.parent().child('role').val() == 'cliente')"
+        }
+      }
+    },
+
+    "projects": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+      "$pid": {
+        ".read": "auth != null && data.child('clientUid').val() == auth.uid"
+      }
+    },
+
+    "tasks": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+    },
+
+    "templates": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+
+    "projectsInternal": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+    },
+
+    "estimates": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+    },
+
+    "studioFinance": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+
+    "finComputi": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+    "finInvoicesActive": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+    "finInvoicesPassive": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+    "finScadenze": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+    "finBank": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+
+    "crmLeads": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+    "crmSuppliers": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+    },
+
+    "unicoDeals": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+
+    "unicoShowcase": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+
+    "unicoInvestorPositions": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && (auth.uid == $uid || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'))"
+      }
+    },
+
+    "mktEvents": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      "$id": {
+        ".read": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner') || data.child('invitees').child(auth.uid).exists())",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+        "invitees": {
+          "$iuid": {
+            ".write": "auth != null && ($iuid == auth.uid || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'))"
+          }
+        }
+      }
+    },
+
+    "mktCampaigns": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktSurveys": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktSurveyResponses": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      "$sid": {
+        "$uid": {
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": "auth != null && (auth.uid == $uid || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'))"
+        }
+      }
+    },
+
+    "mktSocial": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktContracts": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+
+    "mktTimeEntries": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktAssets": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktDeliverables": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktProofs": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktLeads": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktFlows": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktSeo": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktAds": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktMetrics": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktInbox": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktConsents": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktProjects": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+    },
+
+    "mktInvitesIndex": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+      }
+    },
+
+    "appointments": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$id": {
+        ".read": "auth != null && (data.child('createdBy').val() == auth.uid || data.child('ownerUid').val() == auth.uid || data.child('participants').child(auth.uid).exists())",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || (!data.exists() && newData.child('createdBy').val() == auth.uid))",
+        "participants": {
+          "$puid": {
+            ".write": "auth != null && $puid == auth.uid"
+          }
+        }
+      }
+    },
+
+    "directory": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true"
+    },
+
+    "documents": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$pid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('projects').child($pid).child('clientUid').val() == auth.uid)",
+        "$doc": {
+          ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || (root.child('projects').child($pid).child('clientUid').val() == auth.uid && !data.exists()))"
+        }
+      }
+    },
+
+    "projectMessages": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$pid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('projects').child($pid).child('clientUid').val() == auth.uid)",
+        "$msg": {
+          ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || (root.child('projects').child($pid).child('clientUid').val() == auth.uid && ((!data.exists() && newData.child('from').val() == auth.uid) || (data.exists() && !newData.exists() && data.child('from').val() == auth.uid && now - data.child('at').val() < 60000))))"
+        }
+      }
+    },
+
+    "projectFurnishings": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$pid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('projects').child($pid).child('clientUid').val() == auth.uid)",
+        ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || root.child('projects').child($pid).child('clientUid').val() == auth.uid)"
+      }
+    },
+
+    "projectMoodboard3d": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$pid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('projects').child($pid).child('clientUid').val() == auth.uid)",
+        ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || root.child('projects').child($pid).child('clientUid').val() == auth.uid)"
+      }
+    },
+
+    "projectEconomics": {
+      "$pid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('projects').child($pid).child('clientUid').val() == auth.uid)",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+      }
+    },
+
+    "cantieri": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$cid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || data.child('partnerUids').child(auth.uid).val() == true)",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+      }
+    },
+
+    "cantiereRapportini": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$cid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true)",
+        "$id": {
+          ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || (root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true && (newData.child('partnerUid').val() == auth.uid || (!newData.exists() && data.child('partnerUid').val() == auth.uid))))",
+          "status": {
+            ".validate": "newData.val() == 'inviato' || newData.val() == 'rifiutato' || (newData.val() == 'approvato' && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente')"
+          },
+          "approvedBy": {
+            ".validate": "root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+          }
+        }
+      }
+    },
+
+    "cantierePresenze": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$cid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true)",
+        "$id": {
+          ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || (root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true && (newData.child('partnerUid').val() == auth.uid || (!newData.exists() && data.child('partnerUid').val() == auth.uid))))"
+        }
+      }
+    },
+
+    "cantiereFoto": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$cid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true)",
+        "$id": {
+          ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || (root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true && (newData.child('by').val() == auth.uid || (!newData.exists() && data.child('by').val() == auth.uid))))"
+        }
+      }
+    },
+
+    "cantiereMateriali": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$cid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true)",
+        "$id": {
+          ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || (root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true && (newData.child('by').val() == auth.uid || (!newData.exists() && data.child('by').val() == auth.uid))))"
+        }
+      }
+    },
+
+    "cantiereDocumenti": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$cid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true)",
+        "$id": {
+          ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || (root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true && (newData.child('by').val() == auth.uid || (!newData.exists() && data.child('by').val() == auth.uid))))"
+        }
+      }
+    },
+
+    "cantiereChecklist": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$cid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true)",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+      }
+    },
+
+    "cantiereSal": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$cid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true)",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+      }
+    },
+
+    "cantiereLog": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$cid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true)",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+      }
+    },
+
+    "partnerCantieri": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('active').val() == true)",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+      }
+    },
+
+    "cantiereRecords": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$cid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true)",
+        "$id": {
+          ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || (root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true && (newData.child('by').val() == auth.uid || (!newData.exists() && data.child('by').val() == auth.uid))))"
+        }
+      }
+    },
+
+    "cantiereMessages": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$cid": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true)",
+        "$id": {
+          ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || (root.child('cantieri').child($cid).child('partnerUids').child(auth.uid).val() == true && ((!data.exists() && newData.child('from').val() == auth.uid) || (data.exists() && !newData.exists() && data.child('from').val() == auth.uid && now - data.child('at').val() < 60000))))"
+        }
+      }
+    },
+
+    "impresaDocs": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('active').val() == true)",
+        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      }
+    },
+
+    "impresaRecords": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('active').val() == true)",
+        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      }
+    },
+
+    "clients": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && (auth.uid == $uid || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'))"
+      }
+    },
+
+    "clientRequests": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      }
+    },
+
+    "teamLeave": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$id": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && (newData.child('uid').val() == auth.uid || (!newData.exists() && data.child('uid').val() == auth.uid) || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      }
+    },
+
+    "quotes": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+    },
+
+    "trash": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+    },
+
+    "matericoRequests": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$id": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || data.child('clientUid').val() == auth.uid || data.child('forwardedTo').child(auth.uid).val() == true)",
+        ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || (!data.exists() && newData.child('clientUid').val() == auth.uid))",
+        "offers": {
+          "$ouid": {
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || (root.child('matericoRequests').child($id).child('forwardedTo').child(auth.uid).val() == true && $ouid == auth.uid))"
+          }
+        },
+        "status": {
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('matericoRequests').child($id).child('clientUid').val() == auth.uid || root.child('matericoRequests').child($id).child('forwardedTo').child(auth.uid).val() == true)"
+        }
+      }
+    },
+
+    "partnerMaterico": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('active').val() == true)",
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+      }
+    },
+
+    "clientMaterico": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('active').val() == true)",
+        ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Manuali operativi MODULI (PDF pesanti ~130MB) — riferimento locale, non servono a build/deploy
+MODULI/*.pdf
+
+# Prototipo moodboard 3D + libreria texture PBR (~3.7GB) — i sorgenti sono integrati in
+# src/components/moodboard3d/; il prototipo grezzo e le texture restano fuori dal repo/deploy
+moodboard-3d/

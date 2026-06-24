@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Zoom disabilitato (pinch/double-tap); il blocco desktop (ctrl+rotella/+/-) è in main.tsx -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Onirico Studio OS</title>
+    <meta name="description" content="Onirico Studio OS — gestionale dello studio Onirico: progetti, cantieri, finanza, CRM e portale clienti." />
+    <!-- Icona app: tab browser + "Aggiungi a Home" su iOS/Android -->
+    <link rel="icon" type="image/jpeg" href="/apple-touch-icon.jpg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.jpg" />
+    <meta name="apple-mobile-web-app-title" content="Onirico OS" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#161616" />
+    <!-- Preconnect: font Typekit + endpoint Firebase (auth + Realtime DB) → handshake anticipato su mobile -->
+    <link rel="preconnect" href="https://use.typekit.net" crossorigin />
+    <link rel="preconnect" href="https://p.typekit.net" crossorigin />
+    <link rel="preconnect" href="https://oniricoapp-48953-default-rtdb.europe-west1.firebasedatabase.app" />
+    <link rel="preconnect" href="https://identitytoolkit.googleapis.com" />
+    <link rel="preconnect" href="https://securetoken.googleapis.com" />
+    <!-- CSS Typekit caricato in modo NON bloccante (media="print" → "all" all'onload); fallback per no-JS -->
+    <link rel="stylesheet" href="https://use.typekit.net/nqt2bdv.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://use.typekit.net/nqt2bdv.css" /></noscript>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
