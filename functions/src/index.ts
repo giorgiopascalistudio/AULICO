@@ -2,7 +2,7 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  *
- * Cloud Functions — automazioni Onirico Studio OS.
+ * Cloud Functions — automazioni Aulico.
  *  - onQuoteStatusChange : notifica + email quando un preventivo passa ad "accettato".
  *  - dailyReminders      : reminder ferie (7 gg prima) e scadenze finanziarie (entro 3 gg).
  *  - weeklyReport        : report attività completate per collaboratore (lunedì).

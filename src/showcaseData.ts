@@ -29,7 +29,7 @@ export interface ServiceShowcase {
 export const SHOWCASE_SERVICES: ServiceShowcase[] = [
   {
     key: 'studio',
-    name: 'Studio',
+    name: 'Onirico',
     color: '#161616',
     tagline: 'Architettura · Ingegneria',
     intro: 'Dal sopralluogo al collaudo: progettiamo e seguiamo ogni pratica edilizia, dando forma a spazi che parlano di te.',
@@ -93,7 +93,7 @@ export const SHOWCASE_SERVICES: ServiceShowcase[] = [
 export const SHOWCASE_SERVICES_EN: ServiceShowcase[] = [
   {
     key: 'studio',
-    name: 'Studio',
+    name: 'Onirico',
     color: '#161616',
     tagline: 'Architecture · Engineering',
     intro: 'From survey to handover: we design and follow every building project, giving shape to spaces that speak of you.',

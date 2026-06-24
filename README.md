@@ -1,4 +1,4 @@
-# Onirico Studio OS
+# Aulico
 
 Gestionale dello studio (React + Vite + Tailwind + Three.js) con **login Google +
 controllo accessi** e **tutti i dati condivisi sul Realtime Database** del progetto

@@ -17,7 +17,7 @@ import { Project, Furnishing, MatericoRequest, UnicoDeal } from './types';
 export type Company = 'studio' | 'strategico' | 'materico' | 'unico';
 
 export const COMPANY_LABEL: Record<Company, string> = {
-  studio: 'Studio',
+  studio: 'Onirico',
   strategico: 'Strategico',
   materico: 'Materico',
   unico: 'Unico'

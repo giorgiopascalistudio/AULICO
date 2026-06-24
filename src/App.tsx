@@ -187,7 +187,7 @@ const ViewLoader: React.FC = () => (
 
 // Metadati divisioni (settori): il modale "nuova commessa" si adatta al settore selezionato in Progetti.
 const DIVISION_META: Record<'studio' | 'strategico' | 'materico' | 'unico', { label: string; color: string; desc: string; cta: string }> = {
-  studio: { label: 'Studio', color: '#161616', desc: 'Architettura, pratiche edilizie e catasto', cta: 'Crea pratica Studio' },
+  studio: { label: 'Onirico', color: '#161616', desc: 'Architettura, pratiche edilizie e catasto', cta: 'Crea pratica Onirico' },
   strategico: { label: 'Strategico', color: '#b45309', desc: 'Marketing, brand e campagne', cta: 'Crea progetto Strategico' },
   materico: { label: 'Materico', color: '#c2410c', desc: 'Forniture e posa con partner', cta: 'Crea commessa Materico' },
   unico: { label: 'Unico', color: '#4338ca', desc: 'Atelier di lusso su misura', cta: 'Crea progetto Unico' }
@@ -3391,7 +3391,7 @@ export default function App() {
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-stone-300 border-t-[#161616] animate-spin" />
           <span className="text-[12px] font-bold uppercase tracking-wider text-stone-400">
-            Onirico Studio OS
+            Aulico
           </span>
         </div>
       </div>
@@ -3431,7 +3431,7 @@ export default function App() {
         <div className="min-h-screen bg-[#F5F5F3] p-8 flex flex-col justify-center items-center select-none font-sans">
           <div className="w-full max-w-[440px] mx-auto text-center animate-[popIn_0.35s_ease_both]">
             <h1 className="font-black text-[30px] tracking-tight text-[#161616]">
-              Onirico Studio <span className="text-stone-400 font-light">· OS</span>
+              Aulico
             </h1>
             <div className="bg-white border border-[#e2e2e2] rounded-[24px] shadow-sm p-7 mt-6 flex flex-col items-center gap-3">
               <div className="w-12 h-12 rounded-full flex items-center justify-center bg-red-50 text-red-600">
@@ -4167,7 +4167,7 @@ export default function App() {
     if (route === 'interactive') return 'Premium UI';
     if (route === 'progetto' && routeParam && projects[routeParam]) return projects[routeParam].name;
     const item = ['dashboard', 'calendario', 'progetti', 'documenti', 'finanze', 'team'].find(r => r === route);
-    return item ? item : 'Studio OS';
+    return item ? item : 'Aulico';
   };
 
   // Controllo accessi (admin)

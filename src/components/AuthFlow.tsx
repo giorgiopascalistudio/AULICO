@@ -277,7 +277,7 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
         videoUrl={LANDING_SHOWCASE.videoUrl}
         poster={LANDING_SHOWCASE.poster}
         scenes={lang === 'en' ? LANDING_SHOWCASE.scenesEn : LANDING_SHOWCASE.scenes}
-        brand="ONIRICO"
+        brand="AULICO"
         brandLogo={LANDING_SHOWCASE.logoUrl}
         brandSub={t('auth.landing.brandSub')}
         cornerSlot={<LangToggle />}

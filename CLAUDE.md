@@ -1,4 +1,4 @@
-# CLAUDE.md — Onirico Studio OS
+# CLAUDE.md — Aulico (ex Onirico Studio OS)
 
 Contesto progetto per Claude Code. Leggere **tutto** prima di modificare.
 

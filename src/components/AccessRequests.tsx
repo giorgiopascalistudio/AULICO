@@ -31,7 +31,7 @@ const ROLES: { value: UserRole; label: string }[] = [
 ];
 
 const SECTORS = [
-  { value: 'studio', label: 'Studio (Architettura)' },
+  { value: 'studio', label: 'Onirico (Architettura)' },
   { value: 'strategico', label: 'Strategico (Marketing)' },
   { value: 'materico', label: 'Materico (Finiture)' }
 ];

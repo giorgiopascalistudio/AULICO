@@ -21,7 +21,7 @@ import { safeUrl } from '../utils';
 const Moodboard3D = lazy(() => import('./moodboard3d/Moodboard3D'));
 
 const DIV_META: Record<string, { name: string; sub: string; icon: React.ComponentType<{ className?: string }> }> = {
-  studio: { name: 'Studio', sub: 'Architettura & Ingegneria', icon: Building2 },
+  studio: { name: 'Onirico', sub: 'Architettura & Ingegneria', icon: Building2 },
   materico: { name: 'Materico', sub: 'Forniture & Posa', icon: Boxes },
   strategico: { name: 'Strategico', sub: 'Marketing & Brand', icon: Megaphone },
   unico: { name: 'Unico', sub: 'Atelier immobiliare', icon: Home },

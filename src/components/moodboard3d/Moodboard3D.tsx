@@ -2,7 +2,7 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  *
- * Moodboard3D — editor moodboard 3D (R3F) integrato in Onirico Studio OS.
+ * Moodboard3D — editor moodboard 3D (R3F) integrato in Aulico.
  * Adattato dal prototipo (moodboard-3d): stesse funzionalità (libreria materiali, forme, luci,
  * gizmo sposta/ruota/scala, collisioni, upload texture/modelli, palette, preset scena, export PNG).
  * Differenze rispetto al prototipo:

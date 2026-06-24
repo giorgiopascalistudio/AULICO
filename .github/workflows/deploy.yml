@@ -1,4 +1,4 @@
-name: Deploy Onirico Studio OS to GitHub Pages
+name: Deploy Aulico to GitHub Pages
 
 on:
   push:
