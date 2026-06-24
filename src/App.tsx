@@ -82,8 +82,12 @@ import {
   MktInboxItem,
   MktConsent,
   MktProject,
-  RsvpStatus
+  RsvpStatus,
+  AccessMap,
+  AccessLevel,
 } from './types';
+
+import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, canAdmin, canAnywhere } from './access';
 
 import {
   SEED_USERS,
@@ -1374,7 +1378,9 @@ export default function App() {
     if (!currentUser) return;
     const role = currentUser.role;
     const studio = isStudioRole(role);
-    const canFinance = role === 'admin' || role === 'manager';
+    // RBAC: finanza = almeno "view" sul modulo finance di una società.
+    // Per gli utenti legacy (senza `access`) equivale ad admin|manager.
+    const canFinance = canAnywhere(currentUser, 'view', 'finance');
     const subs: Array<() => void> = [];
     const add = (path: string, fn: (v: any) => void) =>
       subs.push(watchNode(path, (v) => fn(v || {}), () => {}));
@@ -2060,6 +2066,8 @@ export default function App() {
   const [nuTitle, setNuTitle] = useState('');
   const [nuFns, setNuFns] = useState<string[]>([]);
   const [nuActive, setNuActive] = useState(true);
+  // RBAC granulare per-società (vuoto ⇒ usa il fallback dal ruolo)
+  const [nuAccess, setNuAccess] = useState<AccessMap>({});
 
   // Client description modal
   const [descModalOpen, setDescModalOpen] = useState(false);
@@ -3112,7 +3120,9 @@ export default function App() {
       role,
       title: nuTitle.trim() || undefined,
       functions: nuFns.length ? nuFns : undefined,
-      active: isPortal ? false : nuActive
+      active: isPortal ? false : nuActive,
+      // RBAC: salva solo se assegnato e per ruoli interni; altrimenti fallback al ruolo
+      access: !isPortal && nuAccess && Object.keys(nuAccess).length > 0 ? nuAccess : undefined,
     };
     setUsers(prev => {
       const next = { ...prev, [editUserId]: updated };
@@ -3792,7 +3802,7 @@ export default function App() {
             moodboard3d={moodboard3d}
             onSaveMoodboard3d={handleSaveMoodboard3d}
             onToggleStudioManagesMobili={handleToggleStudioManagesMobili}
-            isInternalBoss={currentUser.role === 'admin' || currentUser.role === 'manager'}
+            isInternalBoss={canAdmin(currentUser, 'strategico')}
             myUid={currentUser.uid}
             finance={Object.values(finances)}
             finComputi={finComputi}
@@ -4039,6 +4049,7 @@ export default function App() {
               setNuTitle(u.title || '');
               setNuFns(u.functions || []);
               setNuActive(u.active !== false);
+              setNuAccess(u.access || {});
               setEditUserOpen(true);
             }}
             onUserMenu={(uid, button) => {
@@ -4053,6 +4064,7 @@ export default function App() {
               setNuTitle(u.title || '');
               setNuFns(u.functions || []);
               setNuActive(u.active !== false);
+              setNuAccess(u.access || {});
               setEditUserOpen(true);
             }}
             onNav={(r) => {
@@ -4173,7 +4185,8 @@ export default function App() {
   // Controllo accessi (admin)
   const isAdmin = currentUser.role === 'admin';
   // Gestione accessi (approvazione Team): admin e manager.
-  const canManageAccess = currentUser.role === 'admin' || currentUser.role === 'manager';
+  // RBAC: gestione accessi = "admin" sulla holding (per i legacy = admin|manager).
+  const canManageAccess = canAdmin(currentUser, 'holding');
   const pendingAccounts = Object.values(accounts).filter((a: any) => a?.status === 'pending') as UserProfile[];
   const approvedAccounts = Object.values(accounts).filter((a: any) => a?.status === 'approved') as UserProfile[];
 
@@ -5676,6 +5689,52 @@ export default function App() {
               </span>
               <input type="checkbox" checked={nuActive} onChange={(e) => setNuActive(e.target.checked)} />
             </label>
+          )}
+
+          {nuRole !== 'cliente' && nuRole !== 'partner' && (
+            <div className="flex flex-col gap-2 p-3 rounded-xl border border-[#e2e2e2] bg-[#fafafa]">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Permessi per società</span>
+                {Object.keys(nuAccess).length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setNuAccess({})}
+                    className="text-[11px] font-bold text-[#b45309] hover:underline cursor-pointer bg-transparent border-none p-0"
+                  >
+                    Ripristina dal ruolo
+                  </button>
+                )}
+              </div>
+              <p className="text-[11px] text-[#8a8a8a] -mt-1">
+                Lascia "Predefinito" per usare i permessi del ruolo. Imposta un livello per dare accesso mirato a una società.
+              </p>
+              {SOCIETA.map((s) => {
+                const cur = nuAccess[s]?.default;
+                return (
+                  <div key={s} className="grid grid-cols-2 items-center gap-2">
+                    <span className="text-[12.5px] font-semibold text-[#161616]">{SOCIETA_LABEL[s]}</span>
+                    <select
+                      value={cur || ''}
+                      onChange={(e) => {
+                        const val = e.target.value as AccessLevel | '';
+                        setNuAccess((prev) => {
+                          const next: AccessMap = { ...prev };
+                          if (!val) delete next[s];
+                          else next[s] = { ...(next[s] || {}), default: val };
+                          return next;
+                        });
+                      }}
+                      className="select border border-[#e2e2e2] rounded-xl h-9 px-2 text-[12.5px] bg-white"
+                    >
+                      <option value="">Predefinito (dal ruolo)</option>
+                      {LEVELS.map((lv) => (
+                        <option key={lv} value={lv}>{LEVEL_LABEL[lv]}</option>
+                      ))}
+                    </select>
+                  </div>
+                );
+              })}
+            </div>
           )}
 
           <button onClick={handleSaveEditUser} className="py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[13px] cursor-pointer border-none w-full mt-1">

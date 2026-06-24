@@ -16,6 +16,9 @@
         },
         "status": {
           ".validate": "root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || auth.token.email == 'giorgio.pascali990@gmail.com' || newData.val() == 'pending' || newData.val() == 'rejected' || newData.val() == data.val() || (newData.val() == 'approved' && newData.parent().child('role').val() == 'cliente')"
+        },
+        "access": {
+          ".validate": "root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || auth.token.email == 'giorgio.pascali990@gmail.com' || newData.val() == data.val()"
         }
       }
     },
