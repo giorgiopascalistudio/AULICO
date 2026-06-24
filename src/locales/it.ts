@@ -141,7 +141,7 @@ export const it = {
 
   // —— Etichette/slogan per divisione del portale ————————————————————————
   'ps.studio.slogan': 'Portale Cliente · Architettura',
-  'ps.studio.label': 'Studio Architettura',
+  'ps.studio.label': 'Onirico Architettura',
   'ps.strategico.slogan': 'Growth & Brand Portal',
   'ps.strategico.label': 'Strategia & Growth',
   'ps.materico.slogan': 'Selezione Finiture & Arredi',

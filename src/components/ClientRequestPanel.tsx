@@ -30,7 +30,7 @@ type Division = 'studio' | 'materico' | 'strategico' | 'unico';
 
 // name = brand (uguale in IT/EN); sub/desc tradotti via t('div.<key>.sub|desc')
 const DIVISIONS: { key: Division; name: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { key: 'studio', name: 'Studio', icon: Building2 },
+  { key: 'studio', name: 'Onirico', icon: Building2 },
   { key: 'materico', name: 'Materico', icon: Boxes },
   { key: 'strategico', name: 'Strategico', icon: Megaphone },
   { key: 'unico', name: 'Unico', icon: Home },

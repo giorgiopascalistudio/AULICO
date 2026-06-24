@@ -36,7 +36,7 @@ export const GoogleLogin: React.FC<GoogleLoginProps> = ({ onError }) => {
       <div className="w-full max-w-[400px] mx-auto animate-[popIn_0.35s_ease_both]">
         <div className="text-center mb-8">
           <h1 className="font-black text-[30px] tracking-tight text-[#161616]">
-            Onirico Studio <span className="text-stone-400 font-light">· OS</span>
+            Aulico
           </h1>
           <p className="text-[13.5px] text-stone-500 mt-2.5 font-medium">
             Accedi con il tuo account Google per entrare nel gestionale.
@@ -64,7 +64,7 @@ export const GoogleLogin: React.FC<GoogleLoginProps> = ({ onError }) => {
         </div>
 
         <div className="text-center mt-8 text-[11px] text-stone-400 font-bold tracking-wide uppercase">
-          Onirico Studio OS · Accesso riservato 2026
+          Aulico · Accesso riservato 2026
         </div>
       </div>
     </div>

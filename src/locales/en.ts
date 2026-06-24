@@ -139,7 +139,7 @@ export const en: Record<keyof typeof it, string> = {
 
   // —— Portal labels/slogans by division —————————————————————————————————
   'ps.studio.slogan': 'Client Portal · Architecture',
-  'ps.studio.label': 'Architecture Studio',
+  'ps.studio.label': 'Onirico Architecture',
   'ps.strategico.slogan': 'Growth & Brand Portal',
   'ps.strategico.label': 'Strategy & Growth',
   'ps.materico.slogan': 'Finishes & Furnishings Selection',

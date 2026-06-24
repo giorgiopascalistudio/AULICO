@@ -2287,7 +2287,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           {/* Brand Division Workspace Selector */}
           <div className="flex items-center bg-[#161616] border border-neutral-800 p-[3px] rounded-full gap-[2px] w-full sm:w-auto relative z-10">
             {([
-              { id: 'studio', label: 'STUDIO' },
+              { id: 'studio', label: 'ONIRICO' },
               { id: 'strategico', label: 'STRATEGICO' },
               { id: 'materico', label: 'MATERICO' },
               { id: 'unico', label: 'UNICO' }
@@ -2583,7 +2583,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               strategico: { bg: '#b45309', label: 'Strategico' },
               materico: { bg: '#c2410c', label: 'Materico' },
               unico: { bg: '#4338ca', label: 'Unico' }
-            } as any)[p.division as any]) || { bg: '#161616', label: 'Studio' };
+            } as any)[p.division as any]) || { bg: '#161616', label: 'Onirico' };
 
             if (viewMode === 'grid') {
               return (

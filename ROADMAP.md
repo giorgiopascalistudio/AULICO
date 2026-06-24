@@ -1,4 +1,4 @@
-# Onirico Studio OS — Roadmap integrazioni
+# Aulico — Roadmap integrazioni
 
 Legenda: ✅ già presente · 🟢 costruibile subito (solo app + Firebase) ·
 🟡 richiede backend/servizio esterno (server, OAuth o provider terzo).
