@@ -68,9 +68,9 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Topbar */}
       <div className="flex md:hidden items-center justify-between gap-4 px-[18px] py-[14px] bg-white border-b border-[#ececec] sticky top-0 z-[40]">
         <div className="flex items-center gap-2">
-          {/* Customized Logo with styled Onirico font */}
+          {/* Logo piattaforma */}
           <span className="font-extrabold text-[18px] tracking-tight text-[#161616] font-sans antialiased">
-            Onirico<span className="text-[#8a8a8a] font-normal"> · OS</span>
+            Aulico
           </span>
         </div>
 
