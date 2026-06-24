@@ -24,8 +24,9 @@ import {
   FileCheck 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { UserProfile, Project, Task } from '../types';
+import { UserProfile, Project, Task, PointEvent } from '../types';
 import { initials } from '../utils';
+import { leaderboard, tierFor, nextTier, catalogFor, POINT_CATALOG } from '../points';
 
 interface TeamViewProps {
   users: Record<string, UserProfile>;
@@ -40,6 +41,11 @@ interface TeamViewProps {
   onPreviewClient: (uid: string) => void;
   myUid: string;
   tasks?: Task[];
+  // Incentivi & Point system
+  pointEvents?: PointEvent[];
+  canAssignPoints?: boolean;
+  onAddPoints?: (ev: PointEvent) => void;
+  onDeletePoints?: (uid: string, id: string) => void;
 }
 
 export const TeamView: React.FC<TeamViewProps> = ({
@@ -54,7 +60,11 @@ export const TeamView: React.FC<TeamViewProps> = ({
   onNav,
   onPreviewClient,
   myUid,
-  tasks = []
+  tasks = [],
+  pointEvents = [],
+  canAssignPoints = false,
+  onAddPoints,
+  onDeletePoints
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -339,6 +349,18 @@ export const TeamView: React.FC<TeamViewProps> = ({
       {/* DASHBOARD PRODUTTIVITÀ (solo team) */}
       {peopleTab === 'team' && (
         <ProductivityDashboard members={teamList} tasks={tasks} />
+      )}
+
+      {/* INCENTIVI & POINT SYSTEM (team e partner) */}
+      {(peopleTab === 'team' || peopleTab === 'partner') && (
+        <IncentivesBoard
+          members={peopleTab === 'team' ? teamList : partnersList}
+          audience={peopleTab === 'team' ? 'team' : 'partner'}
+          pointEvents={pointEvents}
+          canAssign={canAssignPoints}
+          onAddPoints={onAddPoints}
+          onDeletePoints={onDeletePoints}
+        />
       )}
 
       {/* RENDER GRID MODE */}
@@ -1002,6 +1024,121 @@ export const TeamView: React.FC<TeamViewProps> = ({
           </div>
         </motion.div>
       )}
+    </div>
+  );
+};
+
+// ---- Incentivi & Point system: classifica + assegnazione ----
+const IncentivesBoard: React.FC<{
+  members: any[];
+  audience: 'team' | 'partner';
+  pointEvents: PointEvent[];
+  canAssign: boolean;
+  onAddPoints?: (ev: PointEvent) => void;
+  onDeletePoints?: (uid: string, id: string) => void;
+}> = ({ members, audience, pointEvents, canAssign, onAddPoints, onDeletePoints }) => {
+  const [assignFor, setAssignFor] = useState<any | null>(null);
+  const [actId, setActId] = useState('');
+  const [note, setNote] = useState('');
+  const [custom, setCustom] = useState('');
+
+  const uids = members.map((m) => m.uid);
+  const board = leaderboard(pointEvents, uids);
+  const nameOf = (uid: string) => members.find((m) => m.uid === uid)?.name || '—';
+  const cat = catalogFor(audience);
+
+  const submit = () => {
+    if (!assignFor || !actId || !onAddPoints) return;
+    const act = POINT_CATALOG.find((a) => a.id === actId);
+    if (!act) return;
+    const points = act.id === 'manual' ? (parseInt(custom, 10) || 0) : act.points;
+    onAddPoints({
+      id: `pt-${Date.now()}-${Math.floor(Math.random() * 900)}`,
+      uid: assignFor.uid,
+      activityId: act.id,
+      label: act.id === 'manual' ? (note.trim() || 'Assegnazione manuale') : act.label,
+      points,
+      date: new Date().toISOString().slice(0, 10),
+      note: note.trim() || null,
+      createdAt: Date.now(),
+    });
+    setAssignFor(null); setActId(''); setNote(''); setCustom('');
+  };
+
+  return (
+    <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-5 mb-5">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="inline-flex items-center gap-2 text-[14.5px] font-extrabold text-[#161616]">
+          <ShieldCheck className="w-4.5 h-4.5" /> {audience === 'team' ? 'Incentivi & classifica' : 'Affidabilità & classifica partner'}
+        </h3>
+        <span className="text-[11.5px] text-[#8a8a8a]">{audience === 'team' ? 'Produttività/qualità → bonus' : 'Puntualità/precisione → affidabilità'}</span>
+      </div>
+      {board.length === 0 ? (
+        <p className="text-[12.5px] text-[#8a8a8a]">Nessun iscritto.</p>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          {board.map((row, i) => {
+            const tier = tierFor(row.points);
+            const nt = nextTier(row.points);
+            return (
+              <div key={row.uid} className="flex items-center gap-3 px-3 py-2 rounded-xl border border-[#ececec] hover:bg-[#fafafa]">
+                <span className="w-6 text-center text-[13px] font-extrabold text-[#8a8a8a]">{i + 1}</span>
+                <div className="w-8 h-8 rounded-full bg-[#161616] text-white flex items-center justify-center text-[11px] font-bold shrink-0">{initials(nameOf(row.uid))}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[13px] font-bold text-[#161616] truncate">{nameOf(row.uid)}</div>
+                  <div className="text-[11px] text-[#8a8a8a]">
+                    <span className="font-bold" style={{ color: tier.color }}>{tier.label}</span>
+                    {audience === 'team' && tier.bonusPct ? ` · bonus ${tier.bonusPct}%` : ''}
+                    {nt ? ` · ${nt.remaining} pt a ${nt.tier.label}` : ' · max'}
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-[15px] font-extrabold text-[#161616]">{row.points}</div>
+                  <div className="text-[10.5px] text-[#8a8a8a]">{row.events} eventi</div>
+                </div>
+                {canAssign && (
+                  <button onClick={() => setAssignFor(members.find((m) => m.uid === row.uid))}
+                    className="text-[11.5px] font-bold px-2.5 py-1.5 rounded-lg bg-[#161616] text-white cursor-pointer border-none hover:bg-black shrink-0">+ Punti</button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Modale assegnazione */}
+      <AnimatePresence>
+        {assignFor && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setAssignFor(null)}>
+            <motion.div initial={{ y: 20, scale: 0.98 }} animate={{ y: 0, scale: 1 }} exit={{ y: 20, opacity: 0 }} onClick={(e) => e.stopPropagation()}
+              className="bg-white w-full max-w-[440px] rounded-[24px] shadow-2xl p-6 flex flex-col gap-3 text-left">
+              <b className="text-[15px] tracking-tight">Assegna punti a {assignFor.name}</b>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Attività</span>
+                <select value={actId} onChange={(e) => setActId(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[13.5px]">
+                  <option value="">Seleziona…</option>
+                  {cat.map((a) => <option key={a.id} value={a.id}>{a.label}{a.id !== 'manual' ? ` (${a.points >= 0 ? '+' : ''}${a.points})` : ''}</option>)}
+                </select>
+              </label>
+              {actId === 'manual' && (
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Punti (anche negativi)</span>
+                  <input type="number" value={custom} onChange={(e) => setCustom(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
+                </label>
+              )}
+              <label className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Nota (opzionale)</span>
+                <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Motivazione…" className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
+              </label>
+              <div className="flex gap-2 mt-1">
+                <button onClick={() => setAssignFor(null)} className="flex-1 py-2.5 rounded-xl bg-[#f0f0f0] text-[#161616] font-bold text-[13px] cursor-pointer border-none">Annulla</button>
+                <button onClick={submit} disabled={!actId} className="flex-1 py-2.5 rounded-xl bg-[#1b1b1b] text-white font-bold text-[13px] cursor-pointer border-none disabled:opacity-40">Assegna</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

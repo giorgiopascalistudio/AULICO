@@ -86,6 +86,7 @@ import {
   AccessMap,
   AccessLevel,
   InternalOrder,
+  PointEvent,
 } from './types';
 
 import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, canAdmin, canAnywhere } from './access';
@@ -345,6 +346,8 @@ export default function App() {
   const [unicoDeals, setUnicoDeals] = useState<UnicoDeal[]>([]);
   // Commesse interne (intercompany) — nodo internalOrders
   const [internalOrders, setInternalOrders] = useState<InternalOrder[]>([]);
+  // Incentivi & Point system — eventi punti (nodo pointEvents/<uid>/<id>)
+  const [pointEvents, setPointEvents] = useState<PointEvent[]>([]);
   // Vetrina Unico pubblicata (snapshot pubblici dei deal `published`, nodo `unicoShowcase`)
   const [unicoShowcase, setUnicoShowcase] = useState<Record<string, UnicoShowcaseEntry>>({});
   // Posizioni private del singolo investitore (nodo unicoInvestorPositions/<uid>), lato portale
@@ -1510,6 +1513,12 @@ export default function App() {
       }, () => {}));
       subs.push(watchNode('unicoShowcase', (v) => setUnicoShowcase(v || {}), () => {}));
       subs.push(watchNode('internalOrders', (v) => setInternalOrders(toArr(v) as InternalOrder[]), () => {}));
+      // Point system: lo studio legge tutti gli eventi (pointEvents/<uid>/<id>)
+      subs.push(watchNode('pointEvents', (v) => {
+        const flat: PointEvent[] = [];
+        Object.values(v || {}).forEach((byUid: any) => Object.values(byUid || {}).forEach((e: any) => flat.push(e)));
+        setPointEvents(flat);
+      }, () => {}));
       // Modulo Strategico / Marketing (studio)
       subs.push(watchNode('mktEvents', (v) => setMktEvents(v || {}), () => {}));
       subs.push(watchNode('mktCampaigns', (v) => setMktCampaigns(v || {}), () => {}));
@@ -1664,6 +1673,8 @@ export default function App() {
           setMoodboard3d((m) => ({ ...m, [pid]: v || {} }));
         }, () => {}));
       });
+      // Point system: il portale legge i propri eventi punti (pointEvents/<uid>)
+      subs.push(watchNode(`pointEvents/${currentUser.uid}`, (v) => setPointEvents(Object.values(v || {}) as PointEvent[]), () => {}));
       // Partner: elenca i cantieri assegnati via indice inverso, poi sottoscrive per-cid.
       if (currentUser.role === 'partner') {
         const watched = new Set<string>();
@@ -3427,6 +3438,32 @@ export default function App() {
   };
 
   // ----------------------------------------------------
+  // Incentivi & Point system (pointEvents/<uid>/<id>)
+  // ----------------------------------------------------
+  const handleAddPointEvent = (ev: PointEvent) => {
+    const enriched: PointEvent = { ...ev, by: ev.by || currentUser?.uid || null, byName: ev.byName || currentUser?.name || null, createdAt: ev.createdAt || Date.now() };
+    setPointEvents((prev) => [...prev.filter((e) => e.id !== ev.id), enriched]);
+    writeNode(`pointEvents/${ev.uid}/${ev.id}`, enriched).catch((e: any) =>
+      showToast('Errore punti (regole?): ' + (e?.message || e?.code || ''), 'err'));
+    // Notifica l'interessato (anche partner)
+    pushNotification(ev.uid, {
+      type: 'punti',
+      title: `${enriched.points >= 0 ? '+' : ''}${enriched.points} punti · ${enriched.label}`,
+      body: enriched.note || '',
+      link: '#team',
+    });
+    showToast('Punti assegnati.');
+  };
+  const handleDeletePointEvent = (uid: string, id: string) => {
+    const ev = pointEvents.find((e) => e.id === id);
+    askDelete('Eliminare questa assegnazione punti?', ev ? `${ev.points >= 0 ? '+' : ''}${ev.points} · ${ev.label}` : null, () => {
+      setPointEvents((prev) => prev.filter((e) => e.id !== id));
+      removeNode(`pointEvents/${uid}/${id}`).catch(() => {});
+      showToast('Assegnazione eliminata.', 'err');
+    });
+  };
+
+  // ----------------------------------------------------
   // Preventivi studio (quotes/<id>)
   // ----------------------------------------------------
   const handleSaveQuote = (q: Quote) => {
@@ -3718,6 +3755,7 @@ export default function App() {
         onDeleteFurnishing={handleDeleteFurnishing}
         moodboard3d={moodboard3d}
         onSaveMoodboard3d={handleSaveMoodboard3d}
+        myPoints={pointEvents}
         onLogout={handleLogout}
         estimates={Object.values(estimates)}
         onSaveEstimate={handleSaveEstimate}
@@ -4251,6 +4289,10 @@ export default function App() {
             }}
             myUid={currentUser.uid}
             tasks={Object.values(tasks)}
+            pointEvents={pointEvents}
+            canAssignPoints={canManageAccess}
+            onAddPoints={handleAddPointEvent}
+            onDeletePoints={handleDeletePointEvent}
           />
         );
 

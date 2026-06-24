@@ -396,6 +396,11 @@ reporting/redditività, integrazioni esterne
   finanza della coppia intercompany (costo committente + ricavo fornitore) riusano i nodi finanza
   esistenti via il servizio `financeRecord`/`recordIntercompany` in App (marcate `intercompany` +
   `counterpartySector` per l'elisione nel consolidato di gruppo).
+  ⚠️ Aggiunto il nodo **`pointEvents/<uid>/<id>`** (Incentivi & Point system, visione Aulico — read
+  studio attivo non-cliente/non-partner per la classifica; `$uid` leggibile dal proprietario per il
+  portale partner; write admin/manager): **ripubblicare le regole**, altrimenti l'assegnazione punti
+  fallisce con "permission denied" e il portale partner non vede l'affidabilità. Catalogo attività +
+  fasce bonus + funzioni pure in **`src/points.ts`** (team→bonus, partner→affidabilità 0–100).
   ⚠️ Aggiunti i nodi del **modulo Strategico/Marketing** (§22): **`mktEvents`** (read studio + invitato
   per-`$id`; write studio; RSVP granulare `invitees/$uid`), **`mktCampaigns`** (studio), **`mktSurveys`**
   (read ogni autenticato, write studio), **`mktSurveyResponses/$sid/$uid`** (read/write proprio uid + studio),
