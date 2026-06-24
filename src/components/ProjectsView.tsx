@@ -39,7 +39,7 @@ import {
   FileSignature,
   Receipt
 } from 'lucide-react';
-import { Project, UserProfile, FinanceMovement, Template, MatericoEstimate, MatericoRequest, UnicoDeal, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, ClientRecord, Quote, Task, MarketingEvent, Campaign, Survey, SurveyResponse, SocialPost, MktContract, MktTimeEntry, MktAsset, MktDeliverable, MktProof, MktLead, MktFlow, MktSeoItem, MktAdCampaign, MktMetric, MktInboxItem, MktConsent, MktProject } from '../types';
+import { Project, UserProfile, FinanceMovement, Template, MatericoEstimate, MatericoRequest, UnicoDeal, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, ClientRecord, Quote, Task, MarketingEvent, Campaign, Survey, SurveyResponse, SocialPost, MktContract, MktTimeEntry, MktAsset, MktDeliverable, MktProof, MktLead, MktFlow, MktSeoItem, MktAdCampaign, MktMetric, MktInboxItem, MktConsent, MktProject, InternalOrder } from '../types';
 import { computoTotal, arrediTotals, studioParcella, quoteTotals, Computo, InvoiceActive, InvoicePassive, ScadenzaItem } from '../finance';
 import { QuoteEditor, emptyQuoteDraft } from './QuoteEditor';
 import { FurnishingsBoard } from './FurnishingsBoard';
@@ -123,6 +123,10 @@ interface ProjectsViewProps {
   unicoDeals?: UnicoDeal[];
   onSaveUnicoDeals?: (deals: UnicoDeal[]) => void;
   onNotifyUnicoInvestors?: (uids: string[], title: string, body: string) => void;
+  // Commesse interne (intercompany) generate dalla cascata ROE
+  internalOrders?: InternalOrder[];
+  onConfirmInternalOrder?: (id: string) => void;
+  onDeleteInternalOrder?: (id: string) => void;
   // Modulo Strategico / Marketing (divisione Strategico)
   mktEvents?: MarketingEvent[];
   mktCampaigns?: Campaign[];
@@ -278,6 +282,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   unicoDeals = [],
   onSaveUnicoDeals,
   onNotifyUnicoInvestors,
+  internalOrders = [],
+  onConfirmInternalOrder,
+  onDeleteInternalOrder,
   mktEvents = [],
   mktCampaigns = [],
   mktSurveys = [],
@@ -2499,6 +2506,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           onNotifyInvestors={onNotifyUnicoInvestors}
           askDelete={askDelete}
           onTrashItem={onTrashItem}
+          internalOrders={internalOrders}
+          onConfirmInternalOrder={onConfirmInternalOrder}
+          onDeleteInternalOrder={onDeleteInternalOrder}
         />
       ) : showStrategicoStudio ? (
         <StrategicoView

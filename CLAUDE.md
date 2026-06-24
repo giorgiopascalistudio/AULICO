@@ -390,6 +390,12 @@ reporting/redditività, integrazioni esterne
   ⚠️ Aggiunto il nodo **`unicoInvestorPositions/<uid>`** (posizione privata dell'investitore Unico, §6 —
   read solo `auth.uid==$uid`, write studio attivo): **ripubblicare le regole**, altrimenti il portale
   investitore ("I miei investimenti") resta vuoto e la write-through dello studio fallisce in silenzio.
+  ⚠️ Aggiunto il nodo **`internalOrders`** (commesse interne intercompany `CI-NNN`, visione Aulico —
+  read studio attivo non-cliente/non-partner, write admin/manager): **ripubblicare le regole**,
+  altrimenti la creazione/conferma delle commesse interne fallisce con "permission denied". Le scritture
+  finanza della coppia intercompany (costo committente + ricavo fornitore) riusano i nodi finanza
+  esistenti via il servizio `financeRecord`/`recordIntercompany` in App (marcate `intercompany` +
+  `counterpartySector` per l'elisione nel consolidato di gruppo).
   ⚠️ Aggiunti i nodi del **modulo Strategico/Marketing** (§22): **`mktEvents`** (read studio + invitato
   per-`$id`; write studio; RSVP granulare `invitees/$uid`), **`mktCampaigns`** (studio), **`mktSurveys`**
   (read ogni autenticato, write studio), **`mktSurveyResponses/$sid/$uid`** (read/write proprio uid + studio),

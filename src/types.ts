@@ -411,9 +411,75 @@ export interface UnicoDeal {
   matericoProjectId?: string | null; // commessa Materico collegata (ristrutturazione)
   published?: boolean;       // pubblicato nella vetrina Unico
   showcase?: UnicoShowcaseConfig | null; // pagina vetrina cinematica (video + scene)
+  // ---- Cascata ROE + commesse interne (visione Aulico) ----
+  roe?: UnicoRoeConfig;              // configurazione costi/cascata ROE (override per operazione)
+  internalOrderIds?: string[];      // commesse interne generate (Onirico/Materico/Strategico)
   notes?: string | null;
   createdAt: number;
   updatedAt?: number;
+}
+
+/* ---------- Commesse interne + cascata ROE (visione Aulico, vedi docs/SCHEMA-COMMESSE-INTERNE.md) ---------- */
+
+/** Le società del gruppo coinvolte nei movimenti intercompany. */
+export type GroupCompany = 'studio' | 'strategico' | 'materico' | 'unico';
+
+export type InternalOrderType =
+  | 'progettazione_dl'   // Onirico → progetto + direzione lavori (Unico: 15% su costo realizzazione)
+  | 'ristrutturazione'   // Materico → opere/lavori
+  | 'promozione'         // Strategico → promozione/vendita (Unico: €10k fisso)
+  | 'marketing'          // Strategico → marketing generico
+  | 'lead_smistato'      // Strategico → assegnazione lead a un verticale
+  | 'altro';
+
+export type InternalOrderStatus = 'bozza' | 'confermata' | 'in_corso' | 'completata' | 'annullata';
+
+/** Come si calcola l'importo della commessa interna. */
+export type InternalOrderBasis =
+  | { mode: 'percent'; pct: number; ofAmount: number } // es. 15% del costo realizzazione
+  | { mode: 'fixed'; amount: number }                  // es. €10.000
+  | { mode: 'manual'; amount: number };                // importo digitato
+
+/** Commessa interna (nodo internalOrders/<id>): "contratto" tra due società del gruppo. */
+export interface InternalOrder {
+  id: string;
+  code: string;                  // numerazione leggibile progressiva: "CI-001", "CI-002"…
+  type: InternalOrderType;
+  title: string;
+  status: InternalOrderStatus;   // bozza → confermata (→ scrive finanza) → in_corso → completata
+  // chi ORDINA (cliente interno) e chi ESEGUE (fornitore interno)
+  committente: { company: GroupCompany; refType: 'project' | 'deal' | 'lead'; refId: string };
+  fornitore: { company: GroupCompany };
+  basis: InternalOrderBasis;
+  amount: number;                // risultato del calcolo (denormalizzato dal basis)
+  description?: string | null;
+  dueDate?: string | null;
+  // collegamento alle scritture finanza generate (coppia intercompany)
+  financeRefs?: {
+    costInvoiceId?: string;      // fattura passiva lato committente
+    revenueInvoiceId?: string;   // fattura attiva lato fornitore
+    scadenzaId?: string;
+  } | null;
+  createdAt: number;
+  createdBy?: string | null;
+  updatedAt?: number;
+}
+
+/** Configurazione cascata ROE di un'operazione Unico (default override-abili). */
+export interface UnicoRoeConfig {
+  // costi base (input dell'operazione)
+  landCost: number;               // terreno/immobile
+  notaryCost: number;             // oneri notarili
+  worksCost: number;              // opere/lavori (idealmente = somma commesse Materico)
+  resalePrice: number;            // prezzo di rivendita atteso/finale
+  // percentuali/fissi — override per deal (se assenti → default in finance.ts)
+  agencyPct?: number;             // default 3 (su landCost)
+  oniricoPct?: number;            // default 15 (su worksCost)
+  strategicoFee?: number;         // default 10000 (fisso)
+  resalePct?: number;             // default 4 (su resalePrice)
+  // date per il payback
+  purchaseDate?: string | null;
+  resaleDate?: string | null;
 }
 
 /* ---------- Vetrina cinematica Unico (pagina "villa-omnia") ---------- */
