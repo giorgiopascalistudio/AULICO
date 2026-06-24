@@ -82,7 +82,8 @@ import {
   MktInboxItem,
   MktConsent,
   MktProject,
-  RsvpStatus
+  RsvpStatus,
+  InternalOrder,
 } from './types';
 
 import {
@@ -168,7 +169,10 @@ import {
   Computo,
   InvoiceActive,
   InvoicePassive,
-  ScadenzaItem
+  ScadenzaItem,
+  FinanceRecordInput,
+  COMPANY_LABEL,
+  COMPANY_INVOICE_PREFIX,
 } from './finance';
 import { dealToShowcaseEntry, dealToInvestorPositions } from './showcaseData';
 
@@ -333,6 +337,8 @@ export default function App() {
   const [crmLeads, setCrmLeads] = useState<Lead[]>([]);
   const [crmSuppliers, setCrmSuppliers] = useState<Supplier[]>([]);
   const [unicoDeals, setUnicoDeals] = useState<UnicoDeal[]>([]);
+  // Commesse interne (intercompany) — nodo internalOrders
+  const [internalOrders, setInternalOrders] = useState<InternalOrder[]>([]);
   // Vetrina Unico pubblicata (snapshot pubblici dei deal `published`, nodo `unicoShowcase`)
   const [unicoShowcase, setUnicoShowcase] = useState<Record<string, UnicoShowcaseEntry>>({});
   // Posizioni private del singolo investitore (nodo unicoInvestorPositions/<uid>), lato portale
@@ -1438,6 +1444,7 @@ export default function App() {
         prevInvestorUidsRef.current = uids;
       }, () => {}));
       subs.push(watchNode('unicoShowcase', (v) => setUnicoShowcase(v || {}), () => {}));
+      subs.push(watchNode('internalOrders', (v) => setInternalOrders(toArr(v) as InternalOrder[]), () => {}));
       // Modulo Strategico / Marketing (studio)
       subs.push(watchNode('mktEvents', (v) => setMktEvents(v || {}), () => {}));
       subs.push(watchNode('mktCampaigns', (v) => setMktCampaigns(v || {}), () => {}));
@@ -1771,6 +1778,12 @@ export default function App() {
         case 'unico':
           saveUnicoDeals([...unicoDeals.filter((d) => d.id !== id), pl]);
           break;
+        case 'commessa_interna': {
+          const next = [...internalOrders.filter((o) => o.id !== id), pl];
+          setInternalOrders(next);
+          writeNode('internalOrders', next).catch(() => {});
+          break;
+        }
         case 'cantieri':
           setCantieri((prev) => ({ ...prev, [id]: pl }));
           writeNode(`cantieri/${id}`, pl).catch(() => {});
@@ -3244,6 +3257,103 @@ export default function App() {
       setArr(next);
       writeNode(node, next).catch(() => {});
       showToast('Voce spostata nel Cestino.', 'err');
+    });
+  };
+
+  // ----------------------------------------------------
+  // Servizio core finance.record + commesse interne (intercompany)
+  // Vedi docs/SCHEMA-COMMESSE-INTERNE.md §1/§3.
+  // ----------------------------------------------------
+  /** Bridge unico verso la finanza: scrive un movimento e ritorna l'id creato. */
+  const financeRecord = (input: FinanceRecordInput): string => {
+    const today = new Date().toISOString().slice(0, 10);
+    const date = input.date || today;
+    const dueDate = input.dueDate || date;
+    const projectName = input.projectId ? (projects[input.projectId]?.name || '') : '';
+    const inter = !!input.counterpartySector;
+    if (input.kind === 'active') {
+      const id = `${COMPANY_INVOICE_PREFIX[input.sector]}-${Date.now()}-${Math.floor(Math.random() * 900)}`;
+      const inv: InvoiceActive = {
+        id, clientName: input.counterparty || '', projectId: input.projectId || '', projectName,
+        amount: input.amount, taxRate: input.taxRate ?? 0, cassaPct: input.cassaPct ?? null,
+        status: 'bozza', sdiCode: '', date, dueDate, sector: input.sector,
+        internalOrderId: input.internalOrderId || null, counterpartySector: input.counterpartySector || null, intercompany: inter,
+      };
+      handleSaveFinanceItem('finInvoicesActive', inv);
+      return id;
+    }
+    if (input.kind === 'passive') {
+      const id = `FP-${Date.now()}-${Math.floor(Math.random() * 900)}`;
+      const inv: InvoicePassive = {
+        id, supplierName: input.counterparty || '', projectId: input.projectId || '', projectName,
+        amount: input.amount, category: inter ? 'Commessa interna' : 'Costo',
+        status: 'ricevuta', date, dueDate, sector: input.sector, description: input.description,
+        internalOrderId: input.internalOrderId || null, counterpartySector: input.counterpartySector || null, intercompany: inter,
+      };
+      handleSaveFinanceItem('finInvoicesPassive', inv);
+      return id;
+    }
+    const id = `SC-${Date.now()}-${Math.floor(Math.random() * 900)}`;
+    const sca: ScadenzaItem = {
+      id, kind: 'uscita', desc: input.description, clientOrSupplier: input.counterparty || '',
+      amount: input.amount, dueDate, status: 'pago_attesa', projectId: input.projectId || undefined, sector: input.sector,
+      internalOrderId: input.internalOrderId || null, counterpartySector: input.counterpartySector || null, intercompany: inter,
+    };
+    handleSaveFinanceItem('finScadenze', sca);
+    return id;
+  };
+
+  /** Scrive la COPPIA intercompany di una commessa interna: costo (committente) + ricavo (fornitore). */
+  const recordIntercompany = (order: InternalOrder): { costInvoiceId: string; revenueInvoiceId: string } => {
+    const desc = `Commessa interna ${order.code} · ${order.title}`;
+    const projectId = order.committente.refType === 'project' ? order.committente.refId : undefined;
+    const costInvoiceId = financeRecord({
+      sector: order.committente.company, kind: 'passive', amount: order.amount, description: desc,
+      counterparty: COMPANY_LABEL[order.fornitore.company], date: new Date().toISOString().slice(0, 10),
+      dueDate: order.dueDate || undefined, projectId, internalOrderId: order.id, counterpartySector: order.fornitore.company,
+    });
+    const revenueInvoiceId = financeRecord({
+      sector: order.fornitore.company, kind: 'active', amount: order.amount, description: desc,
+      counterparty: COMPANY_LABEL[order.committente.company], date: new Date().toISOString().slice(0, 10),
+      dueDate: order.dueDate || undefined, projectId, internalOrderId: order.id, counterpartySector: order.committente.company,
+    });
+    return { costInvoiceId, revenueInvoiceId };
+  };
+
+  /** Prossimo codice progressivo "CI-NNN". */
+  const nextInternalOrderCode = (): string => {
+    const max = internalOrders.reduce((m, o) => {
+      const n = parseInt((o.code || '').replace(/^CI-/, ''), 10);
+      return isNaN(n) ? m : Math.max(m, n);
+    }, 0);
+    return `CI-${String(max + 1).padStart(3, '0')}`;
+  };
+
+  const handleSaveInternalOrder = (order: InternalOrder) => {
+    const next = [...internalOrders.filter((o) => o.id !== order.id), { ...order, updatedAt: Date.now() }];
+    setInternalOrders(next);
+    writeNode('internalOrders', next).catch((e: any) =>
+      showToast('Errore commessa interna (regole?): ' + (e?.message || e?.code || ''), 'err'));
+  };
+
+  /** Conferma una commessa interna (bozza → confermata): registra la coppia intercompany in finanza. */
+  const handleConfirmInternalOrder = (id: string) => {
+    const order = internalOrders.find((o) => o.id === id);
+    if (!order || order.status !== 'bozza') return;
+    if (order.financeRefs?.costInvoiceId) return; // già registrata
+    const refs = recordIntercompany(order);
+    handleSaveInternalOrder({ ...order, status: 'confermata', financeRefs: refs });
+    showToast(`Commessa ${order.code} confermata e registrata in contabilità.`, 'ok');
+  };
+
+  const handleDeleteInternalOrder = (id: string) => {
+    const order = internalOrders.find((o) => o.id === id);
+    askDelete('Eliminare la commessa interna?', order ? `${order.code} · ${order.title} (${eur(order.amount)})` : null, () => {
+      if (order) moveToTrash('commessa_interna', `${order.code} · ${order.title}`, order, undefined, eur(order.amount));
+      const next = internalOrders.filter((o) => o.id !== id);
+      setInternalOrders(next);
+      writeNode('internalOrders', next).catch(() => {});
+      showToast('Commessa interna spostata nel Cestino.', 'err');
     });
   };
 

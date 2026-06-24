@@ -81,6 +81,10 @@ export interface InvoiceActive {
   sector: Company;
   isSal?: boolean;
   salNumber?: number;
+  // Intercompany (commesse interne): marcatura per l'elisione nel consolidato di gruppo
+  internalOrderId?: string | null;
+  counterpartySector?: Company | null;
+  intercompany?: boolean;
 }
 
 export interface InvoicePassive {
@@ -95,6 +99,10 @@ export interface InvoicePassive {
   dueDate: string;
   sector: Company;
   description: string;
+  // Intercompany (commesse interne)
+  internalOrderId?: string | null;
+  counterpartySector?: Company | null;
+  intercompany?: boolean;
 }
 
 export interface ScadenzaItem {
@@ -107,6 +115,33 @@ export interface ScadenzaItem {
   status: 'scaduta' | 'pago_attesa' | 'pagato';
   projectId?: string;
   sector: Company;
+  // Intercompany (commesse interne)
+  internalOrderId?: string | null;
+  counterpartySector?: Company | null;
+  intercompany?: boolean;
+}
+
+// ============================================================
+// Servizio core finance.record (bridge unico verso la finanza).
+// Vedi docs/SCHEMA-COMMESSE-INTERNE.md §3. L'implementazione concreta
+// (che scrive i nodi) vive in App.tsx; qui solo i tipi del contratto.
+// ============================================================
+export type FinanceKind = 'active' | 'passive' | 'scadenza';
+
+export interface FinanceRecordInput {
+  sector: Company;            // società a cui imputare il movimento
+  kind: FinanceKind;
+  amount: number;             // imponibile
+  taxRate?: number;           // IVA (0/assente = non applicata)
+  cassaPct?: number | null;
+  description: string;
+  counterparty?: string;      // nome cliente/fornitore (anche società del gruppo)
+  date: string;
+  dueDate?: string;
+  // collegamenti (consolidato, commessa, filtri)
+  projectId?: string;
+  internalOrderId?: string;
+  counterpartySector?: Company; // valorizzato per i movimenti intercompany
 }
 
 // ============================================================
@@ -333,8 +368,16 @@ export interface CompanyBook {
   netto: number;
 }
 
-/** Consolida i libri delle società in KPI per società + totale gruppo. */
-export function consolidato(byCompany: Record<Company, { ricavi: number; costi: number }>): {
+/**
+ * Consolida i libri delle società in KPI per società + totale gruppo.
+ * `intercompany` (opzionale) = ricavi/costi generati DENTRO il gruppo (commesse
+ * interne): restano nei libri di società singola ma vengono **elisi dal totale
+ * di gruppo** (non gonfiano il fatturato consolidato).
+ */
+export function consolidato(
+  byCompany: Record<Company, { ricavi: number; costi: number }>,
+  intercompany?: { ricavi: number; costi: number },
+): {
   books: CompanyBook[];
   totale: CompanyBook;
 } {
@@ -344,10 +387,16 @@ export function consolidato(byCompany: Record<Company, { ricavi: number; costi: 
     const k = byCompany[c]?.costi || 0;
     return { company: c, ricavi: r, costi: k, netto: r - k };
   });
-  const totale: CompanyBook = books.reduce(
-    (acc, b) => ({ company: 'studio', ricavi: acc.ricavi + b.ricavi, costi: acc.costi + b.costi, netto: acc.netto + b.netto }),
-    { company: 'studio' as Company, ricavi: 0, costi: 0, netto: 0 }
-  );
+  const grossR = books.reduce((s, b) => s + b.ricavi, 0);
+  const grossK = books.reduce((s, b) => s + b.costi, 0);
+  const elimR = intercompany?.ricavi || 0;
+  const elimK = intercompany?.costi || 0;
+  const totale: CompanyBook = {
+    company: 'studio',
+    ricavi: grossR - elimR,
+    costi: grossK - elimK,
+    netto: (grossR - elimR) - (grossK - elimK),
+  };
   return { books, totale };
 }
 
