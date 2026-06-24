@@ -57,9 +57,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="hidden md:flex flex-col w-[248px] bg-gradient-to-b from-white to-[#f5f5f5] border-r border-[#e2e2e2] p-[22px] pb-[14px]">
       {/* Brand logo & header */}
       <div className="flex items-center gap-1.5 px-2 pb-[24px]">
-        {/* Customized Logo with styled Onirico font */}
+        {/* Logo piattaforma */}
         <span className="font-extrabold text-[22px] tracking-tight text-[#161616] font-sans antialiased">
-          Onirico<span className="text-[#8a8a8a] font-normal"> · OS</span>
+          Aulico
         </span>
       </div>
 
