@@ -2,7 +2,7 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  *
- * Firebase – Onirico Studio OS (progetto oniricoapp-48953)
+ * Firebase – Aulico (progetto aulico-228bd, ambiente isolato)
  * Auth Google + Realtime Database condiviso.
  * Gli account vivono nel nodo "users" (compatibile con le regole esistenti:
  * campi `active` e `role`). Tutti i dati dell'app sono sincronizzati sul DB.
@@ -33,13 +33,13 @@ import {
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDzhJBHWFTWnU86Mx9i-Z-uJmYUJTXrF3k',
-  authDomain: 'oniricoapp-48953.firebaseapp.com',
-  databaseURL: 'https://oniricoapp-48953-default-rtdb.europe-west1.firebasedatabase.app',
-  projectId: 'oniricoapp-48953',
-  storageBucket: 'oniricoapp-48953.firebasestorage.app',
-  messagingSenderId: '471588067505',
-  appId: '1:471588067505:web:52f03aeed3da5b6ac3aa90'
+  apiKey: 'AIzaSyArPgzmq9DIjW7XpdAY_HzT7nE4BUj02Ng',
+  authDomain: 'aulico-228bd.firebaseapp.com',
+  databaseURL: 'https://aulico-228bd-default-rtdb.europe-west1.firebasedatabase.app',
+  projectId: 'aulico-228bd',
+  storageBucket: 'aulico-228bd.firebasestorage.app',
+  messagingSenderId: '505893581594',
+  appId: '1:505893581594:web:c9d51ca3fb89db9bf672a3'
 };
 
 const app = initializeApp(firebaseConfig);

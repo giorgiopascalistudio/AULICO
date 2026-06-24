@@ -26,7 +26,7 @@ const db = getDatabase();
 
 // Regione coerente con la RTDB del progetto (vedi src/firebase.ts)
 setGlobalOptions({ region: 'europe-west1' });
-const DB_INSTANCE = 'oniricoapp-48953-default-rtdb';
+const DB_INSTANCE = 'aulico-228bd-default-rtdb';
 
 const SENDGRID_KEY = defineSecret('SENDGRID_KEY');
 // AI assist Strategico (§22-quater): chiave Anthropic. Impostare con
