@@ -11,7 +11,7 @@
  * pipeline preventivi, 5) Carico per risorsa.
  */
 import React, { useMemo } from 'react';
-import { TrendingUp, TrendingDown, Wallet, Scale, Briefcase, Users, ArrowRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, Scale, Briefcase, Users, ArrowRight, Filter } from 'lucide-react';
 import { Project, Quote, Task, UserProfile } from '../types';
 import {
   InvoiceActive,
@@ -32,6 +32,8 @@ interface StatsViewProps {
   quotes: Quote[];
   tasks: Task[];
   members: UserProfile[];
+  /** Valore dei SAL approvati (Erogato nel funnel di gruppo). */
+  erogato?: number;
   onNav: (route: string) => void;
 }
 
@@ -60,7 +62,7 @@ const Kpi: React.FC<{ label: string; value: string; sub?: string; icon: React.El
 );
 
 export const StatsView: React.FC<StatsViewProps> = ({
-  projects, invoicesActive, invoicesPassive, scadenze, quotes, tasks, members, onNav
+  projects, invoicesActive, invoicesPassive, scadenze, quotes, tasks, members, erogato = 0, onNav
 }) => {
   const stats = useMemo(() => {
     // Fatture "emesse" = tutto tranne la bozza
@@ -120,6 +122,19 @@ export const StatsView: React.FC<StatsViewProps> = ({
     const valPending = qPending.reduce((s, q) => s + (q.total || 0), 0);
     const winRate = quotes.length > 0 ? qAccept.length / quotes.filter((q) => q.status !== 'elaborato').length || 0 : 0;
 
+    // Funnel di gruppo: Preventivato → Venduto → Erogato → Fatturato → Incassato → Liquidità
+    const preventivato = quotes.filter((q) => q.status !== 'rifiutato').reduce((s, q) => s + (q.total || 0), 0);
+    const liquidita = incassato - costiPagati; // interim (integrazione bancaria reale = fase backend)
+    const funnel = [
+      { key: 'preventivato', label: 'Preventivato', value: preventivato, color: '#a8a29e' },
+      { key: 'venduto', label: 'Venduto', value: valAccept, color: '#b45309' },
+      { key: 'erogato', label: 'Erogato (SAL)', value: erogato, color: '#c2410c' },
+      { key: 'fatturato', label: 'Fatturato', value: fatturato, color: '#4338ca' },
+      { key: 'incassato', label: 'Incassato', value: incassato, color: '#2563eb' },
+      { key: 'liquidita', label: 'Liquidità', value: liquidita, color: liquidita >= 0 ? '#059669' : '#dc2626' },
+    ];
+    const funnelMax = Math.max(1, ...funnel.map((f) => Math.abs(f.value)));
+
     // Carico per risorsa
     const today = todayISO();
     const carico = members.map((m) => {
@@ -142,9 +157,10 @@ export const StatsView: React.FC<StatsViewProps> = ({
       months, revByMonth, costByMonth, maxMonth,
       live: live.length, byStatus, topProjects,
       qAccept: qAccept.length, qPending: qPending.length, valAccept, valPending, winRate,
-      carico, maxCarico, scadEntrate, scadUscite
+      carico, maxCarico, scadEntrate, scadUscite,
+      funnel, funnelMax
     };
-  }, [projects, invoicesActive, invoicesPassive, scadenze, quotes, tasks, members]);
+  }, [projects, invoicesActive, invoicesPassive, scadenze, quotes, tasks, members, erogato]);
 
   const s = stats;
   const bepReached = s.surplus >= 0;
@@ -168,6 +184,33 @@ export const StatsView: React.FC<StatsViewProps> = ({
         <Kpi label="Margine netto" value={eur(s.netto)} sub={`margine ${pct(s.margine)}`} icon={Scale} accent={s.netto >= 0 ? '#2f855a' : '#c2410c'} />
         <Kpi label="Da incassare" value={eur(s.daIncassare)} sub={`${eur(s.scadEntrate)} a scadenziario`} icon={Wallet} />
       </div>
+
+      {/* Funnel di gruppo: Preventivato → Venduto → Erogato → Fatturato → Incassato → Liquidità */}
+      <Card className="mb-3.5">
+        <div className="flex items-center gap-2 mb-1">
+          <Filter className="w-[18px] h-[18px] text-[#161616]" />
+          <h2 className="text-[15px] font-extrabold">Funnel di gruppo</h2>
+        </div>
+        <p className="text-[12.5px] text-[#8a8a8a] mb-4">Dal preventivo alla liquidità. La liquidità è una stima (incassi − pagamenti); l'integrazione bancaria reale è prevista in seguito.</p>
+        <div className="flex flex-col gap-2.5">
+          {s.funnel.map((f, i) => {
+            const w = Math.max(2, Math.round((Math.abs(f.value) / s.funnelMax) * 100));
+            const prev = i > 0 ? s.funnel[i - 1].value : 0;
+            const conv = i > 0 && prev > 0 ? (f.value / prev) * 100 : null;
+            return (
+              <div key={f.key} className="flex items-center gap-3">
+                <span className="w-[120px] shrink-0 text-[12.5px] font-bold text-[#161616]">{f.label}</span>
+                <div className="flex-1 h-7 rounded-lg bg-[#f0f0f0] overflow-hidden relative">
+                  <div className="h-full rounded-lg flex items-center justify-end px-2 transition-all" style={{ width: `${w}%`, background: f.color }}>
+                    <span className="text-[11.5px] font-bold text-white whitespace-nowrap">{eur(f.value)}</span>
+                  </div>
+                </div>
+                <span className="w-[60px] shrink-0 text-right text-[11.5px] font-semibold text-[#8a8a8a]">{conv != null ? `${conv.toFixed(0)}%` : ''}</span>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
 
       {/* Break Even Point */}
       <Card className="mb-3.5">

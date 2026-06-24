@@ -980,6 +980,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
           quotes={Object.values(quotes)}
           tasks={tasks}
           members={members}
+          erogato={Object.values(cantSal || {}).reduce((s, m) => s + Object.values(m || {}).filter((x: any) => x.status === 'approvato').reduce((a, x: any) => a + (Number(x.importo) || 0), 0), 0)}
           onNav={(r) => { window.location.hash = r; }}
         />
       )}
