@@ -11,17 +11,19 @@
 import React, { useMemo, useState } from 'react';
 import {
   Inbox, X, ChevronLeft, Send, Check, Building2, FileText, Euro,
-  ArrowRight, Link as LinkIcon, Layers, Trophy
+  ArrowRight, Link as LinkIcon, Layers, Trophy, AlertTriangle
 } from 'lucide-react';
 import type { MatericoRequest, MatericoOffer } from '../types';
 import type { Supplier } from './CrmView';
 import { eur, safeUrl, forwardedUids } from '../utils';
+import { matericoMargin, matericoPenalty, delayDays } from '../finance';
 
 interface MatericoViewProps {
   requests: MatericoRequest[];
   suppliers: Supplier[];
   onUpdateRequest: (req: MatericoRequest) => void;
   onDeleteRequest: (id: string) => void;
+  onApplyPenalty?: (reqId: string) => void;
 }
 
 const STATUS: Record<string, { label: string; cls: string }> = {
@@ -54,7 +56,8 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
   requests,
   suppliers,
   onUpdateRequest,
-  onDeleteRequest
+  onDeleteRequest,
+  onApplyPenalty
 }) => {
   const [openId, setOpenId] = useState<string | null>(null);
   const [picked, setPicked] = useState<Record<string, boolean>>({});
@@ -249,6 +252,52 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
                 <pre className="text-[11px] text-[#333] whitespace-pre-wrap font-sans bg-gray-50 border border-[#f0f0f0] rounded-lg p-3 max-h-[180px] overflow-y-auto">{active.contractText}</pre>
               </div>
             )}
+
+            {/* PENALI per ritardo (partner selezionato) */}
+            {active.selectedPartnerUid && (active.status === 'inviata_cliente' || active.status === 'accettata') && (() => {
+              const base = matericoMargin(active).baseCost;
+              const days = delayDays(active.agreedDeliveryDate, active.completedDate);
+              const calc = matericoPenalty(base, days);
+              const applied = active.penalty?.status === 'applicata';
+              return (
+                <div className="border border-[#ececec] rounded-2xl p-4 mb-4">
+                  <b className="text-[13px] text-[#161616] flex items-center gap-1.5 mb-3"><AlertTriangle className="w-4 h-4 text-amber-600" /> Penali per ritardo</b>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <label className="flex flex-col gap-1">
+                      <span className="text-[11px] font-bold text-[#8a8a8a]">Scadenza concordata</span>
+                      <input type="date" value={active.agreedDeliveryDate || ''} disabled={applied}
+                        onChange={(e) => onUpdateRequest({ ...active, agreedDeliveryDate: e.target.value || null })}
+                        className="h-9 border border-[#e2e2e2] rounded-lg px-2 text-[13px]" />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="text-[11px] font-bold text-[#8a8a8a]">Consegna effettiva</span>
+                      <input type="date" value={active.completedDate || ''} disabled={applied}
+                        onChange={(e) => onUpdateRequest({ ...active, completedDate: e.target.value || null })}
+                        className="h-9 border border-[#e2e2e2] rounded-lg px-2 text-[13px]" />
+                    </label>
+                  </div>
+                  {applied ? (
+                    <div className="text-[12.5px] bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-amber-900">
+                      Penale applicata: <b>{eur(active.penalty!.amount)}</b> ({active.penalty!.days} gg · {active.penalty!.pctPerDay}%/gg{active.penalty!.capped ? ', a tetto' : ''}). Registrata in finanza come nota di credito.
+                    </div>
+                  ) : days > 0 ? (
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <span className="text-[12.5px] text-[#333]">
+                        Ritardo <b>{days} gg</b> → penale proposta <b>{eur(calc.amount)}</b>
+                        <span className="text-[#8a8a8a]"> ({calc.pctPerDay}%/gg su {eur(base)}{calc.capped ? `, tetto ${calc.capPct}%` : ''})</span>
+                      </span>
+                      {onApplyPenalty && (
+                        <button onClick={() => onApplyPenalty(active.id)} className="text-[12.5px] font-bold px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white cursor-pointer border-none">
+                          Applica penale
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-[12px] text-[#8a8a8a]">Nessun ritardo: imposta le date per calcolare l'eventuale penale.</p>
+                  )}
+                </div>
+              );
+            })()}
 
             <button onClick={() => { onDeleteRequest(active.id); setOpenId(null); }} className="text-[12px] font-bold text-red-600 hover:underline bg-transparent border-none cursor-pointer">
               Elimina richiesta

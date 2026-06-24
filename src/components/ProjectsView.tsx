@@ -120,6 +120,7 @@ interface ProjectsViewProps {
   matericoSuppliers?: Supplier[];
   onUpdateMatericoRequest?: (req: MatericoRequest) => void;
   onDeleteMatericoRequest?: (id: string) => void;
+  onApplyMatericoPenalty?: (reqId: string) => void;
   unicoDeals?: UnicoDeal[];
   onSaveUnicoDeals?: (deals: UnicoDeal[]) => void;
   onNotifyUnicoInvestors?: (uids: string[], title: string, body: string) => void;
@@ -279,6 +280,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   matericoSuppliers = [],
   onUpdateMatericoRequest,
   onDeleteMatericoRequest,
+  onApplyMatericoPenalty,
   unicoDeals = [],
   onSaveUnicoDeals,
   onNotifyUnicoInvestors,
@@ -2582,6 +2584,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           suppliers={matericoSuppliers}
           onUpdateRequest={onUpdateMatericoRequest || (() => {})}
           onDeleteRequest={onDeleteMatericoRequest || (() => {})}
+          onApplyPenalty={onApplyMatericoPenalty}
         />
       ) : allList.length > 0 ? (
         <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5' : 'flex flex-col gap-3.5'}>
