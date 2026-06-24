@@ -8,6 +8,24 @@ export type UserRole = 'admin' | 'manager' | 'staff' | 'cliente' | 'partner';
 /** Cosa sceglie l'utente in fase di iscrizione. */
 export type AccountType = 'cliente' | 'azienda' | 'team';
 
+/**
+ * RBAC granulare per-società/per-modulo (visione Aulico).
+ * Livello crescente: none < view < operate < admin.
+ */
+export type AccessLevel = 'none' | 'view' | 'operate' | 'admin';
+
+/** Le società del gruppo (chiavi codice invariate; "studio" = etichetta UI "Onirico"). */
+export type Societa = 'studio' | 'strategico' | 'materico' | 'unico' | 'holding';
+
+/** Permesso su una singola società: default + override opzionali per modulo. */
+export interface SocietaAccess {
+  default: AccessLevel;
+  modules?: Record<string, AccessLevel>;
+}
+
+/** Mappa permessi dell'utente per società. Assente ⇒ fallback al ruolo legacy. */
+export type AccessMap = Partial<Record<Societa, SocietaAccess>>;
+
 export interface UserProfile {
   uid: string;
   name: string;
@@ -16,6 +34,8 @@ export interface UserProfile {
   title?: string;
   functions?: string[];
   active?: boolean;
+  /** RBAC granulare per-società/modulo. Se assente, si usa il fallback dal `role`. */
+  access?: AccessMap;
   createdAt: number;
   projectIds?: Record<string, boolean>;
   telefono?: string;
