@@ -1118,7 +1118,11 @@ const IncentivesBoard: React.FC<{
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Attività</span>
                 <select value={actId} onChange={(e) => setActId(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[13.5px]">
                   <option value="">Seleziona…</option>
-                  {cat.map((a) => <option key={a.id} value={a.id}>{a.label}{a.id !== 'manual' ? ` (${a.points >= 0 ? '+' : ''}${a.points})` : ''}</option>)}
+                  {Array.from(new Set(cat.map((a) => a.category))).map((category) => (
+                    <optgroup key={category} label={category}>
+                      {cat.filter((a) => a.category === category).map((a) => <option key={a.id} value={a.id}>{a.label}{a.id !== 'manual' ? ` (${a.points >= 0 ? '+' : ''}${a.points})` : ''}</option>)}
+                    </optgroup>
+                  ))}
                 </select>
               </label>
               {actId === 'manual' && (

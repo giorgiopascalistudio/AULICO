@@ -15,27 +15,84 @@ import type { PointActivity, PointEvent, BonusTier, PointAudience } from './type
  * categorizzato; estendibile. `points` negativo = penalità (precisione/affidabilità).
  */
 export const POINT_CATALOG: PointActivity[] = [
-  // --- Team: Produttività ---
+  // ===================== TEAM =====================
+  // --- Produttività ---
   { id: 'task_in_tempo', label: 'Task completato nei tempi', points: 5, category: 'Produttività', audience: 'team' },
   { id: 'task_anticipo', label: 'Task completato in anticipo', points: 8, category: 'Produttività', audience: 'team' },
   { id: 'pratica_chiusa', label: 'Pratica/fase chiusa', points: 15, category: 'Produttività', audience: 'team' },
   { id: 'preventivo_accettato', label: 'Preventivo accettato dal cliente', points: 20, category: 'Produttività', audience: 'team' },
-  // --- Team: Qualità ---
+  { id: 'obiettivo_settimanale', label: 'Obiettivo settimanale raggiunto', points: 10, category: 'Produttività', audience: 'team' },
+  { id: 'sopralluogo_eseguito', label: 'Sopralluogo eseguito', points: 6, category: 'Produttività', audience: 'team' },
+  { id: 'computo_consegnato', label: 'Computo metrico consegnato', points: 8, category: 'Produttività', audience: 'team' },
+  { id: 'pratica_protocollata', label: 'Pratica protocollata in Comune/Ente', points: 12, category: 'Produttività', audience: 'team' },
+  { id: 'progetto_consegnato', label: 'Progetto/elaborato consegnato', points: 14, category: 'Produttività', audience: 'team' },
+  // --- Qualità ---
   { id: 'zero_rilievi', label: 'Consegna senza rilievi/correzioni', points: 10, category: 'Qualità', audience: 'team' },
   { id: 'cliente_soddisfatto', label: 'Feedback cliente positivo', points: 12, category: 'Qualità', audience: 'team' },
+  { id: 'elaborato_approvato_subito', label: 'Elaborato approvato alla prima', points: 9, category: 'Qualità', audience: 'team' },
+  { id: 'recensione_positiva', label: 'Recensione pubblica positiva', points: 18, category: 'Qualità', audience: 'team' },
   { id: 'rilievo_qualita', label: 'Errore/rifacimento richiesto', points: -8, category: 'Qualità', audience: 'team' },
-  // --- Team: Relazione/varie ---
-  { id: 'lead_portato', label: 'Lead/opportunità portata', points: 15, category: 'Relazione', audience: 'team' },
+  { id: 'errore_grave', label: 'Errore grave su elaborato/pratica', points: -15, category: 'Qualità', audience: 'team' },
+  { id: 'reclamo_cliente', label: 'Reclamo cliente', points: -12, category: 'Qualità', audience: 'team' },
+  // --- Commerciale / Relazione ---
+  { id: 'lead_portato', label: 'Lead/opportunità portata', points: 15, category: 'Commerciale', audience: 'team' },
+  { id: 'lead_convertito', label: 'Lead convertito in commessa', points: 25, category: 'Commerciale', audience: 'team' },
+  { id: 'referral_cliente', label: 'Referral da cliente esistente', points: 12, category: 'Commerciale', audience: 'team' },
+  { id: 'upsell', label: 'Servizio aggiuntivo venduto (upsell)', points: 16, category: 'Commerciale', audience: 'team' },
+  // --- Puntualità / Presenza ---
+  { id: 'sempre_puntuale', label: 'Settimana senza ritardi', points: 4, category: 'Puntualità', audience: 'team' },
   { id: 'task_scaduto', label: 'Task scaduto non gestito', points: -5, category: 'Puntualità', audience: 'team' },
-  // --- Partner (subappaltatori): Puntualità ---
+  { id: 'ritardo_consegna', label: 'Ritardo nella consegna', points: -8, category: 'Puntualità', audience: 'team' },
+  { id: 'assenza_ingiustificata', label: 'Assenza ingiustificata', points: -10, category: 'Puntualità', audience: 'team' },
+  // --- Collaborazione ---
+  { id: 'aiuto_collega', label: 'Aiuto concreto a un collega', points: 6, category: 'Collaborazione', audience: 'team' },
+  { id: 'mentoring', label: 'Affiancamento/mentoring junior', points: 10, category: 'Collaborazione', audience: 'team' },
+  { id: 'condivisione_conoscenza', label: 'Condivisione know-how/procedura', points: 7, category: 'Collaborazione', audience: 'team' },
+  { id: 'riunione_costruttiva', label: 'Contributo utile in riunione', points: 3, category: 'Collaborazione', audience: 'team' },
+  // --- Iniziativa ---
+  { id: 'proposta_miglioramento', label: 'Proposta di miglioramento adottata', points: 12, category: 'Iniziativa', audience: 'team' },
+  { id: 'automazione_introdotta', label: 'Automazione/processo introdotto', points: 15, category: 'Iniziativa', audience: 'team' },
+  { id: 'iniziativa_extra', label: 'Iniziativa oltre i compiti assegnati', points: 8, category: 'Iniziativa', audience: 'team' },
+  // --- Sicurezza & Compliance ---
+  { id: 'formazione_completata', label: 'Corso/formazione completata', points: 10, category: 'Sicurezza & Compliance', audience: 'team' },
+  { id: 'near_miss_segnalato', label: 'Near-miss/rischio segnalato', points: 6, category: 'Sicurezza & Compliance', audience: 'team' },
+  { id: 'privacy_rispettata', label: 'Procedura privacy/GDPR rispettata', points: 4, category: 'Sicurezza & Compliance', audience: 'team' },
+  { id: 'violazione_procedura', label: 'Violazione procedura/sicurezza', points: -15, category: 'Sicurezza & Compliance', audience: 'team' },
+  // --- Amministrazione ---
+  { id: 'fattura_puntuale', label: 'Fattura emessa puntualmente', points: 4, category: 'Amministrazione', audience: 'team' },
+  { id: 'scadenza_rispettata', label: 'Scadenza amministrativa rispettata', points: 5, category: 'Amministrazione', audience: 'team' },
+  { id: 'documentazione_ordinata', label: 'Documentazione ordinata e completa', points: 4, category: 'Amministrazione', audience: 'team' },
+
+  // ===================== PARTNER (subappaltatori) =====================
+  // --- Puntualità ---
   { id: 'sal_in_tempo', label: 'SAL/consegna nei tempi', points: 10, category: 'Puntualità', audience: 'partner' },
+  { id: 'consegna_anticipata', label: 'Consegna in anticipo', points: 14, category: 'Puntualità', audience: 'partner' },
+  { id: 'cantiere_in_orario', label: 'Squadra in cantiere puntuale', points: 4, category: 'Puntualità', audience: 'partner' },
   { id: 'ritardo_lieve', label: 'Ritardo lieve (entro tolleranza)', points: -4, category: 'Puntualità', audience: 'partner' },
   { id: 'ritardo_grave', label: 'Ritardo grave / penale', points: -12, category: 'Puntualità', audience: 'partner' },
-  // --- Partner: Precisione/Qualità ---
+  // --- Precisione / Qualità ---
   { id: 'lavoro_conforme', label: 'Lavorazione conforme (no contestazioni)', points: 10, category: 'Precisione', audience: 'partner' },
+  { id: 'zero_difetti', label: 'Consegna a zero difetti', points: 12, category: 'Precisione', audience: 'partner' },
+  { id: 'collaudo_superato', label: 'Collaudo/verifica superata alla prima', points: 14, category: 'Precisione', audience: 'partner' },
   { id: 'non_conformita', label: 'Non conformità rilevata', points: -10, category: 'Precisione', audience: 'partner' },
-  { id: 'doc_in_regola', label: 'Documentazione/impresa in regola', points: 5, category: 'Precisione', audience: 'partner' },
-  // --- Entrambi ---
+  { id: 'rifacimento_richiesto', label: 'Rifacimento richiesto', points: -14, category: 'Precisione', audience: 'partner' },
+  // --- Sicurezza in cantiere ---
+  { id: 'cantiere_pulito', label: 'Cantiere pulito e ordinato', points: 6, category: 'Sicurezza cantiere', audience: 'partner' },
+  { id: 'dpi_squadra', label: 'DPI indossati da tutta la squadra', points: 6, category: 'Sicurezza cantiere', audience: 'partner' },
+  { id: 'psc_rispettato', label: 'PSC/piano sicurezza rispettato', points: 8, category: 'Sicurezza cantiere', audience: 'partner' },
+  { id: 'incidente_cantiere', label: 'Incidente/infortunio in cantiere', points: -20, category: 'Sicurezza cantiere', audience: 'partner' },
+  { id: 'violazione_sicurezza', label: 'Violazione norme di sicurezza', points: -15, category: 'Sicurezza cantiere', audience: 'partner' },
+  // --- Documentazione impresa ---
+  { id: 'doc_in_regola', label: 'Documentazione/impresa in regola', points: 5, category: 'Documentazione', audience: 'partner' },
+  { id: 'durc_aggiornato', label: 'DURC/visure aggiornati', points: 5, category: 'Documentazione', audience: 'partner' },
+  { id: 'rapportino_puntuale', label: 'Rapportini compilati puntualmente', points: 4, category: 'Documentazione', audience: 'partner' },
+  { id: 'doc_scaduto', label: 'Documento scaduto/non valido', points: -10, category: 'Documentazione', audience: 'partner' },
+  // --- Collaborazione ---
+  { id: 'coordinamento_efficace', label: 'Coordinamento efficace con la DL', points: 6, category: 'Collaborazione', audience: 'partner' },
+  { id: 'disponibilita_extra', label: 'Disponibilità extra (urgenze)', points: 8, category: 'Collaborazione', audience: 'partner' },
+  { id: 'comunicazione_tempestiva', label: 'Comunicazione tempestiva di problemi', points: 5, category: 'Collaborazione', audience: 'partner' },
+
+  // ===================== ENTRAMBI =====================
   { id: 'manual', label: 'Assegnazione manuale', points: 0, category: 'Altro', audience: 'both' },
 ];
 

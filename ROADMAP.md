@@ -21,8 +21,10 @@ partner/investitore, Cantiere, Strategico/Marketing, Finanza consolidata, Cestin
   in `QuoteEditor`, e **preventivo accettato → genera AUTO la commessa** (progetto con fasi/task
   dalle macro-voci, cliente collegato e notificato) in `handleSetQuoteStatus`.
 
+- ✅ **Lotto D — Catalogo punti esteso** (25 giu 2026): `POINT_CATALOG` ampliato (~60 voci per
+  team e partner, categorie multiple) + select raggruppato per categoria in `TeamView`.
+
 ## 🔎 Da confermare/affinare (verificati "parziali" nel codice)
-- Catalogo **point system**: ~17 voci in `src/points.ts` (il doc CRM citava "300+"). → Lotto D
 - **Smistamento lead** automatico Strategico→società: oggi la pipeline è manuale (`CrmView`). → Lotto C
 - **Audit log globale**: oggi c'è lo storico di Cantiere, non un trail di tutte le azioni. → Lotto B
 > Se queste sono già coperte altrove (nomi diversi), segnalare il file così si aggiorna lo stato.
