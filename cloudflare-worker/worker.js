@@ -42,8 +42,10 @@ export default {
       const { prompt, system, maxTokens } = await request.json();
       if (!prompt || !String(prompt).trim()) return json({ error: 'missing-prompt' }, 400);
 
-      // 3) chiamata Gemini (free tier)
-      const model = 'gemini-2.0-flash';
+      // 3) chiamata Gemini (free tier). Modello configurabile via secret/var
+      //    GEMINI_MODEL; default su 1.5-flash che ha quota free più ampia
+      //    (gemini-2.0-flash su alcuni progetti ha free tier = 0).
+      const model = env.GEMINI_MODEL || 'gemini-1.5-flash';
       const g = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_KEY}`,
         {
