@@ -117,6 +117,14 @@
       }
     },
 
+    "deletionRequests": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+
     "unicoInvestorPositions": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",

@@ -405,6 +405,11 @@ reporting/redditività, integrazioni esterne
   + studio attivo non-cliente/non-partner; write `auth.uid==$uid`): **ripubblicare le regole**, altrimenti
   il tasto "Iscriviti" del portale (`NewsletterButton`) dà "permission denied". Componente autonomo che
   legge/scrive via watchNode/writeNode.
+  ⚠️ Aggiunto il nodo **`deletionRequests/<uid>`** (richiesta eliminazione account dal Profilo cliente —
+  read del proprietario + studio attivo non-cliente/partner; write `auth.uid==$uid`): **ripubblicare le
+  regole**. Il cliente la invia da `ClientProfileModal` (+ flag `users/<uid>/deletionRequested`), poi viene
+  disconnesso; lo studio elabora la cancellazione. Profilo cliente: foto (data URL su `photoURL`), password
+  (`changePassword`, solo account email), residenza, consensi (newsletter), richiesta eliminazione.
   ⚠️ Aggiunti i nodi del **modulo Strategico/Marketing** (§22): **`mktEvents`** (read studio + invitato
   per-`$id`; write studio; RSVP granulare `invitees/$uid`), **`mktCampaigns`** (studio), **`mktSurveys`**
   (read ogni autenticato, write studio), **`mktSurveyResponses/$sid/$uid`** (read/write proprio uid + studio),

@@ -17,6 +17,7 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   updateProfile,
+  updatePassword,
   signOut,
   onAuthStateChanged,
   type User
@@ -87,6 +88,12 @@ export const callAi = async (data: { prompt: string; system?: string; maxTokens?
  * il Worker (Cloudflare Workers AI). Ritorna una data URL PNG. Richiede il
  * Worker configurato (`window.__AULICO_AI_URL__`) col binding AI.
  */
+/** Cambia la password dell'utente loggato (solo account email/password). */
+export const changePassword = async (newPass: string): Promise<void> => {
+  if (!auth.currentUser) throw new Error('Nessun utente autenticato.');
+  await updatePassword(auth.currentUser, newPass);
+};
+
 export const callAiImage = async (input: { imageBase64: string; prompt: string; strength?: number }): Promise<string> => {
   if (!AI_WORKER_URL) throw new Error('Generazione immagine non configurata (Worker AI assente).');
   const token = await auth.currentUser?.getIdToken();

@@ -3797,6 +3797,7 @@ export default function App() {
         moodboard3d={moodboard3d}
         onSaveMoodboard3d={handleSaveMoodboard3d}
         myPoints={pointEvents}
+        onToast={showToast}
         onLogout={handleLogout}
         estimates={Object.values(estimates)}
         onSaveEstimate={handleSaveEstimate}

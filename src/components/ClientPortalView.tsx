@@ -51,6 +51,8 @@ import { totalPoints, tierFor, nextTier, reliabilityScore } from '../points';
 import { clientGame } from '../gamification';
 import { AiComposeButton } from './AiComposeButton';
 import { NewsletterButton } from './NewsletterButton';
+import { ClientProfileModal } from './ClientProfileModal';
+import { DailyQuiz } from './DailyQuiz';
 import { FurnishingsBoard } from './FurnishingsBoard';
 import { ClientRequestPanel } from './ClientRequestPanel';
 import { CantiereBoard } from './CantiereBoard';
@@ -101,6 +103,7 @@ interface ClientPortalViewProps {
   onSaveMoodboard3d?: (pid: string, elements: any[]) => void;
   /** Eventi punti dell'utente (affidabilità partner). */
   myPoints?: PointEvent[];
+  onToast?: (msg: string, type?: 'ok' | 'err') => void;
   onLogout: () => void;
   isPreview?: boolean;
   onExitPreview?: () => void;
@@ -163,6 +166,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   moodboard3d = {},
   onSaveMoodboard3d,
   myPoints = [],
+  onToast = () => {},
   onLogout,
   isPreview = false,
   onExitPreview,
@@ -195,8 +199,9 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   const [apptReqOpen, setApptReqOpen] = useState(false);
   const [approvedMarketingPosts, setApprovedMarketingPosts] = useState<Record<string, boolean>>({});
   const [uploading, setUploading] = useState(false);
-  const [activeSubTab, setActiveSubTab] = useState<string>('lavori');
+  const [activeSubTab, setActiveSubTab] = useState<string>('dashboard');
   const [showcaseOpen, setShowcaseOpen] = useState(false); // vetrina "Scopri i servizi"
+  const [profileOpen, setProfileOpen] = useState(false); // modale profilo cliente
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [blogSearch, setBlogSearch] = useState('');
   const [blogFilter, setBlogFilter] = useState('all'); // chiave categoria stabile (indip. lingua)
@@ -408,11 +413,16 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             <button onClick={() => setShowcaseOpen(true)} className="bg-[#1b1b1b] hover:bg-black text-white font-extrabold text-xs py-1.5 px-3.5 rounded-xl border-none flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
               <Sparkles className="w-3.5 h-3.5" /> {t('portal.discoverServices')}
             </button>
+            <button onClick={() => setProfileOpen(true)} title="Profilo" className="w-8 h-8 rounded-full border border-[#e2e2e2] bg-white overflow-hidden flex items-center justify-center cursor-pointer hover:border-[#161616]">
+              {profile.photoURL ? <img src={profile.photoURL} alt="" className="w-full h-full object-cover" /> : <span className="text-[12px] font-bold text-[#161616]">{(profile.name || '?').slice(0, 1)}</span>}
+            </button>
             <button onClick={onLogout} className="bg-[#f0f0f0] hover:bg-[#e4e4e4] text-[#161616] font-extrabold text-xs py-1.5 px-4 rounded-xl border-none cursor-pointer transition-all active:scale-95">
               {t('common.logout')}
             </button>
           </div>
         </div>
+
+        {profileOpen && <ClientProfileModal profile={profile} onClose={() => setProfileOpen(false)} onLogout={onLogout} onToast={onToast} />}
 
         {profile.role === 'cliente' && onCreateClientRequest ? (
           <div className="flex-1 w-full">
@@ -562,6 +572,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
         ];
       case 'materico_cliente':
         return [
+          { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
           { id: 'lavori', label: t('tab.iterPosa'), icon: ClipboardList },
           { id: 'preventivi', label: t('tab.scelteArredo'), icon: ClipboardList },
           { id: 'documenti', label: t('tab.moodboardCampioni'), icon: FileText },
@@ -580,6 +591,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
       case 'studio':
       default:
         return [
+          { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
           { id: 'lavori', label: t('tab.avanzamento'), icon: ClipboardList },
           { id: 'documenti', label: t('tab.documentiChat'), icon: FileText },
           { id: 'arredi', label: t('tab.arredi'), icon: Sofa },
@@ -829,11 +841,17 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             <Sparkles className="w-3.5 h-3.5" /> {t('portal.discoverServices')}
           </button>
 
+          <button onClick={() => setProfileOpen(true)} title="Profilo" className="w-8 h-8 rounded-full border border-[#e2e2e2] bg-white overflow-hidden flex items-center justify-center cursor-pointer hover:border-[#161616]">
+            {profile.photoURL ? <img src={profile.photoURL} alt="" className="w-full h-full object-cover" /> : <span className="text-[12px] font-bold text-[#161616]">{(profile.name || '?').slice(0, 1)}</span>}
+          </button>
+
           <button onClick={onLogout} className="bg-[#f0f0f0] hover:bg-[#e4e4e4] text-[#161616] font-extrabold text-xs py-1.5 px-3.5 rounded-xl border-none flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
             <LogOut className="w-3.5 h-3.5" /> {t('common.logout')}
           </button>
         </div>
       </div>
+
+      {profileOpen && <ClientProfileModal profile={profile} onClose={() => setProfileOpen(false)} onLogout={onLogout} onToast={onToast} />}
 
       <div className="flex-1 max-w-[1080px] mx-auto w-full p-4 md:p-6 flex flex-col gap-6 text-left">
 
@@ -1012,6 +1030,31 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               transition={{ duration: 0.15, ease: "easeOut" }}
               className="w-full"
             >
+          {currentTab === 'dashboard' && (() => {
+            const phs = Object.values(p?.phases || {});
+            let dn = 0, tt = 0;
+            phs.forEach((ph: any) => Object.values(ph.tasks || {}).forEach((tk: any) => { tt++; if (tk.done) dn++; }));
+            const pcd = tt ? Math.round((dn / tt) * 100) : 0;
+            const mine = (projects || []).filter((pr) => pr.clientUid === profile.uid || (profile.projectIds || {})[pr.id]);
+            return (
+              <div className="flex flex-col gap-6 animate-[riseIn_0.22s_ease_both]">
+                <div className="bg-white border border-[#e5e5e5] rounded-[22px] p-5">
+                  <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616]">{profile.name ? `Ciao, ${profile.name.split(' ')[0]}` : 'Benvenuto'}</h2>
+                  <p className="text-[13px] text-[#8a8a8a] mt-0.5">Ecco un riepilogo del tuo progetto.</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                    <div className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3"><div className="text-[11px] text-[#8a8a8a] font-bold uppercase tracking-wide">Progetto</div><div className="text-[14px] font-extrabold text-[#161616] truncate mt-1">{p?.name || '—'}</div></div>
+                    <div className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3"><div className="text-[11px] text-[#8a8a8a] font-bold uppercase tracking-wide">Stato</div><div className="text-[14px] font-extrabold text-[#161616] capitalize mt-1">{p?.status || '—'}</div></div>
+                    <div className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3"><div className="text-[11px] text-[#8a8a8a] font-bold uppercase tracking-wide">Avanzamento</div><div className="text-[14px] font-extrabold text-[#161616] mt-1">{pcd}%</div></div>
+                    <div className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3"><div className="text-[11px] text-[#8a8a8a] font-bold uppercase tracking-wide">Tuoi progetti</div><div className="text-[14px] font-extrabold text-[#161616] mt-1">{mine.length || 1}</div></div>
+                  </div>
+                  <button onClick={() => setActiveSubTab('lavori')} className="mt-4 text-[12.5px] font-bold px-4 py-2 rounded-xl bg-[#1b1b1b] text-white border-none cursor-pointer inline-flex items-center gap-1.5">Vedi avanzamento <ArrowRight className="w-3.5 h-3.5" /></button>
+                </div>
+
+                <DailyQuiz profile={profile} projects={projects} />
+              </div>
+            );
+          })()}
+
           {currentTab === 'lavori' && (
             <div className="flex flex-col gap-6 animate-[riseIn_0.22s_ease_both]">
               {/* Flight departure board style header card - Full Visual Consistency */}
