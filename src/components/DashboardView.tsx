@@ -9,6 +9,7 @@ import { Project, Task, UserProfile, Appointment, MktProject } from '../types';
 import { eur, fmtDayLong, initials } from '../utils';
 import { Company, COMPANY_LABEL, COMPANY_COLOR } from '../finance';
 import { SmartText } from './SmartText';
+import { TeamAssistant } from './TeamAssistant';
 
 interface DashboardViewProps {
   profile: UserProfile;
@@ -121,6 +122,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {fmtDayLong(new Date())}
         </div>
       </div>
+
+      {/* Assistente personale (AI) — consigli organizzativi sui propri task */}
+      <TeamAssistant profile={profile} tasks={tasks} />
 
       {/* Richieste di appuntamento in attesa */}
       {appointmentRequests.length > 0 && (
