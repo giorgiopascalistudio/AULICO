@@ -83,17 +83,17 @@ export const callAi = async (data: { prompt: string; system?: string; maxTokens?
   return (res?.data?.text || '').toString();
 };
 
-/**
- * Genera una BOZZA immagine (img2img) da una foto reale + prompt di stile, via
- * il Worker (Cloudflare Workers AI). Ritorna una data URL PNG. Richiede il
- * Worker configurato (`window.__AULICO_AI_URL__`) col binding AI.
- */
 /** Cambia la password dell'utente loggato (solo account email/password). */
 export const changePassword = async (newPass: string): Promise<void> => {
   if (!auth.currentUser) throw new Error('Nessun utente autenticato.');
   await updatePassword(auth.currentUser, newPass);
 };
 
+/**
+ * Genera una BOZZA immagine (img2img) da una foto reale + prompt di stile, via
+ * il Worker (Cloudflare Workers AI). Ritorna una data URL PNG. Richiede il
+ * Worker configurato (`window.__AULICO_AI_URL__`) col binding AI.
+ */
 export const callAiImage = async (input: { imageBase64: string; prompt: string; strength?: number }): Promise<string> => {
   if (!AI_WORKER_URL) throw new Error('Generazione immagine non configurata (Worker AI assente).');
   const token = await auth.currentUser?.getIdToken();

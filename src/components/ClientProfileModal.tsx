@@ -30,15 +30,38 @@ export const ClientProfileModal: React.FC<{
 
   const hasPassword = !!auth.currentUser?.providerData?.some((p) => p.providerId === 'password');
 
-  const onPhoto = (file: File) => {
+  // Ridimensiona la foto a max 256px (JPEG ~0.85) prima di salvarla: evita di
+  // gonfiare il nodo users/<uid> con una data URL enorme (è letto spesso).
+  const downscale = (file: File): Promise<string> => new Promise((resolve, reject) => {
     const r = new FileReader();
-    r.onloadend = async () => {
-      const url = r.result as string;
-      setPhoto(url);
-      try { await updateNode(`users/${profile.uid}`, { photoURL: url }); onToast('Foto profilo aggiornata.'); }
-      catch { onToast('Errore aggiornamento foto.', 'err'); }
+    r.onerror = reject;
+    r.onloadend = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const MAX = 256;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * scale));
+        const h = Math.max(1, Math.round(img.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { resolve(r.result as string); return; }
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = r.result as string;
     };
     r.readAsDataURL(file);
+  });
+
+  const onPhoto = async (file: File) => {
+    try {
+      const url = await downscale(file);
+      setPhoto(url);
+      await updateNode(`users/${profile.uid}`, { photoURL: url });
+      onToast('Foto profilo aggiornata.');
+    } catch { onToast('Errore aggiornamento foto.', 'err'); }
   };
 
   const saveInfo = async () => {
@@ -120,7 +143,7 @@ export const ClientProfileModal: React.FC<{
           <div className="flex flex-col gap-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] inline-flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Consensi</span>
             <div className="text-[12.5px] text-[#555] inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-600" /> Privacy accettata{profile.privacyAcceptedAt ? ` il ${new Date(profile.privacyAcceptedAt).toLocaleDateString('it-IT')}` : ''}.</div>
-            <NewsletterButton uid={profile.uid} name={profile.name} email={profile.email} />
+            <NewsletterButton uid={profile.uid} name={profile.name} email={profile.email} variant="inline" />
           </div>
 
           {/* Elimina account */}

@@ -47,7 +47,7 @@ npm run build      # output in dist/ (esbuild: NON fa type-check)
   cabla qui.
 - **`src/components/`**: viste e widget (vedi sotto).
 - **`src/firebase.ts`**: init Firebase + helper. Config reale già inclusa
-  (progetto `oniricoapp-48953`). Espone: `loginWithGoogle`, `logoutGoogle`,
+  (progetto `aulico-228bd`). Espone: `loginWithGoogle`, `logoutGoogle`,
   `watchAuth`, `watchAccounts`, `watchOwnAccount`, `getAccounts`, `setAccount`,
   `updateAccount`, `removeAccount`, e i generici `watchNode(path,cb)`,
   `getNode(path)`, `writeNode(path,val)`, `updateNode`, `removeNode`, `clean()`.
@@ -63,7 +63,11 @@ npm run build      # output in dist/ (esbuild: NON fa type-check)
 (agenda Giorno·Settimana·Mese), `ProjectsView`, `DocumentsView`, `CrmView`
 (pipeline lead + fornitori), `MatericoView` (hub operatore Materico),
 `MatericoPortal` (lato cliente/partner), `FinanzeView`, `TeamView`,
-`ClientPortalView` (portale cliente/partner, ~2400 righe), `ServicesShowcase`
+`ClientPortalView` (portale cliente/partner, ~2400 righe; la **tab Dashboard è una HOME**:
+benvenuto + griglia di box-sezione stile app + box "Il tuo percorso" (`PercorsoBox`,
+gamification, espandibile) + `DailyQuiz` — **niente progetti nella dashboard**; i progetti
+vivono nella tab **lavori/Progetti**, dove se il cliente ne ha **più di uno** compaiono delle
+**card selezionabili** (come il portale team) che impostano `activePid`), `ServicesShowcase`
 (sezione "Scopri i servizi" del portale: pagine vetrina Studio/Materico/
 Strategico/Unico accanto ai progetti; Unico ha la vetrina immobili-investimento
 con dati **fittizi** da `src/showcaseData.ts` — contenuti demo, non su Firebase),
@@ -404,7 +408,11 @@ reporting/redditività, integrazioni esterne
   ⚠️ Aggiunto il nodo **`newsletter/<uid>`** (iscrizione newsletter dal portale — read del proprietario
   + studio attivo non-cliente/non-partner; write `auth.uid==$uid`): **ripubblicare le regole**, altrimenti
   il tasto "Iscriviti" del portale (`NewsletterButton`) dà "permission denied". Componente autonomo che
-  legge/scrive via watchNode/writeNode.
+  legge/scrive via watchNode/writeNode. **Resa come BANNER** (`variant='banner'`, default): appare nel
+  portale **solo se non iscritti** e con una **spunta** (stile privacy) che, una volta iscritti, lo fa
+  sparire; in `ClientProfileModal` usa `variant='inline'` (spunta sempre visibile, iscrivi/disiscrivi).
+  In **registrazione** (`AuthFlow`) c'è la **spunta newsletter facoltativa** accanto alla privacy
+  (`renderPrivacy`) che alla conferma scrive `newsletter/<uid>`.
   ⚠️ Aggiunto il nodo **`deletionRequests/<uid>`** (richiesta eliminazione account dal Profilo cliente —
   read del proprietario + studio attivo non-cliente/partner; write `auth.uid==$uid`): **ripubblicare le
   regole**. Il cliente la invia da `ClientProfileModal` (+ flag `users/<uid>/deletionRequested`), poi viene
@@ -445,7 +453,7 @@ reporting/redditività, integrazioni esterne
   non-cliente/non-partner): **ripubblicare le regole**, altrimenti lead/automation/SEO/ads/analytics/inbox/consensi
   danno "permission denied" con write silenziosa lato client. La spesa ads riusa i nodi finanza esistenti.
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
-  `oniricoapp-48953` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
+  `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;
   incollarne l'ID in `src/drive.ts` (`DEFAULT_CLIENT_ID`) o impostare
   `window.__ONIRICO_DRIVE_CLIENT_ID__`. Finché non è configurato, l'upload Drive non parte e la
@@ -574,7 +582,7 @@ reporting/redditività, integrazioni esterne
 
 ## 18. Backend — Cloud Functions (automazioni)
 - Cartella **`functions/`** (TS, firebase-functions v2, region `europe-west1`), config `firebase.json`
-  + `.firebaserc` (progetto `oniricoapp-48953`). Email via **SendGrid** (secret `SENDGRID_KEY`).
+  + `.firebaserc` (progetto `aulico-228bd`). Email via **SendGrid** (secret `SENDGRID_KEY`).
 - Funzioni: `onQuoteStatusChange` (preventivo accettato → notifica+email), `dailyReminders`
   (ferie 7gg prima + scadenze 3gg), `weeklyReport`/`monthlyReport` (attività completate per
   collaboratore), **`aiGenerate`** (callable AI Anthropic, §22-quater — secret `ANTHROPIC_KEY`, solo studio

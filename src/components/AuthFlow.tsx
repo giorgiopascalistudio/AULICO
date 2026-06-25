@@ -22,7 +22,7 @@ import {
   Check, ChevronLeft, Briefcase, User as UserIcon, Users, Eye, EyeOff
 } from 'lucide-react';
 import {
-  loginWithGoogle, loginWithEmail, registerWithEmail, resetPassword, setAccount,
+  loginWithGoogle, loginWithEmail, registerWithEmail, resetPassword, setAccount, writeNode,
   type User as GUser
 } from '../firebase';
 import type { AccountType } from '../types';
@@ -112,6 +112,7 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
   const [telefono, setTelefono] = useState('');
   const [residenza, setResidenza] = useState('');
   const [privacy, setPrivacy] = useState(false);
+  const [newsletter, setNewsletter] = useState(false);
   // Azienda
   const [companyName, setCompanyName] = useState('');
   const [partitaIva, setPartitaIva] = useState('');
@@ -196,6 +197,10 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
         uid = cred.user.uid; em = email.trim();
       }
       await setAccount(uid, buildRecord(uid, em, photo));
+      // Consenso newsletter (facoltativo, spunta in registrazione): nodo dedicato.
+      if (newsletter) {
+        try { await writeNode(`newsletter/${uid}`, { uid, name: `${firstName.trim()} ${lastName.trim()}`.trim() || gUser?.displayName || em, email: em, subscribed: true, at: Date.now() }); } catch { /* opzionale */ }
+      }
       // Da qui in poi watchOwnAccount in App rileva il record completo e instrada.
       if (accountType === 'team') {
         onToast(t('auth.toast.teamRegistered'));
@@ -547,15 +552,27 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
 
   function renderPrivacy() {
     return (
-      <label className="flex items-start gap-2.5 mt-4 cursor-pointer select-none">
-        <span className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition ${privacy ? 'bg-[#1b1b1b] border-[#1b1b1b]' : 'border-stone-300 bg-white'}`}>
-          {privacy && <Check className="w-3.5 h-3.5 text-white" />}
-        </span>
-        <input type="checkbox" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)} className="hidden" />
-        <span className="text-[12px] text-stone-600 leading-snug">
-          {t('auth.privacy.a')}<b className="text-[#161616]">{t('auth.privacy.bold')}</b>{t('auth.privacy.b')}
-        </span>
-      </label>
+      <>
+        <label className="flex items-start gap-2.5 mt-4 cursor-pointer select-none">
+          <span className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition ${privacy ? 'bg-[#1b1b1b] border-[#1b1b1b]' : 'border-stone-300 bg-white'}`}>
+            {privacy && <Check className="w-3.5 h-3.5 text-white" />}
+          </span>
+          <input type="checkbox" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)} className="hidden" />
+          <span className="text-[12px] text-stone-600 leading-snug">
+            {t('auth.privacy.a')}<b className="text-[#161616]">{t('auth.privacy.bold')}</b>{t('auth.privacy.b')}
+          </span>
+        </label>
+        {/* Consenso newsletter facoltativo (stessa spunta della privacy) */}
+        <label className="flex items-start gap-2.5 mt-3 cursor-pointer select-none">
+          <span className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition ${newsletter ? 'bg-[#1b1b1b] border-[#1b1b1b]' : 'border-stone-300 bg-white'}`}>
+            {newsletter && <Check className="w-3.5 h-3.5 text-white" />}
+          </span>
+          <input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} className="hidden" />
+          <span className="text-[12px] text-stone-600 leading-snug">
+            Iscrivimi alla <b className="text-[#161616]">newsletter</b> per ricevere aggiornamenti e novità (facoltativo).
+          </span>
+        </label>
+      </>
     );
   }
 };

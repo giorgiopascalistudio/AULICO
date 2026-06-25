@@ -10,10 +10,19 @@
  * Secret da impostare (wrangler secret put ...):
  *  - FIREBASE_API_KEY : la apiKey web del progetto (per verificare l'ID token)
  *  - GEMINI_KEY       : chiave Google AI Studio (free) per Gemini
+ * Var opzionale (vars in wrangler.toml):
+ *  - FIREBASE_DB_URL  : URL del Realtime Database (per verificare che il chiamante
+ *                       sia un account onboardato: deve esistere users/<uid>).
+ *
+ * Sicurezza: oltre a validare l'ID token, si richiede che esista il profilo
+ * users/<uid> nel DB. Così un token ottenuto creando un account "grezzo" via la
+ * apiKey pubblica (senza passare dall'onboarding dell'app) NON può sfruttare la
+ * quota AI. Clienti e partner (che hanno il profilo) restano abilitati.
  *
  * Body atteso: { prompt: string, system?: string, maxTokens?: number }
  * Header:      Authorization: Bearer <Firebase ID token>
  */
+const DEFAULT_DB_URL = 'https://aulico-228bd-default-rtdb.europe-west1.firebasedatabase.app';
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -37,6 +46,16 @@ export default {
         { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ idToken: token }) }
       );
       if (!verify.ok) return json({ error: 'invalid-token' }, 401);
+      const vj = await verify.json().catch(() => null);
+      const uid = vj?.users?.[0]?.localId;
+      if (!uid) return json({ error: 'invalid-token' }, 401);
+
+      // 1b) il chiamante deve essere un account onboardato (profilo users/<uid>).
+      //     Lettura col token dell'utente (le regole consentono auth.uid==$uid).
+      const dbUrl = env.FIREBASE_DB_URL || DEFAULT_DB_URL;
+      const prof = await fetch(`${dbUrl}/users/${uid}.json?auth=${encodeURIComponent(token)}`);
+      const profVal = prof.ok ? await prof.json().catch(() => null) : null;
+      if (!profVal) return json({ error: 'forbidden', detail: 'Account non abilitato.' }, 403);
 
       // 2) input
       const body = await request.json();
