@@ -4508,7 +4508,7 @@ export default function App() {
           onNotificationsClick={() => setNotificationsOpen(!notificationsOpen)}
           pendingCount={canManageAccess ? pendingAccounts.length : 0}
           actionButton={
-            route === 'progetti' ? (
+            route === 'progetti' && !(activeDivision === 'strategico' && (currentUser.role === 'admin' || currentUser.role === 'manager')) ? (
               <button onClick={() => handleOpenNewProject(activeDivision)} className="w-[38px] h-[38px] rounded-full bg-[#1b1b1b] text-white flex items-center justify-center border-none cursor-pointer active:scale-95 transition-transform" aria-label="Nuovo progetto">
                 <Plus className="w-4.5 h-4.5" />
               </button>
@@ -4523,7 +4523,7 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            {route === 'progetti' && (
+            {route === 'progetti' && !(activeDivision === 'strategico' && (currentUser.role === 'admin' || currentUser.role === 'manager')) && (
               <button
                 onClick={() => handleOpenNewProject(activeDivision)}
                 className="btn btn-primary btn-sm rounded-xl py-1.5 px-3 flex items-center gap-1.5 cursor-pointer font-bold bg-[#1b1b1b] hover:bg-black text-white hover:shadow-md"
