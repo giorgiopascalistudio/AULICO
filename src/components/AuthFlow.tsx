@@ -404,6 +404,18 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
               <p className="text-[13px] text-stone-500 mt-1">{t('auth.register.sub')}</p>
             </div>
 
+            {/* Google in cima: veloce, prende i dati dal tuo account */}
+            <button onClick={handleGoogle} disabled={busy} className="flex items-center justify-center gap-3 h-11 rounded-xl border border-stone-300 hover:bg-stone-50 hover:border-stone-400 font-bold text-[14px] w-full disabled:opacity-60">
+              <GoogleMark /> {t('auth.googleRegister')}
+            </button>
+            <p className="text-center text-[11.5px] text-stone-400 mt-2">Veloce: nome ed email vengono presi da Google, ti chiediamo solo pochi dati.</p>
+
+            <div className="flex items-center gap-3 my-4">
+              <div className="h-px flex-1 bg-[#ececec]" />
+              <span className="text-[11px] font-bold text-stone-400 uppercase">{t('auth.or')}</span>
+              <div className="h-px flex-1 bg-[#ececec]" />
+            </div>
+
             {renderTypePicker()}
 
             <div className="grid grid-cols-2 gap-3.5 mt-5">
@@ -432,16 +444,6 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
 
             <button onClick={() => submit('email')} disabled={busy} className="flex items-center justify-center gap-2 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[14px] w-full mt-5 h-11 transition active:scale-[0.98] disabled:opacity-60">
               {busy ? t('auth.busy.wait') : t('auth.register.submit')} <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-center gap-3 my-3.5">
-              <div className="h-px flex-1 bg-[#ececec]" />
-              <span className="text-[11px] font-bold text-stone-400 uppercase">{t('auth.or')}</span>
-              <div className="h-px flex-1 bg-[#ececec]" />
-            </div>
-
-            <button onClick={() => submit('google')} disabled={busy} className="flex items-center justify-center gap-3 h-11 rounded-xl border border-stone-200 hover:bg-stone-50 hover:border-stone-400 font-bold text-[14px] w-full disabled:opacity-60">
-              <GoogleMark /> {t('auth.googleRegister')}
             </button>
 
             <p className="text-center text-[12.5px] text-stone-500 mt-5">

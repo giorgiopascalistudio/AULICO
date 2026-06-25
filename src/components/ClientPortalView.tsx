@@ -13,7 +13,8 @@ import {
   Download, 
   Briefcase, 
   Calendar, 
-  Sparkles, 
+  Sparkles,
+  Check, 
   LogOut, 
   Loader2, 
   Sparkle, 
@@ -401,9 +402,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
       <div className="flex flex-col min-h-screen bg-[#F5F5F3] text-[#161616] font-sans">
         {/* Top bar Client */}
         <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-[#ececec]">
-          <span className="font-extrabold text-[20px] tracking-tight text-[#161616]">
-            Onirico<span className="text-[#8a8a8a] font-normal"> · OS</span>
-          </span>
+          <span className="font-extrabold text-[20px] tracking-tight text-[#161616]">Aulico</span>
           <div className="flex items-center gap-2.5">
             <LangToggle />
             <button onClick={() => setShowcaseOpen(true)} className="bg-[#1b1b1b] hover:bg-black text-white font-extrabold text-xs py-1.5 px-3.5 rounded-xl border-none flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
@@ -416,22 +415,49 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
         </div>
 
         {profile.role === 'cliente' && onCreateClientRequest ? (
-          <div className="flex-1 w-full max-w-[660px] mx-auto p-4 sm:p-6 flex flex-col gap-4">
-            <div className="text-center mt-2 mb-1">
-              <h1 className="text-[22px] font-extrabold text-[#161616] tracking-tight">{profile.name ? t('portal.welcomeNamed', { name: profile.name.split(' ')[0] }) : t('portal.welcome')}</h1>
-              <p className="text-[13.5px] text-[#8a8a8a] mt-1.5 leading-relaxed">
-                {t('portal.noProject.a')}<b className="text-[#161616]">{t('portal.noProject.bold')}</b>{t('portal.noProject.c')}
-              </p>
+          <div className="flex-1 w-full">
+            {/* HERO immersivo — conversione visitatore → progetto */}
+            <div className="relative overflow-hidden bg-[#161616] text-white">
+              <div className="absolute inset-0 opacity-[0.18]" style={{ background: 'radial-gradient(120% 120% at 80% 0%, #b45309 0%, transparent 55%), radial-gradient(120% 120% at 0% 100%, #4338ca 0%, transparent 55%)' }} />
+              <div className="relative max-w-[920px] mx-auto px-6 py-14 sm:py-20 text-center">
+                <span className="inline-block text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/60">
+                  {profile.name ? `Benvenuto, ${profile.name.split(' ')[0]}` : 'Benvenuto in Aulico'}
+                </span>
+                <h1 className="text-[30px] sm:text-[44px] font-extrabold tracking-tight leading-[1.05] mt-3">
+                  La tua idea,<br className="hidden sm:block" /> progettata e realizzata.
+                </h1>
+                <p className="text-[14.5px] sm:text-[16px] text-white/70 mt-4 max-w-[560px] mx-auto leading-relaxed">
+                  Architettura, interni e investimenti immobiliari seguiti da un unico gruppo. Raccontaci cosa hai in mente: ti rispondiamo con una proposta.
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-3 mt-7">
+                  <button onClick={() => document.getElementById('start-project')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="bg-white text-[#161616] font-extrabold text-[14px] py-3 px-6 rounded-full border-none cursor-pointer hover:bg-white/90 transition-all active:scale-95 inline-flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" /> Inizia il tuo progetto
+                  </button>
+                  <button onClick={() => setShowcaseOpen(true)} className="bg-white/10 hover:bg-white/15 text-white font-bold text-[14px] py-3 px-6 rounded-full border border-white/20 cursor-pointer transition-all active:scale-95">
+                    Scopri i servizi
+                  </button>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2 mt-9 text-[12.5px] text-white/55">
+                  <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5" /> Sopralluogo e idea iniziale</span>
+                  <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5" /> Preventivo trasparente</span>
+                  <span className="inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5" /> Cantiere seguito passo passo</span>
+                </div>
+              </div>
             </div>
-            {(unicoPositions || []).length > 0 && <MyInvestmentsPanel positions={unicoPositions || []} />}
-            <MarketingPortalPanel profile={profile} events={mktEvents || []} surveys={mktSurveys || []} responses={mktResponses || {}} onRsvp={onRsvpEvent} onSubmitSurvey={onSubmitSurvey} />
-            <ClientRequestPanel
-              profile={profile}
-              requests={clientRequests || []}
-              matericoRequests={(matericoRequests || []).filter((r) => r.clientUid === profile.uid)}
-              onCreate={onCreateClientRequest}
-              onCreateMatericoRequest={onCreateMatericoRequest}
-            />
+
+            <div className="w-full max-w-[660px] mx-auto p-4 sm:p-6 flex flex-col gap-4">
+              {(unicoPositions || []).length > 0 && <MyInvestmentsPanel positions={unicoPositions || []} />}
+              <MarketingPortalPanel profile={profile} events={mktEvents || []} surveys={mktSurveys || []} responses={mktResponses || {}} onRsvp={onRsvpEvent} onSubmitSurvey={onSubmitSurvey} />
+              <div id="start-project" className="scroll-mt-4">
+                <ClientRequestPanel
+                  profile={profile}
+                  requests={clientRequests || []}
+                  matericoRequests={(matericoRequests || []).filter((r) => r.clientUid === profile.uid)}
+                  onCreate={onCreateClientRequest}
+                  onCreateMatericoRequest={onCreateMatericoRequest}
+                />
+              </div>
+            </div>
           </div>
         ) : (
           <div className="flex-1 max-w-[500px] mx-auto flex items-center justify-center p-6">
