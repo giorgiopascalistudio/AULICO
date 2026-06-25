@@ -3,11 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * TeamAssistant — assistente personale del team (consigli organizzativi via AI).
- * Costruisce il contesto dai task reali dell'utente (aperti/scaduti/urgenti/in
- * scadenza) e chiede consigli a `callAi` (Worker Groq, gratis). Niente nodi DB.
+ * Pulsante FLOTTANTE globale (in basso a destra) che apre un popup; raggiungibile
+ * da ogni schermata. Costruisce il contesto dai task reali dell'utente e chiede
+ * consigli a `callAi` (Worker Groq, gratis). Niente nodi DB.
  */
 import React, { useMemo, useState } from 'react';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles, Loader2, X } from 'lucide-react';
 import { Task, UserProfile } from '../types';
 import { callAi } from '../firebase';
 
@@ -20,7 +21,6 @@ export const TeamAssistant: React.FC<{ profile: UserProfile; tasks: Task[] }> = 
   const [answer, setAnswer] = useState('');
   const [err, setErr] = useState('');
 
-  // Task dell'utente (assegnatario singolo o multiplo)
   const mine = useMemo(
     () => tasks.filter((t) => t.assignee === profile.uid || (t.assignees || []).includes(profile.uid)),
     [tasks, profile.uid]
@@ -51,7 +51,7 @@ export const TeamAssistant: React.FC<{ profile: UserProfile; tasks: Task[] }> = 
         maxTokens: 500,
       });
       setAnswer(text || 'Nessun suggerimento generato.');
-    } catch (e: any) {
+    } catch {
       setErr('AI non disponibile al momento. Verifica la configurazione del Worker (GROQ_KEY).');
     } finally {
       setLoading(false);
@@ -59,37 +59,43 @@ export const TeamAssistant: React.FC<{ profile: UserProfile; tasks: Task[] }> = 
   };
 
   return (
-    <div className="bg-white rounded-[22px] border border-[#e2e2e2] p-5">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="inline-flex items-center gap-2 text-[14.5px] font-extrabold text-[#161616]">
-          <Sparkles className="w-4.5 h-4.5 text-[#b45309]" /> Assistente personale
-        </h3>
-        <span className="text-[11.5px] text-[#8a8a8a]">{open_.length} aperti · {overdue.length} in ritardo</span>
-      </div>
-
-      {!open ? (
-        <button onClick={() => setOpen(true)} className="mt-3 w-full py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[13px] cursor-pointer border-none">
-          Chiedi un consiglio organizzativo
+    <>
+      {/* Bottone flottante (poco invasivo) */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          title="Assistente personale"
+          className="fixed bottom-5 right-5 z-[150] w-12 h-12 rounded-full bg-[#1b1b1b] hover:bg-black text-white shadow-lg flex items-center justify-center cursor-pointer border-none active:scale-95 transition-transform"
+        >
+          <Sparkles className="w-5 h-5" />
         </button>
-      ) : (
-        <div className="mt-3 flex flex-col gap-2.5">
-          <textarea
-            value={q} onChange={(e) => setQ(e.target.value)} rows={2}
-            placeholder="Domanda opzionale (es. 'come organizzo la settimana?'). Lascia vuoto per un consiglio sui tuoi task."
-            className="w-full border border-[#e2e2e2] rounded-xl px-3 py-2 text-[13px] resize-none outline-none focus:border-[#161616]"
-          />
-          <div className="flex gap-2">
-            <button onClick={ask} disabled={loading} className="flex-1 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[13px] cursor-pointer border-none disabled:opacity-50 inline-flex items-center justify-center gap-2">
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Sto pensando…</> : <>✨ Consiglio</>}
-            </button>
-            <button onClick={() => { setOpen(false); setAnswer(''); setErr(''); }} className="px-4 py-2.5 rounded-xl bg-[#f0f0f0] text-[#161616] font-bold text-[13px] cursor-pointer border-none">Chiudi</button>
+      )}
+
+      {/* Popup */}
+      {open && (
+        <div className="fixed bottom-5 right-5 z-[150] w-[min(92vw,380px)] bg-white border border-[#e2e2e2] rounded-[20px] shadow-2xl flex flex-col max-h-[78vh] animate-[popIn_0.2s_ease_both]">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[#ececec]">
+            <b className="text-[14px] inline-flex items-center gap-2"><Sparkles className="w-4 h-4 text-[#b45309]" /> Assistente</b>
+            <button onClick={() => setOpen(false)} className="w-7 h-7 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
           </div>
-          {err && <p className="text-[12.5px] text-red-600">{err}</p>}
-          {answer && (
-            <div className="text-[13px] text-[#222] whitespace-pre-wrap leading-relaxed bg-[#fafafa] border border-[#ececec] rounded-xl p-3.5">{answer}</div>
-          )}
+
+          <div className="p-4 flex flex-col gap-2.5 overflow-y-auto">
+            <span className="text-[11.5px] text-[#8a8a8a]">{open_.length} task aperti · {overdue.length} in ritardo · {urgent.length} urgenti</span>
+            <textarea
+              value={q} onChange={(e) => setQ(e.target.value)} rows={2}
+              placeholder="Domanda opzionale… (vuoto = consiglio sui tuoi task)"
+              className="w-full border border-[#e2e2e2] rounded-xl px-3 py-2 text-[13px] resize-none outline-none focus:border-[#161616]"
+            />
+            <button onClick={ask} disabled={loading} className="w-full py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[13px] cursor-pointer border-none disabled:opacity-50 inline-flex items-center justify-center gap-2">
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Sto pensando…</> : <>✨ Consiglio organizzativo</>}
+            </button>
+            {err && <p className="text-[12.5px] text-red-600">{err}</p>}
+            {answer && (
+              <div className="text-[13px] text-[#222] whitespace-pre-wrap leading-relaxed bg-[#fafafa] border border-[#ececec] rounded-xl p-3.5">{answer}</div>
+            )}
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

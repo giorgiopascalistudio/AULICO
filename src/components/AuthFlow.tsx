@@ -158,7 +158,8 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
   };
 
   const validateProfile = (): string | null => {
-    if (!firstName.trim() || !lastName.trim()) return t('auth.validate.name');
+    // Con login Google nome/cognome arrivano da Google: non li chiediamo.
+    if (!completing && (!firstName.trim() || !lastName.trim())) return t('auth.validate.name');
     if (!telefono.trim()) return t('auth.validate.phone');
     if (!residenza.trim()) return t('auth.validate.residence');
     if (accountType === 'azienda') {
@@ -480,12 +481,25 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
   function renderProfileFields() {
     return (
       <>
-        <Field label={t('auth.field.firstName')} icon={<UserIcon className="w-3.5 h-3.5" />}>
-          <input value={firstName} onChange={(e) => setFirstName(e.target.value)} className={IN} placeholder={t('auth.field.firstNamePlaceholder')} />
-        </Field>
-        <Field label={t('auth.field.lastName')} icon={<UserIcon className="w-3.5 h-3.5" />}>
-          <input value={lastName} onChange={(e) => setLastName(e.target.value)} className={IN} placeholder={t('auth.field.lastNamePlaceholder')} />
-        </Field>
+        {/* Con login Google nome/cognome/email arrivano da Google: chiediamo solo il resto. */}
+        {completing ? (
+          <div className="col-span-2 flex items-center gap-2.5 p-2.5 rounded-xl bg-[#fafafa] border border-[#ececec]">
+            {gUser?.photoURL ? <img src={gUser.photoURL} alt="" className="w-9 h-9 rounded-full" /> : <UserIcon className="w-5 h-5 text-stone-400" />}
+            <div className="min-w-0">
+              <b className="block text-[13px] text-[#161616] truncate">{gUser?.displayName || `${firstName} ${lastName}`.trim() || '—'}</b>
+              <span className="block text-[11.5px] text-stone-500 truncate">{gUser?.email}</span>
+            </div>
+          </div>
+        ) : (
+          <>
+            <Field label={t('auth.field.firstName')} icon={<UserIcon className="w-3.5 h-3.5" />}>
+              <input value={firstName} onChange={(e) => setFirstName(e.target.value)} className={IN} placeholder={t('auth.field.firstNamePlaceholder')} />
+            </Field>
+            <Field label={t('auth.field.lastName')} icon={<UserIcon className="w-3.5 h-3.5" />}>
+              <input value={lastName} onChange={(e) => setLastName(e.target.value)} className={IN} placeholder={t('auth.field.lastNamePlaceholder')} />
+            </Field>
+          </>
+        )}
         <Field label={t('auth.field.phone')} icon={<Phone className="w-3.5 h-3.5" />}>
           <input value={telefono} onChange={(e) => setTelefono(e.target.value)} className={IN} placeholder={t('auth.field.phonePlaceholder')} />
         </Field>

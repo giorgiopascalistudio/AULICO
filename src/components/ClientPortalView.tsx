@@ -49,6 +49,7 @@ import { Project, UserProfile, MatericoEstimate, Furnishing, Cantiere, Rapportin
 import { totalPoints, tierFor, nextTier, reliabilityScore } from '../points';
 import { clientGame } from '../gamification';
 import { AiComposeButton } from './AiComposeButton';
+import { NewsletterButton } from './NewsletterButton';
 import { FurnishingsBoard } from './FurnishingsBoard';
 import { ClientRequestPanel } from './ClientRequestPanel';
 import { CantiereBoard } from './CantiereBoard';
@@ -638,6 +639,12 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           members={studioMembers}
           onRequest={onRequestAppointment}
         />
+      )}
+
+      {!isPreview && (
+        <div className="max-w-[1100px] w-full mx-auto px-4 sm:px-6 pt-6">
+          <NewsletterButton uid={profile.uid} name={profile.name} email={profile.email} />
+        </div>
       )}
 
       {profile.role === 'cliente' && (

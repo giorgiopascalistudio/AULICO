@@ -145,6 +145,7 @@ const ClientRequestsView = React.lazy(() => import('./components/ClientRequestsV
 
 // Subcomponents
 import { Sidebar } from './components/Sidebar';
+import { TeamAssistant } from './components/TeamAssistant';
 import { Navbar } from './components/Navbar';
 import { Modal } from './components/Modal';
 import { AppleSwitch } from './components/AppleSwitch';
@@ -6138,6 +6139,9 @@ export default function App() {
 
       {/* Doppia conferma eliminazione (condivisa da tutte le sezioni) */}
       {confirmDel && <ConfirmDeleteModal request={confirmDel} onClose={() => setConfirmDel(null)} />}
+
+      {/* Assistente personale AI — bottone flottante su ogni schermata (studio) */}
+      <TeamAssistant profile={currentUser} tasks={Object.values(tasks)} />
 
       {/* Render Toast notification */}
       <div className="toast-wrap fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] pointer-events-none flex flex-col gap-2.5 items-center">

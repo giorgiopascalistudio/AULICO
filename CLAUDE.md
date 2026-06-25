@@ -401,6 +401,10 @@ reporting/redditività, integrazioni esterne
   portale partner; write admin/manager): **ripubblicare le regole**, altrimenti l'assegnazione punti
   fallisce con "permission denied" e il portale partner non vede l'affidabilità. Catalogo attività +
   fasce bonus + funzioni pure in **`src/points.ts`** (team→bonus, partner→affidabilità 0–100).
+  ⚠️ Aggiunto il nodo **`newsletter/<uid>`** (iscrizione newsletter dal portale — read del proprietario
+  + studio attivo non-cliente/non-partner; write `auth.uid==$uid`): **ripubblicare le regole**, altrimenti
+  il tasto "Iscriviti" del portale (`NewsletterButton`) dà "permission denied". Componente autonomo che
+  legge/scrive via watchNode/writeNode.
   ⚠️ Aggiunti i nodi del **modulo Strategico/Marketing** (§22): **`mktEvents`** (read studio + invitato
   per-`$id`; write studio; RSVP granulare `invitees/$uid`), **`mktCampaigns`** (studio), **`mktSurveys`**
   (read ogni autenticato, write studio), **`mktSurveyResponses/$sid/$uid`** (read/write proprio uid + studio),
