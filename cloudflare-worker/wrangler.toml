@@ -1,0 +1,7 @@
+name = "aulico-ai"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# Secret (NON metterli qui): impostali con
+#   wrangler secret put FIREBASE_API_KEY
+#   wrangler secret put GEMINI_KEY

@@ -1,0 +1,28 @@
+name: Aulico — automazioni (cron gratis)
+
+# Scheduler GRATIS via GitHub Actions (niente Blaze, niente Cloud Functions).
+# Gira ogni giorno e scrive le notifiche in-app sul Realtime Database.
+# Orari in UTC: 06:00 UTC ≈ 08:00 Europe/Rome in ora legale (07:00 in ora solare).
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch: {}   # esecuzione manuale dal tab "Actions"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        working-directory: automation
+        run: npm install --no-audit --no-fund
+      - name: Run automazioni
+        working-directory: automation
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_DB_URL: ${{ secrets.FIREBASE_DB_URL }}
+        run: node cron.mjs
