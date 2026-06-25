@@ -6141,7 +6141,17 @@ export default function App() {
       {confirmDel && <ConfirmDeleteModal request={confirmDel} onClose={() => setConfirmDel(null)} />}
 
       {/* Assistente personale AI — bottone flottante su ogni schermata (studio) */}
-      <TeamAssistant profile={currentUser} tasks={Object.values(tasks)} />
+      <TeamAssistant
+        profile={currentUser}
+        tasks={Object.values(tasks)}
+        projects={Object.values(projects)}
+        clients={Object.values(clients || {})}
+        financeContext={
+          canAnywhere(currentUser, 'view', 'finance')
+            ? `fatture attive ${finInvoicesActive.length}, passive ${finInvoicesPassive.length}, scadenze aperte ${finScadenze.filter((s) => s.status !== 'pagato').length}, preventivi ${Object.keys(quotes || {}).length}`
+            : undefined
+        }
+      />
 
       {/* Render Toast notification */}
       <div className="toast-wrap fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] pointer-events-none flex flex-col gap-2.5 items-center">
