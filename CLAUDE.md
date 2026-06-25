@@ -192,7 +192,13 @@ dentro Finanze, non più voce sidebar), `TrashView` (Cestino condiviso, vedi §2
 - `quotes/<id>` — **Preventivi & Parcelle** (`Quote`, vedi §16): macro-voci, stati, piano pagamenti,
   `docKind` (preventivo|parcella), **IVA/cassa spuntabili** (`vatEnabled/vatPct/cassaEnabled/cassaPct`,
   calcolo `quoteTotals` in finance.ts); admin/manager. La rata "emessa" genera fattura attiva +
-  scadenza nei nodi finanza (eredita IVA/cassa).
+  scadenza nei nodi finanza (eredita IVA/cassa). **Funnel commessa**: un preventivo portato a
+  `status:'accettato'` **senza** `projectId` genera **AUTOMATICAMENTE** la commessa
+  (`generateProjectFromQuote` in App): progetto con fasi=macro-voci e task=righe, cliente collegato
+  (via `clientRecordId→accountUid`) e notificato. Naming "Cliente + Località" se l'indirizzo c'è.
+- `priceList` — **Listino voci di costo riusabili** (array, `PriceItem`): per comporre rapidamente i
+  preventivi. Gestione in Finanze → Preventivi → "Listino" (admin/manager); in `QuoteEditor` il select
+  "+ da listino…" aggiunge una riga pre-compilata. read studio attivo, write admin/manager.
 - `trash/<id>` — **Cestino condiviso** (`TrashItem`, vedi §20): elementi eliminati da ogni sezione,
   conservati 60 giorni poi purge automatico client-side; read/write team attivo non-cliente.
 - **Modulo Cantiere** (vedi §15): `cantieri/<cid>` (record cantiere, `partnerUids:{uid:true}`) +
@@ -452,6 +458,9 @@ reporting/redditività, integrazioni esterne
   **`mktSeo`**, **`mktAds`**, **`mktMetrics`**, **`mktInbox`**, **`mktConsents`** (tutti read/write studio attivo
   non-cliente/non-partner): **ripubblicare le regole**, altrimenti lead/automation/SEO/ads/analytics/inbox/consensi
   danno "permission denied" con write silenziosa lato client. La spesa ads riusa i nodi finanza esistenti.
+  ⚠️ Aggiunto il nodo **`priceList`** (listino voci di costo riusabili, funnel commessa — read studio
+  attivo, write admin/manager): **ripubblicare le regole**, altrimenti il "Listino" in Finanze→Preventivi
+  dà "permission denied" con write silenziosa.
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

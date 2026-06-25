@@ -234,6 +234,17 @@ export interface Quote {
   createdBy?: string;
 }
 
+/** Voce di listino riusabile per comporre velocemente preventivi/computi (nodo `priceList`, array). */
+export interface PriceItem {
+  id: string;
+  label: string;             // descrizione voce
+  macro: QuoteMacro;         // macro-categoria del preventivo
+  unit?: string | null;      // unità di misura (es. mq, cad, h)
+  unitPrice: number;         // prezzo unitario di default (imponibile)
+  division?: 'studio' | 'strategico' | 'materico' | 'unico' | null; // filtro/origine opzionale
+  createdAt: number;
+}
+
 /** Elemento nel Cestino (nodo trash/<id>): conservato 60 giorni, poi eliminato definitivamente. */
 export interface TrashItem {
   id: string;

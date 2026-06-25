@@ -62,6 +62,7 @@ import {
   TeamLeave,
   Quote,
   PaymentMilestone,
+  PriceItem,
   TrashItem,
   UserRole,
   MarketingEvent,
@@ -348,6 +349,8 @@ export default function App() {
   // CRM (pipeline lead + fornitori)
   const [crmLeads, setCrmLeads] = useState<Lead[]>([]);
   const [crmSuppliers, setCrmSuppliers] = useState<Supplier[]>([]);
+  // Listino voci di costo riusabili (funnel commessa Onirico/Materico)
+  const [priceList, setPriceList] = useState<PriceItem[]>([]);
   const [unicoDeals, setUnicoDeals] = useState<UnicoDeal[]>([]);
   // Commesse interne (intercompany) — nodo internalOrders
   const [internalOrders, setInternalOrders] = useState<InternalOrder[]>([]);
@@ -650,6 +653,10 @@ export default function App() {
   const saveSuppliers = (arr: Supplier[]) => {
     setCrmSuppliers(arr);
     writeNode('crmSuppliers', arr).catch(() => {});
+  };
+  const savePriceList = (arr: PriceItem[]) => {
+    setPriceList(arr);
+    writeNode('priceList', arr).catch(() => showToast('Errore listino (controlla regole).', 'err'));
   };
   // Unico (lato studio): operazioni immobiliari + investitori (nodo array).
   // Write-through: ricostruisce anche lo snapshot PUBBLICO `unicoShowcase`
@@ -1543,6 +1550,7 @@ export default function App() {
       }
       subs.push(watchNode('crmLeads', (v) => setCrmLeads(toArr(v)), () => {}));
       subs.push(watchNode('crmSuppliers', (v) => setCrmSuppliers(toArr(v)), () => {}));
+      subs.push(watchNode('priceList', (v) => setPriceList(toArr(v)), () => {}));
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
         setUnicoDeals(arr);
@@ -3522,9 +3530,80 @@ export default function App() {
       showToast('Documento spostato nel Cestino.', 'err');
     });
   };
+  // Funnel commessa: un PREVENTIVO accettato (senza progetto collegato) genera
+  // AUTOMATICAMENTE la "cartella cliente" — un progetto con fasi/task derivati
+  // dalle macro-voci — collega il cliente e lo avvisa.
+  const MACRO_PHASE: Record<string, string> = {
+    progettazione: 'Progettazione', consulenza: 'Consulenza', opere_edili: 'Opere edili',
+    impiantistica: 'Impiantistica', materiali: 'Materiali', altro: 'Altro',
+  };
+  const generateProjectFromQuote = (q: Quote): string => {
+    const pid = `p-${Date.now()}`;
+    const rec = q.clientRecordId ? clients[q.clientRecordId] : null;
+    const clientUid = rec?.accountUid || null;
+    // Fasi = macro-voci presenti (ordinate); task = righe di quella macro.
+    const order = ['progettazione', 'consulenza', 'opere_edili', 'impiantistica', 'materiali', 'altro'];
+    const present = order.filter((m) => (q.lines || []).some((l) => l.macro === m));
+    const phases: Record<string, any> = {};
+    if (present.length) {
+      present.forEach((m, pi) => {
+        const phId = `ph-${Date.now()}-${pi}`;
+        const tasks: Record<string, any> = {};
+        (q.lines || []).filter((l) => l.macro === m).forEach((l, ti) => {
+          const tId = `t-${Date.now()}-${pi}-${ti}`;
+          tasks[tId] = { id: tId, title: l.desc || MACRO_PHASE[m], order: ti, done: false, role: 'Progettazione' };
+        });
+        phases[phId] = { id: phId, name: MACRO_PHASE[m] || m, order: pi, tasks };
+      });
+    } else {
+      const phId = `ph-${Date.now()}-0`;
+      const tId = `t-${Date.now()}-0`;
+      phases[phId] = { id: phId, name: 'Avvio', order: 0, tasks: { [tId]: { id: tId, title: 'Apertura commessa', order: 0, done: false, role: 'Progettazione' } } };
+    }
+    // Naming "Cliente + Località" quando disponibile (prima parte dell'indirizzo).
+    const locality = rec?.address ? rec.address.split(',')[0].trim() : '';
+    const proj: Project = {
+      id: pid,
+      name: locality ? `${q.clientName} — ${locality}` : q.clientName,
+      code: `${q.division.slice(0, 3).toUpperCase()}-${String(Date.now()).slice(-4)}`,
+      client: q.clientName,
+      clientUid,
+      location: rec?.address || null,
+      status: 'attivo',
+      division: q.division,
+      icon: 'folder',
+      phases,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    setProjects((prev) => {
+      const next = autoUpdateProjectsCompletion({ ...prev, [pid]: proj });
+      syncState('projects', next);
+      return next;
+    });
+    if (clientUid) {
+      setUsers((prev) => {
+        const u = prev[clientUid];
+        if (!u) return prev;
+        const nu = { ...prev, [clientUid]: { ...u, projectIds: { ...(u.projectIds || {}), [pid]: true } } };
+        syncState('users', nu);
+        return nu;
+      });
+      pushNotification(clientUid, { type: 'progetto', title: 'Preventivo accettato: progetto attivato', body: `"${proj.name}" è ora un progetto: seguilo dal tuo portale.`, link: `#progetto/${pid}` });
+    }
+    return pid;
+  };
+
   const handleSetQuoteStatus = (id: string, status: Quote['status']) => {
     const q = quotes[id];
     if (!q) return;
+    if (status === 'accettato' && q.docKind !== 'parcella' && !q.projectId) {
+      const pid = generateProjectFromQuote(q);
+      handleSaveQuote({ ...q, status, projectId: pid });
+      notifyStudio({ type: 'preventivo', title: `Preventivo accettato: ${q.number}`, body: `${q.clientName} · ${eur(q.total)} · commessa creata`, link: `#progetto/${pid}` });
+      showToast('Preventivo accettato: commessa creata con fasi e task. Emetti le rate dal piano pagamenti.', 'ok');
+      return;
+    }
     handleSaveQuote({ ...q, status });
     if (status === 'accettato') {
       notifyStudio({ type: 'preventivo', title: `Preventivo accettato: ${q.number}`, body: `${q.clientName} · ${eur(q.total)}`, link: '#preventivi' });
@@ -4062,6 +4141,7 @@ export default function App() {
             onSaveFinanceItem={handleSaveFinanceItem}
             onDeleteFinanceItem={handleDeleteFinanceItem}
             quotes={quotes}
+            priceList={priceList}
             onSaveQuote={handleSaveQuote}
             onDeleteQuote={handleDeleteQuote}
             onSetQuoteStatus={handleSetQuoteStatus}
@@ -4199,6 +4279,8 @@ export default function App() {
             onDeleteQuote={handleDeleteQuote}
             onSetQuoteStatus={handleSetQuoteStatus}
             onEmitMilestone={handleEmitMilestone}
+            priceList={priceList}
+            onSavePriceList={canAnywhere(currentUser, 'operate', 'finance') ? savePriceList : undefined}
             initialTab={finStartTab}
             askDelete={askDelete}
             tasks={Object.values(tasks)}

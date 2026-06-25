@@ -10,7 +10,7 @@
  */
 import React, { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Quote, QuoteLine, QuoteMacro, PaymentMilestone, ClientRecord, Project } from '../types';
+import { Quote, QuoteLine, QuoteMacro, PaymentMilestone, ClientRecord, Project, PriceItem } from '../types';
 import { eur } from '../utils';
 import { quoteTotals, VAT_PCT_DEFAULT, CASSA_PCT_DEFAULT } from '../finance';
 import { Modal } from './Modal';
@@ -42,13 +42,15 @@ interface QuoteEditorProps {
   isNew: boolean;
   clients: Record<string, ClientRecord>;
   projects: Project[];
+  /** Listino voci riusabili (per comporre rapidamente il preventivo). */
+  priceList?: PriceItem[];
   /** Se valorizzato (fascicolo progetto): progetto e divisione bloccati. */
   lockProject?: Project | null;
   onSave: (q: Quote) => void;
   onClose: () => void;
 }
 
-export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, clients, projects, lockProject, onSave, onClose }) => {
+export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, clients, projects, priceList = [], lockProject, onSave, onClose }) => {
   const [draft, setDraft] = useState<Quote>({ ...initial, lines: [...(initial.lines || [])], paymentPlan: [...(initial.paymentPlan || [])] });
 
   const totals = quoteTotals(draft);
@@ -62,6 +64,12 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
 
   // -- line ops --
   const addLine = () => setDraft((d) => ({ ...d, lines: [...(d.lines || []), { id: newId('ln'), macro: 'progettazione', desc: '', qty: 1, unitPrice: 0, amount: 0 }] }));
+  // Aggiunge una riga pre-compilata da una voce di listino.
+  const addFromPrice = (itemId: string) => {
+    const it = priceList.find((p) => p.id === itemId);
+    if (!it) return;
+    setDraft((d) => ({ ...d, lines: [...(d.lines || []), { id: newId('ln'), macro: it.macro, desc: it.label + (it.unit ? ` (${it.unit})` : ''), qty: 1, unitPrice: it.unitPrice, amount: it.unitPrice }] }));
+  };
   const updLine = (id: string, patch: Partial<QuoteLine>) => setDraft((d) => ({
     ...d, lines: (d.lines || []).map((l) => {
       if (l.id !== id) return l;
@@ -134,7 +142,15 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
         <div className="border border-[#eee] rounded-2xl p-3 bg-[#fafafa]">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Voci per macro-categoria (importi imponibili)</span>
-            <button onClick={addLine} className="inline-flex items-center gap-1 text-[12px] font-bold text-[#161616] cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Riga</button>
+            <div className="flex items-center gap-2">
+              {priceList.length > 0 && (
+                <select value="" onChange={(e) => { if (e.target.value) addFromPrice(e.target.value); e.target.value = ''; }} className="qi text-[12px] h-8 w-[160px]" title="Aggiungi dal listino">
+                  <option value="">+ da listino…</option>
+                  {priceList.map((it) => <option key={it.id} value={it.id}>{MACRO_LABEL[it.macro]} · {it.label}</option>)}
+                </select>
+              )}
+              <button onClick={addLine} className="inline-flex items-center gap-1 text-[12px] font-bold text-[#161616] cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Riga</button>
+            </div>
           </div>
           <div className="flex flex-col gap-2">
             {(draft.lines || []).map((l) => (

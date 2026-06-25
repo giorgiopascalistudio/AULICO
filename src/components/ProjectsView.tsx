@@ -39,7 +39,7 @@ import {
   FileSignature,
   Receipt
 } from 'lucide-react';
-import { Project, UserProfile, FinanceMovement, Template, MatericoEstimate, MatericoRequest, UnicoDeal, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, ClientRecord, Quote, Task, MarketingEvent, Campaign, Survey, SurveyResponse, SocialPost, MktContract, MktTimeEntry, MktAsset, MktDeliverable, MktProof, MktLead, MktFlow, MktSeoItem, MktAdCampaign, MktMetric, MktInboxItem, MktConsent, MktProject, InternalOrder } from '../types';
+import { Project, UserProfile, FinanceMovement, Template, MatericoEstimate, MatericoRequest, UnicoDeal, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, ClientRecord, Quote, PriceItem, Task, MarketingEvent, Campaign, Survey, SurveyResponse, SocialPost, MktContract, MktTimeEntry, MktAsset, MktDeliverable, MktProof, MktLead, MktFlow, MktSeoItem, MktAdCampaign, MktMetric, MktInboxItem, MktConsent, MktProject, InternalOrder } from '../types';
 import { computoTotal, arrediTotals, studioParcella, quoteTotals, Computo, InvoiceActive, InvoicePassive, ScadenzaItem } from '../finance';
 import { QuoteEditor, emptyQuoteDraft } from './QuoteEditor';
 import { FurnishingsBoard } from './FurnishingsBoard';
@@ -98,6 +98,7 @@ interface ProjectsViewProps {
   onDeleteFinanceItem?: (node: 'finInvoicesActive' | 'finInvoicesPassive' | 'finScadenze', id: string) => void;
   // Preventivi & Parcelle della commessa (nodo quotes, condiviso con Finanze → Preventivi)
   quotes?: Record<string, Quote>;
+  priceList?: PriceItem[];
   onSaveQuote?: (q: Quote) => void;
   onDeleteQuote?: (id: string) => void;
   onSetQuoteStatus?: (id: string, status: Quote['status']) => void;
@@ -262,6 +263,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   onSaveFinanceItem,
   onDeleteFinanceItem,
   quotes = {},
+  priceList = [],
   onSaveQuote,
   onDeleteQuote,
   onSetQuoteStatus,
@@ -2203,6 +2205,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 isNew={!quotes[quoteDraft.id]}
                 clients={clients}
                 projects={[p]}
+                priceList={priceList}
                 lockProject={p}
                 onSave={(q) => onSaveQuote?.(q)}
                 onClose={() => setQuoteDraft(null)}

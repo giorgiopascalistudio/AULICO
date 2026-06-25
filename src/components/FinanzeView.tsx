@@ -11,7 +11,7 @@ import {
   Check, ChevronRight, Activity, Link2, Sliders, ShieldCheck, Info,
   Upload, Building2, Percent, BarChart3
 } from 'lucide-react';
-import { FinanceMovement, Project, Furnishing, MatericoRequest, UnicoDeal, Cantiere, CantiereSal, Quote, ClientRecord, Task, UserProfile } from '../types';
+import { FinanceMovement, Project, Furnishing, MatericoRequest, UnicoDeal, Cantiere, CantiereSal, Quote, ClientRecord, Task, UserProfile, PriceItem } from '../types';
 import { eur, fmtDay, numIt, todayISO } from '../utils';
 import { watchNode, writeNode } from '../firebase';
 import {
@@ -44,6 +44,9 @@ interface FinanzeViewProps {
   onDeleteQuote?: (id: string) => void;
   onSetQuoteStatus?: (id: string, status: Quote['status']) => void;
   onEmitMilestone?: (quoteId: string, milestoneId: string) => void;
+  /** Listino voci riusabili (funnel commessa) + salvataggio (admin/manager). */
+  priceList?: PriceItem[];
+  onSavePriceList?: (arr: PriceItem[]) => void;
   /** Tab iniziale (es. 'preventivi' quando si arriva da #preventivi). */
   initialTab?: string | null;
   /** Doppia conferma eliminazione (modale condivisa in App). */
@@ -82,6 +85,8 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
   onDeleteQuote,
   onSetQuoteStatus,
   onEmitMilestone,
+  priceList = [],
+  onSavePriceList,
   initialTab = null,
   askDelete,
   tasks = [],
@@ -1011,6 +1016,8 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
           projects={projects}
           myUid={myUid}
           company={selectedSector}
+          priceList={priceList}
+          onSavePriceList={onSavePriceList}
           onSaveQuote={onSaveQuote || (() => {})}
           onDeleteQuote={onDeleteQuote || (() => {})}
           onSetStatus={onSetQuoteStatus || (() => {})}

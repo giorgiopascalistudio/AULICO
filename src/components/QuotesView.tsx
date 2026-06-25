@@ -9,12 +9,13 @@
  */
 import React, { useMemo, useState } from 'react';
 import {
-  FileSignature, Plus, Trash2, Receipt, ChevronDown, ChevronUp
+  FileSignature, Plus, Trash2, Receipt, ChevronDown, ChevronUp, ListChecks
 } from 'lucide-react';
-import { Quote, ClientRecord, Project } from '../types';
+import { Quote, ClientRecord, Project, PriceItem, QuoteMacro } from '../types';
 import { eur } from '../utils';
 import { Company, COMPANY_LABEL, COMPANY_COLOR, quoteTotals } from '../finance';
 import { QuoteEditor, emptyQuoteDraft, MACRO_LABEL } from './QuoteEditor';
+import { Modal } from './Modal';
 
 const STATUS_LABEL: Record<Quote['status'], string> = {
   elaborato: 'Elaborato', in_attesa: 'In attesa', accettato: 'Accettato', rifiutato: 'Rifiutato'
@@ -31,17 +32,21 @@ interface QuotesViewProps {
   myUid: string;
   /** Società selezionata nella barra di Finanze ('all'/'consolidato' = tutte, raggruppate per società). */
   company?: 'all' | 'consolidato' | Company;
+  /** Listino voci riusabili + handler di salvataggio (admin/manager). */
+  priceList?: PriceItem[];
+  onSavePriceList?: (arr: PriceItem[]) => void;
   onSaveQuote: (q: Quote) => void;
   onDeleteQuote: (id: string) => void;
   onSetStatus: (id: string, status: Quote['status']) => void;
   onEmitMilestone: (quoteId: string, milestoneId: string) => void;
 }
 
-export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, projects, myUid, company = 'all', onSaveQuote, onDeleteQuote, onSetStatus, onEmitMilestone }) => {
+export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, projects, myUid, company = 'all', priceList = [], onSavePriceList, onSaveQuote, onDeleteQuote, onSetStatus, onEmitMilestone }) => {
   const [editorOpen, setEditorOpen] = useState(false);
   const [draft, setDraft] = useState<Quote>(emptyQuoteDraft());
   const [filter, setFilter] = useState<'all' | Quote['status']>('all');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [listinoOpen, setListinoOpen] = useState(false);
 
   const showAll = company === 'all' || company === 'consolidato';
 
@@ -174,6 +179,11 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1.5">Registro per società con macro-voci, stati, IVA/cassa e piano pagamenti collegato alla fatturazione.</p>
         </div>
         <div className="flex items-center gap-2">
+          {onSavePriceList && (
+            <button onClick={() => setListinoOpen(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[13px] font-bold cursor-pointer transition-colors" title="Listino voci di costo riusabili">
+              <ListChecks className="w-4 h-4" /> Listino
+            </button>
+          )}
           <button onClick={() => openNew('parcella')} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[13px] font-bold cursor-pointer transition-colors">
             <Plus className="w-4 h-4" /> Nuova parcella
           </button>
@@ -231,11 +241,49 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
           isNew={!quotes[draft.id]}
           clients={clients}
           projects={projects}
+          priceList={priceList}
           onSave={(q) => onSaveQuote({ ...q, createdBy: q.createdBy || myUid })}
           onClose={() => setEditorOpen(false)}
         />
       )}
+
+      {/* LISTINO voci di costo riusabili */}
+      {listinoOpen && onSavePriceList && (
+        <PriceListModal items={priceList} onSave={onSavePriceList} onClose={() => setListinoOpen(false)} />
+      )}
     </div>
+  );
+};
+
+/** Gestione del listino voci di costo (admin/manager): usato per comporre rapidamente i preventivi. */
+const PriceListModal: React.FC<{ items: PriceItem[]; onSave: (arr: PriceItem[]) => void; onClose: () => void }> = ({ items, onSave, onClose }) => {
+  const [rows, setRows] = useState<PriceItem[]>(items.map((i) => ({ ...i })));
+  const add = () => setRows((r) => [...r, { id: `pi-${Date.now()}-${Math.floor(Math.random() * 900)}`, label: '', macro: 'progettazione', unit: '', unitPrice: 0, division: null, createdAt: Date.now() }]);
+  const upd = (id: string, patch: Partial<PriceItem>) => setRows((r) => r.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+  const del = (id: string) => setRows((r) => r.filter((x) => x.id !== id));
+  const numv = (v: any) => Number(String(v).replace(',', '.')) || 0;
+  return (
+    <Modal title="Listino voci di costo" isOpen onClose={onClose} wide
+      footer={<button onClick={() => { onSave(rows.filter((x) => x.label.trim())); onClose(); }} className="btn bg-[#1b1b1b] text-white hover:bg-black font-semibold cursor-pointer justify-center">Salva listino</button>}>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-[12px] text-[#8a8a8a] font-semibold">Voci riusabili per comporre i preventivi (descrizione, macro, unità, prezzo unitario).</span>
+          <button onClick={add} className="inline-flex items-center gap-1 text-[12px] font-bold text-[#161616] cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Voce</button>
+        </div>
+        {rows.length === 0 && <p className="text-[13px] text-[#8a8a8a] py-6 text-center">Nessuna voce. Aggiungine una con "Voce".</p>}
+        {rows.map((it) => (
+          <div key={it.id} className="flex items-center gap-2">
+            <input value={it.label} onChange={(e) => upd(it.id, { label: e.target.value })} placeholder="Descrizione voce" className="qi flex-1" />
+            <select value={it.macro} onChange={(e) => upd(it.id, { macro: e.target.value as QuoteMacro })} className="qi w-[140px] shrink-0">
+              {(Object.keys(MACRO_LABEL) as QuoteMacro[]).map((m) => <option key={m} value={m}>{MACRO_LABEL[m]}</option>)}
+            </select>
+            <input value={it.unit || ''} onChange={(e) => upd(it.id, { unit: e.target.value || null })} placeholder="u.m." className="qi w-[70px] shrink-0 text-center" />
+            <input value={it.unitPrice} onChange={(e) => upd(it.id, { unitPrice: numv(e.target.value) })} placeholder="€/u" className="qi w-[90px] shrink-0 text-right font-mono" />
+            <button onClick={() => del(it.id)} className="w-8 h-8 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-rose-600 cursor-pointer shrink-0"><Trash2 className="w-4 h-4" /></button>
+          </div>
+        ))}
+      </div>
+    </Modal>
   );
 };
 
