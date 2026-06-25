@@ -8,7 +8,7 @@
  * dallo studio). Scrive direttamente su users/<uid> (regole: write del proprio uid).
  */
 import React, { useState } from 'react';
-import { X, Camera, Lock, MapPin, Mail, Trash2, Check, Loader2 } from 'lucide-react';
+import { X, Camera, Lock, MapPin, Mail, Trash2, Check, Loader2, Phone } from 'lucide-react';
 import { UserProfile } from '../types';
 import { auth, updateNode, writeNode, changePassword } from '../firebase';
 import { NewsletterButton } from './NewsletterButton';
@@ -18,9 +18,12 @@ export const ClientProfileModal: React.FC<{
   onClose: () => void;
   onLogout: () => void;
   onToast: (msg: string, type?: 'ok' | 'err') => void;
-}> = ({ profile, onClose, onLogout, onToast }) => {
+  /** Se true: reso come pagina (no overlay), per la sezione Profilo del portale. */
+  page?: boolean;
+}> = ({ profile, onClose, onLogout, onToast, page }) => {
   const [photo, setPhoto] = useState(profile.photoURL || '');
   const [residenza, setResidenza] = useState(profile.residenza || '');
+  const [telefono, setTelefono] = useState(profile.telefono || '');
   const [pass, setPass] = useState('');
   const [pass2, setPass2] = useState('');
   const [savingInfo, setSavingInfo] = useState(false);
@@ -66,7 +69,7 @@ export const ClientProfileModal: React.FC<{
 
   const saveInfo = async () => {
     setSavingInfo(true);
-    try { await updateNode(`users/${profile.uid}`, { residenza: residenza.trim() || null }); onToast('Dati aggiornati.'); }
+    try { await updateNode(`users/${profile.uid}`, { residenza: residenza.trim() || null, telefono: telefono.trim() || null }); onToast('Dati aggiornati.'); }
     catch { onToast('Errore salvataggio.', 'err'); }
     finally { setSavingInfo(false); }
   };
@@ -94,12 +97,11 @@ export const ClientProfileModal: React.FC<{
     } catch { onToast('Errore invio richiesta.', 'err'); setBusyDel(false); }
   };
 
-  return (
-    <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
-      <div className="bg-white w-full sm:max-w-[480px] max-h-[92vh] overflow-y-auto rounded-t-[26px] sm:rounded-[26px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+  const inner = (
+      <div className={page ? 'bg-white border border-[#e5e5e5] rounded-[22px] overflow-hidden' : 'bg-white w-full sm:max-w-[480px] max-h-[92vh] overflow-y-auto rounded-t-[26px] sm:rounded-[26px] shadow-2xl'} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#ececec] sticky top-0 bg-white z-10">
           <b className="text-[16px] tracking-tight">Il tuo profilo</b>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
+          {!page && <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>}
         </div>
 
         <div className="p-6 flex flex-col gap-5 text-left">
@@ -118,12 +120,14 @@ export const ClientProfileModal: React.FC<{
             </div>
           </div>
 
-          {/* Residenza */}
-          <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] inline-flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> Residenza</span>
+          {/* Contatti: telefono + residenza */}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] inline-flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Telefono</span>
+            <input value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="+39…" className="border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] outline-none focus:border-[#161616]" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] inline-flex items-center gap-1.5 mt-2"><MapPin className="w-3.5 h-3.5" /> Residenza</span>
             <input value={residenza} onChange={(e) => setResidenza(e.target.value)} placeholder="Via, civico, città" className="border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] outline-none focus:border-[#161616]" />
             <button onClick={saveInfo} disabled={savingInfo} className="self-start mt-1 text-[12px] font-bold px-3 py-1.5 rounded-lg bg-[#1b1b1b] text-white border-none cursor-pointer disabled:opacity-50">{savingInfo ? 'Salvo…' : 'Salva'}</button>
-          </label>
+          </div>
 
           {/* Password */}
           <div className="flex flex-col gap-1.5">
@@ -161,6 +165,11 @@ export const ClientProfileModal: React.FC<{
           </div>
         </div>
       </div>
+  );
+
+  return page ? inner : (
+    <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
+      {inner}
     </div>
   );
 };

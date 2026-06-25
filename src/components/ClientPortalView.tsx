@@ -36,6 +36,11 @@ import {
   Sofa,
   HardHat,
   FolderOpen,
+  Bell,
+  Lightbulb,
+  X,
+  LayoutDashboard,
+  User,
   Building2,
   Gem,
   Wallet,
@@ -134,47 +139,6 @@ interface ClientPortalViewProps {
   onDeleteImpresaEntity?: (coll: string, uid: string, id: string) => void;
 }
 
-/**
- * Pannello a fisarmonica della dashboard cliente: header sempre visibile (icona +
- * titolo + riepilogo), corpo che si apre/chiude. Controllato dal genitore così la
- * dashboard è un accordion (un pannello aperto per volta) e non scorre.
- */
-const AccordionSection: React.FC<{
-  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
-  title: string;
-  accent?: string;
-  summary?: React.ReactNode;
-  open: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}> = ({ icon: Icon, title, accent = '#161616', summary, open, onToggle, children }) => (
-  <div className="bg-white border border-[#e5e5e5] rounded-[22px] overflow-hidden">
-    <button onClick={onToggle} className="w-full flex items-center justify-between gap-2 p-4 bg-transparent border-none cursor-pointer text-left">
-      <div className="flex items-center gap-2 min-w-0">
-        <Icon className="w-[18px] h-[18px] shrink-0" style={{ color: accent }} />
-        <span className="text-[15px] font-extrabold text-[#161616] truncate">{title}</span>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        {summary}
-        <ChevronDown className={`w-4 h-4 text-[#8a8a8a] transition-transform ${open ? 'rotate-180' : ''}`} />
-      </div>
-    </button>
-    <AnimatePresence initial={false}>
-      {open && (
-        <motion.div
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: 'auto', opacity: 1 }}
-          exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="overflow-hidden"
-        >
-          <div className="px-4 pb-4">{children}</div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </div>
-);
-
 export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   profile,
   projects,
@@ -243,10 +207,10 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   const [approvedMarketingPosts, setApprovedMarketingPosts] = useState<Record<string, boolean>>({});
   const [uploading, setUploading] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState<string>('dashboard');
-  // Accordion dashboard: quale pannello è aperto ('progetti' di default; '' = tutti chiusi).
-  const [dashSection, setDashSection] = useState<string>('progetti');
   const [showcaseOpen, setShowcaseOpen] = useState(false); // vetrina "Scopri i servizi"
   const [profileOpen, setProfileOpen] = useState(false); // modale profilo cliente
+  // Overlay aperto dai widget della Dashboard cliente (così la home non scorre).
+  const [dashModal, setDashModal] = useState<null | 'sogno' | 'avvisi' | 'quiz' | 'percorso'>(null);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [blogSearch, setBlogSearch] = useState('');
   const [blogFilter, setBlogFilter] = useState('all'); // chiave categoria stabile (indip. lingua)
@@ -647,7 +611,16 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   };
 
   const tabsList = getTabsForPortal();
-  const currentTab = tabsList.some(t => t.id === activeSubTab) ? activeSubTab : tabsList[0].id;
+  // Shell "app" per il cliente: bottom-nav a 3 pagine (Dashboard/Progetti/Profilo) +
+  // dettaglio progetto (le tab per-progetto). Gli altri portali restano col pillbar.
+  const isClientApp = profile.role === 'cliente';
+  const SPECIAL_TABS = ['dashboard', 'progetti', 'profilo'];
+  const currentTab = (tabsList.some(t => t.id === activeSubTab) || (isClientApp && SPECIAL_TABS.includes(activeSubTab)))
+    ? activeSubTab : tabsList[0].id;
+  // Siamo "dentro un progetto" (dettaglio) quando NON siamo su una pagina speciale.
+  const inProjectDetail = isClientApp && !SPECIAL_TABS.includes(currentTab);
+  // Pillbar: per il cliente è il menu del dettaglio progetto (senza "dashboard").
+  const pillTabs = isClientApp ? tabsList.filter(t => t.id !== 'dashboard') : tabsList;
 
   const showSimulator = false;
 
@@ -817,9 +790,11 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             <Sparkles className="w-3.5 h-3.5" /> {t('portal.discoverServices')}
           </button>
 
-          <button onClick={() => setProfileOpen(true)} title="Profilo" className="w-8 h-8 rounded-full border border-[#e2e2e2] bg-white overflow-hidden flex items-center justify-center cursor-pointer hover:border-[#161616]">
-            {profile.photoURL ? <img src={profile.photoURL} alt="" className="w-full h-full object-cover" /> : <span className="text-[12px] font-bold text-[#161616]">{(profile.name || '?').slice(0, 1)}</span>}
-          </button>
+          {!isClientApp && (
+            <button onClick={() => setProfileOpen(true)} title="Profilo" className="w-8 h-8 rounded-full border border-[#e2e2e2] bg-white overflow-hidden flex items-center justify-center cursor-pointer hover:border-[#161616]">
+              {profile.photoURL ? <img src={profile.photoURL} alt="" className="w-full h-full object-cover" /> : <span className="text-[12px] font-bold text-[#161616]">{(profile.name || '?').slice(0, 1)}</span>}
+            </button>
+          )}
 
           <button onClick={onLogout} className="bg-[#f0f0f0] hover:bg-[#e4e4e4] text-[#161616] font-extrabold text-xs py-1.5 px-3.5 rounded-xl border-none flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
             <LogOut className="w-3.5 h-3.5" /> {t('common.logout')}
@@ -831,22 +806,9 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
       <div className="flex-1 max-w-[1080px] mx-auto w-full p-4 md:p-6 flex flex-col gap-6 text-left">
 
-        {/* Le mie posizioni da investitore Unico (sola lettura) */}
-        {(unicoPositions || []).length > 0 && <MyInvestmentsPanel positions={unicoPositions || []} />}
-
-        {/* Inviti eventi + sondaggi (modulo Strategico) */}
-        <MarketingPortalPanel profile={profile} events={mktEvents || []} surveys={mktSurveys || []} responses={mktResponses || {}} onRsvp={onRsvpEvent} onSubmitSurvey={onSubmitSurvey} />
-
-        {/* Racconta la tua idea: nuova richiesta per qualsiasi divisione + moodboard 3D */}
-        {profile.role === 'cliente' && onCreateClientRequest && (
-          <ClientRequestPanel
-            profile={profile}
-            requests={clientRequests || []}
-            matericoRequests={(matericoRequests || []).filter((r) => r.clientUid === profile.uid)}
-            onCreate={onCreateClientRequest}
-            onCreateMatericoRequest={onCreateMatericoRequest}
-          />
-        )}
+        {/* Pannelli (per i clienti vivono nella Dashboard, non qui) */}
+        {!isClientApp && (unicoPositions || []).length > 0 && <MyInvestmentsPanel positions={unicoPositions || []} />}
+        {!isClientApp && <MarketingPortalPanel profile={profile} events={mktEvents || []} surveys={mktSurveys || []} responses={mktResponses || {}} onRsvp={onRsvpEvent} onSubmitSurvey={onSubmitSurvey} />}
 
         {/* COMPREHENSIVE PORTAL SIMULATOR SELECTOR BAR - Only shown to Admin, Staff, or in Preview */}
         {showSimulator && (
@@ -915,7 +877,8 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           </div>
         )}
 
-        {/* Welcome Header */}
+        {/* Welcome Header (non in modalità app cliente) */}
+        {!isClientApp && (
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-1">
           <div>
             <h1 className="text-[30px] md:text-[34px] font-extrabold tracking-tight text-[#161616] leading-tight font-sans">
@@ -934,11 +897,23 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             </div>
           </div>
         </div>
+        )}
 
-        {/* Sub-navigation tabs matching ui.unlumen.com/components/motion-tabs-menu */}
+        {/* Dettaglio progetto (cliente): intestazione con "torna ai progetti" */}
+        {inProjectDetail && (
+          <div className="flex items-center justify-between gap-2 mt-1">
+            <button onClick={() => setActiveSubTab('progetti')} className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-[#6b6b6b] hover:text-[#161616] bg-transparent border-none cursor-pointer">
+              <ArrowLeft className="w-3.5 h-3.5" /> Progetti
+            </button>
+            <span className="text-[14px] font-extrabold text-[#161616] truncate">{p?.name}</span>
+          </div>
+        )}
+
+        {/* Sub-navigation tabs: pillbar (sempre per gli altri portali; per il cliente solo nel dettaglio) */}
+        {(!isClientApp || inProjectDetail) && (
         <div className="flex justify-center my-4">
           <div className="pillbar inline-flex items-center gap-1.5 bg-[#161616] rounded-full p-1.5 shadow-md border border-neutral-800 relative">
-            {tabsList.map(tab => {
+            {pillTabs.map(tab => {
               const isActive = currentTab === tab.id;
               const Icon = tab.icon;
 
@@ -994,6 +969,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             })}
           </div>
         </div>
+        )}
 
         {/* Dynamic sub tab layout wrapper */}
         <div className="w-full">
@@ -1019,116 +995,170 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               .reduce((s, [, m]: any) => s + Object.values(m || {}).filter((msg: any) => msg.from === profile.uid).length, 0);
             const g = clientGame({ profile, projects: mine, furnishingCount, moodboardElements, messageCount });
 
-            // Menu per-progetto: le sezioni del portale che hanno senso dentro un progetto
-            // (escluse "dashboard" e "blog", che è globale). Ogni progetto è il suo spazio.
-            const projectMenu = tabsList.filter((tb) => tb.id !== 'dashboard' && tb.id !== 'blog');
-            const enterProject = (pid: string, section?: string) => { onSetActivePid(pid); setActiveSubTab(section || 'lavori'); };
-            const toggle = (idv: string) => setDashSection((s) => (s === idv ? '' : idv));
             const gPct = g.max > 0 ? Math.round((g.points / g.max) * 100) : 0;
+            // Avanzamento medio dei progetti del cliente
+            const pcs = mine.map((pr) => { const c = projTaskCounts(pr); return pct(c.done, c.tot); });
+            const avgPc = pcs.length ? Math.round(pcs.reduce((s, x) => s + x, 0) / pcs.length) : 0;
+            // Avvisi: messaggi dello studio sui miei progetti (dal più recente)
+            const studioMsgs = Object.entries(projectMessages || {})
+              .filter(([pid]) => myPids.has(pid))
+              .flatMap(([pid, m]: any) => Object.values(m || {}).map((msg: any) => ({ ...msg, pid })))
+              .filter((msg: any) => msg.from && msg.from !== profile.uid)
+              .sort((a: any, b: any) => (b.at || b.createdAt || 0) - (a.at || a.createdAt || 0));
+            const reqUpdates = (clientRequests || []).filter((r: any) => r.status && r.status !== 'inviata' && r.status !== 'nuova');
+            const avvisiCount = studioMsgs.length + reqUpdates.length + ((unicoPositions || []).length);
+
+            const Tile: React.FC<{ icon: React.ComponentType<{ className?: string }>; label: string; sub?: string; badge?: number; onClick: () => void; accent?: string }> = ({ icon: Icon, label, sub, badge, onClick, accent = portalStyle.accentColor }) => (
+              <button onClick={onClick} className="relative bg-white border border-[#e5e5e5] rounded-[20px] p-4 text-left cursor-pointer transition-all active:scale-[0.97] hover:border-[#161616] flex flex-col gap-2.5 min-h-[104px]">
+                {badge ? <span className="absolute top-3 right-3 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">{badge}</span> : null}
+                <span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: accent }}><Icon className="w-[18px] h-[18px] text-white" /></span>
+                <div className="min-w-0">
+                  <div className="text-[13.5px] font-extrabold text-[#161616] leading-tight">{label}</div>
+                  {sub && <div className="text-[11px] text-[#8a8a8a] truncate mt-0.5">{sub}</div>}
+                </div>
+              </button>
+            );
 
             return (
-              // Accordion: un pannello aperto per volta, la pagina non scorre.
               <div className="flex flex-col gap-3 animate-[riseIn_0.22s_ease_both]">
-                {/* "Progetti": una card per progetto, ognuna con il suo spazio/menu */}
-                <AccordionSection
-                  icon={FolderOpen}
-                  title="Progetti"
-                  summary={<span className="text-[12px] font-bold text-[#8a8a8a]">{mine.length}</span>}
-                  open={dashSection === 'progetti'}
-                  onToggle={() => toggle('progetti')}
-                >
-                  {mine.length === 0 ? (
-                    <div className="text-center text-[13px] text-[#8a8a8a] py-6">Nessun progetto ancora collegato al tuo account.</div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {mine.map((proj) => {
-                        const cnt = projTaskCounts(proj);
-                        const ppc = pct(cnt.done, cnt.tot);
-                        const isActive = proj.id === activePid;
-                        return (
-                          <div key={proj.id} className={`bg-white rounded-[20px] p-4 border ${isActive ? 'border-[#161616] ring-1 ring-[#161616]' : 'border-[#e5e5e5]'}`}>
-                            <button onClick={() => enterProject(proj.id)} className="w-full text-left bg-transparent border-none p-0 cursor-pointer">
-                              <div className="flex items-center justify-between gap-2">
-                                <b className="text-[15px] text-[#161616] truncate">{proj.name}</b>
-                                {isActive && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: portalStyle.accentColor }}>In corso</span>}
-                              </div>
-                              <div className="text-[11.5px] text-[#8a8a8a] capitalize mt-0.5">{proj.status || 'attivo'}{proj.location ? ` · ${proj.location.split(',')[0]}` : ''}</div>
-                              <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden mt-2.5">
-                                <div className="h-full rounded-full transition-all" style={{ width: `${ppc}%`, background: portalStyle.accentColor }} />
-                              </div>
-                              <div className="text-[11px] text-[#8a8a8a] mt-1">{ppc}% avanzamento</div>
-                            </button>
-                            {/* Menu del progetto: ogni voce entra nello spazio del progetto su quella sezione */}
-                            <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-[#f2f2f2]">
-                              {projectMenu.map((tb) => {
-                                const Icon = tb.icon;
-                                return (
-                                  <button key={tb.id} onClick={() => enterProject(proj.id, tb.id)} className="inline-flex items-center gap-1.5 text-[11.5px] font-bold px-2.5 py-1.5 rounded-lg border border-[#e8e8e8] bg-[#fafafa] hover:border-[#161616] text-[#161616] cursor-pointer">
-                                    <Icon className="w-3.5 h-3.5" /> {tb.label}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </AccordionSection>
+                <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616] px-1">{profile.name ? `Ciao, ${profile.name.split(' ')[0]}` : 'Benvenuto'}</h2>
 
-                {/* "Il tuo percorso" (gamification) */}
-                <AccordionSection
-                  icon={Award}
-                  title="Il tuo percorso"
-                  accent={g.level.color}
-                  summary={<span className="text-[12px] font-bold px-3 py-1 rounded-full border" style={{ color: g.level.color, borderColor: g.level.color }}>{g.level.label}</span>}
-                  open={dashSection === 'percorso'}
-                  onToggle={() => toggle('percorso')}
-                >
-                  <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden">
-                    <div className="h-full rounded-full transition-all" style={{ width: `${gPct}%`, background: g.level.color }} />
+                {/* Avanzamento progetti (largo) */}
+                <button onClick={() => setActiveSubTab('progetti')} className="bg-white border border-[#e5e5e5] rounded-[20px] p-4 text-left cursor-pointer transition-all active:scale-[0.99] hover:border-[#161616] flex items-center gap-4">
+                  <div className="relative w-14 h-14 shrink-0">
+                    <svg viewBox="0 0 36 36" className="w-14 h-14 -rotate-90"><circle cx="18" cy="18" r="15.5" fill="none" stroke="#f0f0f0" strokeWidth="3.5" /><circle cx="18" cy="18" r="15.5" fill="none" stroke={portalStyle.accentColor} strokeWidth="3.5" strokeLinecap="round" strokeDasharray={`${(avgPc / 100) * 97.4} 97.4`} /></svg>
+                    <span className="absolute inset-0 flex items-center justify-center text-[13px] font-extrabold text-[#161616]">{avgPc}%</span>
                   </div>
-                  <div className="flex items-center justify-between mt-1.5 text-[11.5px] text-[#8a8a8a]">
-                    <span>{g.completed}/{g.objectives.length} obiettivi</span>
-                    <span>{g.next ? `${g.next.remaining} pt a "${g.next.level.label}"` : 'Livello massimo 🎉'}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px] font-extrabold text-[#161616]">Avanzamento progetti</div>
+                    <div className="text-[11.5px] text-[#8a8a8a] mt-0.5">{mine.length} progett{mine.length === 1 ? 'o' : 'i'} · apri</div>
                   </div>
-                  <div className="grid sm:grid-cols-2 gap-2 mt-4">
-                    {g.objectives.map((o) => (
-                      <div key={o.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${o.done ? 'border-emerald-200 bg-emerald-50' : 'border-[#ececec] bg-[#fafafa]'}`}>
-                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${o.done ? 'bg-emerald-500 text-white' : 'bg-[#e2e2e2] text-[#8a8a8a]'}`}>{o.done ? '✓' : ''}</span>
-                        <div className="min-w-0 flex-1">
-                          <div className={`text-[12.5px] font-bold truncate ${o.done ? 'text-emerald-900' : 'text-[#161616]'}`}>{o.label}</div>
-                          <div className="text-[11px] text-[#8a8a8a] truncate">{o.hint}</div>
-                        </div>
-                        <span className="text-[11px] font-bold text-[#8a8a8a] shrink-0">+{o.points}</span>
+                  <ArrowRight className="w-4 h-4 text-[#8a8a8a] shrink-0" />
+                </button>
+
+                {/* Griglia widget */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Tile icon={Lightbulb} label="Raccontaci il tuo sogno" sub="Nuova idea / richiesta" onClick={() => setDashModal('sogno')} accent="#b45309" />
+                  <Tile icon={Bell} label="Avvisi" sub={avvisiCount ? `${avvisiCount} aggiornamenti` : 'Nessun avviso'} badge={avvisiCount || undefined} onClick={() => setDashModal('avvisi')} />
+                  <Tile icon={HelpCircle} label="Quiz del giorno" sub="Mettiti alla prova" onClick={() => setDashModal('quiz')} accent="#b45309" />
+                  <Tile icon={Award} label="Completa il tuo profilo" sub={`${gPct}% · ${g.level.label}`} onClick={() => setDashModal('percorso')} accent={g.level.color} />
+                </div>
+
+                {/* OVERLAY dei widget */}
+                {dashModal && (
+                  <div className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setDashModal(null)}>
+                    <div className="bg-white w-full sm:max-w-[540px] max-h-[85vh] overflow-y-auto rounded-t-[26px] sm:rounded-[26px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-between px-5 py-4 border-b border-[#ececec] sticky top-0 bg-white z-10">
+                        <b className="text-[15px] tracking-tight">{dashModal === 'sogno' ? 'Raccontaci il tuo sogno' : dashModal === 'avvisi' ? 'Avvisi' : dashModal === 'quiz' ? 'Quiz del giorno' : 'Completa il tuo profilo'}</b>
+                        <button onClick={() => setDashModal(null)} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
                       </div>
-                    ))}
-                  </div>
-                </AccordionSection>
+                      <div className="p-5">
+                        {dashModal === 'sogno' && (onCreateClientRequest ? (
+                          <ClientRequestPanel profile={profile} requests={clientRequests || []} matericoRequests={(matericoRequests || []).filter((r) => r.clientUid === profile.uid)} onCreate={onCreateClientRequest} onCreateMatericoRequest={onCreateMatericoRequest} />
+                        ) : <p className="text-[13px] text-[#8a8a8a]">Funzione non disponibile.</p>)}
 
-                {/* Quiz del giorno */}
-                <AccordionSection
-                  icon={HelpCircle}
-                  title="Quiz del giorno"
-                  accent="#b45309"
-                  open={dashSection === 'quiz'}
-                  onToggle={() => toggle('quiz')}
-                >
-                  <DailyQuiz profile={profile} projects={projects} embedded />
-                </AccordionSection>
+                        {dashModal === 'avvisi' && (
+                          <div className="flex flex-col gap-2">
+                            {(unicoPositions || []).length > 0 && <MyInvestmentsPanel positions={unicoPositions || []} />}
+                            <MarketingPortalPanel profile={profile} events={mktEvents || []} surveys={mktSurveys || []} responses={mktResponses || {}} onRsvp={onRsvpEvent} onSubmitSurvey={onSubmitSurvey} />
+                            {studioMsgs.length === 0 && reqUpdates.length === 0 ? (
+                              <p className="text-[13px] text-[#8a8a8a] text-center py-4">Nessun avviso recente.</p>
+                            ) : (
+                              <>
+                                {reqUpdates.map((r: any) => (
+                                  <div key={r.id} className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3">
+                                    <div className="text-[12.5px] font-bold text-[#161616]">Richiesta "{r.title}"</div>
+                                    <div className="text-[11.5px] text-[#8a8a8a] capitalize">{String(r.status).replace('_', ' ')}</div>
+                                  </div>
+                                ))}
+                                {studioMsgs.slice(0, 10).map((msg: any, i: number) => {
+                                  const proj = projects.find((pr) => pr.id === msg.pid);
+                                  return (
+                                    <button key={msg.id || i} onClick={() => { setDashModal(null); onSetActivePid(msg.pid); setActiveSubTab('documenti'); }} className="text-left rounded-xl border border-[#ececec] bg-white p-3 hover:border-[#161616] cursor-pointer">
+                                      <div className="text-[12.5px] text-[#161616] line-clamp-2">{msg.text || msg.body || 'Nuovo messaggio dallo studio'}</div>
+                                      <div className="text-[11px] text-[#8a8a8a] mt-0.5">{proj?.name || 'Progetto'}</div>
+                                    </button>
+                                  );
+                                })}
+                              </>
+                            )}
+                          </div>
+                        )}
+
+                        {dashModal === 'quiz' && <DailyQuiz profile={profile} projects={projects} embedded />}
+
+                        {dashModal === 'percorso' && (
+                          <div className="flex flex-col gap-3">
+                            <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${gPct}%`, background: g.level.color }} /></div>
+                            <div className="flex items-center justify-between text-[11.5px] text-[#8a8a8a]"><span>{g.completed}/{g.objectives.length} obiettivi · {g.level.label}</span><span>{g.next ? `${g.next.remaining} pt a "${g.next.level.label}"` : 'Massimo 🎉'}</span></div>
+                            <div className="grid grid-cols-1 gap-2">
+                              {g.objectives.map((o) => (
+                                <div key={o.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${o.done ? 'border-emerald-200 bg-emerald-50' : 'border-[#ececec] bg-[#fafafa]'}`}>
+                                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${o.done ? 'bg-emerald-500 text-white' : 'bg-[#e2e2e2] text-[#8a8a8a]'}`}>{o.done ? '✓' : ''}</span>
+                                  <div className="min-w-0 flex-1"><div className={`text-[12.5px] font-bold truncate ${o.done ? 'text-emerald-900' : 'text-[#161616]'}`}>{o.label}</div><div className="text-[11px] text-[#8a8a8a] truncate">{o.hint}</div></div>
+                                  <span className="text-[11px] font-bold text-[#8a8a8a] shrink-0">+{o.points}</span>
+                                </div>
+                              ))}
+                            </div>
+                            <button onClick={() => { setDashModal(null); setActiveSubTab('profilo'); }} className="self-start text-[12.5px] font-bold px-4 py-2 rounded-xl bg-[#1b1b1b] text-white border-none cursor-pointer">Vai al profilo</button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })()}
 
+          {/* PAGINA "Progetti": tutte le card; cliccandole si entra nel dettaglio */}
+          {currentTab === 'progetti' && (() => {
+            const mine = (projects || []).filter((pr) => pr.clientUid === profile.uid || (profile.projectIds || {})[pr.id]);
+            const projectMenu = tabsList.filter((tb) => tb.id !== 'dashboard' && tb.id !== 'blog');
+            const enterProject = (pid: string, section?: string) => { onSetActivePid(pid); setActiveSubTab(section || 'lavori'); };
+            return (
+              <div className="flex flex-col gap-3 animate-[riseIn_0.22s_ease_both]">
+                <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616] px-1">I tuoi progetti</h2>
+                {mine.length === 0 ? (
+                  <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[20px] p-8 text-center text-[13px] text-[#8a8a8a]">Nessun progetto ancora collegato al tuo account.</div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {mine.map((proj) => {
+                      const cnt = projTaskCounts(proj);
+                      const ppc = pct(cnt.done, cnt.tot);
+                      return (
+                        <div key={proj.id} className="bg-white rounded-[20px] p-4 border border-[#e5e5e5]">
+                          <button onClick={() => enterProject(proj.id)} className="w-full text-left bg-transparent border-none p-0 cursor-pointer">
+                            <b className="text-[15px] text-[#161616] truncate block">{proj.name}</b>
+                            <div className="text-[11.5px] text-[#8a8a8a] capitalize mt-0.5">{proj.status || 'attivo'}{proj.location ? ` · ${proj.location.split(',')[0]}` : ''}</div>
+                            <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden mt-2.5"><div className="h-full rounded-full transition-all" style={{ width: `${ppc}%`, background: portalStyle.accentColor }} /></div>
+                            <div className="text-[11px] text-[#8a8a8a] mt-1">{ppc}% avanzamento</div>
+                          </button>
+                          <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-[#f2f2f2]">
+                            {projectMenu.map((tb) => { const Icon = tb.icon; return (
+                              <button key={tb.id} onClick={() => enterProject(proj.id, tb.id)} className="inline-flex items-center gap-1.5 text-[11.5px] font-bold px-2.5 py-1.5 rounded-lg border border-[#e8e8e8] bg-[#fafafa] hover:border-[#161616] text-[#161616] cursor-pointer">
+                                <Icon className="w-3.5 h-3.5" /> {tb.label}
+                              </button>
+                            ); })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* PAGINA "Profilo": tutti i campi del profilo */}
+          {currentTab === 'profilo' && (
+            <div className="animate-[riseIn_0.22s_ease_both]">
+              <ClientProfileModal page profile={profile} onClose={() => setActiveSubTab('dashboard')} onLogout={onLogout} onToast={onToast} />
+            </div>
+          )}
+
           {currentTab === 'lavori' && (
             <div className="flex flex-col gap-6 animate-[riseIn_0.22s_ease_both]">
-              {/* Torna alla scelta progetti quando ce n'è più d'uno */}
-              {projectIds.length > 1 && (
-                <button onClick={() => setActiveSubTab('dashboard')} className="self-start inline-flex items-center gap-1.5 text-[12.5px] font-bold text-[#6b6b6b] hover:text-[#161616] bg-transparent border-none cursor-pointer">
-                  <ArrowLeft className="w-3.5 h-3.5" /> Tutti i progetti
-                </button>
-              )}
-
               {/* Flight departure board style header card - Full Visual Consistency */}
               <StatusCard
                 fromCode={codeFrom(curTask.title)}
@@ -2581,6 +2611,26 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           );
         })()}
       </AnimatePresence>
+
+      {/* Bottom-nav fissa (app cliente): Dashboard · Progetti · Profilo */}
+      {isClientApp && (
+        <nav className="fixed bottom-0 inset-x-0 z-[120] bg-white/95 backdrop-blur border-t border-[#e5e5e5] flex items-stretch justify-around" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+          {[
+            { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+            { id: 'progetti', label: 'Progetti', icon: FolderOpen },
+            { id: 'profilo', label: 'Profilo', icon: User },
+          ].map((item) => {
+            const active = currentTab === item.id || (item.id === 'progetti' && inProjectDetail);
+            const Icon = item.icon;
+            return (
+              <button key={item.id} onClick={() => setActiveSubTab(item.id)} className={`flex-1 flex flex-col items-center justify-center gap-1 py-2.5 bg-transparent border-none cursor-pointer transition-colors ${active ? 'text-[#161616]' : 'text-[#9a9a9a]'}`}>
+                <Icon className="w-[22px] h-[22px]" />
+                <span className="text-[10.5px] font-bold">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      )}
     </div>
   );
 };

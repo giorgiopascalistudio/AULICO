@@ -63,14 +63,19 @@ npm run build      # output in dist/ (esbuild: NON fa type-check)
 (agenda Giorno·Settimana·Mese), `ProjectsView`, `DocumentsView`, `CrmView`
 (pipeline lead + fornitori), `MatericoView` (hub operatore Materico),
 `MatericoPortal` (lato cliente/partner), `FinanzeView`, `TeamView`,
-`ClientPortalView` (portale cliente/partner, ~2400 righe; la **tab Dashboard è il SELETTORE
-PROGETTI a fisarmonica** — `AccordionSection`, **un pannello aperto per volta così la pagina non
-scorre** (stato `dashSection`): pannelli **"Progetti"** (una **card per progetto**, ognuna è il suo
-spazio con i chip-menu delle sezioni Avanzamento/Documenti/Arredi/Contabilità… che entrano in quella
-sezione impostando `activePid`), **"Il tuo percorso"** (gamification) e **"Quiz del giorno"**
-(`DailyQuiz embedded`). La tab **Avanzamento** ('lavori') mostra il progetto **attivo** con un link
-"Tutti i progetti" che torna alla Dashboard. **Niente banner/bottone newsletter nel portale**
-(il consenso resta in registrazione e nel profilo). `ServicesShowcase`
+`ClientPortalView` (portale cliente/partner, ~3000 righe). Per il **ruolo `cliente`** (`isClientApp`)
+è una **shell "app" con bottom-nav fissa a 3 pagine** (`activeSubTab` ∈ `dashboard|progetti|profilo`
++ le tab di **dettaglio progetto**; `SPECIAL_TABS`, `inProjectDetail`, `pillTabs`):
+  • **Dashboard** = home che **sta in una schermata** (niente scroll): widget **Avanzamento progetti**
+    (→ Progetti) + griglia **Raccontaci il tuo sogno** (`ClientRequestPanel` in overlay), **Avvisi**
+    (overlay: messaggi studio + inviti marketing/investimenti), **Quiz del giorno** (`DailyQuiz`),
+    **Completa il tuo profilo** (gamification). I widget aprono **overlay** (`dashModal`), non scorrono.
+  • **Progetti** = tutte le **card progetto**; tap → **dettaglio** (pillbar per-progetto:
+    Avanzamento/Documenti/Arredi+moodboard/Contabilità/Blog) con back "← Progetti".
+  • **Profilo** = `ClientProfileModal` in **`page` mode** (foto, telefono, residenza, password,
+    consensi/newsletter inline, elimina account). Il profilo è **tolto dalla topbar**.
+  Gli **altri ruoli** (partner/strategico) mantengono il **pillbar** classico (nessuna bottom-nav).
+  In topbar il brand è **"Aulico"**; niente selettore progetto né banner newsletter. `ServicesShowcase`
 (sezione "Scopri i servizi" del portale: pagine vetrina Studio/Materico/
 Strategico/Unico accanto ai progetti; Unico ha la vetrina immobili-investimento
 con dati **fittizi** da `src/showcaseData.ts` — contenuti demo, non su Firebase),
