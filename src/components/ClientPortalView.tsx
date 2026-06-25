@@ -208,6 +208,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   const [uploading, setUploading] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState<string>('dashboard');
   const [showcaseOpen, setShowcaseOpen] = useState(false); // vetrina "Scopri i servizi"
+  const [showcaseView, setShowcaseView] = useState<'studio' | 'materico' | 'strategico' | 'unico' | undefined>(undefined); // vista iniziale (es. 'unico')
   const [profileOpen, setProfileOpen] = useState(false); // modale profilo cliente
   // Overlay aperto dai widget della Dashboard cliente (così la home non scorre).
   const [dashModal, setDashModal] = useState<null | 'sogno' | 'avvisi' | 'quiz' | 'percorso'>(null);
@@ -407,7 +408,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
   // Vetrina "Scopri i servizi" — accessibile a qualunque cliente, anche senza progetti
   if (showcaseOpen) {
-    return <ServicesShowcase profile={profile} unicoShowcase={unicoShowcase} onBack={() => setShowcaseOpen(false)} onLogout={onLogout} />;
+    return <ServicesShowcase profile={profile} unicoShowcase={unicoShowcase} initialView={showcaseView} onBack={() => { setShowcaseOpen(false); setShowcaseView(undefined); }} onLogout={onLogout} />;
   }
 
   // If no projects connected
@@ -1039,6 +1040,16 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                   <Tile icon={HelpCircle} label="Quiz del giorno" sub="Mettiti alla prova" onClick={() => setDashModal('quiz')} accent="#b45309" />
                   <Tile icon={Award} label="Completa il tuo profilo" sub={`${gPct}% · ${g.level.label}`} onClick={() => setDashModal('percorso')} accent={g.level.color} />
                 </div>
+
+                {/* Unico — vetrina immobili & investimenti (apre ServicesShowcase su 'unico') */}
+                <button onClick={() => { setShowcaseView('unico'); setShowcaseOpen(true); }} className="rounded-[20px] p-4 text-left cursor-pointer transition-all active:scale-[0.99] flex items-center gap-4 text-white border-none" style={{ background: '#4338ca' }}>
+                  <span className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center shrink-0"><Gem className="w-[22px] h-[22px] text-white" /></span>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px] font-extrabold">Investimenti immobiliari · Unico</div>
+                    <div className="text-[11.5px] text-white/75 mt-0.5">Scopri gli immobili in vetrina e le opportunità di investimento</div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-white/80 shrink-0" />
+                </button>
               </div>
             );
           })()}

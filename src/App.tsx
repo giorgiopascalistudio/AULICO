@@ -5367,8 +5367,8 @@ export default function App() {
             </div>
 
             {pDivision === 'studio' && (
-              <div className="border border-neutral-100 bg-[#fafafa] rounded-2xl p-4 flex flex-col gap-3">
-                <span className="text-[10px] font-mono tracking-wider text-gray-400 uppercase font-bold">Pratica edilizia (STUDIO)</span>
+              <div className="rounded-2xl border border-[#ececec] bg-[#fafafa] p-4 flex flex-col gap-3 border-l-[3px]" style={{ borderLeftColor: DIVISION_META.studio.color }}>
+                <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.studio.color }} /> Pratica edilizia</span>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
                     <label className="text-[11px] font-semibold text-gray-600">Tipo di intervento edilizio</label>
@@ -5401,8 +5401,8 @@ export default function App() {
             )}
 
             {pDivision === 'strategico' && (
-              <div className="border border-[#161616]/10 bg-[#fafafa] rounded-2xl p-4 flex flex-col gap-3">
-                <span className="text-[10px] font-mono tracking-wider text-[#161616] uppercase font-bold">Parametri Marketing (STRATEGICO)</span>
+              <div className="rounded-2xl border border-[#ececec] bg-[#fafafa] p-4 flex flex-col gap-3 border-l-[3px]" style={{ borderLeftColor: DIVISION_META.strategico.color }}>
+                <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.strategico.color }} /> Parametri Marketing</span>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
                     <label className="text-[11px] font-semibold text-gray-600">Budget Campagna (€)</label>
@@ -5421,8 +5421,8 @@ export default function App() {
             )}
 
             {pDivision === 'materico' && (
-              <div className="border border-[#ececec] bg-[#fafafa] rounded-2xl p-4 flex flex-col gap-3">
-                <span className="text-[10px] font-mono tracking-wider text-gray-500 uppercase font-bold">Forniture e Posa (MATERICO)</span>
+              <div className="rounded-2xl border border-[#ececec] bg-[#fafafa] p-4 flex flex-col gap-3 border-l-[3px]" style={{ borderLeftColor: DIVISION_META.materico.color }}>
+                <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.materico.color }} /> Forniture e posa</span>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
                     <label className="text-[11px] font-semibold text-gray-600">Est. Forniture (€)</label>
@@ -5452,9 +5452,9 @@ export default function App() {
             )}
 
             {pDivision === 'unico' && (
-              <div className="border border-dashed border-[#ececec] rounded-2xl p-4 text-center">
-                <span className="text-[10px] font-mono text-[#8a8a8a] uppercase block font-bold">Atelier Unico (UNICO)</span>
-                <p className="text-[11px] text-[#8a8a8a] italic mt-1">Nessun dato personalizzato richiesto per questa divisione di lusso.</p>
+              <div className="rounded-2xl border border-[#ececec] bg-[#fafafa] p-4 flex flex-col gap-1.5 border-l-[3px]" style={{ borderLeftColor: DIVISION_META.unico.color }}>
+                <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.unico.color }} /> Operazione Unico</span>
+                <p className="text-[11px] text-[#8a8a8a]">Nessun parametro aggiuntivo: l'operazione immobiliare si configura nel modulo Unico (operazioni & investitori).</p>
               </div>
             )}
 

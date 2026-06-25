@@ -70,6 +70,9 @@ npm run build      # output in dist/ (esbuild: NON fa type-check)
     (→ Progetti) + griglia **Raccontaci il tuo sogno** (`ClientRequestPanel` in overlay), **Avvisi**
     (overlay: messaggi studio + inviti marketing/investimenti), **Quiz del giorno** (`DailyQuiz`),
     **Completa il tuo profilo** (gamification). I widget aprono **overlay** (`dashModal`), non scorrono.
+    In più un box **Unico — Investimenti immobiliari** che apre `ServicesShowcase` con `initialView='unico'`
+    (la **vetrina immobili** lato cliente). NB: **Unico è escluso da "Racconta il tuo sogno"**
+    (`SELECTABLE_DIVISIONS` in `ClientRequestPanel`) — lato cliente è vetrina, non richiesta-progetto.
   • **Progetti** = tutte le **card progetto**; tap → **dettaglio** (pillbar per-progetto:
     Avanzamento/Documenti/Arredi+moodboard/Contabilità/Blog) con back "← Progetti".
   • **Profilo** = `ClientProfileModal` in **`page` mode** (foto, telefono, residenza, password,

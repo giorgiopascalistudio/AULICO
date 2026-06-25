@@ -48,13 +48,15 @@ interface ShowcaseProps {
   profile: UserProfile;
   /** Immobili pubblicati dallo studio (nodo `unicoShowcase`); vuoto → demo. */
   unicoShowcase?: UnicoShowcaseEntry[];
+  /** Vista iniziale (es. 'unico' per aprire direttamente la vetrina immobili). */
+  initialView?: ServiceKey;
   onBack: () => void;
   onLogout: () => void;
 }
 
-export const ServicesShowcase: React.FC<ShowcaseProps> = ({ profile, unicoShowcase, onBack, onLogout }) => {
+export const ServicesShowcase: React.FC<ShowcaseProps> = ({ profile, unicoShowcase, initialView, onBack, onLogout }) => {
   const { t, lang } = useLang();
-  const [view, setView] = useState<'hub' | ServiceKey>('hub');
+  const [view, setView] = useState<'hub' | ServiceKey>(initialView || 'hub');
   const [selected, setSelected] = useState<VetrinaProperty | null>(null);
   const [cinema, setCinema] = useState<VetrinaProperty | null>(null); // pagina vetrina cinematica aperta
 

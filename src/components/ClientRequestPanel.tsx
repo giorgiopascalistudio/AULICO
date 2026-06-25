@@ -36,6 +36,10 @@ const DIVISIONS: { key: Division; name: string; icon: React.ComponentType<{ clas
   { key: 'strategico', name: 'Strategico', icon: Megaphone },
   { key: 'unico', name: 'Unico', icon: Home },
 ];
+// Divisioni selezionabili in "Racconta il tuo sogno": Unico è escluso (lato cliente
+// è una vetrina immobili, non una richiesta-progetto). DIVISIONS resta per il lookup
+// (`divMeta`) di eventuali richieste legacy con divisione 'unico'.
+const SELECTABLE_DIVISIONS = DIVISIONS.filter((d) => d.key !== 'unico');
 
 // Solo le classi colore (le label si risolvono via t('reqstatus.<status>')).
 const STATUS_CLS: Record<string, string> = {
@@ -253,7 +257,7 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
             <div className="p-5 sm:p-6">
               {step === 1 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {DIVISIONS.map((d) => {
+                  {SELECTABLE_DIVISIONS.map((d) => {
                     const on = division === d.key;
                     return (
                       <button
