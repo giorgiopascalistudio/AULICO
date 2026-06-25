@@ -43,7 +43,9 @@ import {
   Megaphone,
   HandCoins,
   Star,
-  HelpCircle
+  HelpCircle,
+  ChevronDown,
+  Award
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, UserProfile, MatericoEstimate, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, UnicoShowcaseEntry, UnicoInvestorPosition, MarketingEvent, Survey, SurveyResponse, RsvpStatus, ClientRequest, PointEvent } from '../types';
@@ -131,6 +133,60 @@ interface ClientPortalViewProps {
   onSaveImpresaEntity?: (coll: string, uid: string, item: any) => void;
   onDeleteImpresaEntity?: (coll: string, uid: string, id: string) => void;
 }
+
+/** Box "Il tuo percorso": riquadro compatto della dashboard, espandibile per vedere gli obiettivi. */
+const PercorsoBox: React.FC<{ g: ReturnType<typeof clientGame> }> = ({ g }) => {
+  const [open, setOpen] = useState(false);
+  const pct = g.max > 0 ? Math.round((g.points / g.max) * 100) : 0;
+  return (
+    <div className="bg-white border border-[#e5e5e5] rounded-[22px] p-5">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between gap-2 bg-transparent border-none p-0 cursor-pointer text-left"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <Award className="w-[18px] h-[18px] shrink-0" style={{ color: g.level.color }} />
+          <h3 className="text-[15px] font-extrabold text-[#161616] truncate">Il tuo percorso</h3>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-[12px] font-bold px-3 py-1 rounded-full border" style={{ color: g.level.color, borderColor: g.level.color }}>{g.level.label}</span>
+          <ChevronDown className={`w-4 h-4 text-[#8a8a8a] transition-transform ${open ? 'rotate-180' : ''}`} />
+        </div>
+      </button>
+      <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden mt-3">
+        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: g.level.color }} />
+      </div>
+      <div className="flex items-center justify-between mt-1.5 text-[11.5px] text-[#8a8a8a]">
+        <span>{g.completed}/{g.objectives.length} obiettivi</span>
+        <span>{g.next ? `${g.next.remaining} pt a "${g.next.level.label}"` : 'Livello massimo 🎉'}</span>
+      </div>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="overflow-hidden"
+          >
+            <div className="grid sm:grid-cols-2 gap-2 mt-4">
+              {g.objectives.map((o) => (
+                <div key={o.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${o.done ? 'border-emerald-200 bg-emerald-50' : 'border-[#ececec] bg-[#fafafa]'}`}>
+                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${o.done ? 'bg-emerald-500 text-white' : 'bg-[#e2e2e2] text-[#8a8a8a]'}`}>{o.done ? '✓' : ''}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className={`text-[12.5px] font-bold truncate ${o.done ? 'text-emerald-900' : 'text-[#161616]'}`}>{o.label}</div>
+                    <div className="text-[11px] text-[#8a8a8a] truncate">{o.hint}</div>
+                  </div>
+                  <span className="text-[11px] font-bold text-[#8a8a8a] shrink-0">+{o.points}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   profile,
@@ -685,50 +741,6 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
         </div>
       )}
 
-      {profile.role === 'cliente' && (
-        <div className="max-w-[1100px] w-full mx-auto px-4 sm:px-6 pt-6">
-          {(() => {
-            const myProjects = (projects || []).filter((p) => p.clientUid === profile.uid || (profile.projectIds || {})[p.id]);
-            const myPids = new Set(myProjects.map((p) => p.id));
-            const furnishingCount = Object.entries(furnishings || {}).filter(([pid]) => myPids.has(pid))
-              .reduce((s, [, m]) => s + Object.keys(m || {}).length, 0);
-            const moodboardElements = Object.entries(moodboard3d || {}).filter(([pid]) => myPids.has(pid))
-              .reduce((s, [, v]: any) => s + ((v?.elements || []).length), 0);
-            const messageCount = Object.entries(projectMessages || {}).filter(([pid]) => myPids.has(pid))
-              .reduce((s, [, m]: any) => s + Object.values(m || {}).filter((msg: any) => msg.from === profile.uid).length, 0);
-            const g = clientGame({ profile, projects: myProjects, furnishingCount, moodboardElements, messageCount });
-            const pct = g.max > 0 ? Math.round((g.points / g.max) * 100) : 0;
-            return (
-              <div className="bg-white border border-[#e5e5e5] rounded-[22px] p-5">
-                <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
-                  <h3 className="text-[15px] font-extrabold text-[#161616]">Il tuo percorso</h3>
-                  <span className="text-[12px] font-bold px-3 py-1 rounded-full border" style={{ color: g.level.color, borderColor: g.level.color }}>{g.level.label}</span>
-                </div>
-                <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: g.level.color }} />
-                </div>
-                <div className="flex items-center justify-between mt-1.5 text-[11.5px] text-[#8a8a8a]">
-                  <span>{g.completed}/{g.objectives.length} obiettivi</span>
-                  <span>{g.next ? `${g.next.remaining} pt a "${g.next.level.label}"` : 'Livello massimo 🎉'}</span>
-                </div>
-                <div className="grid sm:grid-cols-2 gap-2 mt-4">
-                  {g.objectives.map((o) => (
-                    <div key={o.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${o.done ? 'border-emerald-200 bg-emerald-50' : 'border-[#ececec] bg-[#fafafa]'}`}>
-                      <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${o.done ? 'bg-emerald-500 text-white' : 'bg-[#e2e2e2] text-[#8a8a8a]'}`}>{o.done ? '✓' : ''}</span>
-                      <div className="min-w-0 flex-1">
-                        <div className={`text-[12.5px] font-bold truncate ${o.done ? 'text-emerald-900' : 'text-[#161616]'}`}>{o.label}</div>
-                        <div className="text-[11px] text-[#8a8a8a] truncate">{o.hint}</div>
-                      </div>
-                      <span className="text-[11px] font-bold text-[#8a8a8a] shrink-0">+{o.points}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
-        </div>
-      )}
-
       {profile.role === 'partner' && (
         <div className="max-w-[1100px] w-full mx-auto px-4 sm:px-6 pt-6">
           {(() => {
@@ -1036,20 +1048,81 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             phs.forEach((ph: any) => Object.values(ph.tasks || {}).forEach((tk: any) => { tt++; if (tk.done) dn++; }));
             const pcd = tt ? Math.round((dn / tt) * 100) : 0;
             const mine = (projects || []).filter((pr) => pr.clientUid === profile.uid || (profile.projectIds || {})[pr.id]);
+
+            // Dati box "Il tuo percorso"
+            const myPids = new Set(mine.map((pr) => pr.id));
+            const furnishingCount = Object.entries(furnishings || {}).filter(([pid]) => myPids.has(pid))
+              .reduce((s, [, m]) => s + Object.keys(m || {}).length, 0);
+            const moodboardElements = Object.entries(moodboard3d || {}).filter(([pid]) => myPids.has(pid))
+              .reduce((s, [, v]: any) => s + ((v?.elements || []).length), 0);
+            const messageCount = Object.entries(projectMessages || {}).filter(([pid]) => myPids.has(pid))
+              .reduce((s, [, m]: any) => s + Object.values(m || {}).filter((msg: any) => msg.from === profile.uid).length, 0);
+            const g = clientGame({ profile, projects: mine, furnishingCount, moodboardElements, messageCount });
+
+            // Tile dell'app: le sezioni del portale (escluso dashboard), con un sottotitolo/stato a colpo d'occhio
+            const projFurnishing = Object.keys((furnishings || {})[p?.id || ''] || {}).length;
+            const tileHint: Record<string, string> = {
+              lavori: `${pcd}% avanzamento`,
+              documenti: `${docs.length} file · ${msgs.length} messaggi`,
+              arredi: projFurnishing ? `${projFurnishing} elementi` : 'Materiali & moodboard',
+              finanze: 'Quadro economico',
+              blog: 'Notizie & guide',
+              preventivi: 'Scelte & preventivi',
+              marketing: 'Eventi & campagne',
+              cantiere: 'Foto & rapportini',
+              impresa: 'La tua impresa',
+              b2b_preventivi: 'Offerte B2B',
+              b2b_chat: 'Coordinamento',
+            };
+            const tiles = tabsList.filter((tb) => tb.id !== 'dashboard');
+
             return (
-              <div className="flex flex-col gap-6 animate-[riseIn_0.22s_ease_both]">
+              <div className="flex flex-col gap-4 animate-[riseIn_0.22s_ease_both]">
+                {/* Hero compatto */}
                 <div className="bg-white border border-[#e5e5e5] rounded-[22px] p-5">
                   <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616]">{profile.name ? `Ciao, ${profile.name.split(' ')[0]}` : 'Benvenuto'}</h2>
-                  <p className="text-[13px] text-[#8a8a8a] mt-0.5">Ecco un riepilogo del tuo progetto.</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
-                    <div className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3"><div className="text-[11px] text-[#8a8a8a] font-bold uppercase tracking-wide">Progetto</div><div className="text-[14px] font-extrabold text-[#161616] truncate mt-1">{p?.name || '—'}</div></div>
-                    <div className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3"><div className="text-[11px] text-[#8a8a8a] font-bold uppercase tracking-wide">Stato</div><div className="text-[14px] font-extrabold text-[#161616] capitalize mt-1">{p?.status || '—'}</div></div>
-                    <div className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3"><div className="text-[11px] text-[#8a8a8a] font-bold uppercase tracking-wide">Avanzamento</div><div className="text-[14px] font-extrabold text-[#161616] mt-1">{pcd}%</div></div>
-                    <div className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3"><div className="text-[11px] text-[#8a8a8a] font-bold uppercase tracking-wide">Tuoi progetti</div><div className="text-[14px] font-extrabold text-[#161616] mt-1">{mine.length || 1}</div></div>
+                  <p className="text-[13px] text-[#8a8a8a] mt-0.5 truncate">{p?.name || 'Il tuo progetto'} · <span className="capitalize">{p?.status || 'attivo'}</span></p>
+                  <div className="mt-4 flex items-center gap-4">
+                    <div className="relative w-16 h-16 shrink-0">
+                      <svg viewBox="0 0 36 36" className="w-16 h-16 -rotate-90">
+                        <circle cx="18" cy="18" r="15.5" fill="none" stroke="#f0f0f0" strokeWidth="3.5" />
+                        <circle cx="18" cy="18" r="15.5" fill="none" stroke={portalStyle.accentColor} strokeWidth="3.5" strokeLinecap="round" strokeDasharray={`${(pcd / 100) * 97.4} 97.4`} />
+                      </svg>
+                      <span className="absolute inset-0 flex items-center justify-center text-[15px] font-extrabold text-[#161616]">{pcd}%</span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[12px] text-[#8a8a8a] font-bold uppercase tracking-wide">Avanzamento lavori</div>
+                      <button onClick={() => setActiveSubTab('lavori')} className="mt-2 text-[12.5px] font-bold px-4 py-2 rounded-xl bg-[#1b1b1b] text-white border-none cursor-pointer inline-flex items-center gap-1.5">Vedi avanzamento <ArrowRight className="w-3.5 h-3.5" /></button>
+                    </div>
                   </div>
-                  <button onClick={() => setActiveSubTab('lavori')} className="mt-4 text-[12.5px] font-bold px-4 py-2 rounded-xl bg-[#1b1b1b] text-white border-none cursor-pointer inline-flex items-center gap-1.5">Vedi avanzamento <ArrowRight className="w-3.5 h-3.5" /></button>
                 </div>
 
+                {/* Griglia di box, stile app */}
+                <div className="grid grid-cols-2 gap-3">
+                  {tiles.map((tb) => {
+                    const Icon = tb.icon;
+                    return (
+                      <button
+                        key={tb.id}
+                        onClick={() => setActiveSubTab(tb.id)}
+                        className="bg-white border border-[#e5e5e5] rounded-[20px] p-4 text-left cursor-pointer transition-all active:scale-[0.97] hover:border-[#161616] flex flex-col gap-3 min-h-[112px]"
+                      >
+                        <span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: portalStyle.accentColor }}>
+                          <Icon className="w-[18px] h-[18px] text-white" />
+                        </span>
+                        <div className="min-w-0">
+                          <div className="text-[14px] font-extrabold text-[#161616] truncate">{tb.label}</div>
+                          <div className="text-[11.5px] text-[#8a8a8a] truncate mt-0.5">{tileHint[tb.id] || 'Apri'}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Box "Il tuo percorso" */}
+                <PercorsoBox g={g} />
+
+                {/* Quiz del giorno */}
                 <DailyQuiz profile={profile} projects={projects} />
               </div>
             );
