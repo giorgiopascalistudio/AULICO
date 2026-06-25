@@ -3856,6 +3856,7 @@ export default function App() {
             profile={currentUser}
             tasks={Object.values(tasks)}
             projects={Object.values(projects)}
+            mktProjects={Object.values(mktProjects)}
             users={users}
             appointmentRequests={myApptRequests}
             onConfirmAppointment={handleConfirmAppointment}

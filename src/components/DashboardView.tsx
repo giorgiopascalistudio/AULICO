@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Clock, CheckSquare, Folder, Calendar, AlertTriangle, Plus, MoreHorizontal, Check, X, Inbox } from 'lucide-react';
-import { Project, Task, UserProfile, Appointment } from '../types';
+import { Project, Task, UserProfile, Appointment, MktProject } from '../types';
 import { eur, fmtDayLong, initials } from '../utils';
 import { Company, COMPANY_LABEL, COMPANY_COLOR } from '../finance';
 import { SmartText } from './SmartText';
@@ -14,6 +14,8 @@ interface DashboardViewProps {
   profile: UserProfile;
   tasks: Task[];
   projects: Project[];
+  /** Progetti marketing dello Strategico (mostrati tra i progetti, card uguali). */
+  mktProjects?: MktProject[];
   users: Record<string, UserProfile>;
   onNav: (route: string) => void;
   onToggleTask: (taskId: string, date: string) => void;
@@ -31,6 +33,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   profile,
   tasks,
   projects,
+  mktProjects = [],
   users,
   onNav,
   onToggleTask,
@@ -87,6 +90,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   };
 
   const activeProjects = projects.filter(p => p.status === 'attivo' && !p.archived);
+
+  // Lista unificata di card progetto: pratiche + progetti marketing (Strategico).
+  type ProjCard = { id: string; name: string; client: string; company: Company; pc: number; tot: number; isMkt: boolean };
+  const projectCards: ProjCard[] = [
+    ...activeProjects.map((p) => {
+      const { done, tot } = projTaskCounts(p);
+      return { id: p.id, name: p.name, client: p.client || '—', company: ((p.division as Company) || 'studio'), pc: tot ? Math.round((done / tot) * 100) : 0, tot, isMkt: false };
+    }),
+    ...mktProjects.filter((p) => p.status === 'attivo').map((p) => (
+      { id: p.id, name: p.name, client: p.clientName || '—', company: 'strategico' as Company, pc: 0, tot: 0, isMkt: true }
+    )),
+  ];
 
   // Overdue single-instance tasks
   const overdueCount = tasks.filter(t => t.frequency === 'once' && !t.done && t.date && t.date < today).length;
@@ -359,17 +374,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            {activeProjects.length > 0 ? (
-              activeProjects.slice(0, 5).map(p => {
-                const { done, tot } = projTaskCounts(p);
-                const pc = tot ? Math.round((done / tot) * 100) : 0;
-                const company = ((p.division as Company) || 'studio');
-                const col = COMPANY_COLOR[company];
-
+            {projectCards.length > 0 ? (
+              projectCards.slice(0, 6).map(p => {
+                const col = COMPANY_COLOR[p.company];
                 return (
                   <div
                     key={p.id}
-                    onClick={() => onNav(`progetto/${p.id}`)}
+                    onClick={() => onNav(p.isMkt ? 'progetti' : `progetto/${p.id}`)}
                     className="flex items-center gap-3.5 p-3 rounded-xl border border-[#f5f5f5] hover:bg-[#fcfcfc] transition-all cursor-pointer hover:-translate-y-0.5 hover:shadow-xs border-l-[4px]"
                     style={{ borderLeftColor: col }}
                   >
@@ -382,19 +393,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {p.name}
                       </b>
                       <small className="block text-[11.5px] text-[#8a8a8a] truncate mt-0.5">
-                        <span className="font-extrabold" style={{ color: col }}>{COMPANY_LABEL[company]}</span> · {p.client || '—'} · {tot} task
+                        <span className="font-extrabold" style={{ color: col }}>{COMPANY_LABEL[p.company]}</span> · {p.client} · {p.isMkt ? 'marketing' : `${p.tot} task`}
                       </small>
                     </div>
 
-                    <div className="text-right flex-shrink-0">
-                      <div className="font-mono text-[13px] font-extrabold text-[#161616] tracking-tight">{pc}%</div>
-                      <div className="w-[54px] h-[5px] bg-[#ececec] rounded-full overflow-hidden mt-1.5">
-                        <div
-                          className={`h-full rounded-full ${pc === 100 ? 'bg-green-700' : 'bg-[#1b1b1b]'}`}
-                          style={{ width: `${pc}%` }}
-                        />
+                    {p.isMkt ? (
+                      <div className="text-right flex-shrink-0">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-full" style={{ color: col, background: `${col}14` }}>Marketing</span>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="text-right flex-shrink-0">
+                        <div className="font-mono text-[13px] font-extrabold text-[#161616] tracking-tight">{p.pc}%</div>
+                        <div className="w-[54px] h-[5px] bg-[#ececec] rounded-full overflow-hidden mt-1.5">
+                          <div
+                            className={`h-full rounded-full ${p.pc === 100 ? 'bg-green-700' : 'bg-[#1b1b1b]'}`}
+                            style={{ width: `${p.pc}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })
