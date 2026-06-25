@@ -316,6 +316,26 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
 
   return (
     <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-5 shadow-sm text-left">
+      {/* Alert scelte estetiche (≤60gg) e blocco cantiere (scadute) — voci FISSE non confermate */}
+      {(() => {
+        const today = todayISO();
+        const aesthetic = items.filter((i) => i.kind === 'fisso' && i.status !== 'confermato' && i.deadline);
+        const overdue = aesthetic.filter((i) => (i.deadline as string) < today);
+        const soon = aesthetic.filter((i) => { const days = Math.round((new Date(i.deadline as string).getTime() - new Date(today).getTime()) / 86400000); return days >= 0 && days <= 60; });
+        if (overdue.length) return (
+          <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 p-3.5 flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+            <div className="text-[12.5px] text-rose-800"><b>Cantiere bloccato — scelte estetiche scadute ({overdue.length}).</b> {overdue.map((i) => i.title).slice(0, 3).join(', ')}{overdue.length > 3 ? '…' : ''}. Conferma le scelte per sbloccare i lavori.</div>
+          </div>
+        );
+        if (soon.length) return (
+          <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3.5 flex items-start gap-2.5">
+            <CalendarIcon className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div className="text-[12.5px] text-amber-800"><b>{soon.length} scelte estetiche in scadenza (≤60 giorni).</b> Conferma in tempo per non bloccare il cantiere.</div>
+          </div>
+        );
+        return null;
+      })()}
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 border-b border-[#f5f5f5] pb-3">
         <div>
           <h3 className="text-[14px] font-extrabold text-[#161616] font-sans tracking-tight">{t('tab.arredi')}</h3>

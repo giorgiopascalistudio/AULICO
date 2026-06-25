@@ -4,10 +4,20 @@
 > Legenda: ✅ fatto · 🟡 manca (richiede provider/servizio esterno) · 🔎 da confermare/affinare.
 
 ## In sintesi
-La piattaforma è **sostanzialmente completa**. Restano da fare **solo due cose**, entrambe
-dipendenti da provider esterni:
+La piattaforma è **sostanzialmente completa**. Restano da fare:
 - 🟡 **Firma OTP / eIDAS** dei documenti (contratti Onirico/Materico) — oggi: "accetta online" tracciato.
 - 🟡 **WhatsApp Business API** (invio automatico) — oggi: link `wa.me` pronti.
+- 🟡 **Deploy del backend** già scritto (Cloud Functions / cron: reminder, alert scadenze, report).
+- 🔧 **Ristrutturazione codice in domini** (`ARCHITETTURA-TARGET.md`): NON fatta — `App.tsx` è ancora
+  monolitico (~6.300 righe). È un refactor interno (nessun cambio funzionale), da decidere a parte.
+
+**Completati i "dettagli parziali" dei doc (25 giu 2026):**
+- ✅ **Render AI da foto + questionario**: in "Racconta il tuo sogno" (`ClientRequestPanel`) ora c'è
+  il questionario (ambiente/stile/palette/atmosfera) che compone il prompt dell'img2img.
+- ✅ **Alert 60gg scelte estetiche + blocco cantiere**: in `FurnishingsBoard` banner per voci FISSE non
+  confermate — ambra ≤60gg, rosso "cantiere bloccato" se scadute.
+- ✅ **Gamification fine pratica/agibilità**: card di congratulazioni nel dettaglio progetto del portale
+  quando il progetto è completato.
 
 Tutto il resto del piano (`docs/VISIONE-AULICO.md`, `docs/REGISTRO-DECISIONI.md`) è implementato:
 rebrand Aulico/Onirico, RBAC granulare (`access`), ROE Unico (3%/15%/€10k/4% + payback),

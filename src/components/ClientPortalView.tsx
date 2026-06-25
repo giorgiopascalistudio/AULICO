@@ -1091,6 +1091,15 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
           {currentTab === 'lavori' && (
             <div className="flex flex-col gap-6 animate-[riseIn_0.22s_ease_both]">
+              {/* Gamification: pratica completata / agibilità → congratulazioni al cliente */}
+              {(isAllDone || p?.status === 'completato') && (
+                <div className="rounded-[22px] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 text-center">
+                  <div className="text-[30px] leading-none">🎉</div>
+                  <h3 className="text-[18px] font-extrabold text-emerald-900 mt-1.5">Progetto completato con successo!</h3>
+                  <p className="text-[13px] text-emerald-800 mt-1">La pratica <b>{p?.name}</b> è stata portata a termine. Grazie per averci scelto: per qualsiasi esigenza futura siamo a disposizione.</p>
+                </div>
+              )}
+
               {/* Flight departure board style header card - Full Visual Consistency */}
               <StatusCard
                 fromCode={codeFrom(curTask.title)}

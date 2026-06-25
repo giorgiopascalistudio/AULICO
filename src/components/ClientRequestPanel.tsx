@@ -76,9 +76,12 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
   const [moodboard, setMoodboard] = useState<any[]>([]);
   const [mbOpen, setMbOpen] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  // Bozza immagine AI (da foto reale + stile)
+  // Bozza immagine AI (da foto reale + questionario: stile/ambiente/palette/atmosfera)
   const [photoB64, setPhotoB64] = useState<string | null>(null);
   const [style, setStyle] = useState('Moderno');
+  const [ambiente, setAmbiente] = useState('Soggiorno');
+  const [palette, setPalette] = useState('Neutri');
+  const [atmosfera, setAtmosfera] = useState('Luminosa');
   const [draftImage, setDraftImage] = useState<string | null>(null);
   const [genLoading, setGenLoading] = useState(false);
   const [genErr, setGenErr] = useState<string | null>(null);
@@ -88,10 +91,13 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
   const reset = () => {
     setStep(1); setDivision('studio'); setTitle(''); setDescription('');
     setBudget(''); setLocation(''); setLinksText(''); setMoodboard([]); setErr(null);
-    setPhotoB64(null); setStyle('Moderno'); setDraftImage(null); setGenErr(null);
+    setPhotoB64(null); setStyle('Moderno'); setAmbiente('Soggiorno'); setPalette('Neutri'); setAtmosfera('Luminosa'); setDraftImage(null); setGenErr(null);
   };
 
   const STYLES = ['Moderno', 'Minimal', 'Rustico', 'Mediterraneo', 'Industriale', 'Classico', 'Scandinavo'];
+  const AMBIENTI = ['Soggiorno', 'Cucina', 'Camera', 'Bagno', 'Studio', 'Esterno / giardino', 'Facciata', 'Lotto / terreno'];
+  const PALETTE = ['Neutri', 'Caldi', 'Freddi', 'Terrosi', 'Bianco & legno', 'Scuri eleganti'];
+  const ATMOSFERE = ['Luminosa', 'Accogliente', 'Minimal', 'Lussuosa', 'Naturale'];
 
   const onPhoto = (file: File) => {
     const r = new FileReader();
@@ -103,7 +109,7 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
     if (!photoB64) { setGenErr('Carica prima una foto.'); return; }
     setGenLoading(true); setGenErr(null);
     try {
-      const prompt = `${style} style interior/architecture render, redesigned from the provided photo, realistic lighting, clean, high quality. ${description.trim().slice(0, 300)}`;
+      const prompt = `${style} style, ${ambiente.toLowerCase()}, ${palette.toLowerCase()} color palette, ${atmosfera.toLowerCase()} atmosphere — architecture/interior render redesigned from the provided photo, realistic lighting, clean composition, high quality. ${description.trim().slice(0, 300)}`;
       const dataUrl = await callAiImage({ imageBase64: photoB64, prompt });
       setDraftImage(dataUrl);
     } catch (e: any) {
@@ -305,19 +311,25 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
                   {useMoodboard && (
                     <div className="rounded-2xl border border-[#e6e6e6] bg-[#fafafa] p-3.5 flex flex-col gap-2.5">
                       <b className="text-[13px] text-[#161616] flex items-center gap-1.5"><Sparkles className="w-4 h-4 text-[#b45309]" /> Bozza immagine AI</b>
-                      <span className="text-[11.5px] text-[#8a8a8a] -mt-1">Carica una foto reale (es. la stanza/lo spazio), scegli uno stile e genera una bozza d'idea. Risultato indicativo.</span>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <label className="text-[12px] font-bold px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] cursor-pointer hover:bg-[#f5f5f5]">
-                          {photoB64 ? 'Cambia foto' : 'Carica foto'}
-                          <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onPhoto(f); }} />
-                        </label>
-                        <select value={style} onChange={(e) => setStyle(e.target.value)} className="input h-9 px-2 text-[13px]">
-                          {STYLES.map((s) => <option key={s} value={s}>{s}</option>)}
-                        </select>
-                        <button type="button" onClick={generateDraft} disabled={!photoB64 || genLoading} className="text-[12px] font-bold px-3 py-2 rounded-xl bg-[#1b1b1b] text-white border-none cursor-pointer disabled:opacity-40">
-                          {genLoading ? 'Genero…' : 'Genera bozza'}
-                        </button>
+                      <span className="text-[11.5px] text-[#8a8a8a] -mt-1">Carica una foto (la stanza, la facciata o il lotto), rispondi al breve questionario e genera una bozza d'idea. Risultato indicativo.</span>
+                      <label className="text-[12px] font-bold px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] cursor-pointer hover:bg-[#f5f5f5] self-start">
+                        {photoB64 ? 'Cambia foto' : 'Carica foto'}
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onPhoto(f); }} />
+                      </label>
+                      {/* Questionario */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <label className="flex flex-col gap-1"><span className="text-[10.5px] font-bold text-[#8a8a8a]">Ambiente</span>
+                          <select value={ambiente} onChange={(e) => setAmbiente(e.target.value)} className="input h-9 px-2 text-[13px]">{AMBIENTI.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
+                        <label className="flex flex-col gap-1"><span className="text-[10.5px] font-bold text-[#8a8a8a]">Stile</span>
+                          <select value={style} onChange={(e) => setStyle(e.target.value)} className="input h-9 px-2 text-[13px]">{STYLES.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
+                        <label className="flex flex-col gap-1"><span className="text-[10.5px] font-bold text-[#8a8a8a]">Palette colori</span>
+                          <select value={palette} onChange={(e) => setPalette(e.target.value)} className="input h-9 px-2 text-[13px]">{PALETTE.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
+                        <label className="flex flex-col gap-1"><span className="text-[10.5px] font-bold text-[#8a8a8a]">Atmosfera</span>
+                          <select value={atmosfera} onChange={(e) => setAtmosfera(e.target.value)} className="input h-9 px-2 text-[13px]">{ATMOSFERE.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
                       </div>
+                      <button type="button" onClick={generateDraft} disabled={!photoB64 || genLoading} className="self-start text-[12px] font-bold px-3 py-2 rounded-xl bg-[#1b1b1b] text-white border-none cursor-pointer disabled:opacity-40">
+                        {genLoading ? 'Genero…' : 'Genera bozza'}
+                      </button>
                       {genErr && <span className="text-[11.5px] text-red-600">{genErr}</span>}
                       <div className="flex gap-3 flex-wrap">
                         {photoB64 && (
