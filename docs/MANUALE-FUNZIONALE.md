@@ -539,7 +539,7 @@ codice**. Specifica completa + riconciliazione in **`VISIONE-AULICO.md`**.
    automatico** al cliente; **WhatsApp + OTP** (backend/provider).
 7. **KPI di gruppo**: funnel Preventivato → Venduto → Erogato → Fatturato →
    Incassato → Liquidità, per società + consolidato (estensione di `StatsView`).
-8. **Futuro**: 5ª società **Gestione Immobili / affitti** sullo stesso hub.
+8. **Nota**: le società sono **quattro** (Onirico, Materico, Unico, Strategico) + holding Aulico. **Nessuna 5ª società** (l'idea "Gestione Immobili/affitti" del deck è scartata).
 
 ---
 

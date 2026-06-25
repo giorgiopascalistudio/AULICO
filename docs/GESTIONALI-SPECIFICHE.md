@@ -184,8 +184,8 @@ rivendita) con investitori, calcolando ROE e margini in modo trasparente.
 - **Cascata ROE analitica**: Terreno + **Agenzia 3%** + Notaio + **Progettazione
   Onirico 15%** + Opere + **Promozione Strategico €10k** + **Rivendita 4%** →
   margine netto, tempi di ritorno, ROE (estende `finance.ts`).
-- **Futuro**: 5ª società **Gestione Immobili / affitti** (le case vendute diventano
-  strutture gestite).
+- **Nota**: le società sono **quattro** (Onirico, Materico, Unico, Strategico) + holding
+  Aulico. **Nessuna 5ª società** (l'idea "Gestione Immobili/affitti" del deck è scartata).
 
 **Interfacce (Unico è il maggior "committente interno")**
 - **Commissiona** a Onirico: progetto + DL → costo "Onirico 15%" / ricavo Onirico (🎯).

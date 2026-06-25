@@ -8,9 +8,9 @@
 > Lo strato `holding/` proposto sotto **è il core "Aulico"** (DB centrale +
 > servizi comuni neutri, operati da Strategico). Il verticale `studio/` è
 > **"Onirico"** in UI (chiave codice invariata). Integrazione del feedback:
-> `VISIONE-AULICO.md`. La 5ª società futura (**Gestione Immobili / affitti**) si
-> aggiunge come nuovo dominio accanto agli altri — l'albero §2 la regge senza
-> rotture.
+> `VISIONE-AULICO.md`. **Le società sono QUATTRO** (Onirico, Materico, Unico,
+> Strategico) + holding Aulico — **NON esiste una 5ª società**. L'albero §2 resta
+> comunque pronto ad accogliere nuovi verticali, ma non è pianificato nulla.
 >
 > ⚠️ **Questo è solo un piano.** Nessun file sorgente è stato modificato.
 > Procederemo all'implementazione solo quando lo deciderai. Riferimenti: vedi
@@ -247,7 +247,7 @@ Mappa delle estensioni richieste (`VISIONE-AULICO.md`) sull'albero §2:
 | Report settimanale automatico | `studio/cantiere/` + cron `functions/` |
 | KPI funnel di gruppo | `holding/finance/` (StatsView) |
 | WhatsApp API | `functions/` + provider |
-| Gestione Immobili/affitti (5ª società) | nuovo dominio `immobili/` |
+| ~~Gestione Immobili/affitti~~ | 🚫 scartata — NON esiste 5ª società (solo 4) |
 
 Le funzioni che richiedono **backend/provider esterni** (OTP, WhatsApp, AI
 immagini, cron) NON bloccano la ristrutturazione del codice: vanno nella "fase

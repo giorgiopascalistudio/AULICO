@@ -154,10 +154,11 @@ confluiscono in finanza con il `sector` corretto.
 > Da preservare anche l'attuale SPV/cap-table + posizioni private investitore: il
 > ROE per investitore si calcola su questo modello.
 
-**Scalabilità futura (slide 14):** **Gestione Immobili / affitti** come 5ª società
-("Next Year") che si affianca ai moduli esistenti sullo stesso hub Aulico. Le case
-costruite/vendute possono diventare strutture gestite. → tenerne conto nei confini
-(`ARCHITETTURA §2`: l'albero a domini regge l'aggiunta di un nuovo verticale).
+**Nota (correzione committente):** le società sono **QUATTRO** — Onirico, Materico,
+Unico, Strategico — più la **holding Aulico** che le contiene. **NON esiste una 5ª
+società** ("Gestione Immobili / affitti" della slide 14 del deck è scartata). L'albero
+a domini (`ARCHITETTURA §2`) resta comunque pronto ad accogliere nuovi verticali se
+in futuro servisse, ma non è pianificato nulla.
 
 ---
 
@@ -233,7 +234,7 @@ ci sono già nei nodi finanza, è questione di aggregazione).
 | Report settimanale automatico | ❌ | cantiere (base) | **nuovo** (cron) |
 | WhatsApp API | ❌ | link wa.me | roadmap |
 | KPI funnel di gruppo | ⚠️ | StatsView | **estendere** |
-| Gestione Immobili/affitti (futuro) | ❌ | — | predisposto da ARCHITETTURA §2 |
+| Gestione Immobili/affitti | 🚫 **scartata** | — | NON esiste 5ª società (solo 4) |
 | Palette grafica del deck | 🚫 **rifiutata** | LINEE-GUIDA | **teniamo il nostro stile** |
 
 Legenda: ✅ presente · ⚠️ parziale · ❌ assente · 🚫 esplicitamente non adottato.
