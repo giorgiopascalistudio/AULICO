@@ -132,6 +132,13 @@ export const ClientRequestsView: React.FC<ClientRequestsViewProps> = ({
 
                 <p className="text-[13px] text-[#3a3a3a] leading-relaxed mt-3 whitespace-pre-wrap">{r.description}</p>
 
+                {r.draftImage && (
+                  <div className="mt-3">
+                    <span className="text-[11px] font-bold text-[#b45309] flex items-center gap-1.5 mb-1.5"><Box className="w-3.5 h-3.5" /> Bozza immagine del cliente (AI)</span>
+                    <img src={r.draftImage} alt="bozza cliente" className="max-w-[260px] w-full rounded-xl border border-[#e2e2e2]" />
+                  </div>
+                )}
+
                 <div className="flex flex-wrap gap-x-5 gap-y-1 mt-3 text-[12px] text-[#555]">
                   {r.budget != null && <span><b className="text-[#161616]">Budget:</b> € {Number(r.budget).toLocaleString('it-IT')}</span>}
                   {r.location && <span><b className="text-[#161616]">Dove:</b> {r.location}</span>}

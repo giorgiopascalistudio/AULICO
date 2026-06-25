@@ -82,6 +82,33 @@ export const callAi = async (data: { prompt: string; system?: string; maxTokens?
   return (res?.data?.text || '').toString();
 };
 
+/**
+ * Genera una BOZZA immagine (img2img) da una foto reale + prompt di stile, via
+ * il Worker (Cloudflare Workers AI). Ritorna una data URL PNG. Richiede il
+ * Worker configurato (`window.__AULICO_AI_URL__`) col binding AI.
+ */
+export const callAiImage = async (input: { imageBase64: string; prompt: string; strength?: number }): Promise<string> => {
+  if (!AI_WORKER_URL) throw new Error('Generazione immagine non configurata (Worker AI assente).');
+  const token = await auth.currentUser?.getIdToken();
+  const resp = await fetch(AI_WORKER_URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
+    body: JSON.stringify({ kind: 'image', image: input.imageBase64, prompt: input.prompt, strength: input.strength }),
+  });
+  if (!resp.ok) {
+    let detail = `${resp.status}`;
+    try { const j = await resp.json(); detail = j.detail || j.error || detail; } catch { /* binary/none */ }
+    throw new Error(`Errore generazione immagine: ${detail}`);
+  }
+  const blob = await resp.blob();
+  return await new Promise<string>((resolve, reject) => {
+    const r = new FileReader();
+    r.onloadend = () => resolve(r.result as string);
+    r.onerror = reject;
+    r.readAsDataURL(blob);
+  });
+};
+
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 

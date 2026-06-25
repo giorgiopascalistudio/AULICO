@@ -39,7 +39,32 @@ export default {
       if (!verify.ok) return json({ error: 'invalid-token' }, 401);
 
       // 2) input
-      const { prompt, system, maxTokens } = await request.json();
+      const body = await request.json();
+      const { prompt, system, maxTokens } = body;
+
+      // 2-img) Generazione immagine (bozza) da foto reale + stile, via Cloudflare
+      //        Workers AI (img2img). Richiede il binding [ai] in wrangler.toml.
+      if (body.kind === 'image') {
+        if (!env.AI) return json({ error: 'image-not-configured', detail: 'Manca il binding AI (wrangler.toml [ai] binding="AI") — rifai wrangler deploy.' }, 501);
+        const b64 = String(body.image || '').replace(/^data:[^,]+,/, '');
+        if (!b64) return json({ error: 'missing-image' }, 400);
+        let bytes;
+        try { bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)); }
+        catch { return json({ error: 'bad-image' }, 400); }
+        const model = env.IMAGE_MODEL || '@cf/runwayml/stable-diffusion-v1-5-img2img';
+        try {
+          const result = await env.AI.run(model, {
+            prompt: String(prompt || 'architectural interior, professional render').slice(0, 1500),
+            image: [...bytes],
+            strength: typeof body.strength === 'number' ? body.strength : 0.55,
+            num_steps: 20,
+          });
+          return new Response(result, { headers: { 'content-type': 'image/png', ...cors } });
+        } catch (e) {
+          return json({ error: 'image-error', detail: String((e && e.message) || e) }, 502);
+        }
+      }
+
       if (!prompt || !String(prompt).trim()) return json({ error: 'missing-prompt' }, 400);
 
       const max = Math.min(Number(maxTokens) || 700, 2000);

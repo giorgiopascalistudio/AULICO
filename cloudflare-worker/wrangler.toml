@@ -2,6 +2,10 @@ name = "aulico-ai"
 main = "worker.js"
 compatibility_date = "2024-11-01"
 
+# Cloudflare Workers AI (gratis) per la generazione bozza immagine (img2img).
+[ai]
+binding = "AI"
+
 # Secret (NON metterli qui): impostali con
 #   wrangler secret put FIREBASE_API_KEY
 #   wrangler secret put GEMINI_KEY

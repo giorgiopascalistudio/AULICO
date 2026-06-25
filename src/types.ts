@@ -917,6 +917,7 @@ export interface ClientRequest {
   location?: string | null;                       // dove (indirizzo/zona libera)
   links?: string[] | null;
   moodboard?: any[] | null;                       // elementi moodboard 3D (BoardElement[]) — idea visiva
+  draftImage?: string | null;                     // bozza generata via AI (data URL PNG) da foto + stile
   status: ClientRequestStatus;
   projectId?: string | null;                      // progetto creato alla conversione
   studioNote?: string | null;                     // nota interna dello studio
