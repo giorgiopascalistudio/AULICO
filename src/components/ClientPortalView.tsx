@@ -134,59 +134,46 @@ interface ClientPortalViewProps {
   onDeleteImpresaEntity?: (coll: string, uid: string, id: string) => void;
 }
 
-/** Box "Il tuo percorso": riquadro compatto della dashboard, espandibile per vedere gli obiettivi. */
-const PercorsoBox: React.FC<{ g: ReturnType<typeof clientGame> }> = ({ g }) => {
-  const [open, setOpen] = useState(false);
-  const pct = g.max > 0 ? Math.round((g.points / g.max) * 100) : 0;
-  return (
-    <div className="bg-white border border-[#e5e5e5] rounded-[22px] p-5">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between gap-2 bg-transparent border-none p-0 cursor-pointer text-left"
-      >
-        <div className="flex items-center gap-2 min-w-0">
-          <Award className="w-[18px] h-[18px] shrink-0" style={{ color: g.level.color }} />
-          <h3 className="text-[15px] font-extrabold text-[#161616] truncate">Il tuo percorso</h3>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[12px] font-bold px-3 py-1 rounded-full border" style={{ color: g.level.color, borderColor: g.level.color }}>{g.level.label}</span>
-          <ChevronDown className={`w-4 h-4 text-[#8a8a8a] transition-transform ${open ? 'rotate-180' : ''}`} />
-        </div>
-      </button>
-      <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden mt-3">
-        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: g.level.color }} />
+/**
+ * Pannello a fisarmonica della dashboard cliente: header sempre visibile (icona +
+ * titolo + riepilogo), corpo che si apre/chiude. Controllato dal genitore così la
+ * dashboard è un accordion (un pannello aperto per volta) e non scorre.
+ */
+const AccordionSection: React.FC<{
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  title: string;
+  accent?: string;
+  summary?: React.ReactNode;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}> = ({ icon: Icon, title, accent = '#161616', summary, open, onToggle, children }) => (
+  <div className="bg-white border border-[#e5e5e5] rounded-[22px] overflow-hidden">
+    <button onClick={onToggle} className="w-full flex items-center justify-between gap-2 p-4 bg-transparent border-none cursor-pointer text-left">
+      <div className="flex items-center gap-2 min-w-0">
+        <Icon className="w-[18px] h-[18px] shrink-0" style={{ color: accent }} />
+        <span className="text-[15px] font-extrabold text-[#161616] truncate">{title}</span>
       </div>
-      <div className="flex items-center justify-between mt-1.5 text-[11.5px] text-[#8a8a8a]">
-        <span>{g.completed}/{g.objectives.length} obiettivi</span>
-        <span>{g.next ? `${g.next.remaining} pt a "${g.next.level.label}"` : 'Livello massimo 🎉'}</span>
+      <div className="flex items-center gap-2 shrink-0">
+        {summary}
+        <ChevronDown className={`w-4 h-4 text-[#8a8a8a] transition-transform ${open ? 'rotate-180' : ''}`} />
       </div>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="overflow-hidden"
-          >
-            <div className="grid sm:grid-cols-2 gap-2 mt-4">
-              {g.objectives.map((o) => (
-                <div key={o.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${o.done ? 'border-emerald-200 bg-emerald-50' : 'border-[#ececec] bg-[#fafafa]'}`}>
-                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${o.done ? 'bg-emerald-500 text-white' : 'bg-[#e2e2e2] text-[#8a8a8a]'}`}>{o.done ? '✓' : ''}</span>
-                  <div className="min-w-0 flex-1">
-                    <div className={`text-[12.5px] font-bold truncate ${o.done ? 'text-emerald-900' : 'text-[#161616]'}`}>{o.label}</div>
-                    <div className="text-[11px] text-[#8a8a8a] truncate">{o.hint}</div>
-                  </div>
-                  <span className="text-[11px] font-bold text-[#8a8a8a] shrink-0">+{o.points}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
+    </button>
+    <AnimatePresence initial={false}>
+      {open && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="overflow-hidden"
+        >
+          <div className="px-4 pb-4">{children}</div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+);
 
 export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   profile,
@@ -256,6 +243,8 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   const [approvedMarketingPosts, setApprovedMarketingPosts] = useState<Record<string, boolean>>({});
   const [uploading, setUploading] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState<string>('dashboard');
+  // Accordion dashboard: quale pannello è aperto ('progetti' di default; '' = tutti chiusi).
+  const [dashSection, setDashSection] = useState<string>('progetti');
   const [showcaseOpen, setShowcaseOpen] = useState(false); // vetrina "Scopri i servizi"
   const [profileOpen, setProfileOpen] = useState(false); // modale profilo cliente
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
@@ -1054,24 +1043,22 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             // (escluse "dashboard" e "blog", che è globale). Ogni progetto è il suo spazio.
             const projectMenu = tabsList.filter((tb) => tb.id !== 'dashboard' && tb.id !== 'blog');
             const enterProject = (pid: string, section?: string) => { onSetActivePid(pid); setActiveSubTab(section || 'lavori'); };
+            const toggle = (idv: string) => setDashSection((s) => (s === idv ? '' : idv));
+            const gPct = g.max > 0 ? Math.round((g.points / g.max) * 100) : 0;
 
             return (
-              <div className="flex flex-col gap-5 animate-[riseIn_0.22s_ease_both]">
-                {/* Benvenuto */}
-                <div>
-                  <h2 className="text-[24px] font-extrabold tracking-tight text-[#161616]">{profile.name ? `Ciao, ${profile.name.split(' ')[0]}` : 'Benvenuto'}</h2>
-                  <p className="text-[13px] text-[#8a8a8a] mt-1">{mine.length > 1 ? 'Scegli il progetto in cui entrare.' : 'Entra nel tuo progetto.'}</p>
-                </div>
-
-                {/* MENU "Progetti": una card per progetto, ognuna con il suo spazio/menu */}
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-2">
-                    <FolderOpen className="w-[18px] h-[18px] text-[#161616]" />
-                    <h3 className="text-[15px] font-extrabold text-[#161616]">Progetti</h3>
-                    <span className="text-[12px] text-[#8a8a8a]">· {mine.length}</span>
-                  </div>
+              // Accordion: un pannello aperto per volta, la pagina non scorre.
+              <div className="flex flex-col gap-3 animate-[riseIn_0.22s_ease_both]">
+                {/* "Progetti": una card per progetto, ognuna con il suo spazio/menu */}
+                <AccordionSection
+                  icon={FolderOpen}
+                  title="Progetti"
+                  summary={<span className="text-[12px] font-bold text-[#8a8a8a]">{mine.length}</span>}
+                  open={dashSection === 'progetti'}
+                  onToggle={() => toggle('progetti')}
+                >
                   {mine.length === 0 ? (
-                    <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[20px] p-8 text-center text-[13px] text-[#8a8a8a]">Nessun progetto ancora collegato al tuo account.</div>
+                    <div className="text-center text-[13px] text-[#8a8a8a] py-6">Nessun progetto ancora collegato al tuo account.</div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {mine.map((proj) => {
@@ -1079,7 +1066,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                         const ppc = pct(cnt.done, cnt.tot);
                         const isActive = proj.id === activePid;
                         return (
-                          <div key={proj.id} className={`bg-white rounded-[22px] p-4 border ${isActive ? 'border-[#161616] ring-1 ring-[#161616]' : 'border-[#e5e5e5]'}`}>
+                          <div key={proj.id} className={`bg-white rounded-[20px] p-4 border ${isActive ? 'border-[#161616] ring-1 ring-[#161616]' : 'border-[#e5e5e5]'}`}>
                             <button onClick={() => enterProject(proj.id)} className="w-full text-left bg-transparent border-none p-0 cursor-pointer">
                               <div className="flex items-center justify-between gap-2">
                                 <b className="text-[15px] text-[#161616] truncate">{proj.name}</b>
@@ -1107,13 +1094,48 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                       })}
                     </div>
                   )}
-                </div>
+                </AccordionSection>
 
-                {/* Box "Il tuo percorso" */}
-                <PercorsoBox g={g} />
+                {/* "Il tuo percorso" (gamification) */}
+                <AccordionSection
+                  icon={Award}
+                  title="Il tuo percorso"
+                  accent={g.level.color}
+                  summary={<span className="text-[12px] font-bold px-3 py-1 rounded-full border" style={{ color: g.level.color, borderColor: g.level.color }}>{g.level.label}</span>}
+                  open={dashSection === 'percorso'}
+                  onToggle={() => toggle('percorso')}
+                >
+                  <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden">
+                    <div className="h-full rounded-full transition-all" style={{ width: `${gPct}%`, background: g.level.color }} />
+                  </div>
+                  <div className="flex items-center justify-between mt-1.5 text-[11.5px] text-[#8a8a8a]">
+                    <span>{g.completed}/{g.objectives.length} obiettivi</span>
+                    <span>{g.next ? `${g.next.remaining} pt a "${g.next.level.label}"` : 'Livello massimo 🎉'}</span>
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-2 mt-4">
+                    {g.objectives.map((o) => (
+                      <div key={o.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${o.done ? 'border-emerald-200 bg-emerald-50' : 'border-[#ececec] bg-[#fafafa]'}`}>
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${o.done ? 'bg-emerald-500 text-white' : 'bg-[#e2e2e2] text-[#8a8a8a]'}`}>{o.done ? '✓' : ''}</span>
+                        <div className="min-w-0 flex-1">
+                          <div className={`text-[12.5px] font-bold truncate ${o.done ? 'text-emerald-900' : 'text-[#161616]'}`}>{o.label}</div>
+                          <div className="text-[11px] text-[#8a8a8a] truncate">{o.hint}</div>
+                        </div>
+                        <span className="text-[11px] font-bold text-[#8a8a8a] shrink-0">+{o.points}</span>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionSection>
 
                 {/* Quiz del giorno */}
-                <DailyQuiz profile={profile} projects={projects} />
+                <AccordionSection
+                  icon={HelpCircle}
+                  title="Quiz del giorno"
+                  accent="#b45309"
+                  open={dashSection === 'quiz'}
+                  onToggle={() => toggle('quiz')}
+                >
+                  <DailyQuiz profile={profile} projects={projects} embedded />
+                </AccordionSection>
               </div>
             );
           })()}

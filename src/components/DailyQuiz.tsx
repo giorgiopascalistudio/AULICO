@@ -161,7 +161,7 @@ function buildQuiz(project: Project | null, rnd: () => number): Q[] {
   return qs.slice(0, 5);
 }
 
-export const DailyQuiz: React.FC<{ profile: UserProfile; projects: Project[] }> = ({ profile, projects }) => {
+export const DailyQuiz: React.FC<{ profile: UserProfile; projects: Project[]; embedded?: boolean }> = ({ profile, projects, embedded }) => {
   const today = todayKey();
   const quizState = (profile as any).quiz || {};
   const alreadyDone = quizState.lastDate === today;
@@ -193,14 +193,14 @@ export const DailyQuiz: React.FC<{ profile: UserProfile; projects: Project[] }> 
   };
 
   const Card: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <div className="bg-white border border-[#e5e5e5] rounded-[22px] p-5">{children}</div>
+    embedded ? <>{children}</> : <div className="bg-white border border-[#e5e5e5] rounded-[22px] p-5">{children}</div>
   );
 
   if (finished) {
     const last = alreadyDone ? quizState.lastScore : score;
     return (
       <Card>
-        <div className="flex items-center gap-2 mb-1"><Trophy className="w-[18px] h-[18px] text-[#b45309]" /><b className="text-[15px]">Quiz del giorno</b></div>
+        {!embedded && <div className="flex items-center gap-2 mb-1"><Trophy className="w-[18px] h-[18px] text-[#b45309]" /><b className="text-[15px]">Quiz del giorno</b></div>}
         <p className="text-[13px] text-[#555] mt-1">{alreadyDone ? 'Hai già completato il quiz di oggi.' : 'Quiz completato!'} Punteggio: <b>{last}/{questions.length}</b>{quizState.streak ? ` · serie di ${quizState.streak} giorni 🔥` : ''}</p>
 
         {/* Riepilogo con le risposte corrette + spiegazione */}
@@ -227,8 +227,8 @@ export const DailyQuiz: React.FC<{ profile: UserProfile; projects: Project[] }> 
   const cur = questions[idx];
   return (
     <Card>
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2"><HelpCircle className="w-[18px] h-[18px] text-[#b45309]" /><b className="text-[15px]">Quiz del giorno</b></div>
+      <div className={`flex items-center mb-3 ${embedded ? 'justify-end' : 'justify-between'}`}>
+        {!embedded && <div className="flex items-center gap-2"><HelpCircle className="w-[18px] h-[18px] text-[#b45309]" /><b className="text-[15px]">Quiz del giorno</b></div>}
         <span className="text-[11.5px] text-[#8a8a8a]">Domanda {idx + 1} / {questions.length}</span>
       </div>
       <p className="text-[14px] font-semibold text-[#161616] mb-3">{cur.q}</p>

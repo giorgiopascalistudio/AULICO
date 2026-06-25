@@ -64,10 +64,11 @@ npm run build      # output in dist/ (esbuild: NON fa type-check)
 (pipeline lead + fornitori), `MatericoView` (hub operatore Materico),
 `MatericoPortal` (lato cliente/partner), `FinanzeView`, `TeamView`,
 `ClientPortalView` (portale cliente/partner, ~2400 righe; la **tab Dashboard è il SELETTORE
-PROGETTI**: benvenuto + menu **"Progetti"** = una **card per progetto** (ognuna è il suo spazio,
-con i chip-menu delle sezioni del progetto: Avanzamento/Documenti/Arredi/Contabilità… che entrano
-in quella sezione impostando `activePid`) + box "Il tuo percorso" (`PercorsoBox`, gamification) +
-`DailyQuiz`. La tab **Avanzamento** ('lavori') mostra il progetto **attivo** con un link
+PROGETTI a fisarmonica** — `AccordionSection`, **un pannello aperto per volta così la pagina non
+scorre** (stato `dashSection`): pannelli **"Progetti"** (una **card per progetto**, ognuna è il suo
+spazio con i chip-menu delle sezioni Avanzamento/Documenti/Arredi/Contabilità… che entrano in quella
+sezione impostando `activePid`), **"Il tuo percorso"** (gamification) e **"Quiz del giorno"**
+(`DailyQuiz embedded`). La tab **Avanzamento** ('lavori') mostra il progetto **attivo** con un link
 "Tutti i progetti" che torna alla Dashboard. **Niente banner/bottone newsletter nel portale**
 (il consenso resta in registrazione e nel profilo). `ServicesShowcase`
 (sezione "Scopri i servizi" del portale: pagine vetrina Studio/Materico/
