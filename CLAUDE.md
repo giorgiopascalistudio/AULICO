@@ -63,11 +63,13 @@ npm run build      # output in dist/ (esbuild: NON fa type-check)
 (agenda Giorno·Settimana·Mese), `ProjectsView`, `DocumentsView`, `CrmView`
 (pipeline lead + fornitori), `MatericoView` (hub operatore Materico),
 `MatericoPortal` (lato cliente/partner), `FinanzeView`, `TeamView`,
-`ClientPortalView` (portale cliente/partner, ~2400 righe; la **tab Dashboard è una HOME**:
-benvenuto + griglia di box-sezione stile app + box "Il tuo percorso" (`PercorsoBox`,
-gamification, espandibile) + `DailyQuiz` — **niente progetti nella dashboard**; i progetti
-vivono nella tab **lavori/Progetti**, dove se il cliente ne ha **più di uno** compaiono delle
-**card selezionabili** (come il portale team) che impostano `activePid`), `ServicesShowcase`
+`ClientPortalView` (portale cliente/partner, ~2400 righe; la **tab Dashboard è il SELETTORE
+PROGETTI**: benvenuto + menu **"Progetti"** = una **card per progetto** (ognuna è il suo spazio,
+con i chip-menu delle sezioni del progetto: Avanzamento/Documenti/Arredi/Contabilità… che entrano
+in quella sezione impostando `activePid`) + box "Il tuo percorso" (`PercorsoBox`, gamification) +
+`DailyQuiz`. La tab **Avanzamento** ('lavori') mostra il progetto **attivo** con un link
+"Tutti i progetti" che torna alla Dashboard. **Niente banner/bottone newsletter nel portale**
+(il consenso resta in registrazione e nel profilo). `ServicesShowcase`
 (sezione "Scopri i servizi" del portale: pagine vetrina Studio/Materico/
 Strategico/Unico accanto ai progetti; Unico ha la vetrina immobili-investimento
 con dati **fittizi** da `src/showcaseData.ts` — contenuti demo, non su Firebase),

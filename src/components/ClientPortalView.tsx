@@ -35,6 +35,7 @@ import {
   Target,
   Sofa,
   HardHat,
+  FolderOpen,
   Building2,
   Gem,
   Wallet,
@@ -52,7 +53,6 @@ import { Project, UserProfile, MatericoEstimate, Furnishing, Cantiere, Rapportin
 import { totalPoints, tierFor, nextTier, reliabilityScore } from '../points';
 import { clientGame } from '../gamification';
 import { AiComposeButton } from './AiComposeButton';
-import { NewsletterButton } from './NewsletterButton';
 import { ClientProfileModal } from './ClientProfileModal';
 import { DailyQuiz } from './DailyQuiz';
 import { FurnishingsBoard } from './FurnishingsBoard';
@@ -735,11 +735,6 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
         />
       )}
 
-      {!isPreview && (
-        <div className="max-w-[1100px] w-full mx-auto px-4 sm:px-6 pt-6">
-          <NewsletterButton uid={profile.uid} name={profile.name} email={profile.email} />
-        </div>
-      )}
 
       {profile.role === 'partner' && (
         <div className="max-w-[1100px] w-full mx-auto px-4 sm:px-6 pt-6">
@@ -1043,10 +1038,6 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               className="w-full"
             >
           {currentTab === 'dashboard' && (() => {
-            const phs = Object.values(p?.phases || {});
-            let dn = 0, tt = 0;
-            phs.forEach((ph: any) => Object.values(ph.tasks || {}).forEach((tk: any) => { tt++; if (tk.done) dn++; }));
-            const pcd = tt ? Math.round((dn / tt) * 100) : 0;
             const mine = (projects || []).filter((pr) => pr.clientUid === profile.uid || (profile.projectIds || {})[pr.id]);
 
             // Dati box "Il tuo percorso"
@@ -1059,51 +1050,63 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               .reduce((s, [, m]: any) => s + Object.values(m || {}).filter((msg: any) => msg.from === profile.uid).length, 0);
             const g = clientGame({ profile, projects: mine, furnishingCount, moodboardElements, messageCount });
 
-            // Tile dell'app: le sezioni del portale (escluso dashboard), con un sottotitolo/stato a colpo d'occhio
-            const projFurnishing = Object.keys((furnishings || {})[p?.id || ''] || {}).length;
-            const tileHint: Record<string, string> = {
-              lavori: `${mine.length} progett${mine.length === 1 ? 'o' : 'i'} · ${pcd}%`,
-              documenti: `${docs.length} file · ${msgs.length} messaggi`,
-              arredi: projFurnishing ? `${projFurnishing} elementi` : 'Materiali & moodboard',
-              finanze: 'Quadro economico',
-              blog: 'Notizie & guide',
-              preventivi: 'Scelte & preventivi',
-              marketing: 'Eventi & campagne',
-              cantiere: 'Foto & rapportini',
-              impresa: 'La tua impresa',
-              b2b_preventivi: 'Offerte B2B',
-              b2b_chat: 'Coordinamento',
-            };
-            const tiles = tabsList.filter((tb) => tb.id !== 'dashboard');
+            // Menu per-progetto: le sezioni del portale che hanno senso dentro un progetto
+            // (escluse "dashboard" e "blog", che è globale). Ogni progetto è il suo spazio.
+            const projectMenu = tabsList.filter((tb) => tb.id !== 'dashboard' && tb.id !== 'blog');
+            const enterProject = (pid: string, section?: string) => { onSetActivePid(pid); setActiveSubTab(section || 'lavori'); };
 
             return (
-              <div className="flex flex-col gap-4 animate-[riseIn_0.22s_ease_both]">
-                {/* Home: solo benvenuto + navigazione. I progetti vivono nella sezione "Progetti". */}
-                <div className="bg-white border border-[#e5e5e5] rounded-[22px] p-5">
-                  <h2 className="text-[22px] font-extrabold tracking-tight text-[#161616]">{profile.name ? `Ciao, ${profile.name.split(' ')[0]}` : 'Benvenuto'}</h2>
-                  <p className="text-[13px] text-[#8a8a8a] mt-1">Benvenuto nel tuo portale. Da qui segui il tuo percorso con noi: scegli una sezione qui sotto.</p>
+              <div className="flex flex-col gap-5 animate-[riseIn_0.22s_ease_both]">
+                {/* Benvenuto */}
+                <div>
+                  <h2 className="text-[24px] font-extrabold tracking-tight text-[#161616]">{profile.name ? `Ciao, ${profile.name.split(' ')[0]}` : 'Benvenuto'}</h2>
+                  <p className="text-[13px] text-[#8a8a8a] mt-1">{mine.length > 1 ? 'Scegli il progetto in cui entrare.' : 'Entra nel tuo progetto.'}</p>
                 </div>
 
-                {/* Griglia di box, stile app */}
-                <div className="grid grid-cols-2 gap-3">
-                  {tiles.map((tb) => {
-                    const Icon = tb.icon;
-                    return (
-                      <button
-                        key={tb.id}
-                        onClick={() => setActiveSubTab(tb.id)}
-                        className="bg-white border border-[#e5e5e5] rounded-[20px] p-4 text-left cursor-pointer transition-all active:scale-[0.97] hover:border-[#161616] flex flex-col gap-3 min-h-[112px]"
-                      >
-                        <span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: portalStyle.accentColor }}>
-                          <Icon className="w-[18px] h-[18px] text-white" />
-                        </span>
-                        <div className="min-w-0">
-                          <div className="text-[14px] font-extrabold text-[#161616] truncate">{tb.label}</div>
-                          <div className="text-[11.5px] text-[#8a8a8a] truncate mt-0.5">{tileHint[tb.id] || 'Apri'}</div>
-                        </div>
-                      </button>
-                    );
-                  })}
+                {/* MENU "Progetti": una card per progetto, ognuna con il suo spazio/menu */}
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2">
+                    <FolderOpen className="w-[18px] h-[18px] text-[#161616]" />
+                    <h3 className="text-[15px] font-extrabold text-[#161616]">Progetti</h3>
+                    <span className="text-[12px] text-[#8a8a8a]">· {mine.length}</span>
+                  </div>
+                  {mine.length === 0 ? (
+                    <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[20px] p-8 text-center text-[13px] text-[#8a8a8a]">Nessun progetto ancora collegato al tuo account.</div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {mine.map((proj) => {
+                        const cnt = projTaskCounts(proj);
+                        const ppc = pct(cnt.done, cnt.tot);
+                        const isActive = proj.id === activePid;
+                        return (
+                          <div key={proj.id} className={`bg-white rounded-[22px] p-4 border ${isActive ? 'border-[#161616] ring-1 ring-[#161616]' : 'border-[#e5e5e5]'}`}>
+                            <button onClick={() => enterProject(proj.id)} className="w-full text-left bg-transparent border-none p-0 cursor-pointer">
+                              <div className="flex items-center justify-between gap-2">
+                                <b className="text-[15px] text-[#161616] truncate">{proj.name}</b>
+                                {isActive && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: portalStyle.accentColor }}>In corso</span>}
+                              </div>
+                              <div className="text-[11.5px] text-[#8a8a8a] capitalize mt-0.5">{proj.status || 'attivo'}{proj.location ? ` · ${proj.location.split(',')[0]}` : ''}</div>
+                              <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden mt-2.5">
+                                <div className="h-full rounded-full transition-all" style={{ width: `${ppc}%`, background: portalStyle.accentColor }} />
+                              </div>
+                              <div className="text-[11px] text-[#8a8a8a] mt-1">{ppc}% avanzamento</div>
+                            </button>
+                            {/* Menu del progetto: ogni voce entra nello spazio del progetto su quella sezione */}
+                            <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-[#f2f2f2]">
+                              {projectMenu.map((tb) => {
+                                const Icon = tb.icon;
+                                return (
+                                  <button key={tb.id} onClick={() => enterProject(proj.id, tb.id)} className="inline-flex items-center gap-1.5 text-[11.5px] font-bold px-2.5 py-1.5 rounded-lg border border-[#e8e8e8] bg-[#fafafa] hover:border-[#161616] text-[#161616] cursor-pointer">
+                                    <Icon className="w-3.5 h-3.5" /> {tb.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Box "Il tuo percorso" */}
@@ -1117,40 +1120,11 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
           {currentTab === 'lavori' && (
             <div className="flex flex-col gap-6 animate-[riseIn_0.22s_ease_both]">
-              {/* Card progetti (come il portale team): se più di uno, si scelgono qui */}
+              {/* Torna alla scelta progetti quando ce n'è più d'uno */}
               {projectIds.length > 1 && (
-                <div>
-                  <div className="flex items-center justify-between mb-2.5">
-                    <h3 className="text-[15px] font-extrabold text-[#161616]">I tuoi progetti</h3>
-                    <span className="text-[12px] text-[#8a8a8a]">{projectIds.length} progetti</span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {projectIds.map((id) => {
-                      const proj = projects.find((pr) => pr.id === id);
-                      if (!proj) return null;
-                      const cnt = projTaskCounts(proj);
-                      const ppc = pct(cnt.done, cnt.tot);
-                      const isActive = id === activePid;
-                      return (
-                        <button
-                          key={id}
-                          onClick={() => onSetActivePid(id)}
-                          className={`text-left bg-white rounded-[20px] p-4 border cursor-pointer transition-all active:scale-[0.98] ${isActive ? 'border-[#161616] ring-1 ring-[#161616]' : 'border-[#e5e5e5] hover:border-[#161616]'}`}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <b className="text-[14px] text-[#161616] truncate">{proj.name}</b>
-                            {isActive && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: portalStyle.accentColor }}>Attivo</span>}
-                          </div>
-                          <div className="text-[11.5px] text-[#8a8a8a] capitalize mt-0.5">{proj.status || 'attivo'}</div>
-                          <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden mt-2.5">
-                            <div className="h-full rounded-full transition-all" style={{ width: `${ppc}%`, background: portalStyle.accentColor }} />
-                          </div>
-                          <div className="text-[11px] text-[#8a8a8a] mt-1">{ppc}% avanzamento</div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                <button onClick={() => setActiveSubTab('dashboard')} className="self-start inline-flex items-center gap-1.5 text-[12.5px] font-bold text-[#6b6b6b] hover:text-[#161616] bg-transparent border-none cursor-pointer">
+                  <ArrowLeft className="w-3.5 h-3.5" /> Tutti i progetti
+                </button>
               )}
 
               {/* Flight departure board style header card - Full Visual Consistency */}
