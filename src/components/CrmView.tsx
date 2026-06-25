@@ -12,7 +12,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   Target, Plus, X, ChevronLeft, ChevronRight, Building2, Phone, Mail,
-  MessageSquarePlus, Trash2, Briefcase, ArrowRightCircle, Euro, MessageCircle, FolderOpen
+  MessageSquarePlus, Trash2, Briefcase, ArrowRightCircle, Euro, MessageCircle, FolderOpen, CheckCircle2, Split
 } from 'lucide-react';
 import { initials, eur } from '../utils';
 import { ClientRecord, Project, UserProfile } from '../types';
@@ -33,6 +33,11 @@ export interface Lead {
   phone?: string;
   notes?: CrmNote[];
   createdAt: number;
+  // Smistamento (Strategico = Point of Entry): la società di competenza è `sector`;
+  // `routed` segna che è stato assegnato/confermato (con log chi/quando).
+  routed?: boolean;
+  routedAt?: number | null;
+  routedByName?: string | null;
 }
 export interface Supplier {
   id: string;
@@ -53,6 +58,10 @@ interface CrmViewProps {
   onSaveLeads: (arr: Lead[]) => void;
   onSaveSuppliers: (arr: Supplier[]) => void;
   onConvertLead: (lead: Lead) => void;
+  /** Smistamento lead alla società di competenza (con notifica al team). */
+  onRouteLead?: (lead: Lead, sector: 'studio' | 'strategico' | 'materico') => void;
+  /** Permesso "gestione lead" (Point of Entry). Senza, lo smistamento è nascosto. */
+  canManageLeads?: boolean;
   clients?: Record<string, ClientRecord>;
   onSaveClient?: (rec: ClientRecord) => void;
   onDeleteClient?: (id: string) => void;
@@ -87,6 +96,18 @@ const tierBadge = (t?: number | null) => (t === 1 ? 'bg-emerald-50 text-emerald-
 const waLink = (num?: string | null) => (num ? `https://wa.me/${String(num).replace(/[^0-9]/g, '')}` : null);
 const fmtWhen = (t?: number) => (t ? new Date(t).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: '2-digit' }) : '');
 
+/**
+ * Smistamento automatico (suggerimento): dalla descrizione del lead deduce la
+ * società di competenza. Strategico = marketing/comunicazione; Materico =
+ * forniture/posa/ristrutturazione; altrimenti Studio (progettazione/pratiche).
+ */
+const suggestSector = (lead: Lead): 'studio' | 'strategico' | 'materico' => {
+  const txt = `${lead.company || ''} ${(lead.notes || []).map((n) => n.text).join(' ')}`.toLowerCase();
+  if (/market|social|campagn|brand|comunicaz|adv|pubblicit|eventi|sito web/.test(txt)) return 'strategico';
+  if (/fornitur|posa|material|ristruttur|capitolat|arred|paviment|rivestiment|impresa|cantier/.test(txt)) return 'materico';
+  return 'studio';
+};
+
 export const CrmView: React.FC<CrmViewProps> = ({
   leads,
   suppliers,
@@ -95,6 +116,8 @@ export const CrmView: React.FC<CrmViewProps> = ({
   onSaveLeads,
   onSaveSuppliers,
   onConvertLead,
+  onRouteLead,
+  canManageLeads = true,
   clients = {},
   onSaveClient,
   onDeleteClient,
@@ -639,6 +662,34 @@ export const CrmView: React.FC<CrmViewProps> = ({
             </div>
             <button onClick={() => { setOpenLead(null); setNoteDraft(''); }} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
           </div>
+
+          {/* Smistamento alla società di competenza (Point of Entry) */}
+          {canManageLeads && (
+            <div className="mb-4 rounded-xl border border-[#ececec] bg-[#fafafa] p-3">
+              {activeLead.routed ? (
+                <div className="flex items-center gap-1.5 text-[12px] text-emerald-700 font-bold">
+                  <CheckCircle2 className="w-4 h-4" /> Assegnato a {sectorLabel(activeLead.sector)}
+                  <span className="font-normal text-[#8a8a8a]">{activeLead.routedByName ? ` · ${activeLead.routedByName}` : ''}{activeLead.routedAt ? ` · ${fmtWhen(activeLead.routedAt)}` : ''}</span>
+                </div>
+              ) : (
+                <>
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] inline-flex items-center gap-1.5 mb-1.5"><Split className="w-3.5 h-3.5" /> Smista alla società</div>
+                  <div className="text-[12px] text-[#555] mb-2">Suggerito: <b>{sectorLabel(suggestSector(activeLead))}</b></div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(['studio', 'strategico', 'materico'] as const).map((s) => {
+                      const sug = suggestSector(activeLead) === s;
+                      return (
+                        <button key={s} onClick={() => { const u = { ...activeLead, sector: s, routed: true, routedAt: Date.now(), routedByName: myName }; onSaveLeads(leads.map((l) => (l.id === activeLead.id ? u : l))); onRouteLead?.(u, s); }}
+                          className={`text-[12px] font-bold px-3 py-1.5 rounded-lg border cursor-pointer ${sug ? 'bg-[#1b1b1b] text-white border-[#1b1b1b]' : 'bg-white text-[#161616] border-[#e2e2e2] hover:border-[#161616]'}`}>
+                          {sectorLabel(s)}{sug ? ' ✓' : ''}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {(activeLead.email || activeLead.phone) && (
             <div className="flex flex-col gap-1 mb-4">

@@ -23,9 +23,12 @@ partner/investitore, Cantiere, Strategico/Marketing, Finanza consolidata, Cestin
 
 - ✅ **Lotto D — Catalogo punti esteso** (25 giu 2026): `POINT_CATALOG` ampliato (~60 voci per
   team e partner, categorie multiple) + select raggruppato per categoria in `TeamView`.
+- ✅ **Lotto C — Smistamento lead** (25 giu 2026): nel dettaglio lead (`CrmView`) suggerimento della
+  società di competenza (`suggestSector`) + assegnazione con conferma (log chi/quando) e notifica al
+  team (`handleRouteLead`). Permesso **'gestione lead'** = `canOperate(user,'strategico','lead')`
+  (fallback dal ruolo: comportamento invariato).
 
 ## 🔎 Da confermare/affinare (verificati "parziali" nel codice)
-- **Smistamento lead** automatico Strategico→società: oggi la pipeline è manuale (`CrmView`). → Lotto C
 - **Audit log globale**: oggi c'è lo storico di Cantiere, non un trail di tutte le azioni. → Lotto B
 > Se queste sono già coperte altrove (nomi diversi), segnalare il file così si aggiorna lo stato.
 

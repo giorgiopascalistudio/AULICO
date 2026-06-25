@@ -91,7 +91,7 @@ import {
   MatericoPenalty,
 } from './types';
 
-import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, canAdmin, canAnywhere, canView } from './access';
+import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, canAdmin, canAnywhere, canView, canOperate } from './access';
 
 import {
   SEED_USERS,
@@ -653,6 +653,12 @@ export default function App() {
   const saveSuppliers = (arr: Supplier[]) => {
     setCrmSuppliers(arr);
     writeNode('crmSuppliers', arr).catch(() => {});
+  };
+  // Smistamento lead (Point of Entry Strategico): la card aggiorna il lead via
+  // saveLeads; qui notifichiamo il team della società di competenza.
+  const handleRouteLead = (lead: Lead, sector: 'studio' | 'strategico' | 'materico') => {
+    const lbl = sector === 'strategico' ? 'Strategico' : sector === 'materico' ? 'Materico' : 'Onirico';
+    notifyStudio({ type: 'lead', title: `Lead assegnato a ${lbl}`, body: `${lead.name}${lead.company ? ' · ' + lead.company : ''}`, link: '#crm' }, currentUser?.uid);
   };
   const savePriceList = (arr: PriceItem[]) => {
     setPriceList(arr);
@@ -4339,6 +4345,8 @@ export default function App() {
             onSaveLeads={saveLeads}
             onSaveSuppliers={saveSuppliers}
             onConvertLead={handleConvertLead}
+            onRouteLead={handleRouteLead}
+            canManageLeads={canOperate(currentUser, 'strategico', 'lead')}
             clients={clients}
             onSaveClient={handleSaveClient}
             onDeleteClient={handleDeleteClient}
