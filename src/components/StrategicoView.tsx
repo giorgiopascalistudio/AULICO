@@ -293,7 +293,7 @@ const MktProjectsTab: React.FC<Props & { onOpenProject: (id: string) => void }> 
     + props.campaigns.filter((c) => c.mktProjectId === pid).length + props.social.filter((s) => s.mktProjectId === pid).length
     + props.events.filter((e) => e.mktProjectId === pid).length + props.ads.filter((a) => a.mktProjectId === pid).length;
   const unassignedCount = [props.deliverables, props.campaigns, props.social, props.events, props.ads, props.proofs, props.seo, props.metrics, props.timeEntries, props.inbox, props.surveys]
-    .reduce((s, arr: any[]) => s + arr.filter((x) => !x.mktProjectId).length, 0);
+    .reduce((s, arr: any[]) => s + (arr || []).filter((x) => !x.mktProjectId).length, 0);
   const blank = (): MktProject => ({ id: uid('mp'), name: '', status: 'attivo', color: ACCENT, startAt: Date.now(), createdAt: Date.now() });
   return (
     <div className="flex flex-col gap-4">
@@ -306,7 +306,7 @@ const MktProjectsTab: React.FC<Props & { onOpenProject: (id: string) => void }> 
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {projects.map((p) => {
-            const meta = PROJ_STATUS_META[p.status];
+            const meta = PROJ_STATUS_META[p.status] || PROJ_STATUS_META.attivo;
             return (
               <div key={p.id} className="bg-white border border-[#e2e2e2] rounded-[22px] p-5 shadow-sm border-l-[5px] flex flex-col" style={{ borderLeftColor: p.color || ACCENT }}>
                 <div className="flex items-start justify-between gap-2">
@@ -1043,7 +1043,7 @@ const DashboardTab: React.FC<Props & { onOpenProject: (id: string) => void; goHo
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             {recent.map((p) => {
-              const meta = PROJ_STATUS_META[p.status];
+              const meta = PROJ_STATUS_META[p.status] || PROJ_STATUS_META.attivo;
               return (
                 <button key={p.id} onClick={() => onOpenProject(p.id)} className="text-left bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm cursor-pointer hover:border-[#b45309] hover:shadow-md transition-all duration-300 border-l-[5px]" style={{ borderLeftColor: p.color || ACCENT }}>
                   <div className="flex items-start justify-between gap-2">
