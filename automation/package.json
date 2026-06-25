@@ -1,0 +1,13 @@
+{
+  "name": "aulico-automation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cron automazioni Aulico via GitHub Actions (gratis, senza Blaze). Scrive notifiche in-app sul Realtime Database con firebase-admin.",
+  "scripts": {
+    "cron": "node cron.mjs"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  }
+}

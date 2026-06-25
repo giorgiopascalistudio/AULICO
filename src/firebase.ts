@@ -49,11 +49,34 @@ export const db = getDatabase(app);
 export const functions = getFunctions(app, 'europe-west1');
 
 /**
- * Chiama la Cloud Function `aiGenerate` (Anthropic). Predisposta: funziona solo
- * dopo deploy + secret ANTHROPIC_KEY (vedi functions/README.md). In mancanza
- * lancia un errore che la UI mostra con un messaggio "AI non configurata".
+ * URL del Worker Cloudflare per l'AI (gratis, Gemini — vedi cloudflare-worker/).
+ * Se impostato, l'app usa il Worker invece della Cloud Function `aiGenerate`
+ * (così non serve Blaze). Si configura a runtime con
+ *   window.__AULICO_AI_URL__ = 'https://aulico-ai.<tuo-subdominio>.workers.dev'
+ * oppure lasciando vuoto qui sotto e usando il fallback Cloud Function.
+ */
+const AI_WORKER_URL =
+  (typeof window !== 'undefined' && (window as any).__AULICO_AI_URL__) || '';
+
+/**
+ * Genera testo via AI. Percorso preferito = Worker Cloudflare (gratis, Gemini);
+ * fallback = Cloud Function `aiGenerate` (Anthropic, richiede Blaze + secret).
+ * In mancanza di entrambi lancia un errore che la UI mostra come "AI non configurata".
  */
 export const callAi = async (data: { prompt: string; system?: string; maxTokens?: number; model?: string }): Promise<string> => {
+  // 1) Worker Cloudflare (free) se configurato
+  if (AI_WORKER_URL) {
+    const token = await auth.currentUser?.getIdToken();
+    const resp = await fetch(AI_WORKER_URL, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify(data),
+    });
+    if (!resp.ok) throw new Error(`AI worker error ${resp.status}`);
+    const j = await resp.json();
+    return (j?.text || '').toString();
+  }
+  // 2) Fallback: Cloud Function aiGenerate (Anthropic)
   const fn = httpsCallable<typeof data, { text: string }>(functions, 'aiGenerate');
   const res = await fn(data);
   return (res?.data?.text || '').toString();

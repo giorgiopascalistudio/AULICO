@@ -584,6 +584,18 @@ reporting/redditività, integrazioni esterne
   (≤3gg, solo admin/manager). Solo in-app (niente email/cron); ognuno scrive sul **proprio**
   `notifications/<uid>`; dedup con id deterministico (`rem-leave-<id>`/`rem-scad-<id>`) + check
   `getNode` per non sovrascrivere lo stato "letto". Convive con `dailyReminders` (id diversi).
+- **Alternativa GRATIS senza Blaze (consigliata pre-lancio)**: invece delle Cloud Functions si usano
+  due servizi gratuiti che NON richiedono carta:
+  - **`automation/`** (cron via **GitHub Actions**, `.github/workflows/cron.yml` + `automation/cron.mjs`
+    con `firebase-admin`): replica reminder/expiryAlerts/matericoDelayCheck/report scrivendo
+    `notifications/<uid>`. Gira anche se nessuno apre l'app. Secrets repo: `FIREBASE_SERVICE_ACCOUNT`,
+    `FIREBASE_DB_URL` (vedi `automation/README.md`).
+  - **`cloudflare-worker/`** (AI via **Cloudflare Worker** + **Gemini** free): sostituisce `aiGenerate`.
+    `callAi` in `src/firebase.ts` usa il Worker se `window.__AULICO_AI_URL__` è impostato (in `index.html`),
+    altrimenti fallback alla Cloud Function. Secrets Worker: `GEMINI_KEY`, `FIREBASE_API_KEY`
+    (vedi `cloudflare-worker/README.md`).
+  Le Cloud Functions in `functions/` restano valide per chi preferisce Blaze; i due percorsi sono
+  alternativi e scrivono sugli stessi nodi.
 
 ## 19. Moodboard 3D (R3F)
 - **Dove**: tab **"Arredi & Moodboard"** (`FurnishingsBoard`) → sezione **Moodboard**: anteprima +
