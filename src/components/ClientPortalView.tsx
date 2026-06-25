@@ -804,33 +804,13 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
       {/* Main client top navbar */}
       <div className={`flex items-center justify-between px-6 py-3.5 ${portalStyle.headerBg} border-b ${portalStyle.headerBorder} sticky top-0 z-[45] transition-all`}>
         <div className="flex items-center gap-3">
-          <span className={`font-extrabold text-[20px] tracking-tight ${portalStyle.headerText}`}>
-            Onirico<span className="opacity-60 font-normal"> · {portalStyle.themeName.split(' ')[1] || 'OS'}</span>
-          </span>
+          <span className={`font-extrabold text-[20px] tracking-tight ${portalStyle.headerText}`}>Aulico</span>
           <span className={`hidden sm:inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-md tracking-wider border ${portalStyle.badgeBg}`}>
             {portalStyle.portalLabel}
           </span>
         </div>
 
         <div className="flex items-center gap-2.5">
-          {/* Project Switcher if multiple */}
-          {projectIds.length > 1 && (
-            <select
-              value={activePid || ''}
-              onChange={(e) => onSetActivePid(e.target.value)}
-              className="text-xs font-black bg-[#fafafa] border border-[#e2e2e2] py-1.5 px-3 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-400 text-[#161616] cursor-pointer"
-            >
-              {projectIds.map(id => {
-                const proj = projects.find(pr => pr.id === id);
-                return (
-                  <option key={id} value={id}>
-                    {proj ? proj.name : t('portal.projectFallback')}
-                  </option>
-                );
-              })}
-            </select>
-          )}
-
           <LangToggle />
 
           <button onClick={() => setShowcaseOpen(true)} className="bg-[#1b1b1b] hover:bg-black text-white font-extrabold text-xs py-1.5 px-3.5 rounded-xl border-none flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
