@@ -51,6 +51,8 @@ interface FinanzeViewProps {
   /** Statistiche & BEP (tab "Statistiche": StatsView vive qui, non più in sidebar). */
   tasks?: Task[];
   members?: UserProfile[];
+  /** RBAC: società su cui l'utente ha accesso finanza (default tutte = comportamento legacy). */
+  financeSectors?: ('studio' | 'strategico' | 'materico' | 'unico')[];
 }
 
 interface BankMovementSim {
@@ -83,8 +85,12 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
   initialTab = null,
   askDelete,
   tasks = [],
-  members = []
+  members = [],
+  financeSectors = ['studio', 'strategico', 'materico', 'unico']
 }) => {
+  // RBAC finanza per-società: con accesso a tutte → comportamento legacy (Tutte/Consolidato).
+  const allFinanceSectors = financeSectors.length >= 4;
+  const canSeeSector = (s: 'studio' | 'strategico' | 'materico' | 'unico') => financeSectors.includes(s);
   // --- SUB-TABS STATE ---
   type FinTab = 'panoramica' | 'preventivi' | 'computi' | 'parcella' | 'fatture' | 'scadenziario' | 'sal' | 'conto_economico' | 'statistiche';
   const [activeTab, setActiveTab] = useState<FinTab>((initialTab as FinTab) || 'panoramica');
@@ -96,7 +102,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
 
   // --- TOP BAR FILTERS (società) ---
   type SectorFilter = 'all' | Company | 'consolidato';
-  const [selectedSector, setSelectedSector] = useState<SectorFilter>('all');
+  const [selectedSector, setSelectedSector] = useState<SectorFilter>(allFinanceSectors ? 'all' : (financeSectors[0] as SectorFilter) || 'studio');
   // Per il filtraggio dei libri, 'consolidato' equivale a 'all' (mostra tutto).
   const matchesSector = (s: Company) =>
     selectedSector === 'all' || selectedSector === 'consolidato' || s === selectedSector;
@@ -817,54 +823,66 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
             <div className="flex flex-col gap-1 w-full sm:w-auto text-left">
               <label className="text-[10px] uppercase font-black tracking-wider text-stone-400">Società</label>
               <div className="pillbar flex bg-[#161616] rounded-xl p-1 mt-1 border border-stone-800 whitespace-nowrap">
-                <button
-                  onClick={() => setSelectedSector('all')}
-                  className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
-                    selectedSector === 'all' ? 'bg-[#333] text-white font-black' : 'text-stone-400 hover:text-white'
-                  }`}
-                >
-                  Tutte
-                </button>
-                <button
-                  onClick={() => setSelectedSector('studio')}
-                  className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
-                    selectedSector === 'studio' ? 'bg-[#333] text-white font-black' : 'text-[#85aed4] hover:text-white'
-                  }`}
-                >
-                  Studio
-                </button>
-                <button
-                  onClick={() => setSelectedSector('strategico')}
-                  className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
-                    selectedSector === 'strategico' ? 'bg-[#333] text-white font-black' : 'text-[#b9a5e8] hover:text-white'
-                  }`}
-                >
-                  Strategico
-                </button>
-                <button
-                  onClick={() => setSelectedSector('materico')}
-                  className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
-                    selectedSector === 'materico' ? 'bg-[#333] text-white font-black' : 'text-[#f2bc88] hover:text-white'
-                  }`}
-                >
-                  Materico
-                </button>
-                <button
-                  onClick={() => setSelectedSector('unico')}
-                  className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
-                    selectedSector === 'unico' ? 'bg-[#333] text-white font-black' : 'text-[#a5b4fc] hover:text-white'
-                  }`}
-                >
-                  Unico
-                </button>
-                <button
-                  onClick={() => setSelectedSector('consolidato')}
-                  className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
-                    selectedSector === 'consolidato' ? 'bg-emerald-700 text-white font-black' : 'text-emerald-400 hover:text-white'
-                  }`}
-                >
-                  Consolidato
-                </button>
+                {allFinanceSectors && (
+                  <button
+                    onClick={() => setSelectedSector('all')}
+                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                      selectedSector === 'all' ? 'bg-[#333] text-white font-black' : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    Tutte
+                  </button>
+                )}
+                {canSeeSector('studio') && (
+                  <button
+                    onClick={() => setSelectedSector('studio')}
+                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                      selectedSector === 'studio' ? 'bg-[#333] text-white font-black' : 'text-[#85aed4] hover:text-white'
+                    }`}
+                  >
+                    Onirico
+                  </button>
+                )}
+                {canSeeSector('strategico') && (
+                  <button
+                    onClick={() => setSelectedSector('strategico')}
+                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                      selectedSector === 'strategico' ? 'bg-[#333] text-white font-black' : 'text-[#b9a5e8] hover:text-white'
+                    }`}
+                  >
+                    Strategico
+                  </button>
+                )}
+                {canSeeSector('materico') && (
+                  <button
+                    onClick={() => setSelectedSector('materico')}
+                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                      selectedSector === 'materico' ? 'bg-[#333] text-white font-black' : 'text-[#f2bc88] hover:text-white'
+                    }`}
+                  >
+                    Materico
+                  </button>
+                )}
+                {canSeeSector('unico') && (
+                  <button
+                    onClick={() => setSelectedSector('unico')}
+                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                      selectedSector === 'unico' ? 'bg-[#333] text-white font-black' : 'text-[#a5b4fc] hover:text-white'
+                    }`}
+                  >
+                    Unico
+                  </button>
+                )}
+                {allFinanceSectors && (
+                  <button
+                    onClick={() => setSelectedSector('consolidato')}
+                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                      selectedSector === 'consolidato' ? 'bg-emerald-700 text-white font-black' : 'text-emerald-400 hover:text-white'
+                    }`}
+                  >
+                    Consolidato
+                  </button>
+                )}
               </div>
             </div>
 

@@ -90,7 +90,7 @@ import {
   MatericoPenalty,
 } from './types';
 
-import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, canAdmin, canAnywhere } from './access';
+import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, canAdmin, canAnywhere, canView } from './access';
 
 import {
   SEED_USERS,
@@ -4200,6 +4200,7 @@ export default function App() {
             askDelete={askDelete}
             tasks={Object.values(tasks)}
             members={Object.values(users).filter((u) => u && u.active && u.role !== 'cliente' && u.role !== 'partner')}
+            financeSectors={(['studio', 'strategico', 'materico', 'unico'] as const).filter((s) => canView(currentUser, s, 'finance'))}
           />
         );
 
