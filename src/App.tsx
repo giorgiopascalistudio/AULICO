@@ -63,6 +63,7 @@ import {
   Quote,
   PaymentMilestone,
   PriceItem,
+  AuditEntry,
   TrashItem,
   UserRole,
   MarketingEvent,
@@ -142,6 +143,7 @@ const InteractiveView = React.lazy(() => import('./components/InteractiveView').
 const DocumentsView = React.lazy(() => import('./components/DocumentsView').then((m) => ({ default: m.DocumentsView })));
 const CrmView = React.lazy(() => import('./components/CrmView').then((m) => ({ default: m.CrmView })));
 const TrashView = React.lazy(() => import('./components/TrashView').then((m) => ({ default: m.TrashView })));
+const AuditView = React.lazy(() => import('./components/AuditView').then((m) => ({ default: m.AuditView })));
 const ClientRequestsView = React.lazy(() => import('./components/ClientRequestsView').then((m) => ({ default: m.ClientRequestsView })));
 
 // Subcomponents
@@ -351,6 +353,8 @@ export default function App() {
   const [crmSuppliers, setCrmSuppliers] = useState<Supplier[]>([]);
   // Listino voci di costo riusabili (funnel commessa Onirico/Materico)
   const [priceList, setPriceList] = useState<PriceItem[]>([]);
+  // Registro attività / audit log (visibile admin/manager)
+  const [auditLog, setAuditLog] = useState<Record<string, AuditEntry>>({});
   const [unicoDeals, setUnicoDeals] = useState<UnicoDeal[]>([]);
   // Commesse interne (intercompany) — nodo internalOrders
   const [internalOrders, setInternalOrders] = useState<InternalOrder[]>([]);
@@ -659,6 +663,7 @@ export default function App() {
   const handleRouteLead = (lead: Lead, sector: 'studio' | 'strategico' | 'materico') => {
     const lbl = sector === 'strategico' ? 'Strategico' : sector === 'materico' ? 'Materico' : 'Onirico';
     notifyStudio({ type: 'lead', title: `Lead assegnato a ${lbl}`, body: `${lead.name}${lead.company ? ' · ' + lead.company : ''}`, link: '#crm' }, currentUser?.uid);
+    logAudit('update', 'lead', `${lead.name} → ${lbl}`, 'smistamento');
   };
   const savePriceList = (arr: PriceItem[]) => {
     setPriceList(arr);
@@ -1163,6 +1168,7 @@ export default function App() {
       syncState('projects', next);
       return next;
     });
+    logAudit('create', 'progetti', newProject.name, 'da lead');
     showToast('Lead convertito in commessa.');
   };
 
@@ -1482,6 +1488,7 @@ export default function App() {
     if (req.clientUid) {
       pushNotification(req.clientUid, { type: 'progetto', title: 'La tua richiesta è stata attivata', body: `"${req.title}" è ora un progetto: seguilo dal tuo portale.`, link: `#progetto/${pid}` });
     }
+    logAudit('create', 'progetti', proj.name, 'da richiesta cliente');
     showToast('Progetto creato dalla richiesta.');
     window.location.hash = `#progetto/${pid}`;
   };
@@ -1557,6 +1564,7 @@ export default function App() {
       subs.push(watchNode('crmLeads', (v) => setCrmLeads(toArr(v)), () => {}));
       subs.push(watchNode('crmSuppliers', (v) => setCrmSuppliers(toArr(v)), () => {}));
       subs.push(watchNode('priceList', (v) => setPriceList(toArr(v)), () => {}));
+      if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
         setUnicoDeals(arr);
@@ -1826,6 +1834,15 @@ export default function App() {
   }, [trash, currentUser?.uid]);
 
   /** Sposta un elemento eliminato nel Cestino (solo ruoli studio: i portali non hanno write su trash). */
+  // Audit log (visione Aulico): trail delle azioni dello studio su auditLog/<id>.
+  // Best-effort, append-only; lo leggono admin/manager (Registro attività).
+  const logAudit = (action: AuditEntry['action'], section: string, label: string, detail?: string) => {
+    if (!currentUser || !isStudioRole(currentUser.role)) return;
+    const id = `au-${Date.now()}-${Math.floor(Math.random() * 9000)}`;
+    const entry: AuditEntry = { id, action, section, label, detail: detail || null, by: currentUser.uid, byName: currentUser.name || null, at: Date.now() };
+    writeNode(`auditLog/${id}`, entry).catch(() => {});
+  };
+
   const moveToTrash = (section: string, label: string, payload: any, meta?: Record<string, string>, detail?: string) => {
     if (!currentUser || !isStudioRole(currentUser.role)) return;
     const tid = `tr-${Date.now()}-${Math.floor(Math.random() * 900)}`;
@@ -1835,6 +1852,7 @@ export default function App() {
     };
     setTrash((prev) => ({ ...prev, [tid]: item }));
     writeNode(`trash/${tid}`, item).catch(() => {});
+    logAudit('delete', section, label, detail);
   };
 
   /** Doppia conferma: apre la modale condivisa; l'azione parte solo dopo la seconda conferma. */
@@ -1845,6 +1863,7 @@ export default function App() {
   const handleRestoreTrash = (item: TrashItem) => {
     const pl = item.payload;
     const id = pl?.id;
+    logAudit('restore', item.section, item.label);
     try {
       switch (item.section) {
         case 'progetti':
@@ -3597,12 +3616,14 @@ export default function App() {
       });
       pushNotification(clientUid, { type: 'progetto', title: 'Preventivo accettato: progetto attivato', body: `"${proj.name}" è ora un progetto: seguilo dal tuo portale.`, link: `#progetto/${pid}` });
     }
+    logAudit('create', 'progetti', proj.name, 'da preventivo accettato');
     return pid;
   };
 
   const handleSetQuoteStatus = (id: string, status: Quote['status']) => {
     const q = quotes[id];
     if (!q) return;
+    logAudit('update', 'preventivi', `${q.number || 'preventivo'} → ${status}`);
     if (status === 'accettato' && q.docKind !== 'parcella' && !q.projectId) {
       const pid = generateProjectFromQuote(q);
       handleSaveQuote({ ...q, status, projectId: pid });
@@ -4306,6 +4327,10 @@ export default function App() {
             cantieri={cantieri}
           />
         );
+
+      case 'registro':
+        if (currentUser.role !== 'admin' && currentUser.role !== 'manager') return null;
+        return <AuditView entries={Object.values(auditLog)} />;
 
       case 'richieste-clienti':
         if (currentUser.role !== 'admin' && currentUser.role !== 'manager') return null;

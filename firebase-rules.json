@@ -91,6 +91,13 @@
       ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
     },
 
+    "auditLog": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
+      "$id": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner' && !data.exists()"
+      }
+    },
+
     "unicoDeals": {
       ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
       ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"

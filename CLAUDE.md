@@ -469,6 +469,11 @@ reporting/redditività, integrazioni esterne
   ⚠️ Aggiunto il nodo **`priceList`** (listino voci di costo riusabili, funnel commessa — read studio
   attivo, write admin/manager): **ripubblicare le regole**, altrimenti il "Listino" in Finanze→Preventivi
   dà "permission denied" con write silenziosa.
+  ⚠️ Aggiunto il nodo **`auditLog/<id>`** (Registro attività / audit log — read admin/manager,
+  write append-only studio attivo non-cliente/partner): **ripubblicare le regole**. `logAudit()` in App
+  scrive il trail (delete via `moveToTrash`, restore, create progetto da preventivo/lead/richiesta,
+  cambio stato preventivo, smistamento lead…); vista **`AuditView`** (route `#registro`, voce sidebar
+  admin/manager). Copertura **incrementale** (aggiungere `logAudit` ai nuovi handler significativi).
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

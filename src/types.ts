@@ -234,6 +234,18 @@ export interface Quote {
   createdBy?: string;
 }
 
+/** Voce del registro attività / audit log (nodo `auditLog/<id>`): trail delle azioni dello studio. */
+export interface AuditEntry {
+  id: string;
+  action: 'create' | 'update' | 'delete' | 'restore' | 'login' | 'other';
+  section: string;            // area (progetti, preventivi, finanza, lead, cantiere…)
+  label: string;              // descrizione leggibile dell'elemento/azione
+  detail?: string | null;
+  by: string;                 // uid autore
+  byName?: string | null;
+  at: number;
+}
+
 /** Voce di listino riusabile per comporre velocemente preventivi/computi (nodo `priceList`, array). */
 export interface PriceItem {
   id: string;

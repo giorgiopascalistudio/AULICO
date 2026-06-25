@@ -27,9 +27,12 @@ partner/investitore, Cantiere, Strategico/Marketing, Finanza consolidata, Cestin
   società di competenza (`suggestSector`) + assegnazione con conferma (log chi/quando) e notifica al
   team (`handleRouteLead`). Permesso **'gestione lead'** = `canOperate(user,'strategico','lead')`
   (fallback dal ruolo: comportamento invariato).
+- ✅ **Lotto B — Audit log globale** (25 giu 2026): nodo `auditLog`, helper `logAudit()` agganciato ai
+  punti chiave (delete/restore, creazione progetti, stato preventivo, smistamento lead), vista
+  **Registro attività** (`AuditView`, route `#registro`, sidebar admin/manager). Copertura incrementale.
 
-## 🔎 Da confermare/affinare (verificati "parziali" nel codice)
-- **Audit log globale**: oggi c'è lo storico di Cantiere, non un trail di tutte le azioni. → Lotto B
+## Stato
+**Tutti i lotti A–D completati.** Restano solo **firma OTP** e **WhatsApp** (provider esterni, in coda).
 > Se queste sono già coperte altrove (nomi diversi), segnalare il file così si aggiorna lo stato.
 
 ## Modifiche del 25 giu 2026 (oggi)

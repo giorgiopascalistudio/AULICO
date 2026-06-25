@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { LayoutGrid, Calendar, Folder, Users, FileText, DollarSign, Target, Trash2, Inbox } from 'lucide-react';
+import { LayoutGrid, Calendar, Folder, Users, FileText, DollarSign, Target, Trash2, Inbox, ScrollText } from 'lucide-react';
 import { UserProfile } from '../types';
 import { initials } from '../utils';
 
@@ -48,6 +48,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       ? [{ id: 'finanze', label: 'Finanze', icon: DollarSign, count: 0 }]
       : []),
     ...(profile.role === 'admin' ? [{ id: 'team', label: 'Team', icon: Users, count: 0 }] : []),
+    ...(profile.role === 'admin' || profile.role === 'manager'
+      ? [{ id: 'registro', label: 'Registro', icon: ScrollText, count: 0 }]
+      : []),
     ...(profile.role === 'admin' || profile.role === 'manager'
       ? [{ id: 'cestino', label: 'Cestino', icon: Trash2, count: 0 }]
       : [])
