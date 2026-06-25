@@ -622,6 +622,24 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   // Pillbar: per il cliente è il menu del dettaglio progetto (senza "dashboard").
   const pillTabs = isClientApp ? tabsList.filter(t => t.id !== 'dashboard') : tabsList;
 
+  // --- Dati Dashboard/overlay cliente (a livello componente, così l'overlay può
+  //     stare FUORI dal wrapper animato con transform/blur — altrimenti il `fixed`
+  //     viene contenuto lì e i pop-up si aprono male). ---
+  const cMine = (projects || []).filter((pr) => pr.clientUid === profile.uid || (profile.projectIds || {})[pr.id]);
+  const cPids = new Set(cMine.map((pr) => pr.id));
+  const cFurnish = Object.entries(furnishings || {}).filter(([pid]) => cPids.has(pid)).reduce((s, [, m]) => s + Object.keys(m || {}).length, 0);
+  const cMood = Object.entries(moodboard3d || {}).filter(([pid]) => cPids.has(pid)).reduce((s, [, v]: any) => s + ((v?.elements || []).length), 0);
+  const cMsgMine = Object.entries(projectMessages || {}).filter(([pid]) => cPids.has(pid)).reduce((s, [, m]: any) => s + Object.values(m || {}).filter((msg: any) => msg.from === profile.uid).length, 0);
+  const cGame = clientGame({ profile, projects: cMine, furnishingCount: cFurnish, moodboardElements: cMood, messageCount: cMsgMine });
+  const cGPct = cGame.max > 0 ? Math.round((cGame.points / cGame.max) * 100) : 0;
+  const cAvgPc = cMine.length ? Math.round(cMine.map((pr) => { const c = projTaskCounts(pr); return pct(c.done, c.tot); }).reduce((s, x) => s + x, 0) / cMine.length) : 0;
+  const cStudioMsgs = Object.entries(projectMessages || {}).filter(([pid]) => cPids.has(pid))
+    .flatMap(([pid, m]: any) => Object.values(m || {}).map((msg: any) => ({ ...msg, pid })))
+    .filter((msg: any) => msg.from && msg.from !== profile.uid)
+    .sort((a: any, b: any) => (b.at || b.createdAt || 0) - (a.at || a.createdAt || 0));
+  const cReqUpdates = (clientRequests || []).filter((r: any) => r.status && r.status !== 'inviata' && r.status !== 'nuova');
+  const cAvvisiCount = cStudioMsgs.length + cReqUpdates.length + ((unicoPositions || []).length);
+
   const showSimulator = false;
 
   let portalStyle = {
@@ -983,30 +1001,8 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               className="w-full"
             >
           {currentTab === 'dashboard' && (() => {
-            const mine = (projects || []).filter((pr) => pr.clientUid === profile.uid || (profile.projectIds || {})[pr.id]);
-
-            // Dati box "Il tuo percorso"
-            const myPids = new Set(mine.map((pr) => pr.id));
-            const furnishingCount = Object.entries(furnishings || {}).filter(([pid]) => myPids.has(pid))
-              .reduce((s, [, m]) => s + Object.keys(m || {}).length, 0);
-            const moodboardElements = Object.entries(moodboard3d || {}).filter(([pid]) => myPids.has(pid))
-              .reduce((s, [, v]: any) => s + ((v?.elements || []).length), 0);
-            const messageCount = Object.entries(projectMessages || {}).filter(([pid]) => myPids.has(pid))
-              .reduce((s, [, m]: any) => s + Object.values(m || {}).filter((msg: any) => msg.from === profile.uid).length, 0);
-            const g = clientGame({ profile, projects: mine, furnishingCount, moodboardElements, messageCount });
-
-            const gPct = g.max > 0 ? Math.round((g.points / g.max) * 100) : 0;
-            // Avanzamento medio dei progetti del cliente
-            const pcs = mine.map((pr) => { const c = projTaskCounts(pr); return pct(c.done, c.tot); });
-            const avgPc = pcs.length ? Math.round(pcs.reduce((s, x) => s + x, 0) / pcs.length) : 0;
-            // Avvisi: messaggi dello studio sui miei progetti (dal più recente)
-            const studioMsgs = Object.entries(projectMessages || {})
-              .filter(([pid]) => myPids.has(pid))
-              .flatMap(([pid, m]: any) => Object.values(m || {}).map((msg: any) => ({ ...msg, pid })))
-              .filter((msg: any) => msg.from && msg.from !== profile.uid)
-              .sort((a: any, b: any) => (b.at || b.createdAt || 0) - (a.at || a.createdAt || 0));
-            const reqUpdates = (clientRequests || []).filter((r: any) => r.status && r.status !== 'inviata' && r.status !== 'nuova');
-            const avvisiCount = studioMsgs.length + reqUpdates.length + ((unicoPositions || []).length);
+            // Dati calcolati a livello componente (vedi sopra): qui solo alias.
+            const mine = cMine, g = cGame, gPct = cGPct, avgPc = cAvgPc, avvisiCount = cAvvisiCount;
 
             const Tile: React.FC<{ icon: React.ComponentType<{ className?: string }>; label: string; sub?: string; badge?: number; onClick: () => void; accent?: string }> = ({ icon: Icon, label, sub, badge, onClick, accent = portalStyle.accentColor }) => (
               <button onClick={onClick} className="relative bg-white border border-[#e5e5e5] rounded-[20px] p-4 text-left cursor-pointer transition-all active:scale-[0.97] hover:border-[#161616] flex flex-col gap-2.5 min-h-[104px]">
@@ -1043,70 +1039,6 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                   <Tile icon={HelpCircle} label="Quiz del giorno" sub="Mettiti alla prova" onClick={() => setDashModal('quiz')} accent="#b45309" />
                   <Tile icon={Award} label="Completa il tuo profilo" sub={`${gPct}% · ${g.level.label}`} onClick={() => setDashModal('percorso')} accent={g.level.color} />
                 </div>
-
-                {/* OVERLAY dei widget */}
-                {dashModal && (
-                  <div className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setDashModal(null)}>
-                    <div className="bg-white w-full sm:max-w-[540px] max-h-[85vh] overflow-y-auto rounded-t-[26px] sm:rounded-[26px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-between px-5 py-4 border-b border-[#ececec] sticky top-0 bg-white z-10">
-                        <b className="text-[15px] tracking-tight">{dashModal === 'sogno' ? 'Raccontaci il tuo sogno' : dashModal === 'avvisi' ? 'Avvisi' : dashModal === 'quiz' ? 'Quiz del giorno' : 'Completa il tuo profilo'}</b>
-                        <button onClick={() => setDashModal(null)} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
-                      </div>
-                      <div className="p-5">
-                        {dashModal === 'sogno' && (onCreateClientRequest ? (
-                          <ClientRequestPanel profile={profile} requests={clientRequests || []} matericoRequests={(matericoRequests || []).filter((r) => r.clientUid === profile.uid)} onCreate={onCreateClientRequest} onCreateMatericoRequest={onCreateMatericoRequest} />
-                        ) : <p className="text-[13px] text-[#8a8a8a]">Funzione non disponibile.</p>)}
-
-                        {dashModal === 'avvisi' && (
-                          <div className="flex flex-col gap-2">
-                            {(unicoPositions || []).length > 0 && <MyInvestmentsPanel positions={unicoPositions || []} />}
-                            <MarketingPortalPanel profile={profile} events={mktEvents || []} surveys={mktSurveys || []} responses={mktResponses || {}} onRsvp={onRsvpEvent} onSubmitSurvey={onSubmitSurvey} />
-                            {studioMsgs.length === 0 && reqUpdates.length === 0 ? (
-                              <p className="text-[13px] text-[#8a8a8a] text-center py-4">Nessun avviso recente.</p>
-                            ) : (
-                              <>
-                                {reqUpdates.map((r: any) => (
-                                  <div key={r.id} className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3">
-                                    <div className="text-[12.5px] font-bold text-[#161616]">Richiesta "{r.title}"</div>
-                                    <div className="text-[11.5px] text-[#8a8a8a] capitalize">{String(r.status).replace('_', ' ')}</div>
-                                  </div>
-                                ))}
-                                {studioMsgs.slice(0, 10).map((msg: any, i: number) => {
-                                  const proj = projects.find((pr) => pr.id === msg.pid);
-                                  return (
-                                    <button key={msg.id || i} onClick={() => { setDashModal(null); onSetActivePid(msg.pid); setActiveSubTab('documenti'); }} className="text-left rounded-xl border border-[#ececec] bg-white p-3 hover:border-[#161616] cursor-pointer">
-                                      <div className="text-[12.5px] text-[#161616] line-clamp-2">{msg.text || msg.body || 'Nuovo messaggio dallo studio'}</div>
-                                      <div className="text-[11px] text-[#8a8a8a] mt-0.5">{proj?.name || 'Progetto'}</div>
-                                    </button>
-                                  );
-                                })}
-                              </>
-                            )}
-                          </div>
-                        )}
-
-                        {dashModal === 'quiz' && <DailyQuiz profile={profile} projects={projects} embedded />}
-
-                        {dashModal === 'percorso' && (
-                          <div className="flex flex-col gap-3">
-                            <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${gPct}%`, background: g.level.color }} /></div>
-                            <div className="flex items-center justify-between text-[11.5px] text-[#8a8a8a]"><span>{g.completed}/{g.objectives.length} obiettivi · {g.level.label}</span><span>{g.next ? `${g.next.remaining} pt a "${g.next.level.label}"` : 'Massimo 🎉'}</span></div>
-                            <div className="grid grid-cols-1 gap-2">
-                              {g.objectives.map((o) => (
-                                <div key={o.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${o.done ? 'border-emerald-200 bg-emerald-50' : 'border-[#ececec] bg-[#fafafa]'}`}>
-                                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${o.done ? 'bg-emerald-500 text-white' : 'bg-[#e2e2e2] text-[#8a8a8a]'}`}>{o.done ? '✓' : ''}</span>
-                                  <div className="min-w-0 flex-1"><div className={`text-[12.5px] font-bold truncate ${o.done ? 'text-emerald-900' : 'text-[#161616]'}`}>{o.label}</div><div className="text-[11px] text-[#8a8a8a] truncate">{o.hint}</div></div>
-                                  <span className="text-[11px] font-bold text-[#8a8a8a] shrink-0">+{o.points}</span>
-                                </div>
-                              ))}
-                            </div>
-                            <button onClick={() => { setDashModal(null); setActiveSubTab('profilo'); }} className="self-start text-[12.5px] font-bold px-4 py-2 rounded-xl bg-[#1b1b1b] text-white border-none cursor-pointer">Vai al profilo</button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             );
           })()}
@@ -2612,23 +2544,100 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
         })()}
       </AnimatePresence>
 
-      {/* Bottom-nav fissa (app cliente): Dashboard · Progetti · Profilo */}
+      {/* OVERLAY dei widget Dashboard (a livello root: il `fixed` è relativo alla
+          viewport, non al wrapper animato — così i pop-up si aprono bene). */}
+      {isClientApp && dashModal && (
+        <div className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setDashModal(null)}>
+          <div className="bg-white w-full sm:max-w-[540px] max-h-[85vh] overflow-y-auto rounded-t-[26px] sm:rounded-[26px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#ececec] sticky top-0 bg-white z-10">
+              <b className="text-[15px] tracking-tight">{dashModal === 'sogno' ? 'Raccontaci il tuo sogno' : dashModal === 'avvisi' ? 'Avvisi' : dashModal === 'quiz' ? 'Quiz del giorno' : 'Completa il tuo profilo'}</b>
+              <button onClick={() => setDashModal(null)} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-5">
+              {dashModal === 'sogno' && (onCreateClientRequest ? (
+                <ClientRequestPanel profile={profile} requests={clientRequests || []} matericoRequests={(matericoRequests || []).filter((r) => r.clientUid === profile.uid)} onCreate={onCreateClientRequest} onCreateMatericoRequest={onCreateMatericoRequest} />
+              ) : <p className="text-[13px] text-[#8a8a8a]">Funzione non disponibile.</p>)}
+
+              {dashModal === 'avvisi' && (
+                <div className="flex flex-col gap-2">
+                  {(unicoPositions || []).length > 0 && <MyInvestmentsPanel positions={unicoPositions || []} />}
+                  <MarketingPortalPanel profile={profile} events={mktEvents || []} surveys={mktSurveys || []} responses={mktResponses || {}} onRsvp={onRsvpEvent} onSubmitSurvey={onSubmitSurvey} />
+                  {cStudioMsgs.length === 0 && cReqUpdates.length === 0 ? (
+                    <p className="text-[13px] text-[#8a8a8a] text-center py-4">Nessun avviso recente.</p>
+                  ) : (
+                    <>
+                      {cReqUpdates.map((r: any) => (
+                        <div key={r.id} className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3">
+                          <div className="text-[12.5px] font-bold text-[#161616]">Richiesta "{r.title}"</div>
+                          <div className="text-[11.5px] text-[#8a8a8a] capitalize">{String(r.status).replace('_', ' ')}</div>
+                        </div>
+                      ))}
+                      {cStudioMsgs.slice(0, 10).map((msg: any, i: number) => {
+                        const proj = projects.find((pr) => pr.id === msg.pid);
+                        return (
+                          <button key={msg.id || i} onClick={() => { setDashModal(null); onSetActivePid(msg.pid); setActiveSubTab('documenti'); }} className="text-left rounded-xl border border-[#ececec] bg-white p-3 hover:border-[#161616] cursor-pointer">
+                            <div className="text-[12.5px] text-[#161616] line-clamp-2">{msg.text || msg.body || 'Nuovo messaggio dallo studio'}</div>
+                            <div className="text-[11px] text-[#8a8a8a] mt-0.5">{proj?.name || 'Progetto'}</div>
+                          </button>
+                        );
+                      })}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {dashModal === 'quiz' && <DailyQuiz profile={profile} projects={projects} embedded />}
+
+              {dashModal === 'percorso' && (
+                <div className="flex flex-col gap-3">
+                  <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${cGPct}%`, background: cGame.level.color }} /></div>
+                  <div className="flex items-center justify-between text-[11.5px] text-[#8a8a8a]"><span>{cGame.completed}/{cGame.objectives.length} obiettivi · {cGame.level.label}</span><span>{cGame.next ? `${cGame.next.remaining} pt a "${cGame.next.level.label}"` : 'Massimo 🎉'}</span></div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {cGame.objectives.map((o) => (
+                      <div key={o.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${o.done ? 'border-emerald-200 bg-emerald-50' : 'border-[#ececec] bg-[#fafafa]'}`}>
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${o.done ? 'bg-emerald-500 text-white' : 'bg-[#e2e2e2] text-[#8a8a8a]'}`}>{o.done ? '✓' : ''}</span>
+                        <div className="min-w-0 flex-1"><div className={`text-[12.5px] font-bold truncate ${o.done ? 'text-emerald-900' : 'text-[#161616]'}`}>{o.label}</div><div className="text-[11px] text-[#8a8a8a] truncate">{o.hint}</div></div>
+                        <span className="text-[11px] font-bold text-[#8a8a8a] shrink-0">+{o.points}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={() => { setDashModal(null); setActiveSubTab('profilo'); }} className="self-start text-[12.5px] font-bold px-4 py-2 rounded-xl bg-[#1b1b1b] text-white border-none cursor-pointer">Vai al profilo</button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom-nav fissa (app cliente): pill flottante come le altre navbar */}
       {isClientApp && (
-        <nav className="fixed bottom-0 inset-x-0 z-[120] bg-white/95 backdrop-blur border-t border-[#e5e5e5] flex items-stretch justify-around" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-            { id: 'progetti', label: 'Progetti', icon: FolderOpen },
-            { id: 'profilo', label: 'Profilo', icon: User },
-          ].map((item) => {
-            const active = currentTab === item.id || (item.id === 'progetti' && inProjectDetail);
-            const Icon = item.icon;
-            return (
-              <button key={item.id} onClick={() => setActiveSubTab(item.id)} className={`flex-1 flex flex-col items-center justify-center gap-1 py-2.5 bg-transparent border-none cursor-pointer transition-colors ${active ? 'text-[#161616]' : 'text-[#9a9a9a]'}`}>
-                <Icon className="w-[22px] h-[22px]" />
-                <span className="text-[10.5px] font-bold">{item.label}</span>
-              </button>
-            );
-          })}
+        <nav className="fixed bottom-0 left-0 right-0 z-[120] px-5 pb-[calc(env(safe-area-inset-bottom,0px)+18px)] flex justify-center pointer-events-none">
+          <div className="flex items-center gap-1 bg-[#161616] rounded-full p-2 shadow-[0_12px_36px_-10px_rgba(0,0,0,0.6)] pointer-events-auto w-full max-w-[420px] justify-between">
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+              { id: 'progetti', label: 'Progetti', icon: FolderOpen },
+              { id: 'profilo', label: 'Profilo', icon: User },
+            ].map((item) => {
+              const active = currentTab === item.id || (item.id === 'progetti' && inProjectDetail);
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveSubTab(item.id)}
+                  className={`relative flex-1 inline-flex items-center justify-center gap-1.5 border-none bg-transparent py-3 px-2 rounded-full font-bold text-[13px] sm:text-[14px] cursor-pointer transition-colors duration-300 select-none ${active ? 'text-[#161616] flex-[1.4]' : 'text-[#9a9a9a] hover:text-white'}`}
+                  style={{ touchAction: 'none' }}
+                >
+                  {active && <motion.div layoutId="clientNavActivePill" transition={{ type: 'spring', stiffness: 420, damping: 32 }} className="absolute inset-0 bg-white rounded-full z-0" />}
+                  <div className="relative z-10 flex items-center justify-center gap-1.5">
+                    <Icon className="w-[21px] h-[21px] flex-shrink-0" />
+                    <span className={`overflow-hidden transition-all duration-300 ease-out flex items-center ${active ? 'max-w-[120px] opacity-100 font-bold' : 'max-w-0 opacity-0'}`}>
+                      <span className="pr-1">{item.label}</span>
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </nav>
       )}
     </div>
