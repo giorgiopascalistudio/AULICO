@@ -17,6 +17,8 @@ Backend per le automazioni del gestionale: **notifiche in-app**, **email (SendGr
 | `monthlyReport` | Schedulata (1° del mese 08:00) | mensile | report attività completate per collaboratore |
 | `aiGenerate` | Callable (onCall) | dal modulo Strategico (AI assist) | genera testo via API Anthropic (copy campagne, sintesi report) — solo studio attivo |
 | `marketingMonthlyReport` | Schedulata (1° del mese 08:30) | mensile | sintesi marketing (eventi/campagne/sondaggi/economia) ad admin/manager |
+| `expiryAlerts` | Schedulata (ogni giorno 08:15) | doc/contratti in scadenza a 60/30/15/7/0 gg | alert admin/manager (Area Impresa `impresaDocs`, Cantiere `cantiereDocumenti`, retainer `mktContracts.endAt`) |
+| `matericoDelayCheck` | Schedulata (ogni giorno 08:20) | consegne Materico oltre la scadenza concordata (a 1/7/14/30 gg di ritardo) | alert admin/manager "valuta penale" |
 
 Regione: **europe-west1** (coerente con la RTDB). Le notifiche vengono scritte su `notifications/<uid>`
 (le legge l'app). Le email partono da `FROM_EMAIL` in `index.ts` — **da sostituire** con un mittente

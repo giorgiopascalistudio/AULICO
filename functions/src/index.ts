@@ -7,6 +7,8 @@
  *  - dailyReminders      : reminder ferie (7 gg prima) e scadenze finanziarie (entro 3 gg).
  *  - weeklyReport        : report attività completate per collaboratore (lunedì).
  *  - monthlyReport       : report mensile (1° del mese).
+ *  - expiryAlerts        : alert scadenze documenti/contratti (60/30/15/7/0 gg).
+ *  - matericoDelayCheck  : consegne Materico in ritardo → valuta penale.
  *
  * Email via SendGrid (secret SENDGRID_KEY). Le notifiche in-app sono scritte su
  * notifications/<uid> (lette dall'app, vedi App.tsx). Vedi README.md per il deploy.
@@ -85,7 +87,7 @@ export const onQuoteStatusChange = onValueWritten(
     const body = `${q.clientName} · € ${Number(q.total || 0).toLocaleString('it-IT')}`;
     const members = await studioMembers();
     await Promise.all(members.map((m) => pushNotification(m.uid, { type: 'preventivo', title, body, link: '#preventivi' })));
-    await emailMembers(members, title, `${body}\n\nApri Onirico OS per emettere acconto/rate dal piano pagamenti.`);
+    await emailMembers(members, title, `${body}\n\nApri Aulico per emettere acconto/rate dal piano pagamenti.`);
   }
 );
 
@@ -206,5 +208,85 @@ export const marketingMonthlyReport = onSchedule(
     ].join('\n');
     await Promise.all(adminMgr.map((m) => pushNotification(m.uid, { type: 'report', title, body: `${events.length} eventi · ${campaigns.length} campagne`, link: '#progetti' })));
     await emailMembers(adminMgr, title, body);
+  }
+);
+
+// ---- 7. Alert scadenze documenti/contratti (60/30/15/7/0 gg) ----
+// Notifica admin/manager quando un documento (Area Impresa, Cantiere) o un
+// contratto/retainer Strategico scade entro le soglie. Le soglie evitano lo spam
+// giornaliero: si avvisa solo nei giorni "tondi" prima della scadenza.
+const ALERT_THRESHOLDS = [60, 30, 15, 7, 0];
+const daysUntil = (isoDate: string, from: Date): number => {
+  const d = new Date(isoDate).getTime();
+  if (isNaN(d)) return NaN;
+  return Math.round((d - new Date(iso(from)).getTime()) / 86400000);
+};
+
+export const expiryAlerts = onSchedule(
+  { schedule: 'every day 08:15', timeZone: 'Europe/Rome', secrets: [SENDGRID_KEY] },
+  async () => {
+    const members = await studioMembers();
+    const adminMgr = members.filter((m) => m.role === 'admin' || m.role === 'manager');
+    if (!adminMgr.length) return;
+    const today = new Date();
+    const hits: { label: string; date: string; days: number; link: string }[] = [];
+
+    const consider = (label: string, expiry: any, link: string) => {
+      if (!expiry || typeof expiry !== 'string') return;
+      const dleft = daysUntil(expiry, today);
+      if (isNaN(dleft)) return;
+      if (ALERT_THRESHOLDS.includes(dleft)) hits.push({ label, date: expiry, days: dleft, link });
+    };
+
+    // Area Impresa: impresaDocs/<uid>/<id> (DURC, polizze, SOA, doc dipendenti…)
+    const impresaDocs = (await db.ref('impresaDocs').get()).val() || {};
+    Object.values<any>(impresaDocs).forEach((byUid: any) =>
+      arr(byUid).forEach((d: any) => consider(`Impresa · ${d.title || d.category || 'Documento'}`, d.expiry, '#progetti')));
+
+    // Cantiere: cantiereDocumenti/<cid>/<id> con expiry (sicurezza POS/PSC, ecc.)
+    const cantDocs = (await db.ref('cantiereDocumenti').get()).val() || {};
+    Object.values<any>(cantDocs).forEach((byCid: any) =>
+      arr(byCid).forEach((d: any) => consider(`Cantiere · ${d.title || d.category || 'Documento'}`, d.expiry, '#progetti')));
+
+    // Contratti/retainer Strategico: mktContracts/<id>.endAt (rinnovo)
+    const contracts = arr((await db.ref('mktContracts').get()).val());
+    contracts.forEach((c: any) => consider(`Contratto · ${c.title || c.clientName || 'Retainer'}`, c.endAt, '#progetti'));
+
+    if (!hits.length) return;
+    hits.sort((a, b) => a.days - b.days);
+    const title = `Scadenze documenti/contratti (${hits.length})`;
+    const lines = hits.map((h) => `• ${h.label} — ${h.date} (${h.days === 0 ? 'oggi' : `tra ${h.days} gg`})`).join('\n');
+    await Promise.all(adminMgr.map((m) => pushNotification(m.uid, { type: 'scadenza', title, body: `${hits.length} in scadenza`, link: '#progetti' })));
+    await emailMembers(adminMgr, title, lines);
+  }
+);
+
+// ---- 8. Consegne Materico in ritardo → valuta penale ----
+// Avvisa admin/manager quando una richiesta Materico col partner selezionato ha
+// superato la scadenza concordata senza consegna registrata né penale applicata.
+// Soglie (giorni di ritardo) per non spammare.
+const DELAY_THRESHOLDS = [1, 7, 14, 30];
+
+export const matericoDelayCheck = onSchedule(
+  { schedule: 'every day 08:20', timeZone: 'Europe/Rome', secrets: [SENDGRID_KEY] },
+  async () => {
+    const members = await studioMembers();
+    const adminMgr = members.filter((m) => m.role === 'admin' || m.role === 'manager');
+    if (!adminMgr.length) return;
+    const today = new Date();
+    const reqs = arr((await db.ref('matericoRequests').get()).val());
+    const late = reqs.filter((r: any) => {
+      if (!r.selectedPartnerUid) return false;
+      if (r.status !== 'inviata_cliente' && r.status !== 'accettata') return false;
+      if (r.completedDate || r.penalty?.status === 'applicata') return false;
+      if (!r.agreedDeliveryDate) return false;
+      const lateBy = -daysUntil(r.agreedDeliveryDate, today); // giorni oltre la scadenza
+      return DELAY_THRESHOLDS.includes(lateBy);
+    });
+    if (!late.length) return;
+    const title = `Consegne Materico in ritardo (${late.length})`;
+    const lines = late.map((r: any) => `• ${r.title || 'Richiesta'} — scadenza ${r.agreedDeliveryDate} — valuta penale`).join('\n');
+    await Promise.all(adminMgr.map((m) => pushNotification(m.uid, { type: 'materico', title, body: `${late.length} in ritardo`, link: '#progetti' })));
+    await emailMembers(adminMgr, title, lines);
   }
 );

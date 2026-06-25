@@ -569,7 +569,10 @@ reporting/redditività, integrazioni esterne
 - Funzioni: `onQuoteStatusChange` (preventivo accettato → notifica+email), `dailyReminders`
   (ferie 7gg prima + scadenze 3gg), `weeklyReport`/`monthlyReport` (attività completate per
   collaboratore), **`aiGenerate`** (callable AI Anthropic, §22-quater — secret `ANTHROPIC_KEY`, solo studio
-  attivo) e **`marketingMonthlyReport`** (sintesi marketing mensile ad admin/manager). Scrivono notifiche su
+  attivo), **`marketingMonthlyReport`** (sintesi marketing mensile ad admin/manager),
+  **`expiryAlerts`** (alert scadenze documenti/contratti a 60/30/15/7/0 gg — `impresaDocs`/
+  `cantiereDocumenti.expiry` + `mktContracts.endAt`) e **`matericoDelayCheck`** (consegne Materico
+  oltre la scadenza concordata a 1/7/14/30 gg → "valuta penale"). Scrivono notifiche su
   `notifications/<uid>` (Admin SDK, bypassa le regole).
 - **Deploy a carico utente** (vedi `functions/README.md`): `firebase login`, piano **Blaze**,
   `firebase functions:secrets:set SENDGRID_KEY` (+ `ANTHROPIC_KEY` per l'AI assist),
