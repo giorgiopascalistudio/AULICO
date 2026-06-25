@@ -42,10 +42,31 @@ export default {
       const { prompt, system, maxTokens } = await request.json();
       if (!prompt || !String(prompt).trim()) return json({ error: 'missing-prompt' }, 400);
 
-      // 3) chiamata Gemini (free tier). Modello configurabile via secret/var
-      //    GEMINI_MODEL; default su 1.5-flash che ha quota free più ampia
-      //    (gemini-2.0-flash su alcuni progetti ha free tier = 0).
-      const model = env.GEMINI_MODEL || 'gemini-1.5-flash';
+      const max = Math.min(Number(maxTokens) || 700, 2000);
+
+      // 3a) Provider preferito: GROQ (gratis, senza carta, OpenAI-compatibile).
+      //     Si attiva impostando il secret GROQ_KEY. Modello override-abile (GROQ_MODEL).
+      if (env.GROQ_KEY) {
+        const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', authorization: `Bearer ${env.GROQ_KEY}` },
+          body: JSON.stringify({
+            model: env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+            max_tokens: max,
+            messages: [
+              ...(system ? [{ role: 'system', content: String(system) }] : []),
+              { role: 'user', content: String(prompt).slice(0, 8000) },
+            ],
+          }),
+        });
+        if (!r.ok) return json({ error: 'ai-error', detail: await r.text() }, 502);
+        const j = await r.json();
+        const text = (j.choices?.[0]?.message?.content || '').trim();
+        return json({ text });
+      }
+
+      // 3b) Ripiego: Gemini (Google AI Studio). Modello override-abile (GEMINI_MODEL).
+      const model = env.GEMINI_MODEL || 'gemini-2.0-flash';
       const g = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_KEY}`,
         {
@@ -54,7 +75,7 @@ export default {
           body: JSON.stringify({
             system_instruction: system ? { parts: [{ text: String(system) }] } : undefined,
             contents: [{ role: 'user', parts: [{ text: String(prompt).slice(0, 8000) }] }],
-            generationConfig: { maxOutputTokens: Math.min(Number(maxTokens) || 700, 2000) },
+            generationConfig: { maxOutputTokens: max },
           }),
         }
       );

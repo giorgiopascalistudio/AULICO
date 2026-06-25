@@ -7,8 +7,15 @@ verifica l'**ID token Firebase** del chiamante prima di rispondere.
 
 ## Cosa devi fare tu (una volta sola)
 
-### 1) Chiave Gemini (gratis, senza carta)
-Vai su **https://aistudio.google.com/apikey** → **Create API key** → copiala.
+### 1) Chiave AI (gratis, senza carta) — consigliato Groq
+**Groq** (consigliato, free e affidabile in UE): **https://console.groq.com/keys**
+→ **Create API Key** → copiala. Si imposterà come secret `GROQ_KEY`.
+
+In alternativa **Gemini** (Google AI Studio, **https://aistudio.google.com/apikey**) →
+secret `GEMINI_KEY`. NB: su alcuni account UE il free tier Gemini è 0/non disponibile;
+se Gemini dà errori 429/404, usa Groq.
+
+Il Worker usa **Groq se è impostato `GROQ_KEY`**, altrimenti ripiega su Gemini.
 
 ### 2) Installa wrangler e fai login (gratis)
 ```bash
