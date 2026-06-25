@@ -48,6 +48,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Project, UserProfile, MatericoEstimate, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, UnicoShowcaseEntry, UnicoInvestorPosition, MarketingEvent, Survey, SurveyResponse, RsvpStatus, ClientRequest, PointEvent } from '../types';
 import { totalPoints, tierFor, nextTier, reliabilityScore } from '../points';
 import { clientGame } from '../gamification';
+import { AiComposeButton } from './AiComposeButton';
 import { FurnishingsBoard } from './FurnishingsBoard';
 import { ClientRequestPanel } from './ClientRequestPanel';
 import { CantiereBoard } from './CantiereBoard';
@@ -1383,6 +1384,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                         className="flex-1 min-h-[38px] bg-[#fafafa] border border-[#e2e2e2] rounded-xl px-3 py-1.5 text-[13px] text-[#161616] placeholder-[#8a8a8a] focus:outline-none focus:border-gray-500 transition-colors"
                         placeholder={t('chat.placeholder')}
                       />
+                      <AiComposeButton text={msgInput} onResult={setMsgInput} />
                       <button onClick={handleSend} className="bg-[#1b1b1b] hover:bg-black text-white h-[38px] w-[38px] rounded-xl flex items-center justify-center cursor-pointer transition-all active:scale-95 border-none">
                         <Send className="w-3.5 h-3.5" />
                       </button>

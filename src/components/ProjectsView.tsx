@@ -49,6 +49,7 @@ import { eur, fmtDay, isoDate, todayISO, numIt, safeUrl } from '../utils';
 import { StatusCard } from './StatusCard';
 import { MatericoView } from './MatericoView';
 import { UnicoStudioView } from './UnicoStudioView';
+import { AiComposeButton } from './AiComposeButton';
 import { StrategicoView } from './StrategicoView';
 import type { Supplier } from './CrmView';
 import { interventoLabel, titoloLabel } from '../studioConfig';
@@ -1049,8 +1050,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       className="input flex-1 min-h-[44px] max-h-[100px] py-2.5 px-3 text-[13px] leading-normal rounded-xl border-[#e2e2e2] focus:border-[#161616]"
                       placeholder="Invia aggiornamento al portale del cliente..."
                     />
-                    <button 
-                      onClick={handleSendMsg} 
+                    <AiComposeButton text={clientMessageInput} onResult={setClientMessageInput} title="Migliora il messaggio con AI" />
+                    <button
+                      onClick={handleSendMsg}
                       className="bg-[#161616] hover:bg-black text-white h-[44px] w-[50px] p-0 flex items-center justify-center rounded-xl border-none cursor-pointer transition-colors shadow-xs"
                       title="Invia"
                     >
