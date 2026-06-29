@@ -21,7 +21,7 @@
 import type { AccessLevel, AccessMap, Societa, SocietaAccess, UserProfile, UserRole } from './types';
 
 /** Tutte le società del gruppo, in ordine di presentazione. */
-export const SOCIETA: Societa[] = ['studio', 'strategico', 'materico', 'unico', 'holding'];
+export const SOCIETA: Societa[] = ['strategico', 'studio', 'materico', 'unico', 'fantastico', 'holding'];
 
 /** Etichette UI delle società (chiavi codice invariate; "studio" → "Onirico"). */
 export const SOCIETA_LABEL: Record<Societa, string> = {
@@ -29,6 +29,7 @@ export const SOCIETA_LABEL: Record<Societa, string> = {
   strategico: 'Strategico',
   materico: 'Materico',
   unico: 'Unico',
+  fantastico: 'Fantastico',
   holding: 'Aulico (Holding)',
 };
 
@@ -72,7 +73,7 @@ export function legacyAccess(role: UserRole | undefined): AccessMap {
     case 'staff': {
       const map: AccessMap = {};
       for (const s of SOCIETA) {
-        if (s === 'holding') map[s] = { default: 'view' };
+        if (s === 'holding') map[s] = { default: 'view', modules: { finance: 'none' } };
         else map[s] = { default: 'operate', modules: { finance: 'none' } };
       }
       return map;

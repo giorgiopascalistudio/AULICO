@@ -148,6 +148,15 @@ const ClientRequestsView = React.lazy(() => import('./components/ClientRequestsV
 
 // Subcomponents
 import { Sidebar } from './components/Sidebar';
+import { AulicoSidebar } from './components/AulicoSidebar';
+import { SocietyDashboard } from './components/SocietyDashboard';
+import { SectionPlaceholder } from './components/SectionPlaceholder';
+import { MarketingSection } from './components/sections/MarketingSection';
+import {
+  SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
+  firstAuthorizedHash, canViewSection, type SectionConfig, type DashboardCtx,
+} from './societyConfig';
+import type { Societa } from './types';
 import { TeamAssistant } from './components/TeamAssistant';
 import { Navbar } from './components/Navbar';
 import { Modal } from './components/Modal';
@@ -427,9 +436,12 @@ export default function App() {
   const creatingRef = useRef(false); // evita doppia creazione record
 
   // Router route & params
-  const [route, setRoute] = useState<string>('dashboard');
+  const [route, setRoute] = useState<string>('sdash');
   const [routeParam, setRouteParam] = useState<string | null>(null);
   const [peopleTab, setPeopleTab] = useState<'team' | 'clienti' | 'partner'>('team');
+  // Aulico V2: società + sezione correnti (navigazione guidata dalle autorizzazioni)
+  const [activeSocieta, setActiveSocieta] = useState<Societa>('studio');
+  const [activeSection, setActiveSection] = useState<string>('dashboard');
 
   // Navigation calendar states
   const [calView, setCalView] = useState<'month' | 'week' | 'day'>('day');
@@ -455,32 +467,68 @@ export default function App() {
     // Il caricamento avviene nell'effetto di sincronizzazione (vedi sotto),
     // in base al ruolo dell'utente approvato. Niente più seed in localStorage.
 
-    // Handle hash router on load
+    // Mappa retrocompat route legacy → (società, sezione) per evidenziare la sidebar.
+    const LEGACY_SECTION: Record<string, { soc: Societa; sec: string }> = {
+      calendario: { soc: 'studio', sec: 'agenda' },
+      progetti: { soc: 'studio', sec: 'cicli' },
+      progetto: { soc: 'studio', sec: 'cicli' },
+      crm: { soc: 'strategico', sec: 'crm' },
+      'richieste-clienti': { soc: 'studio', sec: 'richieste' },
+      documenti: { soc: 'studio', sec: 'documenti' },
+      finanze: { soc: 'strategico', sec: 'amministrazione' },
+      team: { soc: 'strategico', sec: 'hr' },
+      registro: { soc: 'holding', sec: 'registro' },
+      cestino: { soc: 'holding', sec: 'cestino' },
+    };
+
+    // Router hash. Nuovo schema: #<slugSocietà>/<sezione>[/<param>]; legacy retrocompat.
     const handleHash = () => {
-      const hash = window.location.hash.slice(1).split('/');
-      let r = hash[0] || 'dashboard';
-      // Materico non è più una sezione a sé: ora vive dentro "Progetti".
-      if (r === 'materico') {
-        r = 'progetti';
-        setActiveDivision('materico');
+      const parts = window.location.hash.slice(1).split('/').filter(Boolean);
+      const head = parts[0] || '';
+
+      // --- Nuovo schema società/sezione ---
+      const soc = slugToSocieta(head);
+      const society = soc ? getSociety(soc) : undefined;
+      if (soc && society) {
+        const sectionId = parts[1] || (society.sections.find((s) => !s.parent)?.id || 'dashboard');
+        const sec = findSection(soc, sectionId);
+        setActiveSocieta(soc);
+        setActiveSection(sectionId);
+        if (sec?.preset?.division) setActiveDivision(sec.preset.division);
+        setFinStartTab(sec?.preset?.finStartTab ?? null);
+        if (!sec || sec.kind === 'dashboard') setRoute('sdash');
+        else if (sec.kind === 'placeholder') setRoute('splaceholder');
+        else if (sec.view) setRoute('sview');
+        else setRoute(sec.legacyRoute || 'sdash');
+        setRouteParam(parts[2] || null);
+        return;
       }
-      // Strategico non è più una sezione a sé: ora vive dentro "Progetti" (divisione Strategico).
-      if (r === 'strategico') {
-        r = 'progetti';
-        setActiveDivision('strategico');
-      }
-      // Preventivi e Statistiche non sono più sezioni a sé: ora vivono dentro "Finanze".
-      if (r === 'preventivi') {
-        r = 'finanze';
-        setFinStartTab('preventivi');
-      } else if (r === 'statistiche') {
-        r = 'finanze';
-        setFinStartTab('statistiche');
-      } else {
+
+      // --- Schema legacy (bookmark, link notifiche, navigazioni interne) ---
+      let r = head || 'dashboard';
+      if (r === 'dashboard') {
+        setActiveSocieta('studio');
+        setActiveSection('dashboard');
         setFinStartTab(null);
+        setRoute('sdash');
+        setRouteParam(null);
+        return;
       }
+      let secSoc: Societa = 'studio';
+      let secId = 'dashboard';
+      if (r === 'materico') { r = 'progetti'; setActiveDivision('materico'); secSoc = 'materico'; secId = 'produzione'; }
+      else if (r === 'strategico') { r = 'progetti'; setActiveDivision('strategico'); secSoc = 'strategico'; secId = 'mkt-strategico'; }
+      else if (r === 'preventivi') { r = 'finanze'; setFinStartTab('preventivi'); secSoc = 'studio'; secId = 'commerciale'; }
+      else if (r === 'statistiche') { r = 'finanze'; setFinStartTab('statistiche'); secSoc = 'strategico'; secId = 'amministrazione'; }
+      else {
+        setFinStartTab(null);
+        const m = LEGACY_SECTION[r];
+        if (m) { secSoc = m.soc; secId = m.sec; }
+      }
+      setActiveSocieta(secSoc);
+      setActiveSection(secId);
       setRoute(r);
-      setRouteParam(hash[1] || null);
+      setRouteParam(parts[1] || null);
     };
 
     window.addEventListener('hashchange', handleHash);
@@ -4544,10 +4592,76 @@ export default function App() {
         }
         return <p className="text-[13px] text-[#8a8a8a]">Seleziona una persona valida.</p>;
 
+      // --- Aulico V2: dashboard configurabile per società ---
+      case 'sdash': {
+        const society = getSociety(activeSocieta);
+        const sec = society?.sections.find((s) => s.id === activeSection) || society?.sections.find((s) => s.kind === 'dashboard');
+        if (society && sec && !canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
+        if (!society || !society.dashboard) return <p className="text-[13px] text-[#8a8a8a]">Dashboard non disponibile.</p>;
+        const ctx: DashboardCtx = {
+          societa: activeSocieta,
+          profile: currentUser,
+          projects: Object.values(projects),
+          tasks: Object.values(tasks),
+          appointments: Object.values(appointments),
+          clientRequests: Object.values(clientRequests),
+          go: (h) => { window.location.hash = h; },
+        };
+        return <SocietyDashboard spec={society.dashboard} ctx={ctx} societyLabel={society.label} color={society.color} />;
+      }
+
+      // --- Aulico V2: sezione standalone (componente dedicato montato dal registry) ---
+      case 'sview': {
+        const society = getSociety(activeSocieta);
+        const sec = society?.sections.find((s) => s.id === activeSection);
+        if (!society || !sec) return <p className="text-[13px] text-[#8a8a8a]">Sezione non trovata.</p>;
+        if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
+        switch (sec.view) {
+          // Le sezioni V2 costruite "separate" si registrano qui (un caso per `view`).
+          case 'marketing':
+            return (
+              <MarketingSection
+                posts={Object.values(mktSocial)}
+                projects={Object.values(mktProjects)}
+                color={society.color}
+                initialTab={activeSection === 'mkt-strategico' ? 'analisi' : 'calendario'}
+                onSavePost={handleSaveSocialPost}
+                onDeletePost={handleDeleteSocialPost}
+              />
+            );
+          default:
+            return <SectionPlaceholder section={sec} societyLabel={society.label} color={society.color} />;
+        }
+      }
+
+      // --- Aulico V2: sezione dichiarata ma non ancora costruita ---
+      case 'splaceholder': {
+        const society = getSociety(activeSocieta);
+        const sec = society?.sections.find((s) => s.id === activeSection);
+        if (!society || !sec) return <p className="text-[13px] text-[#8a8a8a]">Sezione non trovata.</p>;
+        if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
+        return <SectionPlaceholder section={sec} societyLabel={society.label} color={society.color} />;
+      }
+
       default:
         return <p className="text-[13px] text-[#8a8a8a]">Sezione in arrivo.</p>;
     }
   };
+
+  /** Redirect soft verso la prima sezione consentita (accesso diretto non autorizzato). */
+  const renderUnauthorized = () => (
+    <div className="flex-1 flex items-center justify-center p-8">
+      <div className="text-center">
+        <p className="text-[14px] font-bold text-[#161616]">Non hai accesso a questa sezione.</p>
+        <button
+          onClick={() => { window.location.hash = firstAuthorizedHash(currentUser); }}
+          className="mt-3 btn btn-primary rounded-xl py-2 px-4 bg-[#1b1b1b] text-white font-bold cursor-pointer"
+        >
+          Vai a una sezione consentita
+        </button>
+      </div>
+    </div>
+  );
 
   const formattedMobileTitle = () => {
     if (route === 'interactive') return 'Premium UI';
@@ -4594,20 +4708,16 @@ export default function App() {
 
   return (
     <div className="shell flex h-screen select-none bg-[#F5F5F3] relative min-h-0">
-      {/* Sidebar for widescreen */}
-      <Sidebar
-        route={route}
-        peopleTab={peopleTab}
+      {/* Sidebar Aulico (widescreen) — guidata dalle autorizzazioni */}
+      <AulicoSidebar
         profile={currentUser}
-        counts={{
-          todoToday: Object.values(tasks).filter((t: any) => sameDay(t.date, todayISO()) && !t.done).length,
-          activeProjects: Object.values(projects).filter((p: any) => p.status === 'attivo').length,
-          newClientRequests: Object.values(clientRequests).filter((r) => r.status === 'inviata').length
+        activeSocieta={activeSocieta}
+        activeSection={activeSection}
+        badges={{
+          'studio:agenda': Object.values(tasks).filter((t: any) => sameDay(t.date, todayISO()) && !t.done).length,
+          'studio:richieste': Object.values(clientRequests).filter((r) => r.status === 'inviata').length,
         }}
-        onNav={(r) => {
-          setRoute(r);
-          window.location.hash = `#${r}`;
-        }}
+        onNav={(h) => { window.location.hash = h; }}
         onOpenProfile={openProfile}
       />
 

@@ -15,7 +15,7 @@ export type AccountType = 'cliente' | 'azienda' | 'team';
 export type AccessLevel = 'none' | 'view' | 'operate' | 'admin';
 
 /** Le società del gruppo (chiavi codice invariate; "studio" = etichetta UI "Onirico"). */
-export type Societa = 'studio' | 'strategico' | 'materico' | 'unico' | 'holding';
+export type Societa = 'studio' | 'strategico' | 'materico' | 'unico' | 'fantastico' | 'holding';
 
 /** Permesso su una singola società: default + override opzionali per modulo. */
 export interface SocietaAccess {
@@ -1057,6 +1057,7 @@ export interface SocialPost {
   mktProjectId?: string | null;   // progetto marketing (scope §22-sex)
   platform: SocialPlatform;
   caption: string;
+  hashtags?: string | null;    // hashtag del post (testo libero, es. "#onirico #puglia")
   mediaUrl?: string | null;    // link/asset (renderizzato con safeUrl)
   link?: string | null;
   scheduledAt?: number | null;
