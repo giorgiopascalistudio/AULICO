@@ -1,0 +1,361 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Registro Unico delle Persone — vista master-detail (ispirata al prototipo
+ * docs/V2/PROTOTIPI/aulico-crm). Lista a sinistra (bollino pagamenti, badge),
+ * scheda dedicata a destra con banner liberatoria bloccante e tab:
+ * Anagrafica & Target · Asset del Brand · Credenziali protette · Memoria interazioni.
+ */
+
+import React from 'react';
+import {
+  Users, Plus, Search, Mail, Phone, MapPin, FileText, Lock, AlertTriangle,
+  Clock, CheckCircle2, XCircle, Eye, EyeOff, Edit2, Trash2, Share2, Calendar,
+  Gift, Megaphone, Users2, Target,
+} from 'lucide-react';
+import type { ClientRecord, BrandAsset, ContactCredential, ContactInteraction } from '../types';
+
+interface Soc { id: string; label: string; color: string; }
+interface Role { id: string; label: string; }
+interface PayInfo { ok: boolean; daIncassare: number; }
+
+interface Props {
+  clients: ClientRecord[];
+  societies: Soc[];
+  roles: Role[];
+  onSave: (rec: ClientRecord) => void;
+  onDelete: (rec: ClientRecord) => void;
+  onEdit: (id: string) => void;
+  onNew: () => void;
+  paymentStatus: (rec: ClientRecord) => PayInfo;
+}
+
+const onKeys = (m?: Record<string, boolean>) => Object.keys(m || {}).filter((k) => m![k]);
+const fmtDate = (s?: string) => (s ? new Date(s).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' }) : '');
+const tierStyle = (t?: number | null) => (t === 1 ? 'bg-rose-50 text-rose-700' : t === 2 ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700');
+const INT_ICON = { riunione: FileText, evento: Calendar, campagna: Megaphone, regalo: Gift } as const;
+const INT_LABEL = { riunione: 'Riunione / Nota', evento: 'Evento', campagna: 'Campagna', regalo: 'Pensiero / Gadget' } as const;
+
+export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, paymentStatus }) => {
+  const [selId, setSelId] = React.useState<string | null>(clients[0]?.id || null);
+  const [search, setSearch] = React.useState('');
+  const [soc, setSoc] = React.useState<'all' | string>('all');
+  const [role, setRole] = React.useState<'all' | string>('all');
+  const [detTab, setDetTab] = React.useState<'anagrafica' | 'brand' | 'credenziali' | 'storia'>('anagrafica');
+  const [pwShown, setPwShown] = React.useState<Record<string, boolean>>({});
+
+  const list = clients
+    .filter((c) => {
+      const q = search.trim().toLowerCase();
+      if (q && !(`${c.name} ${c.companyName || ''} ${c.email || ''} ${c.phone || ''} ${(c.targetTags || []).join(' ')}`.toLowerCase().includes(q))) return false;
+      if (soc !== 'all' && !c.societies?.[soc]) return false;
+      if (role !== 'all' && !c.roles?.[role]) return false;
+      return true;
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const sel = selId ? clients.find((c) => c.id === selId) || null : null;
+
+  // patch helper: aggiorna il contatto selezionato e persiste
+  const patch = (changes: Partial<ClientRecord>) => { if (sel) onSave({ ...sel, ...changes, updatedAt: Date.now() }); };
+
+  const roleLabel = (id: string) => roles.find((r) => r.id === id)?.label || id;
+
+  return (
+    <div className="flex flex-col lg:flex-row gap-4 min-h-[560px]">
+      {/* ===== LISTA (master) ===== */}
+      <div className="lg:w-[40%] xl:w-[34%] flex flex-col bg-white border border-[#e2e2e2] rounded-[22px] overflow-hidden shadow-sm">
+        <div className="p-3.5 border-b border-[#f0f0f0] flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <h3 className="inline-flex items-center gap-2 text-[14px] font-extrabold text-[#161616]"><Users className="w-4.5 h-4.5" /> Registro Unico ({list.length})</h3>
+            <button onClick={onNew} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> Nuovo</button>
+          </div>
+          <div className="relative">
+            <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cerca nome, azienda, email…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616]" />
+          </div>
+          {/* Filtro società (vista generale + per società) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
+            <button onClick={() => setSoc('all')} className={`text-[11px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap ${soc === 'all' ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>Tutte</button>
+            {societies.map((s) => (
+              <button key={s.id} onClick={() => setSoc(s.id)} className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap ${soc === s.id ? 'text-white border-transparent' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`} style={soc === s.id ? { background: s.color } : undefined}>
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: soc === s.id ? '#fff' : s.color }} /> {s.label}
+              </button>
+            ))}
+          </div>
+          {/* Filtro tipo */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
+            <button onClick={() => setRole('all')} className={`text-[11px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap ${role === 'all' ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>Tutti</button>
+            {roles.map((r) => (
+              <button key={r.id} onClick={() => setRole(r.id)} className={`text-[11px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap ${role === r.id ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>{r.label}</button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto divide-y divide-[#f3f3f3] max-h-[520px]">
+          {list.length === 0 ? (
+            <div className="p-8 text-center text-[#9a9a9a] text-[13px]">Nessun contatto con i filtri correnti.</div>
+          ) : list.map((c) => {
+            const pay = paymentStatus(c);
+            const isSel = selId === c.id;
+            return (
+              <div key={c.id} onClick={() => { setSelId(c.id); setDetTab('anagrafica'); }}
+                className={`p-3.5 flex items-start gap-3 cursor-pointer transition-all ${isSel ? 'bg-[#fafafa] border-l-[3px] border-[#161616]' : 'hover:bg-[#fafafa]/60 border-l-[3px] border-transparent'}`}>
+                <div className="relative pt-0.5">
+                  <div className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center text-[#444] font-bold text-[12px] border border-[#ececec]">{(c.name || '?').slice(0, 2).toUpperCase()}</div>
+                  <span title={pay.ok ? 'In regola coi pagamenti' : 'Morosità / saldo aperto'} className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white ${pay.ok ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="text-[13.5px] font-bold text-[#161616] truncate">{c.name}</h4>
+                    {onKeys(c.roles)[0] && <span className="text-[9px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full shrink-0">{roleLabel(onKeys(c.roles)[0])}</span>}
+                  </div>
+                  {c.companyName && <p className="text-[11.5px] text-[#8a8a8a] truncate mt-0.5 font-medium">{c.companyName}</p>}
+                  <div className="flex flex-wrap items-center gap-1 mt-1.5">
+                    {c.tier && <span className={`text-[9.5px] font-bold px-1.5 py-0.5 rounded ${tierStyle(c.tier)}`}>Fascia {c.tier}</span>}
+                    {c.acquisitionChannel && <span className="text-[9.5px] bg-gray-50 text-gray-500 border border-gray-100 px-1.5 py-0.5 rounded capitalize">{c.acquisitionChannel}</span>}
+                    {c.privacyLiberatoria === false && <span className="text-[9.5px] bg-rose-100 text-rose-800 font-bold px-1.5 py-0.5 rounded inline-flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> NO LIBERATORIA</span>}
+                    {societies.filter((s) => c.societies?.[s.id]).slice(0, 3).map((s) => <span key={s.id} title={s.label} className="w-1.5 h-1.5 rounded-full" style={{ background: s.color }} />)}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ===== DETTAGLIO (vista dedicata) ===== */}
+      <div className="flex-1 bg-white border border-[#e2e2e2] rounded-[22px] overflow-hidden shadow-sm flex flex-col">
+        {!sel ? (
+          <div className="flex-1 flex items-center justify-center p-10 text-center text-[#9a9a9a] text-[13.5px]">Seleziona un contatto dalla lista.</div>
+        ) : (() => {
+          const pay = paymentStatus(sel);
+          return (
+            <>
+              {/* Header */}
+              <div className="p-5 border-b border-[#f0f0f0] bg-[#fafafa] flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div className="flex items-center gap-3.5">
+                  <div className="h-13 w-13 min-w-[52px] h-[52px] rounded-full bg-[#161616] text-white flex items-center justify-center font-bold text-[16px]">{(sel.name || '?').slice(0, 2).toUpperCase()}</div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-[18px] font-black text-[#161616] leading-tight">{sel.name}</h2>
+                      <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${pay.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>{pay.ok ? '● Pagamenti ok' : '● Morosità'}</span>
+                    </div>
+                    {sel.companyName && <p className="text-[12.5px] text-[#8a8a8a] font-medium mt-0.5">{sel.companyName}</p>}
+                    <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+                      <span className="text-[9px] text-[#b0b0b0] font-bold uppercase tracking-wider mr-1">Società</span>
+                      {societies.map((s) => {
+                        const on = !!sel.societies?.[s.id];
+                        return <span key={s.id} className="text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase" style={on ? { background: s.color, color: '#fff' } : { background: '#f0f0f0', color: '#c4c4c4' }}>{s.label}</span>;
+                      })}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button onClick={() => onEdit(sel.id)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#e2e2e2] hover:border-black text-[#333] text-[12.5px] font-bold cursor-pointer bg-white"><Edit2 className="w-4 h-4" /> Modifica</button>
+                  <button onClick={() => onDelete(sel)} className="p-2 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 cursor-pointer bg-white"><Trash2 className="w-4 h-4" /></button>
+                </div>
+              </div>
+
+              {/* BANNER LIBERATORIA BLOCCANTE */}
+              {sel.privacyLiberatoria === false && (
+                <div className="bg-rose-600 text-white px-5 py-3 flex items-center gap-3 shrink-0">
+                  <AlertTriangle className="w-6 h-6 text-yellow-300 shrink-0" />
+                  <div className="text-[12.5px]">
+                    <p className="font-extrabold uppercase tracking-wider">Marketing: vietato pubblicare immagini/video</p>
+                    <p className="text-rose-100 text-[11.5px]">La liberatoria privacy per immagini e video di cantiere NON è stata firmata.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Tabs */}
+              <div className="border-b border-[#f0f0f0] px-5 flex items-center gap-5 overflow-x-auto">
+                {([['anagrafica', 'Anagrafica & Target', FileText], ['brand', 'Asset del Brand', Share2], ['credenziali', 'Credenziali protette', Lock], ['storia', 'Memoria interazioni', Clock]] as const).map(([id, lbl, Icon]) => (
+                  <button key={id} onClick={() => setDetTab(id)} className={`inline-flex items-center gap-2 py-3 text-[12.5px] font-bold border-b-2 whitespace-nowrap transition-all ${detTab === id ? 'border-[#161616] text-[#161616]' : 'border-transparent text-[#a8a8a8] hover:text-[#666]'}`}>
+                    <Icon className="w-4 h-4" /> {lbl}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-5">
+                {detTab === 'anagrafica' && <AnagraficaPane sel={sel} pay={pay} societies={societies} roles={roles} onTogglePrivacy={(v) => patch({ privacyLiberatoria: v })} />}
+                {detTab === 'brand' && <BrandPane sel={sel} onSave={(b) => patch({ brandAsset: b })} />}
+                {detTab === 'credenziali' && <CredenzialiPane sel={sel} pwShown={pwShown} setPwShown={setPwShown} onSave={(cr) => patch({ credentials: cr })} />}
+                {detTab === 'storia' && <StoriaPane sel={sel} onSave={(it) => patch({ interactions: it })} />}
+              </div>
+            </>
+          );
+        })()}
+      </div>
+    </div>
+  );
+};
+
+// ---- ANAGRAFICA ----
+const Info: React.FC<{ icon: any; label: string; children: React.ReactNode }> = ({ icon: Icon, label, children }) => (
+  <div className="flex items-start gap-3"><Icon className="w-4 h-4 text-[#b0b0b0] mt-0.5" /><div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">{label}</p><div className="text-[13px] font-medium text-[#222]">{children}</div></div></div>
+);
+const Box: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+  <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-4 flex flex-col gap-3.5"><h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[#666]">{title}</h4>{children}</div>
+);
+const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc[]; roles: Role[]; onTogglePrivacy: (v: boolean) => void }> = ({ sel, pay, roles, onTogglePrivacy }) => {
+  const roleLabel = (id: string) => roles.find((r) => r.id === id)?.label || id;
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Box title="Contatti & recapiti">
+          {sel.email && <Info icon={Mail} label="Email"><a href={`mailto:${sel.email}`} className="hover:underline">{sel.email}</a></Info>}
+          {sel.phone && <Info icon={Phone} label="Telefono"><a href={`tel:${sel.phone}`} className="hover:underline">{sel.phone}</a></Info>}
+          {sel.address && <Info icon={MapPin} label="Indirizzo">{sel.address}</Info>}
+        </Box>
+        <Box title="Profilazione strategica">
+          <Info icon={FileText} label="CF / P.IVA"><span className="font-mono">{sel.partitaIva || sel.codiceFiscale || 'Non fornito'}</span></Info>
+          {(sel.targetTags || []).length > 0 && <Info icon={Target} label="Target / categoria"><span className="inline-flex flex-wrap gap-1">{(sel.targetTags || []).map((t) => <span key={t} className="bg-white border border-[#e2e2e2] rounded px-2 py-0.5 text-[12px]">🎯 {t}</span>)}</span></Info>}
+          <div className="grid grid-cols-2 gap-3">
+            <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">Fascia</p><div className="flex items-center gap-1.5 mt-1"><span className="h-6 w-6 rounded-full bg-[#161616] text-white text-[11px] font-bold flex items-center justify-center">{sel.tier || '—'}</span><span className="text-[12px] font-semibold text-[#555]">{sel.tier === 1 ? 'Alto valore' : sel.tier === 2 ? 'Medio' : sel.tier === 3 ? 'Standard' : ''}</span></div></div>
+            <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">Canale</p><p className="text-[12px] font-bold uppercase text-[#555] mt-1.5">{sel.acquisitionChannel || '—'}</p></div>
+          </div>
+          <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Tipi di contatto</p><div className="flex flex-wrap gap-1">{onKeys(sel.roles).map((r) => <span key={r} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{roleLabel(r)}</span>)}</div></div>
+        </Box>
+      </div>
+
+      {/* Checklist amministrativa */}
+      <Box title="Checklist amministrativa">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex items-center gap-3 bg-white p-3 rounded-lg border border-[#f0f0f0]">
+            {pay.ok ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <XCircle className="w-5 h-5 text-rose-500 shrink-0 animate-pulse" />}
+            <div><p className="text-[12px] font-bold text-[#444]">Regolarità pagamenti</p><p className={`text-[12px] ${pay.ok ? 'text-emerald-600 font-medium' : 'text-rose-600 font-extrabold'}`}>{pay.ok ? 'In regola' : `Saldo aperto € ${Math.round(pay.daIncassare).toLocaleString('it-IT')} — download bloccati`}</p></div>
+          </div>
+          <button onClick={() => onTogglePrivacy(!(sel.privacyLiberatoria ?? false))} className="flex items-center gap-3 bg-white p-3 rounded-lg border border-[#f0f0f0] text-left cursor-pointer hover:border-[#cfcfcf]">
+            {sel.privacyLiberatoria ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0" />}
+            <div><p className="text-[12px] font-bold text-[#444]">Liberatoria privacy immagini</p><p className={`text-[12px] ${sel.privacyLiberatoria ? 'text-emerald-600 font-medium' : 'text-rose-500 font-extrabold'}`}>{sel.privacyLiberatoria ? 'Firmata' : 'NON firmata — clicca per segnare firmata'}</p></div>
+          </button>
+        </div>
+      </Box>
+    </div>
+  );
+};
+
+// ---- BRAND ----
+const BrandPane: React.FC<{ sel: ClientRecord; onSave: (b: BrandAsset) => void }> = ({ sel, onSave }) => {
+  const [b, setB] = React.useState<BrandAsset>(sel.brandAsset || {});
+  React.useEffect(() => { setB(sel.brandAsset || {}); }, [sel.id]);
+  const Fld = (label: string, key: keyof BrandAsset, rows = 2) => (
+    <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">{label}</p>
+      <textarea value={(b[key] as string) || ''} onChange={(e) => setB((p) => ({ ...p, [key]: e.target.value }))} rows={rows} className="w-full p-2.5 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] resize-none" /></div>
+  );
+  return (
+    <div className="flex flex-col gap-4 max-w-2xl">
+      <Box title="Identità strategica del brand">
+        {Fld('Obiettivi del cliente', 'obiettivi')}
+        {Fld('Tono di voce', 'tonoVoce', 1)}
+        {Fld('Target di riferimento', 'targetRiferimento', 1)}
+        <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Asset grafici (uno per riga: nome o link)</p>
+          <textarea value={(b.assetGrafici || []).join('\n')} onChange={(e) => setB((p) => ({ ...p, assetGrafici: e.target.value.split('\n').map((s) => s.trim()).filter(Boolean) }))} rows={3} className="w-full p-2.5 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] resize-none" /></div>
+      </Box>
+      <button onClick={() => onSave(b)} className="self-start px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Salva asset brand</button>
+    </div>
+  );
+};
+
+// ---- CREDENZIALI ----
+const CredenzialiPane: React.FC<{ sel: ClientRecord; pwShown: Record<string, boolean>; setPwShown: React.Dispatch<React.SetStateAction<Record<string, boolean>>>; onSave: (cr: ContactCredential[]) => void }> = ({ sel, pwShown, setPwShown, onSave }) => {
+  const creds = sel.credentials || [];
+  const [draft, setDraft] = React.useState<Partial<ContactCredential>>({});
+  const add = () => {
+    if (!draft.service) return;
+    onSave([...creds, { id: `cr-${Date.now()}`, service: draft.service!, username: draft.username || null, password: draft.password || null, note: draft.note || null }]);
+    setDraft({});
+  };
+  return (
+    <div className="flex flex-col gap-4 max-w-2xl">
+      <div className="flex items-center justify-between">
+        <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[#666]">Credenziali & password</h4>
+        <span className="inline-flex items-center gap-1 text-[10.5px] bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-full"><Lock className="w-3 h-3" /> Riservato</span>
+      </div>
+      {creds.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a] py-2">Nessuna credenziale salvata.</p> : creds.map((c) => {
+        const vis = pwShown[c.id];
+        return (
+          <div key={c.id} className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-3.5">
+            <div className="flex items-center justify-between border-b border-[#eee] pb-2 mb-2">
+              <span className="text-[12px] font-bold text-[#161616] uppercase tracking-wider">{c.service}</span>
+              <div className="flex items-center gap-1">
+                <button onClick={() => setPwShown((p) => ({ ...p, [c.id]: !p[c.id] }))} className="p-1 rounded hover:bg-gray-200 text-[#666] cursor-pointer">{vis ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+                <button onClick={() => onSave(creds.filter((x) => x.id !== c.id))} className="p-1 rounded hover:bg-rose-50 text-rose-500 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-[12px]">
+              <div><p className="text-[9px] text-[#b0b0b0] font-bold uppercase">Username</p><p className="font-mono font-semibold text-[#444]">{c.username || '—'}</p></div>
+              <div><p className="text-[9px] text-[#b0b0b0] font-bold uppercase">Password</p><p className="font-mono font-semibold text-[#444] tracking-wider">{vis ? (c.password || '—') : '••••••••••'}</p></div>
+            </div>
+            {c.note && <p className="text-[11px] text-[#9a9a9a] italic mt-2 pt-2 border-t border-[#eee]">{c.note}</p>}
+          </div>
+        );
+      })}
+      {/* aggiungi */}
+      <div className="bg-white border border-dashed border-[#e2e2e2] rounded-xl p-3.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <input value={draft.service || ''} onChange={(e) => setDraft((d) => ({ ...d, service: e.target.value }))} placeholder="Servizio (es. Instagram)" className="px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none" />
+        <input value={draft.username || ''} onChange={(e) => setDraft((d) => ({ ...d, username: e.target.value }))} placeholder="Username" className="px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none" />
+        <input value={draft.password || ''} onChange={(e) => setDraft((d) => ({ ...d, password: e.target.value }))} placeholder="Password" className="px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none" />
+        <input value={draft.note || ''} onChange={(e) => setDraft((d) => ({ ...d, note: e.target.value }))} placeholder="Nota (facoltativa)" className="px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none" />
+        <button onClick={add} disabled={!draft.service} className="sm:col-span-2 px-4 py-2 rounded-lg bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none disabled:opacity-40">+ Aggiungi credenziale</button>
+      </div>
+    </div>
+  );
+};
+
+// ---- STORIA / INTERAZIONI ----
+const StoriaPane: React.FC<{ sel: ClientRecord; onSave: (it: ContactInteraction[]) => void }> = ({ sel, onSave }) => {
+  const items = (sel.interactions || []).slice().sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+  const [titolo, setTitolo] = React.useState('');
+  const [descrizione, setDescrizione] = React.useState('');
+  const [tipo, setTipo] = React.useState<ContactInteraction['tipo']>('riunione');
+  const add = () => {
+    if (!titolo.trim()) return;
+    const it: ContactInteraction = { id: `int-${Date.now()}`, tipo, data: new Date().toISOString().slice(0, 10), titolo: titolo.trim(), descrizione: descrizione || null };
+    onSave([it, ...(sel.interactions || [])]);
+    setTitolo(''); setDescrizione(''); setTipo('riunione');
+  };
+  return (
+    <div className="flex flex-col gap-4 max-w-2xl">
+      <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-4 flex flex-col gap-2.5">
+        <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[#666]">Nuova interazione</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <input value={titolo} onChange={(e) => setTitolo(e.target.value)} placeholder="Titolo (riunione, evento…)" className="px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none bg-white" />
+          <select value={tipo} onChange={(e) => setTipo(e.target.value as any)} className="px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none bg-white">
+            <option value="riunione">Riunione / Nota</option><option value="evento">Partecipazione evento</option><option value="campagna">Campagna marketing</option><option value="regalo">Pensiero / Gadget</option>
+          </select>
+        </div>
+        <textarea value={descrizione} onChange={(e) => setDescrizione(e.target.value)} placeholder="Sintesi / decisioni / dettagli…" rows={2} className="w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none bg-white resize-none" />
+        <button onClick={add} disabled={!titolo.trim()} className="self-end px-4 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none disabled:opacity-40">Salva appunto</button>
+      </div>
+
+      {items.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Nessuna interazione registrata.</p> : (
+        <div className="flex flex-col gap-2">
+          {items.map((it) => {
+            const Icon = INT_ICON[it.tipo] || FileText;
+            return (
+              <div key={it.id} className="flex items-start gap-3 bg-white border border-[#f0f0f0] rounded-xl p-3">
+                <span className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-[#555] shrink-0"><Icon className="w-4 h-4" /></span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <b className="text-[13px] text-[#161616] truncate">{it.titolo}</b>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[10px] font-bold uppercase text-[#9a9a9a]">{INT_LABEL[it.tipo]}</span>
+                      <button onClick={() => onSave((sel.interactions || []).filter((x) => x.id !== it.id))} className="text-rose-400 hover:text-rose-600 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                  </div>
+                  {it.descrizione && <p className="text-[12px] text-[#666] mt-0.5 leading-relaxed">{it.descrizione}</p>}
+                  <span className="text-[10.5px] text-[#b0b0b0]">{fmtDate(it.data)}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CrmRegistro;

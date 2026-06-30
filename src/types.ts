@@ -845,10 +845,37 @@ export interface ClientRecord {
   societies?: Record<string, boolean>; // appartenenza multi-società: studio/strategico/materico/unico/fantastico
   targetTags?: string[] | null;        // etichette libere (es. "Imprese di Ostuni")
   acquisitionChannel?: string | null;  // canale acquisizione (social/sito/passaparola/agenzia…)
+  // --- Scheda strategica (CRM Fase 2/3, da prototipo) ---
+  brandAsset?: BrandAsset | null;            // clienti marketing: obiettivi/tono/target/asset
+  credentials?: ContactCredential[] | null;  // credenziali protette (social/gestionali)
+  privacyLiberatoria?: boolean;              // liberatoria immagini/video cantiere firmata
+  interactions?: ContactInteraction[] | null; // memoria storica (riunioni/eventi/campagne/regali)
   notes?: string | null;
   createdBy: string;
   createdAt: number;
   updatedAt?: number;
+}
+
+export interface BrandAsset {
+  obiettivi?: string | null;
+  tonoVoce?: string | null;
+  targetRiferimento?: string | null;
+  assetGrafici?: string[] | null;   // nomi/URL file
+}
+export interface ContactCredential {
+  id: string;
+  service: string;
+  username?: string | null;
+  password?: string | null;         // NB: salvata in chiaro nel nodo clients (vedi nota sicurezza)
+  note?: string | null;
+}
+export interface ContactInteraction {
+  id: string;
+  tipo: 'riunione' | 'evento' | 'campagna' | 'regalo';
+  data: string;                     // ISO yyyy-mm-dd
+  titolo: string;
+  descrizione?: string | null;
+  dettagli?: string | null;         // es. "Pensiero di Natale", "Newsletter primavera"
 }
 
 export interface CantiereSal {

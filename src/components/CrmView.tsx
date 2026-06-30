@@ -19,6 +19,8 @@ import { ClientRecord, Project, UserProfile } from '../types';
 
 // Dashboard CRM (grafici recharts) — lazy: il chunk recharts si carica solo all'apertura.
 const CrmDashboard = React.lazy(() => import('./CrmDashboard'));
+// Registro Unico master-detail (scheda dedicata stile prototipo).
+const CrmRegistro = React.lazy(() => import('./CrmRegistro'));
 
 export interface CrmNote {
   at: number;
@@ -330,6 +332,9 @@ export const CrmView: React.FC<CrmViewProps> = ({
       roles: d.roles || undefined, societies: d.societies || undefined,
       targetTags: (d.targetTags && d.targetTags.length ? d.targetTags : null),
       acquisitionChannel: d.acquisitionChannel || null,
+      // preserva i campi ricchi gestiti inline nella scheda (registro master-detail)
+      brandAsset: d.brandAsset ?? null, credentials: d.credentials ?? null,
+      privacyLiberatoria: d.privacyLiberatoria, interactions: d.interactions ?? null,
       accountUid: d.accountUid || null, notes: d.notes || null,
       createdBy: d.createdBy || myUid || 'admin',
       createdAt: d.createdAt || Date.now()
@@ -480,121 +485,18 @@ export const CrmView: React.FC<CrmViewProps> = ({
 
       {/* CLIENTI / PARTNER (rubrica) */}
       {tab === 'clienti' && (
-        <div className="flex flex-col gap-4">
-          {/* sotto-toggle Clienti | Partner */}
-          <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] self-start">
-            {([['cliente', 'Clienti', clientCounts.cliente], ['partner', 'Partner / Imprese', clientCounts.partner]] as const).map(([id, lbl, n]) => (
-              <button key={id} onClick={() => setClientCat(id as any)}
-                className={`text-[12px] font-bold px-3.5 py-1.5 rounded-full transition-colors ${clientCat === id ? 'bg-[#161616] text-white shadow-xs' : 'text-[#8a8a8a] hover:text-[#161616]'}`}>
-                {lbl} <span className={`ml-1 ${clientCat === id ? 'text-white/60' : 'text-[#b0b0b0]'}`}>{n}</span>
-              </button>
-            ))}
-          </div>
-          {/* Filtro SOCIETÀ: vista generale ('Tutte') + sempre divisibile per società */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] font-bold text-[#8a8a8a] mr-1">Società:</span>
-            <button onClick={() => setClientSociety('all')}
-              className={`text-[11.5px] font-bold px-3 py-1 rounded-full border ${clientSociety === 'all' ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>
-              Tutte
-            </button>
-            {CRM_SOCIETIES.map((s) => (
-              <button key={s.id} onClick={() => setClientSociety(s.id)}
-                className={`inline-flex items-center gap-1.5 text-[11.5px] font-bold px-3 py-1 rounded-full border ${clientSociety === s.id ? 'text-white border-transparent' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}
-                style={clientSociety === s.id ? { background: s.color } : undefined}>
-                <span className="w-2 h-2 rounded-full" style={{ background: clientSociety === s.id ? '#fff' : s.color }} />
-                {s.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Filtro TIPO contatto + Fascia */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] font-bold text-[#8a8a8a] mr-1">Tipo:</span>
-            <button onClick={() => setClientRole('all')}
-              className={`text-[11.5px] font-bold px-3 py-1 rounded-full border ${clientRole === 'all' ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>
-              Tutti
-            </button>
-            {CONTACT_ROLES.map((r) => (
-              <button key={r.id} onClick={() => setClientRole(r.id)}
-                className={`text-[11.5px] font-bold px-3 py-1 rounded-full border ${clientRole === r.id ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>
-                {r.label}
-              </button>
-            ))}
-          </div>
-
-          {clientCat === 'cliente' && (
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] font-bold text-[#8a8a8a] mr-1">Fascia:</span>
-              {([['all', 'Tutte'], ['1', 'Fascia 1'], ['2', 'Fascia 2'], ['3', 'Fascia 3']] as const).map(([id, lbl]) => (
-                <button key={id} onClick={() => setClientTierFilter(id as any)}
-                  className={`text-[11.5px] font-bold px-3 py-1 rounded-full border ${clientTierFilter === id ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>
-                  {lbl}
-                </button>
-              ))}
-            </div>
-          )}
-          {clientList.length === 0 ? (
-            <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
-              <Building2 className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-              <p className="text-[13.5px] text-[#8a8a8a] font-semibold">
-                {clientCat === 'partner'
-                  ? 'Nessuna impresa partner in rubrica. Le imprese partner registrate compaiono qui in automatico.'
-                  : `Nessun cliente ${clientTierFilter !== 'all' ? 'in questa fascia' : 'in rubrica'}. I clienti registrati vengono salvati qui in automatico.`}
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {clientList.map((c) => (
-                <div
-                  key={c.id}
-                  onClick={() => setOpenClient(c.id)}
-                  className="group bg-white border border-[#e2e2e2] rounded-[24px] p-5 hover:border-black hover:shadow-md transition-all cursor-pointer flex flex-col gap-3"
-                >
-                  <div className="flex items-start justify-between">
-                    <span className={`w-11 h-11 rounded-2xl flex items-center justify-center ${c.category === 'partner' ? 'bg-purple-50' : 'bg-gray-100'}`}><Building2 className={`w-5 h-5 ${c.category === 'partner' ? 'text-purple-500' : 'text-gray-500'}`} /></span>
-                    <div className="flex items-center gap-1">
-                      {c.category === 'partner' ? (
-                        <span className="text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border-purple-200">Partner</span>
-                      ) : (
-                        <>
-                          {c.tier && <span className={`text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${tierBadge(c.tier)}`}>Fascia {c.tier}</span>}
-                          <span className="text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-700 border-zinc-200">{c.type === 'azienda' ? 'Azienda' : 'Privato'}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="text-[14.5px] font-extrabold text-[#161616] tracking-tight truncate">{c.name}</h4>
-                    {c.type === 'azienda' && c.partitaIva && <span className="text-[11.5px] text-[#8a8a8a]">P.IVA {c.partitaIva}</span>}
-                    {c.type !== 'azienda' && c.codiceFiscale && <span className="text-[11.5px] text-[#8a8a8a] font-mono">{c.codiceFiscale}</span>}
-                  </div>
-                  {/* Società di appartenenza (multi) + tipi contatto */}
-                  {(onKeys(c.societies).length > 0 || onKeys(c.roles).length > 0) && (
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {CRM_SOCIETIES.filter((s) => c.societies?.[s.id]).map((s) => (
-                        <span key={s.id} title={s.label} className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full border" style={{ background: `${s.color}12`, color: s.color, borderColor: `${s.color}33` }}>
-                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.color }} /> {s.label}
-                        </span>
-                      ))}
-                      {onKeys(c.roles).slice(0, 3).map((r) => (
-                        <span key={r} className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-gray-50 text-gray-600 border border-gray-200">{ROLE_LABEL(r)}</span>
-                      ))}
-                    </div>
-                  )}
-                  {c.acquisitionChannel && (
-                    <span className="text-[10.5px] text-[#9a9a9a] font-semibold">Canale: {c.acquisitionChannel}</span>
-                  )}
-                  {(c.email || c.phone) && (
-                    <div className="pt-2 border-t border-dashed border-[#ececec] flex flex-col gap-1">
-                      {c.email && <span className="flex items-center gap-1.5 text-[11.5px] text-gray-500 truncate"><Mail className="w-3.5 h-3.5 text-gray-400 shrink-0" /><span className="truncate">{c.email}</span></span>}
-                      {c.phone && <span className="flex items-center gap-1.5 text-[11.5px] text-gray-500"><Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" />{c.phone}</span>}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico il registro…</div>}>
+          <CrmRegistro
+            clients={Object.values(clients)}
+            societies={CRM_SOCIETIES}
+            roles={CONTACT_ROLES}
+            onSave={(rec) => onSaveClient?.(rec)}
+            onDelete={(rec) => (askDelete ? askDelete('Elimina contatto', `Eliminare "${rec.name}" dal registro?`, () => onDeleteClient?.(rec.id)) : onDeleteClient?.(rec.id))}
+            onEdit={openEditClient}
+            onNew={openNewClient}
+            paymentStatus={(rec) => { const p = paymentsOfClient(rec); return { ok: p.daIncassare <= 0.5, daIncassare: p.daIncassare }; }}
+          />
+        </React.Suspense>
       )}
 
       {/* DETTAGLIO CLIENTE */}
