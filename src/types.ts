@@ -865,6 +865,7 @@ export interface OrgNode {
   id: string;
   parentId: string | null;
   kind: OrgKind;
+  chart?: 'societario' | 'funzionale'; // a quale organigramma appartiene (default funzionale)
   label: string;                 // nome società / area / ruolo
   person?: string | null;        // nome persona associata (livello persone)
   personUid?: string | null;     // collegamento account team

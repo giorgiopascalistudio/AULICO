@@ -39,9 +39,44 @@ const IDENTITA: { id: OrgIdentita; label: string }[] = [
   { id: 'dipendente', label: 'Dipendente' },
   { id: 'collaboratore', label: 'Collaboratore' },
 ];
-const SEED_SOCIETA = ['Strategico', 'Onirico', 'Materico', 'Unico', 'Fantastico'];
-const SEED_AREE = ['Amministrazione & Contabilità', 'Produzione', 'Commerciale'];
 const childKind = (k: OrgKind): OrgKind => (k === 'societa' ? 'area' : 'ruolo');
+
+/** Seed fedele alle due immagini (idempotente: id stabili → riesegue senza duplicare). */
+function buildGroupSeed(): OrgNode[] {
+  const t = Date.now();
+  let o = 0;
+  const out: OrgNode[] = [];
+  const add = (n: Partial<OrgNode> & { id: string; kind: OrgKind; label: string }) => out.push({ parentId: null, chart: 'funzionale', order: t + o++, createdAt: t, ...n } as OrgNode);
+
+  // ---- ORGANIGRAMMA FUNZIONALE (chi fa cosa) ----
+  add({ id: 'f-root', kind: 'societa', label: 'Amministratore', person: 'Dario Flore', chart: 'funzionale' });
+  const areaPerson: Record<string, string> = { 'f-hr': 'Dario Flore', 'f-mkt': 'Rosa Custodero', 'f-amm': 'Francesco Zurlo', 'f-prod': 'Dario Flore', 'f-comm': 'Dario Flore' };
+  const areas: [string, string, [string, string][]][] = [
+    ['f-hr', 'Risorse Umane', [['HR Manager', 'Dario Flore'], ['Recruiter', 'Dario Flore'], ['Amministrazione del Personale', 'Francesco Zurlo'], ['Consulente del Lavoro', 'Giuseppe Renzulli']]],
+    ['f-mkt', 'Marketing', [['Marketing Manager', 'Dario Flore'], ['Content Creator', 'Rosa Custodero'], ['Grafico', 'Giorgio Pascali'], ['Social Media Manager', 'Rosa Custodero']]],
+    ['f-amm', 'Amministrazione', [['Responsabile Amministrativo', 'Francesco Zurlo'], ['Contabile', 'Francesco Zurlo'], ['Segreteria Amministrativa', 'Francesco Zurlo'], ['Consulente Fiscale / Commercialista', 'Angela Parrella']]],
+    ['f-prod', 'Produzione', [['Area Architettonica', ''], ['Area Strutturale', ''], ['Area Energetica', ''], ['Area Design', ''], ['Area Esecutiva', ''], ['Area Sicurezza', ''], ['Area Abilitativa', '']]],
+    ['f-comm', 'Commerciale', [['Direttore Commerciale', 'Dario Flore'], ['Account Manager', 'Dario Flore'], ['Sales Support', 'Francesco Zurlo'], ['Customer Care', 'Francesco Zurlo']]],
+  ];
+  areas.forEach(([aid, alabel, ruoli]) => {
+    add({ id: aid, parentId: 'f-root', kind: 'area', label: alabel, person: areaPerson[aid] || null, chart: 'funzionale' });
+    ruoli.forEach(([rlabel, rperson], i) => add({ id: `${aid}-${i}`, parentId: aid, kind: 'ruolo', label: rlabel, person: rperson || null, chart: 'funzionale' }));
+  });
+
+  // ---- ORGANIGRAMMA SOCIETARIO (holding e quote) ----
+  add({ id: 's-holding', kind: 'societa', label: 'DF Holdings S.r.l.', person: 'Dario Flore (Socio unico)', quota: 100, chart: 'societario' });
+  const soc: [string, string, number, [string, number][]?][] = [
+    ['s-onirico', 'Onirico Design S.T.P. S.r.l.', 100],
+    ['s-strategico', 'Strategico S.r.l.', 100],
+    ['s-unico', 'Unico RE S.r.l.', 100],
+    ['s-materico', 'Materico S.r.l.', 60, [['Marco Epifani', 20], ['Raffaele Zivoli', 20]]],
+  ];
+  soc.forEach(([sid, slabel, q, soci]) => {
+    add({ id: sid, parentId: 's-holding', kind: 'societa', label: slabel, quota: q, chart: 'societario' });
+    (soci || []).forEach(([sn, sq], i) => add({ id: `${sid}-socio-${i}`, parentId: sid, kind: 'ruolo', label: sn, quota: sq, identita: 'socio', chart: 'societario' }));
+  });
+  return out;
+}
 
 export const GovernanceView: React.FC<Props> = ({ org, sops, members, color = '#b45309', canEdit = false, onSaveNode, onDeleteNode, onSaveSop, onDeleteSop, onNav }) => {
   const [tab, setTab] = React.useState<'organigramma' | 'mansionari' | 'sop' | 'collegamenti'>('organigramma');
@@ -77,23 +112,17 @@ export const GovernanceView: React.FC<Props> = ({ org, sops, members, color = '#
 const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null) => OrgNode[]; members: Member[]; canEdit: boolean; onSaveNode: (n: OrgNode) => void; onDeleteNode: (id: string) => void }> = ({ nodes, childrenOf, members, canEdit, onSaveNode, onDeleteNode }) => {
   const [selId, setSelId] = React.useState<string | null>(null);
   const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({});
-  const roots = childrenOf(null);
+  const [chart, setChart] = React.useState<'societario' | 'funzionale'>('funzionale');
+  const roots = childrenOf(null).filter((n) => (n.chart || 'funzionale') === chart);
   const sel = selId ? nodes.find((n) => n.id === selId) || null : null;
 
   const addNode = (parent: OrgNode | null) => {
     const kind: OrgKind = parent ? childKind(parent.kind) : 'societa';
-    const n: OrgNode = { id: `org-${Date.now()}-${Math.floor(Math.random() * 900)}`, parentId: parent?.id || null, kind, label: kind === 'societa' ? 'Nuova società' : kind === 'area' ? 'Nuova area' : 'Nuovo ruolo', societa: parent ? (parent.societa || (parent.kind === 'societa' ? parent.id : null)) : null, order: Date.now(), createdAt: Date.now() };
+    const n: OrgNode = { id: `org-${Date.now()}-${Math.floor(Math.random() * 900)}`, parentId: parent?.id || null, kind, chart: parent ? (parent.chart || 'funzionale') : chart, label: kind === 'societa' ? 'Nuova società' : kind === 'area' ? 'Nuova area' : 'Nuovo ruolo', societa: parent ? (parent.societa || (parent.kind === 'societa' ? parent.id : null)) : null, order: Date.now(), createdAt: Date.now() };
     onSaveNode(n);
     setSelId(n.id);
   };
-  const seed = () => {
-    const ts = Date.now();
-    SEED_SOCIETA.forEach((s, i) => {
-      const sid = `org-soc-${ts}-${i}`;
-      onSaveNode({ id: sid, parentId: null, kind: 'societa', label: s, societa: sid, order: ts + i, createdAt: ts + i });
-      SEED_AREE.forEach((a, j) => onSaveNode({ id: `org-area-${ts}-${i}-${j}`, parentId: sid, kind: 'area', label: a, societa: sid, order: ts + i * 10 + j, createdAt: ts + i * 10 + j }));
-    });
-  };
+  const seed = () => { buildGroupSeed().forEach(onSaveNode); };
 
   const Row: React.FC<{ node: OrgNode; depth: number }> = ({ node, depth }) => {
     const kids = childrenOf(node.id);
@@ -122,15 +151,25 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
   return (
     <div className="flex flex-col lg:flex-row gap-4">
       <div className="lg:flex-1 bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm min-h-[420px]">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#a8a8a8]">Gruppo Aulico — struttura</span>
-          {canEdit && <button onClick={() => addNode(null)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> Società</button>}
+        <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+          {/* Toggle tipo organigramma */}
+          <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
+            {([['societario', 'Societario'], ['funzionale', 'Funzionale']] as const).map(([id, lbl]) => (
+              <button key={id} onClick={() => { setChart(id); setSelId(null); }} className={`text-[11.5px] font-bold px-3 py-1.5 rounded-full cursor-pointer border-none transition-all ${chart === id ? 'bg-[#161616] text-white shadow-xs' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{lbl}</button>
+            ))}
+          </div>
+          {canEdit && (
+            <div className="flex items-center gap-2">
+              <button onClick={seed} title="Precompila con la struttura delle immagini" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Network className="w-3.5 h-3.5" /> Carica esempio</button>
+              <button onClick={() => addNode(null)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> {chart === 'societario' ? 'Società' : 'Ramo'}</button>
+            </div>
+          )}
         </div>
         {roots.length === 0 ? (
           <div className="text-center py-14">
             <Network className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-[13px] text-[#8a8a8a] mb-4">Nessun organigramma. {canEdit ? 'Crea la struttura base del gruppo.' : ''}</p>
-            {canEdit && <button onClick={seed} className="px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Crea struttura base (5 società + aree)</button>}
+            <p className="text-[13px] text-[#8a8a8a] mb-4">Organigramma {chart} vuoto.{canEdit ? ' Caricalo dalle immagini o aggiungi a mano.' : ''}</p>
+            {canEdit && <button onClick={seed} className="px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Carica organigrammi (come da immagini)</button>}
           </div>
         ) : roots.map((r) => <Row key={r.id} node={r} depth={0} />)}
       </div>
