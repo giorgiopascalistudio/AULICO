@@ -20,7 +20,8 @@ import {
   Sparkle,
   Bell,
   Check,
-  X
+  X,
+  LayoutGrid
 } from 'lucide-react';
 
 import {
@@ -151,11 +152,11 @@ import { Sidebar } from './components/Sidebar';
 import { AulicoSidebar } from './components/AulicoSidebar';
 import { SocietyDashboard } from './components/SocietyDashboard';
 import { SectionPlaceholder } from './components/SectionPlaceholder';
-import { SectionPortal } from './components/SectionPortal';
+import { GroupTabBar } from './components/GroupTabBar';
 import { MarketingSection } from './components/sections/MarketingSection';
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
-  firstAuthorizedHash, canViewSection, type SectionConfig, type DashboardCtx,
+  firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
 } from './societyConfig';
 import type { Societa } from './types';
 import { TeamAssistant } from './components/TeamAssistant';
@@ -4636,21 +4637,22 @@ export default function App() {
         }
       }
 
-      // --- Aulico V2: portale sotto-categoria (hub delle sue voci) ---
+      // --- Aulico V2: portale sotto-categoria = DASHBOARD dedicata (tab della pillbar) ---
       case 'sportal': {
         const society = getSociety(activeSocieta);
         const sec = society?.sections.find((s) => s.id === activeSection);
         if (!society || !sec) return <p className="text-[13px] text-[#8a8a8a]">Sezione non trovata.</p>;
         if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
-        const items = society.sections.filter((c) => c.parent === sec.id && canViewSection(currentUser, activeSocieta, c));
-        return (
-          <SectionPortal
-            title={sec.label}
-            color={society.color}
-            items={items}
-            onOpen={(id) => { window.location.hash = `#${societaSlug(activeSocieta)}/${id}`; }}
-          />
-        );
+        const ctx: DashboardCtx = {
+          societa: activeSocieta,
+          profile: currentUser,
+          projects: Object.values(projects),
+          tasks: Object.values(tasks),
+          appointments: Object.values(appointments),
+          clientRequests: Object.values(clientRequests),
+          go: (h) => { window.location.hash = h; },
+        };
+        return <SocietyDashboard spec={DEFAULT_DASHBOARD} ctx={ctx} societyLabel={sec.label} color={society.color} />;
       }
 
       // --- Aulico V2: sezione dichiarata ma non ancora costruita ---
@@ -4724,6 +4726,27 @@ export default function App() {
       link: n.link
     }))
   ];
+
+  // Contesto "portale": se la sezione attiva è una sotto-categoria (group) o una
+  // sua voce, mostriamo la pillbar (Dashboard + voci) sopra il contenuto.
+  const groupCtx = (() => {
+    const society = getSociety(activeSocieta);
+    const sec = society?.sections.find((s) => s.id === activeSection);
+    if (!society || !sec) return null;
+    let group: SectionConfig | undefined;
+    if (sec.kind === 'group') group = sec;
+    else if (sec.parent) {
+      const par = society.sections.find((s) => s.id === sec.parent);
+      if (par?.kind === 'group') group = par;
+    }
+    if (!group) return null;
+    const children = society.sections.filter((c) => c.parent === group!.id && canViewSection(currentUser, activeSocieta, c));
+    const tabs = [
+      { id: group.id, label: 'Dashboard', icon: LayoutGrid },
+      ...children.map((c) => ({ id: c.id, label: c.label, icon: c.icon })),
+    ];
+    return { tabs, activeId: activeSection, slug: societaSlug(activeSocieta) };
+  })();
 
   return (
     <div className="shell flex h-screen select-none bg-[#F5F5F3] relative min-h-0">
@@ -4981,6 +5004,14 @@ export default function App() {
 
         {/* Scrollable primary content viewer */}
         <div className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch px-4 py-4 md:px-[30px] md:pb-[140px] pb-[120px]">
+          {/* Pillbar sotto-categorie (portale): Dashboard + voci dell'area */}
+          {groupCtx && (
+            <GroupTabBar
+              tabs={groupCtx.tabs}
+              activeId={groupCtx.activeId}
+              onSelect={(id) => { window.location.hash = `#${groupCtx.slug}/${id}`; }}
+            />
+          )}
           <AnimatePresence mode="wait">
             <motion.div
               key={route}
