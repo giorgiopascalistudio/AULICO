@@ -91,6 +91,8 @@ import {
   InternalOrder,
   PointEvent,
   MatericoPenalty,
+  OrgNode,
+  GovernanceSop,
 } from './types';
 
 import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, canAdmin, canAnywhere, canView, canOperate } from './access';
@@ -154,6 +156,7 @@ import { SocietyDashboard } from './components/SocietyDashboard';
 import { SectionPlaceholder } from './components/SectionPlaceholder';
 import { GroupTabBar } from './components/GroupTabBar';
 import { MarketingSection } from './components/sections/MarketingSection';
+const GovernanceView = React.lazy(() => import('./components/GovernanceView').then((m) => ({ default: m.GovernanceView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -352,6 +355,8 @@ export default function App() {
   const [clients, setClients] = useState<Record<string, ClientRecord>>({});
   // Preventivi studio
   const [quotes, setQuotes] = useState<Record<string, Quote>>({});
+  const [governanceOrg, setGovernanceOrg] = useState<Record<string, OrgNode>>({});
+  const [governanceSop, setGovernanceSop] = useState<Record<string, GovernanceSop>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1615,6 +1620,8 @@ export default function App() {
       subs.push(watchNode('crmLeads', (v) => setCrmLeads(toArr(v)), () => {}));
       subs.push(watchNode('crmSuppliers', (v) => setCrmSuppliers(toArr(v)), () => {}));
       subs.push(watchNode('priceList', (v) => setPriceList(toArr(v)), () => {}));
+      add('governanceOrg', setGovernanceOrg);
+      add('governanceSop', setGovernanceSop);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
@@ -3100,6 +3107,33 @@ export default function App() {
       setClients((prev) => { const n = { ...prev }; delete n[id]; return n; });
       removeNode(`clients/${id}`).catch(() => showToast('Errore rubrica clienti (controlla regole).', 'err'));
       showToast('Cliente spostato nel Cestino.', 'err');
+    });
+  };
+
+  // ---- Governance & Organigrammi ----
+  const handleSaveOrgNode = (n: OrgNode) => {
+    setGovernanceOrg((prev) => ({ ...prev, [n.id]: n }));
+    writeNode(`governanceOrg/${n.id}`, n).catch(() => showToast('Errore Governance (controlla regole).', 'err'));
+  };
+  const handleDeleteOrgNode = (id: string) => {
+    askDelete('Eliminare dall\'organigramma?', 'Verranno rimossi anche eventuali elementi figli.', () => {
+      const all = governanceOrg;
+      const toDel = new Set<string>();
+      const collect = (nid: string) => { toDel.add(nid); Object.values(all).forEach((x) => { if ((x.parentId || null) === nid) collect(x.id); }); };
+      collect(id);
+      setGovernanceOrg((prev) => { const n = { ...prev }; toDel.forEach((d) => delete n[d]); return n; });
+      toDel.forEach((d) => removeNode(`governanceOrg/${d}`).catch(() => {}));
+    });
+  };
+  const handleSaveSop = (s: GovernanceSop) => {
+    const enriched: GovernanceSop = { ...s, createdBy: s.createdBy || currentUser?.uid || null };
+    setGovernanceSop((prev) => ({ ...prev, [s.id]: enriched }));
+    writeNode(`governanceSop/${s.id}`, enriched).catch(() => showToast('Errore Governance (controlla regole).', 'err'));
+  };
+  const handleDeleteSop = (id: string) => {
+    askDelete('Eliminare la procedura?', null, () => {
+      setGovernanceSop((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`governanceSop/${id}`).catch(() => {});
     });
   };
 
@@ -4633,6 +4667,21 @@ export default function App() {
                 initialTab={activeSection === 'mkt-strategico' ? 'analisi' : 'calendario'}
                 onSavePost={handleSaveSocialPost}
                 onDeletePost={handleDeleteSocialPost}
+              />
+            );
+          case 'governance':
+            return (
+              <GovernanceView
+                org={governanceOrg}
+                sops={governanceSop}
+                members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
+                color={society.color}
+                canEdit={currentUser.role === 'admin' || currentUser.role === 'manager'}
+                onSaveNode={handleSaveOrgNode}
+                onDeleteNode={handleDeleteOrgNode}
+                onSaveSop={handleSaveSop}
+                onDeleteSop={handleDeleteSop}
+                onNav={(h) => { window.location.hash = h; }}
               />
             );
           default:

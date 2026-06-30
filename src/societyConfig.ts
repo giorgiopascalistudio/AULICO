@@ -203,7 +203,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       { id: 'hr', label: 'Risorse Umane', icon: Users, module: 'hr', kind: 'group' },
       { id: 'hr-crm', label: 'CRM', icon: BookUser, parent: 'hr', shared: true, module: 'crm', legacyRoute: 'crm' },
       { id: 'hr-recruiting', label: 'Recruiting', icon: UserPlus, parent: 'hr', module: 'hr', kind: 'placeholder', note: 'Job description, annunci, colloqui, piani di inserimento.' },
-      { id: 'hr-governance', label: 'Governance', icon: Network, parent: 'hr', module: 'governance', kind: 'placeholder', note: 'Organigramma, mansionari (chi fa cosa), procedure operative (SOP).' },
+      { id: 'hr-governance', label: 'Governance', icon: Network, parent: 'hr', module: 'governance', view: 'governance', note: 'Organigramma, mansionari (chi fa cosa), procedure operative (SOP).' },
       { id: 'hr-registro', label: 'Registro attività', icon: ScrollText, parent: 'hr', shared: true, module: 'registro', legacyRoute: 'registro' },
       { id: 'hr-team', label: 'Team & Permessi', icon: Users, parent: 'hr', module: 'hr', legacyRoute: 'team', note: 'Membri, ruoli/accessi, produttività, ferie.' },
       // === SOTTO-CATEGORIA: Marketing ===

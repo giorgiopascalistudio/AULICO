@@ -857,6 +857,38 @@ export interface ClientRecord {
   updatedAt?: number;
 }
 
+// ---- Governance & Organigrammi (Strategico/HR) ----
+export type OrgKind = 'societa' | 'area' | 'ruolo';
+export type OrgIdentita = 'amministratore' | 'socio' | 'dipendente' | 'collaboratore';
+/** Nodo dell'organigramma dinamico (nodo `governanceOrg/<id>`). parentId null = livello societario. */
+export interface OrgNode {
+  id: string;
+  parentId: string | null;
+  kind: OrgKind;
+  label: string;                 // nome società / area / ruolo
+  person?: string | null;        // nome persona associata (livello persone)
+  personUid?: string | null;     // collegamento account team
+  quota?: number | null;         // % (livello societario)
+  identita?: OrgIdentita | null; // Amministratore/Socio/Dipendente/Collaboratore
+  mansioni?: string | null;      // elenco compiti/responsabilità
+  pfv?: string | null;           // Prodotto Finale di Valore
+  societa?: string | null;       // chiave società di appartenenza (per filtri)
+  order?: number;
+  createdAt: number;
+  updatedAt?: number;
+}
+/** Procedura operativa standard (nodo `governanceSop/<id>`): guida passo-passo. */
+export interface GovernanceSop {
+  id: string;
+  title: string;
+  area?: string | null;          // società/area di riferimento
+  description?: string | null;
+  steps: string[];
+  createdAt: number;
+  updatedAt?: number;
+  createdBy?: string | null;
+}
+
 export interface BrandAsset {
   obiettivi?: string | null;
   tonoVoce?: string | null;
