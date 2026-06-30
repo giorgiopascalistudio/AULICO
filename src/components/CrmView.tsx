@@ -17,6 +17,9 @@ import {
 import { initials, eur } from '../utils';
 import { ClientRecord, Project, UserProfile } from '../types';
 
+// Dashboard CRM (grafici recharts) — lazy: il chunk recharts si carica solo all'apertura.
+const CrmDashboard = React.lazy(() => import('./CrmDashboard'));
+
 export interface CrmNote {
   at: number;
   text: string;
@@ -155,7 +158,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
   askDelete,
   onTrashItem
 }) => {
-  const [tab, setTab] = useState<'pipeline' | 'fornitori' | 'clienti'>('pipeline');
+  const [tab, setTab] = useState<'dashboard' | 'pipeline' | 'fornitori' | 'clienti'>('dashboard');
   const [openLead, setOpenLead] = useState<string | null>(null);
   const [openSupplier, setOpenSupplier] = useState<string | null>(null);
   const [newLeadOpen, setNewLeadOpen] = useState(false);
@@ -352,18 +355,21 @@ export const CrmView: React.FC<CrmViewProps> = ({
             Pipeline commerciale, fornitori e storico delle interazioni.
           </p>
         </div>
-        <button
-          onClick={() => { resetForm(); tab === 'pipeline' ? setNewLeadOpen(true) : tab === 'fornitori' ? setNewSupplierOpen(true) : openNewClient(); }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none hover:shadow-md active:scale-[0.98] transition-all"
-        >
-          <Plus className="w-4 h-4" /> {tab === 'pipeline' ? 'Nuovo lead' : tab === 'fornitori' ? 'Nuovo fornitore' : clientCat === 'partner' ? 'Nuovo partner' : 'Nuovo cliente'}
-        </button>
+        {tab !== 'dashboard' && (
+          <button
+            onClick={() => { resetForm(); tab === 'pipeline' ? setNewLeadOpen(true) : tab === 'fornitori' ? setNewSupplierOpen(true) : openNewClient(); }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none hover:shadow-md active:scale-[0.98] transition-all"
+          >
+            <Plus className="w-4 h-4" /> {tab === 'pipeline' ? 'Nuovo lead' : tab === 'fornitori' ? 'Nuovo fornitore' : clientCat === 'partner' ? 'Nuovo partner' : 'Nuovo cliente'}
+          </button>
+        )}
       </div>
 
       {/* Tabs + KPI */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
           {([
+            { id: 'dashboard', label: 'Dashboard' },
             { id: 'pipeline', label: 'Pipeline commerciale' },
             { id: 'clienti', label: 'Registro contatti' },
             { id: 'fornitori', label: 'Fornitori & Subappaltatori' }
@@ -388,6 +394,13 @@ export const CrmView: React.FC<CrmViewProps> = ({
           </span>
         )}
       </div>
+
+      {/* DASHBOARD (grafici andamento + report settimanale) */}
+      {tab === 'dashboard' && (
+        <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico i grafici…</div>}>
+          <CrmDashboard clients={Object.values(clients)} leads={leads} societies={CRM_SOCIETIES} roleLabel={ROLE_LABEL} />
+        </React.Suspense>
+      )}
 
       {/* PIPELINE KANBAN */}
       {tab === 'pipeline' && (
