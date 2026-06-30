@@ -15,7 +15,7 @@ import {
   MessageSquarePlus, Trash2, Briefcase, ArrowRightCircle, Euro, MessageCircle, FolderOpen, CheckCircle2, Split
 } from 'lucide-react';
 import { initials, eur } from '../utils';
-import { ClientRecord, Project, UserProfile } from '../types';
+import { ClientRecord, Project, UserProfile, Quote } from '../types';
 
 // Dashboard CRM (grafici recharts) — lazy: il chunk recharts si carica solo all'apertura.
 const CrmDashboard = React.lazy(() => import('./CrmDashboard'));
@@ -72,6 +72,7 @@ interface CrmViewProps {
   onDeleteClient?: (id: string) => void;
   projects?: Project[];
   members?: UserProfile[];
+  quotes?: Quote[];
   finInvoicesActive?: any[];
   finScadenze?: any[];
   /** Doppia conferma eliminazione (modale condivisa in App). */
@@ -155,6 +156,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
   onDeleteClient,
   projects = [],
   members = [],
+  quotes = [],
   finInvoicesActive = [],
   finScadenze = [],
   askDelete,
@@ -408,7 +410,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
       {/* DASHBOARD (grafici andamento + report settimanale) */}
       {tab === 'dashboard' && (
         <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico i grafici…</div>}>
-          <CrmDashboard clients={Object.values(clients)} leads={leads} societies={CRM_SOCIETIES} roleLabel={ROLE_LABEL} />
+          <CrmDashboard clients={Object.values(clients)} leads={leads} projects={projects} quotes={quotes} invoices={finInvoicesActive} societies={CRM_SOCIETIES} roleLabel={ROLE_LABEL} />
         </React.Suspense>
       )}
 

@@ -4428,6 +4428,7 @@ export default function App() {
             onDeleteClient={handleDeleteClient}
             projects={Object.values(projects)}
             members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff'))}
+            quotes={Object.values(quotes)}
             finInvoicesActive={finInvoicesActive}
             finScadenze={finScadenze}
             askDelete={askDelete}
