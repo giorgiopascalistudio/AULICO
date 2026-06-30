@@ -4,11 +4,15 @@
  */
 
 import React from 'react';
+import { ChevronDown } from 'lucide-react';
 import { UserProfile, Societa } from '../types';
 import { initials } from '../utils';
 import {
-  SOCIETY_REGISTRY, canViewSection, societaSlug, type SectionConfig,
+  SOCIETY_REGISTRY, getSociety, canViewSection, societaSlug, type SectionConfig,
 } from '../societyConfig';
+
+/** Le 5 categorie-società mostrate come accordion (in ordine). */
+const CATEGORIE: Societa[] = ['strategico', 'studio', 'materico', 'unico', 'fantastico'];
 
 interface AulicoSidebarProps {
   profile: UserProfile | null;
@@ -22,16 +26,30 @@ interface AulicoSidebarProps {
 export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
   profile, activeSocieta, activeSection, badges, onNav, onOpenProfile,
 }) => {
+  // Accordion: una sola categoria aperta per volta. Si apre da sola quella attiva.
+  const [openSoc, setOpenSoc] = React.useState<Societa | null>(
+    CATEGORIE.includes(activeSocieta) ? activeSocieta : null,
+  );
+  React.useEffect(() => {
+    if (CATEGORIE.includes(activeSocieta)) setOpenSoc(activeSocieta);
+  }, [activeSocieta]);
+
   if (!profile) return null;
 
-  // Gruppi società con almeno una sezione visibile dall'utente (RBAC).
+  // Voci di gruppo (Aulico/holding): Dashboard + Agenda in cima, Registro + Cestino in fondo.
+  const holding = getSociety('holding');
+  const holdingVisible = holding ? holding.sections.filter((s) => canViewSection(profile, 'holding', s)) : [];
+  const topItems = holdingVisible.filter((s) => s.id === 'dashboard' || s.id === 'agenda');
+  const bottomItems = holdingVisible.filter((s) => s.id === 'registro' || s.id === 'cestino');
+
+  // Categorie con almeno una sezione visibile dall'utente (RBAC).
   const groups = SOCIETY_REGISTRY
-    .map((society) => ({ society, visible: society.sections.filter((s) => canViewSection(profile, society.id, s)) }))
+    .filter((s) => CATEGORIE.includes(s.id))
+    .map((society) => ({ society, visible: society.sections.filter((sec) => canViewSection(profile, society.id, sec)) }))
     .filter((g) => g.visible.length > 0);
 
-  const showHeaders = groups.length > 1;
-
-  const renderSection = (soc: Societa, sec: SectionConfig, depth: number) => {
+  // Bottone-voce (sezione foglia). `depth` = indentazione per le sotto-sezioni.
+  const itemBtn = (soc: Societa, sec: SectionConfig, depth: number) => {
     const Icon = sec.icon;
     const isActive = activeSocieta === soc && activeSection === sec.id;
     const badge = badges?.[`${soc}:${sec.id}`] || 0;
@@ -39,17 +57,17 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
       <button
         key={`${soc}:${sec.id}`}
         onClick={() => onNav(`#${societaSlug(soc)}/${sec.id}`)}
-        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium text-[14px] transition-all cursor-pointer ${
+        className={`flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-[13.5px] transition-all cursor-pointer w-full ${
           isActive
             ? 'bg-[#161616] text-[#eeeeee] shadow-sm font-semibold'
             : 'text-[#333333] hover:bg-[#ececec] hover:text-[#161616]'
         }`}
-        style={{ paddingLeft: depth ? 12 + depth * 16 : undefined }}
+        style={{ paddingLeft: depth ? 12 + depth * 14 : undefined }}
       >
-        <Icon className={`w-[18px] h-[18px] ${isActive ? 'opacity-100' : 'opacity-70'}`} />
+        <Icon className={`w-[17px] h-[17px] shrink-0 ${isActive ? 'opacity-100' : 'opacity-70'}`} />
         <span className="flex-1 truncate text-left">{sec.label}</span>
         {badge > 0 && (
-          <span className={`text-[11px] font-bold min-w-[20px] h-[20px] px-1.5 rounded-full flex items-center justify-center ${
+          <span className={`text-[11px] font-bold min-w-[19px] h-[19px] px-1.5 rounded-full flex items-center justify-center ${
             isActive ? 'bg-white/20 text-[#eeeeee]' : 'bg-[#1b1b1b] text-white'
           }`}>{badge}</span>
         )}
@@ -60,32 +78,54 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
   return (
     <aside className="hidden md:flex flex-col w-[248px] bg-gradient-to-b from-white to-[#f5f5f5] border-r border-[#e2e2e2] p-[22px] pb-[14px]">
       {/* Brand */}
-      <div className="flex items-center gap-1.5 px-2 pb-[20px]">
+      <div className="flex items-center gap-1.5 px-2 pb-[18px]">
         <span className="font-extrabold text-[22px] tracking-tight text-[#161616] font-sans antialiased">Aulico</span>
       </div>
 
-      {/* Navigazione guidata dalle autorizzazioni */}
-      <nav className="flex flex-col gap-[3px] mt-1 text-left overflow-y-auto flex-1 min-h-0 -mr-1 pr-1">
+      <nav className="flex flex-col gap-[3px] text-left overflow-y-auto flex-1 min-h-0 -mr-1 pr-1">
+        {/* Voci uniche per ogni account: Dashboard + Agenda */}
+        {topItems.map((sec) => itemBtn('holding', sec, 0))}
+
+        {topItems.length > 0 && groups.length > 0 && <div className="h-px bg-[#ececec] my-2 mx-1" />}
+
+        {/* Categorie società (accordion: una aperta per volta) */}
         {groups.map(({ society, visible }) => {
           const soc = society.id;
+          const open = openSoc === soc;
           const top = visible.filter((s) => !s.parent);
+          const isActiveCat = activeSocieta === soc;
           return (
-            <div key={soc} className="mb-1.5">
-              {showHeaders && (
-                <div className="flex items-center gap-2 px-3 py-1 mt-2 mb-1">
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: society.color }} />
-                  <span className="text-[10.5px] tracking-wider uppercase text-[#a8a8a8] font-bold truncate">{society.label}</span>
+            <div key={soc}>
+              <button
+                onClick={() => setOpenSoc(open ? null : soc)}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl w-full cursor-pointer transition-colors ${
+                  isActiveCat && !open ? 'bg-[#ececec]' : 'hover:bg-[#ececec]'
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ background: society.color }} />
+                <span className="flex-1 truncate text-left text-[11.5px] font-extrabold uppercase tracking-wider text-[#5b5b5b]">
+                  {society.label}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-[#9a9a9a] transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+              </button>
+
+              {open && (
+                <div className="flex flex-col gap-[2px] mt-[2px] mb-1.5">
+                  {top.map((sec) => (
+                    <React.Fragment key={`${soc}:${sec.id}:wrap`}>
+                      {itemBtn(soc, sec, 1)}
+                      {visible.filter((c) => c.parent === sec.id).map((child) => itemBtn(soc, child, 2))}
+                    </React.Fragment>
+                  ))}
                 </div>
               )}
-              {top.map((sec) => (
-                <React.Fragment key={`${soc}:${sec.id}:wrap`}>
-                  {renderSection(soc, sec, 0)}
-                  {visible.filter((c) => c.parent === sec.id).map((child) => renderSection(soc, child, 1))}
-                </React.Fragment>
-              ))}
             </div>
           );
         })}
+
+        {/* Voci di gruppo in fondo: Registro, Cestino */}
+        {bottomItems.length > 0 && <div className="h-px bg-[#ececec] my-2 mx-1" />}
+        {bottomItems.map((sec) => itemBtn('holding', sec, 0))}
       </nav>
 
       {/* Profilo */}

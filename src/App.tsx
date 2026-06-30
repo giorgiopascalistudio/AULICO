@@ -469,7 +469,7 @@ export default function App() {
 
     // Mappa retrocompat route legacy → (società, sezione) per evidenziare la sidebar.
     const LEGACY_SECTION: Record<string, { soc: Societa; sec: string }> = {
-      calendario: { soc: 'studio', sec: 'agenda' },
+      calendario: { soc: 'holding', sec: 'agenda' },
       progetti: { soc: 'studio', sec: 'cicli' },
       progetto: { soc: 'studio', sec: 'cicli' },
       crm: { soc: 'strategico', sec: 'crm' },
@@ -507,7 +507,7 @@ export default function App() {
       // --- Schema legacy (bookmark, link notifiche, navigazioni interne) ---
       let r = head || 'dashboard';
       if (r === 'dashboard') {
-        setActiveSocieta('studio');
+        setActiveSocieta('holding');
         setActiveSection('dashboard');
         setFinStartTab(null);
         setRoute('sdash');
@@ -4714,7 +4714,7 @@ export default function App() {
         activeSocieta={activeSocieta}
         activeSection={activeSection}
         badges={{
-          'studio:agenda': Object.values(tasks).filter((t: any) => sameDay(t.date, todayISO()) && !t.done).length,
+          'holding:agenda': Object.values(tasks).filter((t: any) => sameDay(t.date, todayISO()) && !t.done).length,
           'studio:richieste': Object.values(clientRequests).filter((r) => r.status === 'inviata').length,
         }}
         onNav={(h) => { window.location.hash = h; }}

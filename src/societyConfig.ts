@@ -135,16 +135,14 @@ export const DEFAULT_DASHBOARD: DashboardSpec = {
     {
       id: 'progetti-attivi', title: 'Progetti attivi', size: 'sm',
       compute: (c) => {
-        const div = divisionOf(c.societa);
-        const n = div ? c.projects.filter((p) => p.division === div && p.status === 'attivo' && !p.archived).length : 0;
-        return { kind: 'kpi', value: String(n), sub: div ? 'in corso' : '—' };
+        const n = c.projects.filter((p) => p.status === 'attivo' && !p.archived).length;
+        return { kind: 'kpi', value: String(n), sub: 'in corso' };
       },
     },
     {
       id: 'cicli-totali', title: 'Cicli / commesse', size: 'sm',
       compute: (c) => {
-        const div = divisionOf(c.societa);
-        const n = div ? c.projects.filter((p) => p.division === div && !p.archived).length : 0;
+        const n = c.projects.filter((p) => !p.archived).length;
         return { kind: 'kpi', value: String(n), sub: 'totali' };
       },
     },
@@ -191,9 +189,6 @@ export const DEFAULT_DASHBOARD: DashboardSpec = {
   ],
 };
 
-// ---- Helper sezioni comuni -------------------------------------------------
-const dashSection = (): SectionConfig => ({ id: 'dashboard', label: 'Dashboard', icon: LayoutGrid, module: 'dashboard', kind: 'dashboard' });
-
 // ============================================================================
 // REGISTRY — seed iniziale (affinabile dall'utente)
 // ============================================================================
@@ -201,9 +196,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
   // -------------------------------------------------------------- STRATEGICO
   {
     id: 'strategico', label: SOCIETA_LABEL.strategico, color: SOCIETY_COLOR.strategico,
-    dashboard: DEFAULT_DASHBOARD,
     sections: [
-      dashSection(),
       // --- Risorse Umane (HR): cuore della gestione team e contatti ---
       { id: 'hr', label: 'Risorse umane (HR)', icon: Users, module: 'hr', legacyRoute: 'team' },
       { id: 'crm', label: 'CRM (Aulico)', icon: BookUser, parent: 'hr', shared: true, module: 'crm', legacyRoute: 'crm' },
@@ -227,10 +220,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
   // ----------------------------------------------------------------- ONIRICO
   {
     id: 'studio', label: SOCIETA_LABEL.studio, color: SOCIETY_COLOR.studio,
-    dashboard: DEFAULT_DASHBOARD,
     sections: [
-      dashSection(),
-      { id: 'agenda', label: 'Agenda', icon: Calendar, module: 'agenda', legacyRoute: 'calendario' },
       { id: 'cicli', label: 'Lista dei cicli', icon: Layers, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'studio' } },
       { id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', legacyRoute: 'finanze', preset: { finStartTab: 'preventivi' } },
       { id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'placeholder', note: 'Marketing della divisione Onirico.' },
@@ -242,9 +232,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
   // ---------------------------------------------------------------- MATERICO
   {
     id: 'materico', label: SOCIETA_LABEL.materico, color: SOCIETY_COLOR.materico,
-    dashboard: DEFAULT_DASHBOARD,
     sections: [
-      dashSection(),
       { id: 'produzione', label: 'Lavori & Richieste', icon: Layers, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'materico' } },
       { id: 'fornitori', label: 'Imprese & Fornitori', icon: Truck, module: 'crm', legacyRoute: 'crm' },
       { id: 'contabilita', label: 'Contabilità', icon: DollarSign, module: 'finance', legacyRoute: 'finanze' },
@@ -253,9 +241,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
   // ------------------------------------------------------------------- UNICO
   {
     id: 'unico', label: SOCIETA_LABEL.unico, color: SOCIETY_COLOR.unico,
-    dashboard: DEFAULT_DASHBOARD,
     sections: [
-      dashSection(),
       { id: 'operazioni', label: 'Operazioni & Investitori', icon: Building2, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'unico' } },
       { id: 'contabilita', label: 'Contabilità', icon: DollarSign, module: 'finance', legacyRoute: 'finanze' },
     ],
@@ -263,16 +249,20 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
   // -------------------------------------------------------------- FANTASTICO
   {
     id: 'fantastico', label: SOCIETA_LABEL.fantastico, color: SOCIETY_COLOR.fantastico,
-    dashboard: DEFAULT_DASHBOARD,
     sections: [
-      dashSection(),
       { id: 'produzione', label: 'Produzione', icon: Layers, module: 'produzione', kind: 'placeholder', note: 'Società in allestimento.' },
     ],
   },
   // -------------------------------------------------- AULICO (gruppo/shared)
   {
     id: 'holding', label: 'Aulico', color: SOCIETY_COLOR.holding,
+    dashboard: DEFAULT_DASHBOARD,
     sections: [
+      // Voci UNICHE per ogni account: una sola Dashboard e una sola Agenda,
+      // mostrate in cima alla sidebar (fuori dalle categorie società).
+      { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid, module: 'dashboard', kind: 'dashboard' },
+      { id: 'agenda', label: 'Agenda', icon: Calendar, module: 'agenda', legacyRoute: 'calendario' },
+      // Voci di gruppo (in fondo).
       { id: 'registro', label: 'Registro attività', icon: ScrollText, shared: true, module: 'registro', legacyRoute: 'registro' },
       { id: 'cestino', label: 'Cestino', icon: Trash2, shared: true, module: 'cestino', legacyRoute: 'cestino' },
     ],
@@ -295,9 +285,13 @@ export function canViewSection(profile: Parameters<typeof canView>[0], s: Societ
 
 /** Prima rotta autorizzata per l'utente, per il landing/redirect. */
 export function firstAuthorizedHash(profile: Parameters<typeof canView>[0]): string {
+  // Landing universale: la Dashboard di gruppo (se autorizzata).
+  const holding = getSociety('holding');
+  const dash = holding?.sections.find((s) => s.id === 'dashboard');
+  if (dash && canViewSection(profile, 'holding', dash)) return '#aulico/dashboard';
   for (const soc of SOCIETY_REGISTRY) {
     const sec = soc.sections.find((x) => !x.parent && canViewSection(profile, soc.id, x));
     if (sec) return `#${societaSlug(soc.id)}/${sec.id}`;
   }
-  return '#aulico/crm';
+  return '#aulico/dashboard';
 }
