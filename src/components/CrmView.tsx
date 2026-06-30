@@ -93,6 +93,33 @@ const sectorBadge = (s?: string) =>
     : 'bg-zinc-50 text-zinc-800 border-zinc-200';
 const sectorLabel = (s?: string) => (s === 'strategico' ? 'Strategico' : s === 'materico' ? 'Materico' : 'Studio');
 const tierBadge = (t?: number | null) => (t === 1 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : t === 2 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-zinc-100 text-zinc-600 border-zinc-200');
+
+// --- Registro Unico delle Persone (CRM Fase 1) ---
+// Le 5 società del gruppo (multi-appartenenza del contatto). Onirico = chiave codice 'studio'.
+const CRM_SOCIETIES: { id: string; label: string; color: string }[] = [
+  { id: 'studio', label: 'Onirico', color: '#161616' },
+  { id: 'strategico', label: 'Strategico', color: '#b45309' },
+  { id: 'materico', label: 'Materico', color: '#c2410c' },
+  { id: 'unico', label: 'Unico', color: '#4338ca' },
+  { id: 'fantastico', label: 'Fantastico', color: '#0d9488' },
+];
+// Tipi di contatto (multi-selezione).
+const CONTACT_ROLES: { id: string; label: string }[] = [
+  { id: 'cliente', label: 'Cliente' },
+  { id: 'lead', label: 'Lead / Potenziale' },
+  { id: 'ex_cliente', label: 'Ex cliente' },
+  { id: 'investitore', label: 'Investitore' },
+  { id: 'investitore_potenziale', label: 'Investitore potenziale' },
+  { id: 'fornitore', label: 'Fornitore' },
+  { id: 'impresa', label: 'Impresa / Subappaltatore' },
+  { id: 'agenzia_immobiliare', label: 'Agenzia immobiliare' },
+  { id: 'sponsor', label: 'Sponsor' },
+  { id: 'conoscente', label: 'Conoscente / Segnalatore' },
+  { id: 'istituzionale', label: 'Figura istituzionale' },
+];
+const ROLE_LABEL = (id: string) => CONTACT_ROLES.find((r) => r.id === id)?.label || id;
+const ACQUISITION_CHANNELS = ['Social', 'Sito web', 'Passaparola', 'Agenzia', 'Evento', 'Pubblicità', 'Altro'];
+const onKeys = (m?: Record<string, boolean>): string[] => Object.keys(m || {}).filter((k) => m![k]);
 const waLink = (num?: string | null) => (num ? `https://wa.me/${String(num).replace(/[^0-9]/g, '')}` : null);
 const fmtWhen = (t?: number) => (t ? new Date(t).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: '2-digit' }) : '');
 
@@ -140,6 +167,8 @@ export const CrmView: React.FC<CrmViewProps> = ({
   const [clDraft, setClDraft] = useState<Partial<ClientRecord>>({ type: 'privato', category: 'cliente' });
   const [clientTierFilter, setClientTierFilter] = useState<'all' | '1' | '2' | '3'>('all');
   const [clientCat, setClientCat] = useState<'cliente' | 'partner'>('cliente');
+  const [clientSociety, setClientSociety] = useState<'all' | string>('all'); // filtro per società (vista generale = 'all')
+  const [clientRole, setClientRole] = useState<'all' | string>('all');       // filtro per tipo contatto
 
   // form state
   const [fName, setFName] = useState('');
@@ -250,7 +279,9 @@ export const CrmView: React.FC<CrmViewProps> = ({
   const clientList = useMemo(() => Object.values(clients)
     .filter((c) => (c.category || 'cliente') === clientCat)
     .filter((c) => clientTierFilter === 'all' || String(c.tier || '') === clientTierFilter)
-    .sort((a, b) => a.name.localeCompare(b.name)), [clients, clientTierFilter, clientCat]);
+    .filter((c) => clientSociety === 'all' || !!c.societies?.[clientSociety])
+    .filter((c) => clientRole === 'all' || !!c.roles?.[clientRole])
+    .sort((a, b) => a.name.localeCompare(b.name)), [clients, clientTierFilter, clientCat, clientSociety, clientRole]);
   const clientCounts = useMemo(() => {
     const all = Object.values(clients);
     return { cliente: all.filter((c) => (c.category || 'cliente') === 'cliente').length, partner: all.filter((c) => c.category === 'partner').length };
@@ -269,7 +300,15 @@ export const CrmView: React.FC<CrmViewProps> = ({
     return { inv, fatturato, incassato, daIncassare, scadOpen };
   };
   const memberName = (uid: string) => members.find((m) => m.uid === uid)?.name || uid;
-  const openNewClient = () => { setClDraft({ type: clientCat === 'partner' ? 'azienda' : 'privato', category: clientCat }); setClientFormOpen(true); };
+  const openNewClient = () => {
+    setClDraft({
+      type: clientCat === 'partner' ? 'azienda' : 'privato',
+      category: clientCat,
+      roles: clientCat === 'partner' ? { impresa: true } : { cliente: true },
+      societies: clientSociety !== 'all' ? { [clientSociety]: true } : undefined,
+    });
+    setClientFormOpen(true);
+  };
   const openEditClient = (id: string) => { const c = clients[id]; if (c) { setClDraft({ ...c }); setClientFormOpen(true); } };
   const saveClientDraft = () => {
     const d = clDraft;
@@ -285,6 +324,9 @@ export const CrmView: React.FC<CrmViewProps> = ({
       codiceFiscale: d.codiceFiscale || null, companyName: d.companyName || null,
       partitaIva: d.partitaIva || null, pec: d.pec || null, sdi: d.sdi || null,
       tier: d.tier || null, responsabili: d.responsabili || undefined,
+      roles: d.roles || undefined, societies: d.societies || undefined,
+      targetTags: (d.targetTags && d.targetTags.length ? d.targetTags : null),
+      acquisitionChannel: d.acquisitionChannel || null,
       accountUid: d.accountUid || null, notes: d.notes || null,
       createdBy: d.createdBy || myUid || 'admin',
       createdAt: d.createdAt || Date.now()
@@ -323,7 +365,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
         <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
           {([
             { id: 'pipeline', label: 'Pipeline commerciale' },
-            { id: 'clienti', label: 'Rubrica clienti' },
+            { id: 'clienti', label: 'Registro contatti' },
             { id: 'fornitori', label: 'Fornitori & Subappaltatori' }
           ] as const).map((t) => {
             const active = tab === t.id;
@@ -435,6 +477,38 @@ export const CrmView: React.FC<CrmViewProps> = ({
               </button>
             ))}
           </div>
+          {/* Filtro SOCIETÀ: vista generale ('Tutte') + sempre divisibile per società */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] font-bold text-[#8a8a8a] mr-1">Società:</span>
+            <button onClick={() => setClientSociety('all')}
+              className={`text-[11.5px] font-bold px-3 py-1 rounded-full border ${clientSociety === 'all' ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>
+              Tutte
+            </button>
+            {CRM_SOCIETIES.map((s) => (
+              <button key={s.id} onClick={() => setClientSociety(s.id)}
+                className={`inline-flex items-center gap-1.5 text-[11.5px] font-bold px-3 py-1 rounded-full border ${clientSociety === s.id ? 'text-white border-transparent' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}
+                style={clientSociety === s.id ? { background: s.color } : undefined}>
+                <span className="w-2 h-2 rounded-full" style={{ background: clientSociety === s.id ? '#fff' : s.color }} />
+                {s.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Filtro TIPO contatto + Fascia */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[11px] font-bold text-[#8a8a8a] mr-1">Tipo:</span>
+            <button onClick={() => setClientRole('all')}
+              className={`text-[11.5px] font-bold px-3 py-1 rounded-full border ${clientRole === 'all' ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>
+              Tutti
+            </button>
+            {CONTACT_ROLES.map((r) => (
+              <button key={r.id} onClick={() => setClientRole(r.id)}
+                className={`text-[11.5px] font-bold px-3 py-1 rounded-full border ${clientRole === r.id ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>
+                {r.label}
+              </button>
+            ))}
+          </div>
+
           {clientCat === 'cliente' && (
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-[11px] font-bold text-[#8a8a8a] mr-1">Fascia:</span>
@@ -481,6 +555,22 @@ export const CrmView: React.FC<CrmViewProps> = ({
                     {c.type === 'azienda' && c.partitaIva && <span className="text-[11.5px] text-[#8a8a8a]">P.IVA {c.partitaIva}</span>}
                     {c.type !== 'azienda' && c.codiceFiscale && <span className="text-[11.5px] text-[#8a8a8a] font-mono">{c.codiceFiscale}</span>}
                   </div>
+                  {/* Società di appartenenza (multi) + tipi contatto */}
+                  {(onKeys(c.societies).length > 0 || onKeys(c.roles).length > 0) && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {CRM_SOCIETIES.filter((s) => c.societies?.[s.id]).map((s) => (
+                        <span key={s.id} title={s.label} className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full border" style={{ background: `${s.color}12`, color: s.color, borderColor: `${s.color}33` }}>
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.color }} /> {s.label}
+                        </span>
+                      ))}
+                      {onKeys(c.roles).slice(0, 3).map((r) => (
+                        <span key={r} className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-gray-50 text-gray-600 border border-gray-200">{ROLE_LABEL(r)}</span>
+                      ))}
+                    </div>
+                  )}
+                  {c.acquisitionChannel && (
+                    <span className="text-[10.5px] text-[#9a9a9a] font-semibold">Canale: {c.acquisitionChannel}</span>
+                  )}
                   {(c.email || c.phone) && (
                     <div className="pt-2 border-t border-dashed border-[#ececec] flex flex-col gap-1">
                       {c.email && <span className="flex items-center gap-1.5 text-[11.5px] text-gray-500 truncate"><Mail className="w-3.5 h-3.5 text-gray-400 shrink-0" /><span className="truncate">{c.email}</span></span>}
@@ -529,7 +619,40 @@ export const CrmView: React.FC<CrmViewProps> = ({
             {activeClient.pec && <ClientRow label="PEC" value={activeClient.pec} />}
             {activeClient.sdi && <ClientRow label="Codice SDI" value={activeClient.sdi} />}
             {resp.length > 0 && <ClientRow label="Responsabili" value={resp.map(memberName).join(', ')} />}
+            {activeClient.acquisitionChannel && <ClientRow label="Canale acquisizione" value={activeClient.acquisitionChannel} />}
           </div>
+
+          {/* Società di appartenenza + tipi contatto + target */}
+          {(onKeys(activeClient.societies).length > 0 || onKeys(activeClient.roles).length > 0 || (activeClient.targetTags || []).length > 0) && (
+            <div className="mt-3 flex flex-col gap-2">
+              {onKeys(activeClient.societies).length > 0 && (
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#8a8a8a] mr-1">Società</span>
+                  {CRM_SOCIETIES.filter((s) => activeClient.societies?.[s.id]).map((s) => (
+                    <span key={s.id} className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full border" style={{ background: `${s.color}12`, color: s.color, borderColor: `${s.color}33` }}>
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.color }} /> {s.label}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {onKeys(activeClient.roles).length > 0 && (
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#8a8a8a] mr-1">Tipo</span>
+                  {onKeys(activeClient.roles).map((r) => (
+                    <span key={r} className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 border border-gray-200">{ROLE_LABEL(r)}</span>
+                  ))}
+                </div>
+              )}
+              {(activeClient.targetTags || []).length > 0 && (
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#8a8a8a] mr-1">Target</span>
+                  {(activeClient.targetTags || []).map((t) => (
+                    <span key={t} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">{t}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Storico progetti */}
           <div className="mt-4">
@@ -622,6 +745,57 @@ export const CrmView: React.FC<CrmViewProps> = ({
               </Field>
               <Field label="WhatsApp (se diverso)"><input value={clDraft.whatsapp || ''} onChange={(e) => setClDraft((d) => ({ ...d, whatsapp: e.target.value }))} placeholder="+39…" className="crm-input" /></Field>
             </div>
+            {/* Tipi di contatto (multi) */}
+            <Field label="Tipo di contatto (più scelte)">
+              <div className="flex flex-wrap gap-1.5">
+                {CONTACT_ROLES.map((r) => {
+                  const on = !!clDraft.roles?.[r.id];
+                  return (
+                    <button key={r.id} type="button"
+                      onClick={() => setClDraft((d) => {
+                        const m = { ...(d.roles || {}) };
+                        if (on) delete m[r.id]; else m[r.id] = true;
+                        return { ...d, roles: m };
+                      })}
+                      className={`text-[11.5px] font-bold px-2.5 py-1 rounded-full border ${on ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>
+                      {r.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </Field>
+
+            {/* Appartenenza società (multi) */}
+            <Field label="Società di appartenenza (più scelte)">
+              <div className="flex flex-wrap gap-1.5">
+                {CRM_SOCIETIES.map((s) => {
+                  const on = !!clDraft.societies?.[s.id];
+                  return (
+                    <button key={s.id} type="button"
+                      onClick={() => setClDraft((d) => {
+                        const m = { ...(d.societies || {}) };
+                        if (on) delete m[s.id]; else m[s.id] = true;
+                        return { ...d, societies: m };
+                      })}
+                      className={`inline-flex items-center gap-1.5 text-[11.5px] font-bold px-2.5 py-1 rounded-full border ${on ? 'text-white border-transparent' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}
+                      style={on ? { background: s.color } : undefined}>
+                      <span className="w-2 h-2 rounded-full" style={{ background: on ? '#fff' : s.color }} /> {s.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </Field>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Field label="Canale di acquisizione">
+                <input list="crm-channels" value={clDraft.acquisitionChannel || ''} onChange={(e) => setClDraft((d) => ({ ...d, acquisitionChannel: e.target.value }))} placeholder="Social, Passaparola…" className="crm-input" />
+                <datalist id="crm-channels">{ACQUISITION_CHANNELS.map((ch) => <option key={ch} value={ch} />)}</datalist>
+              </Field>
+              <Field label="Target / etichette (separate da virgola)">
+                <input value={(clDraft.targetTags || []).join(', ')} onChange={(e) => setClDraft((d) => ({ ...d, targetTags: e.target.value.split(',').map((t) => t.trim()).filter(Boolean) }))} placeholder="Imprese di Ostuni, …" className="crm-input" />
+              </Field>
+            </div>
+
             {members.length > 0 && (
               <Field label="Responsabili">
                 <div className="flex flex-wrap gap-1.5">

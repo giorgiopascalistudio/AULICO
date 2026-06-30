@@ -838,6 +838,13 @@ export interface ClientRecord {
   tier?: 1 | 2 | 3 | null;     // fascia/classificazione cliente
   responsabili?: Record<string, boolean>; // uid dei membri studio responsabili
   accountUid?: string | null;  // opz.: account portale collegato (users/<uid>)
+  // --- Registro Unico delle Persone (CRM Fase 1) ---
+  roles?: Record<string, boolean>;     // tipi contatto multipli: cliente/lead/ex_cliente/investitore/
+                                       // investitore_potenziale/fornitore/impresa/agenzia_immobiliare/
+                                       // sponsor/conoscente/istituzionale
+  societies?: Record<string, boolean>; // appartenenza multi-società: studio/strategico/materico/unico/fantastico
+  targetTags?: string[] | null;        // etichette libere (es. "Imprese di Ostuni")
+  acquisitionChannel?: string | null;  // canale acquisizione (social/sito/passaparola/agenzia…)
   notes?: string | null;
   createdBy: string;
   createdAt: number;
