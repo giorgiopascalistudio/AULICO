@@ -2,6 +2,25 @@
 <html lang="it">
   <head>
     <meta charset="UTF-8" />
+    <!-- Auto-recupero "pagina bianca da cache": se il browser serve un index.html
+         vecchio (cache GitHub Pages) il cui bundle JS non esiste più dopo un deploy,
+         il caricamento del modulo dà 404. Qui lo intercettiamo e ricarichiamo UNA
+         volta ignorando la cache → prende la versione nuova. Flag tecnico di sessione
+         (non sono dati), azzerato a boot avvenuto in main.tsx. -->
+    <script>
+      (function () {
+        window.addEventListener('error', function (e) {
+          var el = e && e.target;
+          if (!el || el.tagName !== 'SCRIPT') return;
+          if (String(el.src || '').indexOf('/assets/index-') === -1) return;
+          try {
+            if (sessionStorage.getItem('aulicoStaleReload')) return;
+            sessionStorage.setItem('aulicoStaleReload', '1');
+          } catch (_) {}
+          location.reload();
+        }, true);
+      })();
+    </script>
     <!-- Zoom disabilitato (pinch/double-tap); il blocco desktop (ctrl+rotella/+/-) è in main.tsx -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Aulico</title>

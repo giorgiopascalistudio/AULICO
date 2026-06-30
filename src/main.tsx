@@ -16,6 +16,10 @@ window.addEventListener('keydown', (e) => {
   document.addEventListener(ev, (e) => e.preventDefault())
 );
 
+// Boot riuscito: azzera il flag dell'auto-recupero da cache (vedi index.html),
+// così resta pronto a intercettare un'eventuale "pagina bianca" al prossimo deploy.
+try { sessionStorage.removeItem('aulicoStaleReload'); } catch { /* noop */ }
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
