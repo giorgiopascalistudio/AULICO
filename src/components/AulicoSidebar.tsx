@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { UserProfile, Societa } from '../types';
 import { initials } from '../utils';
 import {
@@ -109,16 +110,27 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
                 <ChevronDown className={`w-4 h-4 text-[#9a9a9a] transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
               </button>
 
-              {open && (
-                <div className="flex flex-col gap-[2px] mt-[2px] mb-1.5">
-                  {top.map((sec) => (
-                    <React.Fragment key={`${soc}:${sec.id}:wrap`}>
-                      {itemBtn(soc, sec, 1)}
-                      {visible.filter((c) => c.parent === sec.id).map((child) => itemBtn(soc, child, 2))}
-                    </React.Fragment>
-                  ))}
-                </div>
-              )}
+              <AnimatePresence initial={false}>
+                {open && (
+                  <motion.div
+                    key={`${soc}:body`}
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.24, ease: [0.4, 0, 0.2, 1] }}
+                    style={{ overflow: 'hidden' }}
+                  >
+                    <div className="flex flex-col gap-[2px] mt-[2px] mb-1.5">
+                      {top.map((sec) => (
+                        <React.Fragment key={`${soc}:${sec.id}:wrap`}>
+                          {itemBtn(soc, sec, 1)}
+                          {visible.filter((c) => c.parent === sec.id).map((child) => itemBtn(soc, child, 2))}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}
