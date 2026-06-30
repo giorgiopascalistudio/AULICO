@@ -31,6 +31,63 @@ interface CalendarViewProps {
   onDeleteLeave?: (id: string) => void;
 }
 
+// ---- Vista settimana: griglia oraria ----
+const WK_HOUR_START = 7;   // prima ora mostrata
+const WK_HOUR_END = 22;    // ultima ora (esclusa dalle etichette, chiude la griglia)
+const WK_HOUR_PX = 52;     // altezza di un'ora in px
+const WK_EVENT_MIN = 45;   // durata visiva di default (nessuna durata sul modello)
+const WK_EVENT_PX = 30;    // altezza minima blocco evento
+
+const hhmmToMin = (hhmm: string): number => {
+  const [h, m] = hhmm.split(':').map(Number);
+  const mins = (h || 0) * 60 + (m || 0);
+  // clamp dentro la fascia visibile
+  return Math.min(Math.max(mins, WK_HOUR_START * 60), WK_HOUR_END * 60 - WK_EVENT_MIN);
+};
+
+// classi colore blocco task (riusa la logica priorità/cantiere)
+const wkBlockClasses = (t: Task, done: boolean, isProj: boolean): string =>
+  done
+    ? 'bg-gray-100/80 border-gray-300 text-gray-400 opacity-70'
+    : isProj
+    ? 'bg-indigo-50 border-indigo-500 text-indigo-950 hover:bg-indigo-100/90'
+    : t.priority === 'urgente' || t.priority === 'alta'
+    ? 'bg-rose-50 border-rose-500 text-rose-950 hover:bg-rose-100/90'
+    : t.priority === 'media'
+    ? 'bg-amber-50 border-amber-550 text-amber-950 hover:bg-amber-100/90'
+    : 'bg-emerald-50 border-emerald-500 text-emerald-950 hover:bg-emerald-100/90';
+
+// impaginazione eventi sovrapposti: assegna colonne affiancate (col/ncol) per cluster
+const packDay = <E extends { start: number; end: number }>(evs: E[]): (E & { col: number; ncol: number })[] => {
+  const sorted = [...evs].sort((a, b) => a.start - b.start || a.end - b.end);
+  const out: (E & { col: number; ncol: number })[] = [];
+  let cluster: (E & { col: number })[] = [];
+  let clusterEnd = -1;
+
+  const flush = () => {
+    const colEnds: number[] = []; // fine ultimo evento per colonna
+    cluster.forEach(item => {
+      let placed = false;
+      for (let i = 0; i < colEnds.length; i++) {
+        if (colEnds[i] <= item.start) { colEnds[i] = item.end; item.col = i; placed = true; break; }
+      }
+      if (!placed) { item.col = colEnds.length; colEnds.push(item.end); }
+    });
+    const ncol = colEnds.length || 1;
+    cluster.forEach(item => out.push({ ...item, ncol }));
+    cluster = [];
+    clusterEnd = -1;
+  };
+
+  sorted.forEach(ev => {
+    if (cluster.length && ev.start >= clusterEnd) flush();
+    cluster.push({ ...ev, col: 0 });
+    clusterEnd = Math.max(clusterEnd, ev.end);
+  });
+  flush();
+  return out;
+};
+
 export const CalendarView: React.FC<CalendarViewProps> = ({
   tasks,
   projects,
@@ -307,147 +364,153 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     );
   };
 
-  // RENDER WEEK VIEW
+  // RENDER WEEK VIEW — griglia oraria verticale (ore in colonna, giorni in riga)
   const renderWeek = () => {
     const s = startOfWeek(calDate);
+    const days = Array.from({ length: 7 }).map((_, i) => addDays(s, i));
+    const hours = Array.from({ length: WK_HOUR_END - WK_HOUR_START }).map((_, i) => WK_HOUR_START + i);
+    const gridH = (WK_HOUR_END - WK_HOUR_START) * WK_HOUR_PX;
+    const cols = `46px repeat(7, minmax(0, 1fr))`;
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    const nowInRange = nowMin >= WK_HOUR_START * 60 && nowMin <= WK_HOUR_END * 60;
 
     return (
-      <div className="flex flex-col gap-4 text-left">
-        {Array.from({ length: 7 }).map((_, i) => {
-          const c = addDays(s, i);
-          const iso = isoDate(c);
-          const list = tasksOnDate(iso);
-          const isToday = iso === todayISO;
+      <div className="bg-white border border-[#e2e2e2] rounded-[26px] shadow-xs text-left overflow-hidden">
+        <div className="overflow-x-auto">
+          <div className="min-w-[760px]">
+            {/* Header giorni */}
+            <div className="grid border-b border-[#ececec] bg-[#fbfbfb]" style={{ gridTemplateColumns: cols }}>
+              <div className="border-r border-[#f0f0f0]" />
+              {days.map((c, i) => {
+                const iso = isoDate(c);
+                const isToday = iso === todayISO;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => { onSetCalDate(c); onSetCalView('day'); }}
+                    className={`flex flex-col items-center gap-0.5 py-2.5 border-r border-[#f0f0f0] last:border-r-0 cursor-pointer transition-colors bg-transparent ${isToday ? 'bg-orange-50/30' : 'hover:bg-gray-50'}`}
+                  >
+                    <span className={`text-[10px] uppercase tracking-widest font-bold ${isToday ? 'text-orange-650' : 'text-[#9a9a9a]'}`}>{DOW[i]}</span>
+                    <span className={`inline-flex items-center justify-center font-extrabold text-[16px] leading-none w-8 h-8 rounded-full ${isToday ? 'bg-[#161616] text-white' : 'text-[#2b2b2b]'}`}>
+                      {c.getDate()}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
 
-          return (
-            <div
-              key={i}
-              className={`grid grid-cols-1 md:grid-cols-[116px_1fr] bg-white border border-[#e2e2e2] rounded-[22px] overflow-hidden shadow-2xs transition-all duration-250 hover:shadow-xs ${
-                isToday ? 'ring-1 ring-orange-500/30' : ''
-              }`}
-            >
-              {/* Date Column */}
-              <div 
-                onClick={() => onNewTask(iso)} 
-                className={`p-4 border-r border-[#f5f5f5] flex md:flex-col items-center justify-between md:justify-center cursor-pointer min-h-[76px] transition-colors ${
-                  isToday ? 'bg-orange-50/10' : 'bg-gray-50/30 hover:bg-gray-50/80'
-                }`}
-              >
-                <div className="flex items-center gap-2 md:flex-col md:gap-1">
-                  <span className={`inline-flex items-center justify-center font-extrabold text-[24px] leading-none w-10 h-10 rounded-full ${
-                    isToday ? 'bg-[#161616] text-white shadow-xs' : 'text-[#2b2b2b]'
-                  }`}>
-                    {c.getDate()}
-                  </span>
-                  <span className={`text-[11px] uppercase tracking-widest font-bold ${isToday ? 'text-orange-650' : 'text-[#8a8a8a]'}`}>
-                    {DOW[i]}
-                  </span>
-                </div>
-
-                {isToday && (
-                  <span className="flex items-center gap-1.5 md:mt-2">
-                    <span className="inline-block w-2 h-2 rounded-full bg-orange-500 animate-ping" />
-                    <span className="text-[9.5px] uppercase font-extrabold tracking-wider text-orange-600">Oggi</span>
-                  </span>
-                )}
+            {/* Riga "senza orario" (task ricorrenti / impegni a tutto il giorno) */}
+            <div className="grid border-b border-[#ececec] bg-[#fcfcfc]" style={{ gridTemplateColumns: cols }}>
+              <div className="flex items-start justify-end pr-1.5 pt-1.5 border-r border-[#f0f0f0]">
+                <span className="text-[8.5px] uppercase tracking-wide font-bold text-[#b5b5b5] text-right leading-tight">tutto<br/>il dì</span>
               </div>
-
-              {/* Events Column */}
-              <div
-                onClick={(e) => {
-                  if ((e.target as HTMLElement).closest('.chk-btn, .edit-btn, .seg-link')) return;
-                  onNewTask(iso);
-                }}
-                className="p-4 flex flex-col gap-2.5 justify-center cursor-pointer min-h-[76px]"
-              >
-                {list.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-2">
-                    {list.map(t => {
+              {days.map((c, i) => {
+                const iso = isoDate(c);
+                const untimed = tasksOnDate(iso).filter(t => !t.time);
+                return (
+                  <div
+                    key={i}
+                    onClick={() => onNewTask(iso)}
+                    className="border-r border-[#f0f0f0] last:border-r-0 p-1 flex flex-col gap-1 min-h-[34px] cursor-pointer hover:bg-gray-50/60"
+                  >
+                    {untimed.map(t => {
                       const done = taskDoneOn(t, iso);
-                      const projModel = t.projectId ? projects.find(pr => pr.id === t.projectId) : null;
                       const isProj = !!t._proj;
-
                       return (
-                        <div
+                        <button
                           key={t.id}
-                          className={`flex items-center gap-3.5 py-2 px-3.5 bg-white border border-[#ececec] rounded-xl transition-all duration-200 hover:border-gray-300 hover:shadow-2xs ${
-                            done ? 'opacity-55' : ''
-                          }`}
+                          onClick={(e) => { e.stopPropagation(); onEditTask(t.id); }}
+                          title={t.title}
+                          className={`text-[10px] font-bold py-0.5 px-1.5 rounded-md truncate text-left border-l-2 cursor-pointer ${wkBlockClasses(t, done, isProj)}`}
                         >
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onToggleTask(t.id, iso);
-                            }}
-                            className="chk-btn w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-150 cursor-pointer flex-shrink-0"
-                            style={{
-                              borderColor: done ? '#15803d' : '#8a8a8a',
-                              backgroundColor: done ? '#15803d' : 'white'
-                            }}
-                          >
-                            {done && (
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" className="w-[11px] h-[11px] text-white">
-                                <polyline points="20 6 9 17 4 12" />
-                              </svg>
-                            )}
-                          </button>
-
-                          <div className="flex-1 min-w-0 text-left">
-                            <b className={`block text-[13.5px] font-bold text-[#161616] leading-tight ${done ? 'line-through text-gray-500' : ''}`}>
-                              {t.title}
-                            </b>
-                            <div className="flex items-center gap-2 mt-1 flex-wrap text-gray-400 text-[11px] font-semibold">
-                              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9.5px] uppercase tracking-wider font-bold ${
-                                done ? 'bg-gray-100 text-gray-400' :
-                                isProj ? 'bg-indigo-50 text-indigo-700' :
-                                t.priority === 'alta' ? 'bg-rose-50 text-rose-700' :
-                                t.priority === 'media' ? 'bg-amber-50 text-amber-700' :
-                                'bg-emerald-50 text-emerald-700'
-                              }`}>
-                                <span className={`w-1 h-1 rounded-full ${
-                                  done ? 'bg-gray-400' :
-                                  isProj ? 'bg-indigo-600' :
-                                  t.priority === 'alta' ? 'bg-rose-600' :
-                                  t.priority === 'media' ? 'bg-amber-500' :
-                                  'bg-emerald-500'
-                                }`} />
-                                {isProj ? 'Cantiere' : t.priority === 'alta' ? 'Alta' : t.priority === 'media' ? 'Media' : 'Bassa'}
-                              </span>
-
-                              {projModel && (
-                                <span className="text-[#161616]/75 bg-slate-50 hover:bg-slate-100 hover:text-[#161616] transition-colors py-0.5 px-1.5 rounded-md seg-link font-medium border border-slate-100 flex items-center gap-1 capitalize">
-                                  <Sparkles className="w-2.5 h-2.5 text-orange-600" /> {projModel.name}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          {t.time && (
-                            <span className="bg-[#f0f0f0] text-[#161616] font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg flex-shrink-0 flex items-center gap-1 select-none border border-gray-200">
-                              <Clock className="w-2.5 h-2.5 opacity-60" /> {t.time}
-                            </span>
-                          )}
-
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onEditTask(t.id);
-                            }}
-                            className="edit-btn w-[32px] h-[32px] rounded-lg flex items-center justify-center text-[#8a8a8a] hover:bg-[#ececec] hover:text-[#161616] transition-colors cursor-pointer flex-shrink-0"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                          {t.title}
+                        </button>
                       );
                     })}
                   </div>
-                ) : (
-                  <span className="text-gray-400 text-[13px] italic font-medium pl-1 select-none">Nessun task per questa giornata</span>
-                )}
-              </div>
+                );
+              })}
             </div>
-          );
-        })}
+
+            {/* Griglia oraria */}
+            <div className="grid" style={{ gridTemplateColumns: cols }}>
+              {/* Gutter ore */}
+              <div className="relative border-r border-[#f0f0f0]" style={{ height: gridH }}>
+                {hours.map((h, idx) => (
+                  <div key={h} className="absolute right-1.5 -translate-y-1/2 text-[10px] font-bold text-[#b0b0b0] tabular-nums" style={{ top: idx * WK_HOUR_PX }}>
+                    {idx === 0 ? '' : `${h}:00`}
+                  </div>
+                ))}
+              </div>
+
+              {/* Colonne giorno */}
+              {days.map((c, di) => {
+                const iso = isoDate(c);
+                const isToday = iso === todayISO;
+                const timed = tasksOnDate(iso).filter(t => !!t.time);
+                const appts = apptsOn(iso).filter(a => !!a.time);
+                const events = [
+                  ...timed.map(t => ({ kind: 'task' as const, id: t.id, start: hhmmToMin(t.time!), title: t.title, t })),
+                  ...appts.map(a => ({ kind: 'appt' as const, id: a.id, start: hhmmToMin(a.time!), title: a.title, a })),
+                ].map(e => ({ ...e, end: e.start + WK_EVENT_MIN }));
+                const placed = packDay(events);
+
+                return (
+                  <div
+                    key={di}
+                    onClick={() => onNewTask(iso)}
+                    className={`relative border-r border-[#f0f0f0] last:border-r-0 cursor-pointer ${isToday ? 'bg-orange-50/15' : 'hover:bg-gray-50/40'}`}
+                    style={{
+                      height: gridH,
+                      backgroundImage: `repeating-linear-gradient(to bottom, transparent, transparent ${WK_HOUR_PX - 1}px, #f1f1f1 ${WK_HOUR_PX - 1}px, #f1f1f1 ${WK_HOUR_PX}px)`,
+                    }}
+                  >
+                    {/* indicatore ora attuale */}
+                    {isToday && nowInRange && (
+                      <div className="absolute left-0 right-0 z-20 pointer-events-none" style={{ top: ((nowMin - WK_HOUR_START * 60) / 60) * WK_HOUR_PX }}>
+                        <div className="h-[2px] bg-orange-500" />
+                        <div className="absolute -left-[3px] -top-[3px] w-2 h-2 rounded-full bg-orange-500" />
+                      </div>
+                    )}
+
+                    {placed.map(({ start, col, ncol, ...ev }) => {
+                      const top = ((start - WK_HOUR_START * 60) / 60) * WK_HOUR_PX;
+                      const widthPct = 100 / ncol;
+                      const isTask = ev.kind === 'task';
+                      const t = isTask ? (ev as any).t : null;
+                      const a = !isTask ? (ev as any).a : null;
+                      const done = isTask ? taskDoneOn(t, iso) : false;
+                      const isProj = isTask ? !!t._proj : false;
+                      const timeLabel = isTask ? t.time : a.time;
+                      return (
+                        <button
+                          key={`${ev.kind}-${ev.id}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isTask) onEditTask(ev.id);
+                            else { onSetCalDate(c); onSetCalView('day'); }
+                          }}
+                          title={`${timeLabel} · ${ev.title}`}
+                          className={`absolute rounded-lg border-l-[3px] px-1.5 py-1 text-left overflow-hidden cursor-pointer shadow-3xs leading-tight z-10 ${isTask ? wkBlockClasses(t, done, isProj) : 'bg-emerald-50 border-emerald-500 text-emerald-950 hover:bg-emerald-100/90'}`}
+                          style={{
+                            top: Math.max(0, top),
+                            height: Math.max(WK_EVENT_PX, WK_HOUR_PX - 4),
+                            left: `calc(${col * widthPct}% + 2px)`,
+                            width: `calc(${widthPct}% - 4px)`,
+                          }}
+                        >
+                          <span className="block text-[9px] font-extrabold opacity-70 tabular-nums leading-none">{timeLabel}{!isTask && ' ·'}</span>
+                          <span className={`block text-[10.5px] font-bold truncate ${done ? 'line-through opacity-60' : ''}`}>{ev.title}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
     );
   };
