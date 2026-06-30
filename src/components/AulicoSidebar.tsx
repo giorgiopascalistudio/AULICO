@@ -26,7 +26,7 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
 
   // Gruppi società con almeno una sezione visibile dall'utente (RBAC).
   const groups = SOCIETY_REGISTRY
-    .map((soc) => ({ soc, visible: soc.sections.filter((s) => canViewSection(profile, soc.id, s)) }))
+    .map((society) => ({ society, visible: society.sections.filter((s) => canViewSection(profile, society.id, s)) }))
     .filter((g) => g.visible.length > 0);
 
   const showHeaders = groups.length > 1;
@@ -66,9 +66,9 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
 
       {/* Navigazione guidata dalle autorizzazioni */}
       <nav className="flex flex-col gap-[3px] mt-1 text-left overflow-y-auto flex-1 min-h-0 -mr-1 pr-1">
-        {groups.map(({ soc, visible }) => {
+        {groups.map(({ society, visible }) => {
+          const soc = society.id;
           const top = visible.filter((s) => !s.parent);
-          const society = SOCIETY_REGISTRY.find((x) => x.id === soc)!;
           return (
             <div key={soc} className="mb-1.5">
               {showHeaders && (
