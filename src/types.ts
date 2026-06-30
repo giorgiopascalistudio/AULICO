@@ -845,6 +845,7 @@ export interface ClientRecord {
   societies?: Record<string, boolean>; // appartenenza multi-società: studio/strategico/materico/unico/fantastico
   targetTags?: string[] | null;        // etichette libere (es. "Imprese di Ostuni")
   acquisitionChannel?: string | null;  // canale acquisizione (social/sito/passaparola/agenzia…)
+  codiceReferenza?: string | null;     // codice referenza/riferimento interno del contatto
   // --- Scheda strategica (CRM Fase 2/3, da prototipo) ---
   brandAsset?: BrandAsset | null;            // clienti marketing: obiettivi/tono/target/asset
   credentials?: ContactCredential[] | null;  // credenziali protette (social/gestionali)

@@ -314,6 +314,10 @@ export const CrmView: React.FC<CrmViewProps> = ({
     });
     setClientFormOpen(true);
   };
+  const openNewFornitore = () => {
+    setClDraft({ type: 'azienda', category: 'partner', roles: { impresa: true } });
+    setClientFormOpen(true);
+  };
   const openEditClient = (id: string) => { const c = clients[id]; if (c) { setClDraft({ ...c }); setClientFormOpen(true); } };
   const saveClientDraft = () => {
     const d = clDraft;
@@ -332,6 +336,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
       roles: d.roles || undefined, societies: d.societies || undefined,
       targetTags: (d.targetTags && d.targetTags.length ? d.targetTags : null),
       acquisitionChannel: d.acquisitionChannel || null,
+      codiceReferenza: d.codiceReferenza || null,
       // preserva i campi ricchi gestiti inline nella scheda (registro master-detail)
       brandAsset: d.brandAsset ?? null, credentials: d.credentials ?? null,
       privacyLiberatoria: d.privacyLiberatoria, interactions: d.interactions ?? null,
@@ -362,10 +367,10 @@ export const CrmView: React.FC<CrmViewProps> = ({
         </div>
         {tab !== 'dashboard' && (
           <button
-            onClick={() => { resetForm(); tab === 'pipeline' ? setNewLeadOpen(true) : tab === 'fornitori' ? setNewSupplierOpen(true) : openNewClient(); }}
+            onClick={() => { resetForm(); tab === 'pipeline' ? setNewLeadOpen(true) : tab === 'fornitori' ? openNewFornitore() : openNewClient(); }}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none hover:shadow-md active:scale-[0.98] transition-all"
           >
-            <Plus className="w-4 h-4" /> {tab === 'pipeline' ? 'Nuovo lead' : tab === 'fornitori' ? 'Nuovo fornitore' : clientCat === 'partner' ? 'Nuovo partner' : 'Nuovo cliente'}
+            <Plus className="w-4 h-4" /> {tab === 'pipeline' ? 'Nuovo lead' : tab === 'fornitori' ? 'Nuovo fornitore' : 'Nuovo contatto'}
           </button>
         )}
       </div>
@@ -450,37 +455,22 @@ export const CrmView: React.FC<CrmViewProps> = ({
 
       {/* FORNITORI */}
       {tab === 'fornitori' && (
-        suppliers.length === 0 ? (
-          <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
-            <Briefcase className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-            <p className="text-[13.5px] text-[#8a8a8a] font-semibold">Nessun fornitore o subappaltatore.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {suppliers.map((s) => (
-              <div
-                key={s.id}
-                onClick={() => setOpenSupplier(s.id)}
-                className="group bg-white border border-[#e2e2e2] rounded-[24px] p-5 hover:border-black hover:shadow-md transition-all cursor-pointer flex flex-col gap-3"
-              >
-                <div className="flex items-start justify-between">
-                  <span className="w-11 h-11 rounded-2xl bg-gray-100 flex items-center justify-center"><Building2 className="w-5 h-5 text-gray-500" /></span>
-                  <span className={`text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${sectorBadge(s.sector)}`}>{sectorLabel(s.sector)}</span>
-                </div>
-                <div>
-                  <h4 className="text-[14.5px] font-extrabold text-[#161616] tracking-tight truncate">{s.name}</h4>
-                  {s.category && <span className="text-[11.5px] text-[#8a8a8a]">{s.category}</span>}
-                </div>
-                {(s.email || s.phone) && (
-                  <div className="pt-2 border-t border-dashed border-[#ececec] flex flex-col gap-1">
-                    {s.email && <span className="flex items-center gap-1.5 text-[11.5px] text-gray-500 truncate"><Mail className="w-3.5 h-3.5 text-gray-400 shrink-0" /><span className="truncate">{s.email}</span></span>}
-                    {s.phone && <span className="flex items-center gap-1.5 text-[11.5px] text-gray-500"><Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" />{s.phone}</span>}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )
+        <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico il registro…</div>}>
+          <CrmRegistro
+            title="Fornitori & Subappaltatori"
+            restrictRoles={['fornitore', 'impresa']}
+            clients={Object.values(clients)}
+            societies={CRM_SOCIETIES}
+            roles={CONTACT_ROLES}
+            onSave={(rec) => onSaveClient?.(rec)}
+            onDelete={(rec) => (askDelete ? askDelete('Elimina fornitore', `Eliminare "${rec.name}" dal registro?`, () => onDeleteClient?.(rec.id)) : onDeleteClient?.(rec.id))}
+            onEdit={openEditClient}
+            onNew={openNewFornitore}
+            paymentStatus={(rec) => { const p = paymentsOfClient(rec); return { ok: p.daIncassare <= 0.5, daIncassare: p.daIncassare }; }}
+            projectsOf={(rec) => projectsOfClient(rec).map((p) => ({ id: p.id, name: p.name, status: p.status, manager: p.manager || null }))}
+            memberName={memberName}
+          />
+        </React.Suspense>
       )}
 
       {/* CLIENTI / PARTNER (rubrica) */}
@@ -495,6 +485,8 @@ export const CrmView: React.FC<CrmViewProps> = ({
             onEdit={openEditClient}
             onNew={openNewClient}
             paymentStatus={(rec) => { const p = paymentsOfClient(rec); return { ok: p.daIncassare <= 0.5, daIncassare: p.daIncassare }; }}
+            projectsOf={(rec) => projectsOfClient(rec).map((p) => ({ id: p.id, name: p.name, status: p.status, manager: p.manager || null }))}
+            memberName={memberName}
           />
         </React.Suspense>
       )}

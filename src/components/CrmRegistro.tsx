@@ -12,7 +12,7 @@ import React from 'react';
 import {
   Users, Plus, Search, Mail, Phone, MapPin, FileText, Lock, AlertTriangle,
   Clock, CheckCircle2, XCircle, Eye, EyeOff, Edit2, Trash2, Share2, Calendar,
-  Gift, Megaphone, Users2, Target,
+  Gift, Megaphone, Target, ChevronDown, FolderOpen, Hash, UserCog,
 } from 'lucide-react';
 import type { ClientRecord, BrandAsset, ContactCredential, ContactInteraction } from '../types';
 
@@ -20,6 +20,7 @@ interface Soc { id: string; label: string; color: string; }
 interface Role { id: string; label: string; }
 interface PayInfo { ok: boolean; daIncassare: number; }
 
+interface ProjRef { id: string; name: string; status?: string; manager?: string | null; }
 interface Props {
   clients: ClientRecord[];
   societies: Soc[];
@@ -29,6 +30,10 @@ interface Props {
   onEdit: (id: string) => void;
   onNew: () => void;
   paymentStatus: (rec: ClientRecord) => PayInfo;
+  projectsOf?: (rec: ClientRecord) => ProjRef[];
+  memberName?: (uid: string) => string;
+  restrictRoles?: string[];   // se presente: lista pre-filtrata a questi ruoli (es. fornitori)
+  title?: string;
 }
 
 const onKeys = (m?: Record<string, boolean>) => Object.keys(m || {}).filter((k) => m![k]);
@@ -37,8 +42,8 @@ const tierStyle = (t?: number | null) => (t === 1 ? 'bg-rose-50 text-rose-700' :
 const INT_ICON = { riunione: FileText, evento: Calendar, campagna: Megaphone, regalo: Gift } as const;
 const INT_LABEL = { riunione: 'Riunione / Nota', evento: 'Evento', campagna: 'Campagna', regalo: 'Pensiero / Gadget' } as const;
 
-export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, paymentStatus }) => {
-  const [selId, setSelId] = React.useState<string | null>(clients[0]?.id || null);
+export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, paymentStatus, projectsOf, memberName, restrictRoles, title }) => {
+  const [selId, setSelId] = React.useState<string | null>(null);
   const [search, setSearch] = React.useState('');
   const [soc, setSoc] = React.useState<'all' | string>('all');
   const [role, setRole] = React.useState<'all' | string>('all');
@@ -47,13 +52,22 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
 
   const list = clients
     .filter((c) => {
+      if (restrictRoles && !restrictRoles.some((r) => c.roles?.[r])) return false;
       const q = search.trim().toLowerCase();
-      if (q && !(`${c.name} ${c.companyName || ''} ${c.email || ''} ${c.phone || ''} ${(c.targetTags || []).join(' ')}`.toLowerCase().includes(q))) return false;
+      if (q && !(`${c.name} ${c.companyName || ''} ${c.email || ''} ${c.phone || ''} ${c.codiceReferenza || ''} ${(c.targetTags || []).join(' ')}`.toLowerCase().includes(q))) return false;
       if (soc !== 'all' && !c.societies?.[soc]) return false;
       if (role !== 'all' && !c.roles?.[role]) return false;
       return true;
     })
     .sort((a, b) => a.name.localeCompare(b.name));
+
+  // seleziona il primo della lista filtrata se nulla è selezionato o l'attuale è uscito dai filtri
+  React.useEffect(() => {
+    if (!list.find((c) => c.id === selId)) setSelId(list[0]?.id || null);
+  }, [list, selId]);
+
+  // ruoli mostrati nel filtro tipo (esclude quelli "fissi" del restrict)
+  const filterRoles = restrictRoles ? roles.filter((r) => !restrictRoles.includes(r.id)) : roles;
 
   const sel = selId ? clients.find((c) => c.id === selId) || null : null;
 
@@ -66,31 +80,42 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
     <div className="flex flex-col lg:flex-row gap-4 min-h-[560px]">
       {/* ===== LISTA (master) ===== */}
       <div className="lg:w-[40%] xl:w-[34%] flex flex-col bg-white border border-[#e2e2e2] rounded-[22px] overflow-hidden shadow-sm">
-        <div className="p-3.5 border-b border-[#f0f0f0] flex flex-col gap-3">
+        <div className="p-3.5 border-b border-[#f0f0f0] flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
-            <h3 className="inline-flex items-center gap-2 text-[14px] font-extrabold text-[#161616]"><Users className="w-4.5 h-4.5" /> Registro Unico ({list.length})</h3>
+            <h3 className="inline-flex items-center gap-2 text-[14px] font-extrabold text-[#161616]"><Users className="w-4.5 h-4.5" /> {title || 'Registro Unico'} <span className="text-[#b0b0b0] font-bold">({list.length})</span></h3>
             <button onClick={onNew} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> Nuovo</button>
           </div>
+          {/* Ricerca */}
           <div className="relative">
             <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cerca nome, azienda, email…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616]" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cerca nome, azienda, email, codice…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616]" />
           </div>
-          {/* Filtro società (vista generale + per società) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
-            <button onClick={() => setSoc('all')} className={`text-[11px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap ${soc === 'all' ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>Tutte</button>
-            {societies.map((s) => (
-              <button key={s.id} onClick={() => setSoc(s.id)} className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap ${soc === s.id ? 'text-white border-transparent' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`} style={soc === s.id ? { background: s.color } : undefined}>
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: soc === s.id ? '#fff' : s.color }} /> {s.label}
-              </button>
-            ))}
+          {/* Filtri compatti: Società + Tipo */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <select value={soc} onChange={(e) => setSoc(e.target.value)} className="w-full appearance-none pl-3 pr-7 py-2 rounded-xl border border-[#e2e2e2] text-[12px] font-semibold text-[#333] bg-white outline-none focus:border-[#161616] cursor-pointer">
+                <option value="all">Tutte le società</option>
+                {societies.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+            {filterRoles.length > 0 && (
+              <div className="relative flex-1">
+                <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full appearance-none pl-3 pr-7 py-2 rounded-xl border border-[#e2e2e2] text-[12px] font-semibold text-[#333] bg-white outline-none focus:border-[#161616] cursor-pointer">
+                  <option value="all">Tutti i tipi</option>
+                  {filterRoles.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+            )}
           </div>
-          {/* Filtro tipo */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
-            <button onClick={() => setRole('all')} className={`text-[11px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap ${role === 'all' ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>Tutti</button>
-            {roles.map((r) => (
-              <button key={r.id} onClick={() => setRole(r.id)} className={`text-[11px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap ${role === r.id ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>{r.label}</button>
-            ))}
-          </div>
+          {/* Indicatore società attiva (pallino colore) */}
+          {soc !== 'all' && (
+            <div className="flex items-center gap-1.5 text-[11px] text-[#8a8a8a] font-semibold">
+              <span className="w-2 h-2 rounded-full" style={{ background: societies.find((s) => s.id === soc)?.color }} />
+              Stai vedendo i contatti di {societies.find((s) => s.id === soc)?.label}
+            </div>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto divide-y divide-[#f3f3f3] max-h-[520px]">
@@ -179,7 +204,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
               </div>
 
               <div className="flex-1 overflow-y-auto p-5">
-                {detTab === 'anagrafica' && <AnagraficaPane sel={sel} pay={pay} societies={societies} roles={roles} onTogglePrivacy={(v) => patch({ privacyLiberatoria: v })} />}
+                {detTab === 'anagrafica' && <AnagraficaPane sel={sel} pay={pay} societies={societies} roles={roles} onPatch={patch} projectsOf={projectsOf} memberName={memberName} />}
                 {detTab === 'brand' && <BrandPane sel={sel} onSave={(b) => patch({ brandAsset: b })} />}
                 {detTab === 'credenziali' && <CredenzialiPane sel={sel} pwShown={pwShown} setPwShown={setPwShown} onSave={(cr) => patch({ credentials: cr })} />}
                 {detTab === 'storia' && <StoriaPane sel={sel} onSave={(it) => patch({ interactions: it })} />}
@@ -199,8 +224,15 @@ const Info: React.FC<{ icon: any; label: string; children: React.ReactNode }> = 
 const Box: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-4 flex flex-col gap-3.5"><h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[#666]">{title}</h4>{children}</div>
 );
-const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc[]; roles: Role[]; onTogglePrivacy: (v: boolean) => void }> = ({ sel, pay, roles, onTogglePrivacy }) => {
+const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc[]; roles: Role[]; onPatch: (c: Partial<ClientRecord>) => void; projectsOf?: (rec: ClientRecord) => ProjRef[]; memberName?: (uid: string) => string }> = ({ sel, pay, roles, onPatch, projectsOf, memberName }) => {
   const roleLabel = (id: string) => roles.find((r) => r.id === id)?.label || id;
+  const onTogglePrivacy = (v: boolean) => onPatch({ privacyLiberatoria: v });
+  const [ref, setRef] = React.useState(sel.codiceReferenza || '');
+  React.useEffect(() => { setRef(sel.codiceReferenza || ''); }, [sel.id]);
+  const projects = projectsOf ? projectsOf(sel) : [];
+  // team di riferimento: responsabili rubrica + manager dei progetti collegati
+  const teamUids = Array.from(new Set([...Object.keys(sel.responsabili || {}).filter((u) => sel.responsabili![u]), ...projects.map((p) => p.manager).filter(Boolean) as string[]]));
+  const saveRef = () => { if ((sel.codiceReferenza || '') !== ref) onPatch({ codiceReferenza: ref || null }); };
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -219,6 +251,37 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
           <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Tipi di contatto</p><div className="flex flex-wrap gap-1">{onKeys(sel.roles).map((r) => <span key={r} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{roleLabel(r)}</span>)}</div></div>
         </Box>
       </div>
+
+      {/* Riferimenti & relazioni (codice referenza, progetti, team) */}
+      <Box title="Riferimenti & relazioni">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1 inline-flex items-center gap-1"><Hash className="w-3 h-3" /> Codice referenza</p>
+            <input value={ref} onChange={(e) => setRef(e.target.value)} onBlur={saveRef} placeholder="es. REF-2026-014" className="w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white" />
+          </div>
+          <div>
+            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1 inline-flex items-center gap-1"><UserCog className="w-3 h-3" /> Team di riferimento</p>
+            {teamUids.length === 0 ? <p className="text-[12px] text-[#9a9a9a] mt-1.5">Nessuno assegnato.</p> : (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {teamUids.map((u) => <span key={u} className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white border border-[#e2e2e2] text-[#444]">{memberName ? memberName(u) : u}</span>)}
+              </div>
+            )}
+          </div>
+        </div>
+        <div>
+          <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1.5 inline-flex items-center gap-1"><FolderOpen className="w-3 h-3" /> Progetti collegati ({projects.length})</p>
+          {projects.length === 0 ? <p className="text-[12px] text-[#9a9a9a]">Nessun progetto collegato a questo contatto.</p> : (
+            <div className="flex flex-col gap-1.5">
+              {projects.map((p) => (
+                <div key={p.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white border border-[#f0f0f0]">
+                  <span className="text-[12.5px] font-medium text-[#161616] truncate inline-flex items-center gap-1.5"><FolderOpen className="w-3.5 h-3.5 text-[#b0b0b0]" /> {p.name}</span>
+                  {p.status && <span className="text-[10px] font-bold text-[#8a8a8a] uppercase shrink-0">{p.status}</span>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Box>
 
       {/* Checklist amministrativa */}
       <Box title="Checklist amministrativa">
