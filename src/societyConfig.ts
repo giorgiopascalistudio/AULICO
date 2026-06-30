@@ -68,7 +68,9 @@ export const SOCIETY_COLOR: Record<Societa, string> = {
 };
 
 // ---- Tipi di configurazione ----------------------------------------------
-export type SectionKind = 'dashboard' | 'view' | 'placeholder';
+// 'group' = SOTTO-CATEGORIA contenitore (livello 2): non naviga, in sidebar si
+// espande per mostrare le sue voci foglia (sezioni con `parent` = id del group).
+export type SectionKind = 'dashboard' | 'view' | 'placeholder' | 'group';
 
 export interface SectionPreset {
   division?: Division;
@@ -197,24 +199,27 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
   {
     id: 'strategico', label: SOCIETA_LABEL.strategico, color: SOCIETY_COLOR.strategico,
     sections: [
-      // --- Risorse Umane (HR): cuore della gestione team e contatti ---
-      { id: 'hr', label: 'Risorse umane (HR)', icon: Users, module: 'hr', legacyRoute: 'team' },
-      { id: 'crm', label: 'CRM (Aulico)', icon: BookUser, parent: 'hr', shared: true, module: 'crm', legacyRoute: 'crm' },
-      { id: 'selezione', label: 'Selezione & Onboarding', icon: UserPlus, parent: 'hr', module: 'hr', kind: 'placeholder', note: 'Job description, annunci, colloqui, piani di inserimento.' },
-      // --- Amministrazione e Contabilità (gruppo + terzi) ---
-      { id: 'amministrazione', label: 'Amministrazione & Contabilità', icon: Briefcase, shared: true, module: 'finance', legacyRoute: 'finanze', note: 'Preventivi, contratti, fatturazione, provvigioni automatiche.' },
-      // --- Marketing: posizionamento brand + clienti esterni ---
-      { id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', view: 'marketing', note: 'Calendario editoriale multi-canale.' },
+      // === SOTTO-CATEGORIA: Risorse Umane ===
+      { id: 'hr', label: 'Risorse Umane', icon: Users, module: 'hr', kind: 'group' },
+      { id: 'hr-crm', label: 'CRM', icon: BookUser, parent: 'hr', shared: true, module: 'crm', legacyRoute: 'crm' },
+      { id: 'hr-recruiting', label: 'Recruiting', icon: UserPlus, parent: 'hr', module: 'hr', kind: 'placeholder', note: 'Job description, annunci, colloqui, piani di inserimento.' },
+      { id: 'hr-governance', label: 'Governance', icon: Network, parent: 'hr', module: 'governance', kind: 'placeholder', note: 'Organigramma, mansionari (chi fa cosa), procedure operative (SOP).' },
+      { id: 'hr-registro', label: 'Registro attività', icon: ScrollText, parent: 'hr', shared: true, module: 'registro', legacyRoute: 'registro' },
+      { id: 'hr-team', label: 'Team & Permessi', icon: Users, parent: 'hr', module: 'hr', legacyRoute: 'team', note: 'Membri, ruoli/accessi, produttività, ferie.' },
+      // === SOTTO-CATEGORIA: Marketing ===
+      { id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' },
+      { id: 'mkt-operativo', label: 'Marketing operativo', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing', note: 'Produzione contenuti + calendario editoriale multi-canale.' },
       { id: 'mkt-strategico', label: 'Marketing strategico', icon: BarChart3, parent: 'marketing', module: 'marketing', legacyRoute: 'progetti', preset: { division: 'strategico' }, note: 'Analisi dati, KPI, budget.' },
-      { id: 'mkt-operativo', label: 'Marketing operativo', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing', note: 'Produzione contenuti (foto/video/social) + calendario editoriale multi-canale.' },
-      // --- Programmazione e Sviluppo Software ---
-      { id: 'software', label: 'Programmazione & Software', icon: Code2, module: 'software', kind: 'placeholder', note: 'Software house interna: gestionale, automazioni, compilatore pratiche.' },
-      // --- Commerciale ---
-      { id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', legacyRoute: 'finanze', preset: { finStartTab: 'preventivi' }, note: 'Vendite + preventivi interattivi per nuovi servizi.' },
-      // --- Governance e Organizzazione Interna ---
-      { id: 'governance', label: 'Governance & Organizzazione', icon: Network, module: 'governance', kind: 'placeholder', note: 'Organigramma, mansionari (chi fa cosa), procedure operative (SOP).' },
-      // --- Area Legale ---
-      { id: 'legale', label: 'Area legale', icon: Scale, module: 'legale', kind: 'placeholder', note: 'Contrattualistica, sicurezza dati, liberatorie privacy.' },
+      // === SOTTO-CATEGORIA: Amministrazione & Contabilità ===
+      { id: 'amm', label: 'Amministrazione & Contabilità', icon: Briefcase, module: 'finance', kind: 'group' },
+      { id: 'amm-contabilita', label: 'Contabilità', icon: DollarSign, parent: 'amm', shared: true, module: 'finance', legacyRoute: 'finanze', note: 'Preventivi, contratti, fatturazione, provvigioni.' },
+      { id: 'amm-commerciale', label: 'Commerciale', icon: Target, parent: 'amm', module: 'commerciale', legacyRoute: 'finanze', preset: { finStartTab: 'preventivi' }, note: 'Vendite + preventivi interattivi per nuovi servizi.' },
+      // === SOTTO-CATEGORIA: Sviluppo Software ===
+      { id: 'software', label: 'Sviluppo Software', icon: Code2, module: 'software', kind: 'group' },
+      { id: 'sw-gestionale', label: 'Gestionale & Automazioni', icon: Code2, parent: 'software', module: 'software', kind: 'placeholder', note: 'Software house interna: gestionale, automazioni, compilatore pratiche.' },
+      // === SOTTO-CATEGORIA: Area Legale ===
+      { id: 'legale', label: 'Area Legale', icon: Scale, module: 'legale', kind: 'group' },
+      { id: 'legale-contratti', label: 'Contrattualistica', icon: FileText, parent: 'legale', module: 'legale', kind: 'placeholder', note: 'Contrattualistica, sicurezza dati, liberatorie privacy.' },
     ],
   },
   // ----------------------------------------------------------------- ONIRICO

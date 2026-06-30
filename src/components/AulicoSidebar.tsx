@@ -9,10 +9,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { UserProfile, Societa } from '../types';
 import { initials } from '../utils';
 import {
-  SOCIETY_REGISTRY, getSociety, canViewSection, societaSlug, type SectionConfig,
+  SOCIETY_REGISTRY, getSociety, canViewSection, societaSlug, type SectionConfig, type SocietyConfig,
 } from '../societyConfig';
 
-/** Le 5 categorie-società mostrate come accordion (in ordine). */
+/** Le 5 categorie-società (livello 1) mostrate come accordion, in ordine. */
 const CATEGORIE: Societa[] = ['strategico', 'studio', 'materico', 'unico', 'fantastico'];
 
 interface AulicoSidebarProps {
@@ -24,32 +24,59 @@ interface AulicoSidebarProps {
   onOpenProfile: () => void;
 }
 
+// Animazione di apertura/chiusura (slide verticale).
+const slide = {
+  initial: { height: 0, opacity: 0 },
+  animate: { height: 'auto' as const, opacity: 1 },
+  exit: { height: 0, opacity: 0 },
+  transition: { duration: 0.22, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
+};
+
 export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
   profile, activeSocieta, activeSection, badges, onNav, onOpenProfile,
 }) => {
-  // Accordion: una sola categoria aperta per volta. Si apre da sola quella attiva.
+  // Livello 1: una sola categoria (società) aperta. Livello 2: una sola sotto-categoria aperta.
   const [openSoc, setOpenSoc] = React.useState<Societa | null>(
     CATEGORIE.includes(activeSocieta) ? activeSocieta : null,
   );
+  const [openSub, setOpenSub] = React.useState<string | null>(null);
+
+  // Apre da sé la categoria + sotto-categoria della sezione attiva.
   React.useEffect(() => {
-    if (CATEGORIE.includes(activeSocieta)) setOpenSoc(activeSocieta);
-  }, [activeSocieta]);
+    if (CATEGORIE.includes(activeSocieta)) {
+      setOpenSoc(activeSocieta);
+      const sec = getSociety(activeSocieta)?.sections.find((s) => s.id === activeSection);
+      if (sec?.parent) setOpenSub(sec.parent);
+    }
+  }, [activeSocieta, activeSection]);
 
   if (!profile) return null;
 
-  // Voci di gruppo (Aulico/holding): Dashboard + Agenda in cima, Registro + Cestino in fondo.
+  // Voci uniche di gruppo (in cima): Dashboard + Agenda.
   const holding = getSociety('holding');
-  const holdingVisible = holding ? holding.sections.filter((s) => canViewSection(profile, 'holding', s)) : [];
-  const topItems = holdingVisible.filter((s) => s.id === 'dashboard' || s.id === 'agenda');
-  const bottomItems = holdingVisible.filter((s) => s.id === 'registro' || s.id === 'cestino');
+  const topItems = holding ? holding.sections.filter((s) => (s.id === 'dashboard' || s.id === 'agenda') && canViewSection(profile, 'holding', s)) : [];
 
-  // Categorie con almeno una sezione visibile dall'utente (RBAC).
+  // Voci renderizzabili (livello 2) di una società: sotto-categoria con figli visibili,
+  // oppure voce-foglia diretta (senza figli). RBAC applicato per-sezione.
+  const topEntries = (society: SocietyConfig): { top: SectionConfig; children: SectionConfig[] }[] => {
+    const out: { top: SectionConfig; children: SectionConfig[] }[] = [];
+    for (const top of society.sections.filter((s) => !s.parent)) {
+      if (top.kind === 'group') {
+        const children = society.sections.filter((c) => c.parent === top.id && canViewSection(profile, society.id, c));
+        if (children.length) out.push({ top, children });
+      } else if (canViewSection(profile, society.id, top)) {
+        out.push({ top, children: [] });
+      }
+    }
+    return out;
+  };
+
   const groups = SOCIETY_REGISTRY
     .filter((s) => CATEGORIE.includes(s.id))
-    .map((society) => ({ society, visible: society.sections.filter((sec) => canViewSection(profile, society.id, sec)) }))
-    .filter((g) => g.visible.length > 0);
+    .map((society) => ({ society, entries: topEntries(society) }))
+    .filter((g) => g.entries.length > 0);
 
-  // Bottone-voce (sezione foglia). `depth` = indentazione per le sotto-sezioni.
+  // Bottone voce-foglia (naviga). `depth` = indentazione.
   const itemBtn = (soc: Societa, sec: SectionConfig, depth: number) => {
     const Icon = sec.icon;
     const isActive = activeSocieta === soc && activeSection === sec.id;
@@ -59,13 +86,11 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
         key={`${soc}:${sec.id}`}
         onClick={() => onNav(`#${societaSlug(soc)}/${sec.id}`)}
         className={`flex items-center gap-2.5 px-3 py-2 rounded-xl font-medium text-[13.5px] transition-all cursor-pointer w-full ${
-          isActive
-            ? 'bg-[#161616] text-[#eeeeee] shadow-sm font-semibold'
-            : 'text-[#333333] hover:bg-[#ececec] hover:text-[#161616]'
+          isActive ? 'bg-[#161616] text-[#eeeeee] shadow-sm font-semibold' : 'text-[#333333] hover:bg-[#ececec] hover:text-[#161616]'
         }`}
-        style={{ paddingLeft: depth ? 12 + depth * 14 : undefined }}
+        style={{ paddingLeft: 12 + depth * 14 }}
       >
-        <Icon className={`w-[17px] h-[17px] shrink-0 ${isActive ? 'opacity-100' : 'opacity-70'}`} />
+        <Icon className={`w-[16px] h-[16px] shrink-0 ${isActive ? 'opacity-100' : 'opacity-70'}`} />
         <span className="flex-1 truncate text-left">{sec.label}</span>
         {badge > 0 && (
           <span className={`text-[11px] font-bold min-w-[19px] h-[19px] px-1.5 rounded-full flex items-center justify-center ${
@@ -77,9 +102,9 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
   };
 
   return (
-    <aside className="hidden md:flex flex-col w-[248px] bg-gradient-to-b from-white to-[#f5f5f5] border-r border-[#e2e2e2] p-[22px] pb-[14px]">
+    <aside className="hidden md:flex flex-col w-[252px] bg-gradient-to-b from-white to-[#f5f5f5] border-r border-[#e2e2e2] p-[20px] pb-[14px]">
       {/* Brand */}
-      <div className="flex items-center gap-1.5 px-2 pb-[18px]">
+      <div className="flex items-center gap-1.5 px-2 pb-[16px]">
         <span className="font-extrabold text-[22px] tracking-tight text-[#161616] font-sans antialiased">Aulico</span>
       </div>
 
@@ -89,11 +114,10 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
 
         {topItems.length > 0 && groups.length > 0 && <div className="h-px bg-[#ececec] my-2 mx-1" />}
 
-        {/* Categorie società (accordion: una aperta per volta) */}
-        {groups.map(({ society, visible }) => {
+        {/* Livello 1 — categorie società (accordion: una aperta per volta) */}
+        {groups.map(({ society, entries }) => {
           const soc = society.id;
           const open = openSoc === soc;
-          const top = visible.filter((s) => !s.parent);
           const isActiveCat = activeSocieta === soc;
           return (
             <div key={soc}>
@@ -112,21 +136,42 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
 
               <AnimatePresence initial={false}>
                 {open && (
-                  <motion.div
-                    key={`${soc}:body`}
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.24, ease: [0.4, 0, 0.2, 1] }}
-                    style={{ overflow: 'hidden' }}
-                  >
+                  <motion.div key={`${soc}:body`} {...slide} style={{ overflow: 'hidden' }}>
                     <div className="flex flex-col gap-[2px] mt-[2px] mb-1.5">
-                      {top.map((sec) => (
-                        <React.Fragment key={`${soc}:${sec.id}:wrap`}>
-                          {itemBtn(soc, sec, 1)}
-                          {visible.filter((c) => c.parent === sec.id).map((child) => itemBtn(soc, child, 2))}
-                        </React.Fragment>
-                      ))}
+                      {entries.map(({ top, children }) => {
+                        // Voce-foglia diretta (società senza sotto-categorie su questa voce).
+                        if (children.length === 0) return itemBtn(soc, top, 1);
+
+                        // Livello 2 — sotto-categoria (accordion: una aperta per volta).
+                        const SubIcon = top.icon;
+                        const subOpen = openSub === top.id;
+                        const subActive = activeSocieta === soc && children.some((c) => c.id === activeSection);
+                        return (
+                          <div key={`${soc}:${top.id}`}>
+                            <button
+                              onClick={() => setOpenSub(subOpen ? null : top.id)}
+                              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl w-full cursor-pointer transition-colors text-[#444] ${
+                                subActive && !subOpen ? 'bg-[#ececec]' : 'hover:bg-[#ececec]'
+                              }`}
+                              style={{ paddingLeft: 14 }}
+                            >
+                              <SubIcon className="w-[16px] h-[16px] shrink-0 opacity-70" />
+                              <span className="flex-1 truncate text-left text-[12.5px] font-bold">{top.label}</span>
+                              <ChevronDown className={`w-[15px] h-[15px] text-[#a8a8a8] transition-transform duration-200 ${subOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            <AnimatePresence initial={false}>
+                              {subOpen && (
+                                <motion.div key={`${soc}:${top.id}:body`} {...slide} style={{ overflow: 'hidden' }}>
+                                  <div className="flex flex-col gap-[2px] mt-[2px] mb-1">
+                                    {children.map((c) => itemBtn(soc, c, 2))}
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        );
+                      })}
                     </div>
                   </motion.div>
                 )}
@@ -134,10 +179,6 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
             </div>
           );
         })}
-
-        {/* Voci di gruppo in fondo: Registro, Cestino */}
-        {bottomItems.length > 0 && <div className="h-px bg-[#ececec] my-2 mx-1" />}
-        {bottomItems.map((sec) => itemBtn('holding', sec, 0))}
       </nav>
 
       {/* Profilo */}

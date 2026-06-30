@@ -472,12 +472,12 @@ export default function App() {
       calendario: { soc: 'holding', sec: 'agenda' },
       progetti: { soc: 'studio', sec: 'cicli' },
       progetto: { soc: 'studio', sec: 'cicli' },
-      crm: { soc: 'strategico', sec: 'crm' },
+      crm: { soc: 'strategico', sec: 'hr-crm' },
       'richieste-clienti': { soc: 'studio', sec: 'richieste' },
       documenti: { soc: 'studio', sec: 'documenti' },
-      finanze: { soc: 'strategico', sec: 'amministrazione' },
-      team: { soc: 'strategico', sec: 'hr' },
-      registro: { soc: 'holding', sec: 'registro' },
+      finanze: { soc: 'strategico', sec: 'amm-contabilita' },
+      team: { soc: 'strategico', sec: 'hr-team' },
+      registro: { soc: 'strategico', sec: 'hr-registro' },
       cestino: { soc: 'holding', sec: 'cestino' },
     };
 
