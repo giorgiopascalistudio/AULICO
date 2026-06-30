@@ -151,6 +151,7 @@ import { Sidebar } from './components/Sidebar';
 import { AulicoSidebar } from './components/AulicoSidebar';
 import { SocietyDashboard } from './components/SocietyDashboard';
 import { SectionPlaceholder } from './components/SectionPlaceholder';
+import { SectionPortal } from './components/SectionPortal';
 import { MarketingSection } from './components/sections/MarketingSection';
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
@@ -497,6 +498,7 @@ export default function App() {
         if (sec?.preset?.division) setActiveDivision(sec.preset.division);
         setFinStartTab(sec?.preset?.finStartTab ?? null);
         if (!sec || sec.kind === 'dashboard') setRoute('sdash');
+        else if (sec.kind === 'group') setRoute('sportal');
         else if (sec.kind === 'placeholder') setRoute('splaceholder');
         else if (sec.view) setRoute('sview');
         else setRoute(sec.legacyRoute || 'sdash');
@@ -4632,6 +4634,23 @@ export default function App() {
           default:
             return <SectionPlaceholder section={sec} societyLabel={society.label} color={society.color} />;
         }
+      }
+
+      // --- Aulico V2: portale sotto-categoria (hub delle sue voci) ---
+      case 'sportal': {
+        const society = getSociety(activeSocieta);
+        const sec = society?.sections.find((s) => s.id === activeSection);
+        if (!society || !sec) return <p className="text-[13px] text-[#8a8a8a]">Sezione non trovata.</p>;
+        if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
+        const items = society.sections.filter((c) => c.parent === sec.id && canViewSection(currentUser, activeSocieta, c));
+        return (
+          <SectionPortal
+            title={sec.label}
+            color={society.color}
+            items={items}
+            onOpen={(id) => { window.location.hash = `#${societaSlug(activeSocieta)}/${id}`; }}
+          />
+        );
       }
 
       // --- Aulico V2: sezione dichiarata ma non ancora costruita ---

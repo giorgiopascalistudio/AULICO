@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserProfile, Societa } from '../types';
 import { initials } from '../utils';
@@ -35,20 +35,16 @@ const slide = {
 export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
   profile, activeSocieta, activeSection, badges, onNav, onOpenProfile,
 }) => {
-  // Livello 1: una sola categoria (società) aperta. Livello 2: una sola sotto-categoria aperta.
+  // Livello 1: una sola categoria (società) aperta per volta. Le sotto-categorie
+  // NON si espandono nel menu: cliccandole si apre il loro "portale" (pagina hub).
   const [openSoc, setOpenSoc] = React.useState<Societa | null>(
     CATEGORIE.includes(activeSocieta) ? activeSocieta : null,
   );
-  const [openSub, setOpenSub] = React.useState<string | null>(null);
 
-  // Apre da sé la categoria + sotto-categoria della sezione attiva.
+  // Apre da sé la categoria della sezione attiva.
   React.useEffect(() => {
-    if (CATEGORIE.includes(activeSocieta)) {
-      setOpenSoc(activeSocieta);
-      const sec = getSociety(activeSocieta)?.sections.find((s) => s.id === activeSection);
-      if (sec?.parent) setOpenSub(sec.parent);
-    }
-  }, [activeSocieta, activeSection]);
+    if (CATEGORIE.includes(activeSocieta)) setOpenSoc(activeSocieta);
+  }, [activeSocieta]);
 
   if (!profile) return null;
 
@@ -142,34 +138,22 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
                         // Voce-foglia diretta (società senza sotto-categorie su questa voce).
                         if (children.length === 0) return itemBtn(soc, top, 1);
 
-                        // Livello 2 — sotto-categoria (accordion: una aperta per volta).
+                        // Livello 2 — sotto-categoria: link al suo PORTALE (non si espande).
                         const SubIcon = top.icon;
-                        const subOpen = openSub === top.id;
-                        const subActive = activeSocieta === soc && children.some((c) => c.id === activeSection);
+                        const active = activeSocieta === soc && (activeSection === top.id || children.some((c) => c.id === activeSection));
                         return (
-                          <div key={`${soc}:${top.id}`}>
-                            <button
-                              onClick={() => setOpenSub(subOpen ? null : top.id)}
-                              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl w-full cursor-pointer transition-colors text-[#444] ${
-                                subActive && !subOpen ? 'bg-[#ececec]' : 'hover:bg-[#ececec]'
-                              }`}
-                              style={{ paddingLeft: 14 }}
-                            >
-                              <SubIcon className="w-[16px] h-[16px] shrink-0 opacity-70" />
-                              <span className="flex-1 truncate text-left text-[12.5px] font-bold">{top.label}</span>
-                              <ChevronDown className={`w-[15px] h-[15px] text-[#a8a8a8] transition-transform duration-200 ${subOpen ? 'rotate-180' : ''}`} />
-                            </button>
-
-                            <AnimatePresence initial={false}>
-                              {subOpen && (
-                                <motion.div key={`${soc}:${top.id}:body`} {...slide} style={{ overflow: 'hidden' }}>
-                                  <div className="flex flex-col gap-[2px] mt-[2px] mb-1">
-                                    {children.map((c) => itemBtn(soc, c, 2))}
-                                  </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
+                          <button
+                            key={`${soc}:${top.id}`}
+                            onClick={() => onNav(`#${societaSlug(soc)}/${top.id}`)}
+                            className={`flex items-center gap-2.5 px-3 py-2 rounded-xl w-full cursor-pointer transition-all text-[13.5px] font-medium ${
+                              active ? 'bg-[#161616] text-[#eeeeee] font-semibold shadow-sm' : 'text-[#333333] hover:bg-[#ececec] hover:text-[#161616]'
+                            }`}
+                            style={{ paddingLeft: 26 }}
+                          >
+                            <SubIcon className={`w-[16px] h-[16px] shrink-0 ${active ? 'opacity-100' : 'opacity-70'}`} />
+                            <span className="flex-1 truncate text-left">{top.label}</span>
+                            <ChevronRight className={`w-4 h-4 ${active ? 'opacity-80' : 'text-[#bdbdbd]'}`} />
+                          </button>
                         );
                       })}
                     </div>
