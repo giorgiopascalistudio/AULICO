@@ -46,6 +46,9 @@ interface TeamViewProps {
   canAssignPoints?: boolean;
   onAddPoints?: (ev: PointEvent) => void;
   onDeletePoints?: (uid: string, id: string) => void;
+  // Gestione accessi (approvazione Team) — esclusiva di Risorse Umane
+  onManageAccess?: () => void;
+  pendingCount?: number;
 }
 
 export const TeamView: React.FC<TeamViewProps> = ({
@@ -64,7 +67,9 @@ export const TeamView: React.FC<TeamViewProps> = ({
   pointEvents = [],
   canAssignPoints = false,
   onAddPoints,
-  onDeletePoints
+  onDeletePoints,
+  onManageAccess,
+  pendingCount = 0
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -230,6 +235,19 @@ export const TeamView: React.FC<TeamViewProps> = ({
               <Briefcase className="w-3.5 h-3.5" /> Partner
             </button>
           </div>
+
+          {onManageAccess && (
+            <button
+              onClick={onManageAccess}
+              className="relative inline-flex items-center gap-1.5 text-[12.5px] font-bold px-3.5 py-2 rounded-full bg-[#161616] text-white hover:bg-black cursor-pointer border-none"
+              title="Gestione accessi"
+            >
+              <Users className="w-3.5 h-3.5" /> Gestione accessi
+              {pendingCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white">{pendingCount}</span>
+              )}
+            </button>
+          )}
 
           {peopleTab === 'clienti' && (
             <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] animate-[fadeIn_0.18s_ease_both]">

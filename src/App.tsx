@@ -4442,6 +4442,8 @@ export default function App() {
             projects={Object.values(projects)}
             peopleTab={peopleTab}
             onSetPeopleTab={setPeopleTab}
+            onManageAccess={canManageAccess ? () => setAccessOpen(true) : undefined}
+            pendingCount={pendingAccounts.length}
             onNewUser={() => {
               setNuName('');
               setNuEmail('');
@@ -4776,7 +4778,7 @@ export default function App() {
           title={formattedMobileTitle()}
           notificationsCount={liveNotifications.filter(n => !n.read).length}
           onNotificationsClick={() => setNotificationsOpen(!notificationsOpen)}
-          pendingCount={canManageAccess ? pendingAccounts.length : 0}
+          pendingCount={0}
           actionButton={
             route === 'progetti' && !(activeDivision === 'strategico' && (currentUser.role === 'admin' || currentUser.role === 'manager')) ? (
               <button onClick={() => handleOpenNewProject(activeDivision)} className="w-[38px] h-[38px] rounded-full bg-[#1b1b1b] text-white flex items-center justify-center border-none cursor-pointer active:scale-95 transition-transform" aria-label="Nuovo progetto">
@@ -4802,21 +4804,7 @@ export default function App() {
               </button>
             )}
 
-            {/* Accessi (admin e manager) */}
-            {canManageAccess && (
-              <button
-                onClick={() => setAccessOpen(true)}
-                className="relative w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-[#e2e2e2] text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all cursor-pointer active:scale-95"
-                title="Gestione accessi"
-              >
-                <Users className="w-4.5 h-4.5" />
-                {pendingAccounts.length > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white">
-                    {pendingAccounts.length}
-                  </span>
-                )}
-              </button>
-            )}
+            {/* Gestione accessi spostata in Risorse Umane → Team & Permessi (TeamView) */}
 
             {/* Notification Bell (Widescreen) */}
             <div className="relative">
@@ -5083,15 +5071,7 @@ export default function App() {
             Salva dati personali
           </button>
 
-          {canManageAccess && (
-            <button
-              onClick={() => { setProfileOpen(false); setAccessOpen(true); }}
-              className="py-2.5 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] font-bold text-[13px] cursor-pointer w-full flex items-center justify-center gap-2"
-            >
-              <Users className="w-4 h-4" />
-              Gestione accessi{pendingAccounts.length > 0 ? ` (${pendingAccounts.length})` : ''}
-            </button>
-          )}
+          {/* Gestione accessi spostata in Risorse Umane → Team & Permessi */}
 
           <button onClick={handleLogout} className="py-2.5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-800 font-bold text-[13px] cursor-pointer w-full mt-2">
             Esci dall'account
