@@ -2,6 +2,7 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import { MobileHomeHint } from './components/MobileHomeHint';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import './index.css';
 
 // ---- Zoom disabilitato anche su desktop/Safari (il viewport meta copre il mobile) ----
@@ -22,7 +23,9 @@ try { sessionStorage.removeItem('aulicoStaleReload'); } catch { /* noop */ }
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
-    <MobileHomeHint />
+    <ErrorBoundary>
+      <App />
+      <MobileHomeHint />
+    </ErrorBoundary>
   </StrictMode>,
 );
