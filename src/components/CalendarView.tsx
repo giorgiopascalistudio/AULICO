@@ -37,6 +37,8 @@ const WK_HOUR_END = 22;    // ultima ora (esclusa dalle etichette, chiude la gri
 const WK_HOUR_PX = 52;     // altezza di un'ora in px
 const WK_EVENT_MIN = 45;   // durata visiva di default (nessuna durata sul modello)
 const WK_EVENT_PX = 30;    // altezza minima blocco evento
+const WK_HEADER_PX = 50;   // altezza intestazione colonna giorno (fissa → ore allineate)
+const WK_ALLDAY_PX = 38;   // altezza fascia "senza orario" (fissa → ore allineate)
 
 const hhmmToMin = (hhmm: string): number => {
   const [h, m] = hhmm.split(':').map(Number);
@@ -364,57 +366,66 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     );
   };
 
-  // RENDER WEEK VIEW — griglia oraria verticale (ore in colonna, giorni in riga)
+  // RENDER WEEK VIEW — colonne giorno SEPARATE con fasce orarie (ore in verticale)
   const renderWeek = () => {
     const s = startOfWeek(calDate);
     const days = Array.from({ length: 7 }).map((_, i) => addDays(s, i));
     const hours = Array.from({ length: WK_HOUR_END - WK_HOUR_START }).map((_, i) => WK_HOUR_START + i);
     const gridH = (WK_HOUR_END - WK_HOUR_START) * WK_HOUR_PX;
-    const cols = `46px repeat(7, minmax(0, 1fr))`;
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
     const nowInRange = nowMin >= WK_HOUR_START * 60 && nowMin <= WK_HOUR_END * 60;
 
     return (
       <div className="bg-white border border-[#e2e2e2] rounded-[26px] shadow-xs text-left overflow-hidden">
-        <div className="overflow-x-auto">
-          <div className="min-w-[760px]">
-            {/* Header giorni */}
-            <div className="grid border-b border-[#ececec] bg-[#fbfbfb]" style={{ gridTemplateColumns: cols }}>
-              <div className="border-r border-[#f0f0f0]" />
-              {days.map((c, i) => {
-                const iso = isoDate(c);
-                const isToday = iso === todayISO;
-                return (
+        <div className="overflow-x-auto p-3">
+          <div className="flex gap-2 min-w-[860px]">
+            {/* Gutter ore (allineato alle colonne tramite spazi header+all-day fissi) */}
+            <div className="w-[42px] shrink-0">
+              <div style={{ height: WK_HEADER_PX + WK_ALLDAY_PX }} />
+              <div className="relative" style={{ height: gridH }}>
+                {hours.map((h, idx) => (
+                  <div key={h} className="absolute right-1.5 -translate-y-1/2 text-[10px] font-bold text-[#b0b0b0] tabular-nums" style={{ top: idx * WK_HOUR_PX }}>
+                    {idx === 0 ? '' : `${h}:00`}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Una colonna-card separata per ogni giorno */}
+            {days.map((c, di) => {
+              const iso = isoDate(c);
+              const isToday = iso === todayISO;
+              const untimed = tasksOnDate(iso).filter(t => !t.time);
+              const timed = tasksOnDate(iso).filter(t => !!t.time);
+              const appts = apptsOn(iso).filter(a => !!a.time);
+              const events = [
+                ...timed.map(t => ({ kind: 'task' as const, id: t.id, start: hhmmToMin(t.time!), title: t.title, t })),
+                ...appts.map(a => ({ kind: 'appt' as const, id: a.id, start: hhmmToMin(a.time!), title: a.title, a })),
+              ].map(e => ({ ...e, end: e.start + WK_EVENT_MIN }));
+              const placed = packDay(events);
+
+              return (
+                <div key={di} className={`flex-1 min-w-[104px] flex flex-col rounded-2xl border overflow-hidden bg-white ${isToday ? 'border-orange-300 ring-1 ring-orange-300/40' : 'border-[#ececec]'}`}>
+                  {/* Intestazione giorno */}
                   <button
-                    key={i}
                     onClick={() => { onSetCalDate(c); onSetCalView('day'); }}
-                    className={`flex flex-col items-center gap-0.5 py-2.5 border-r border-[#f0f0f0] last:border-r-0 cursor-pointer transition-colors bg-transparent ${isToday ? 'bg-orange-50/30' : 'hover:bg-gray-50'}`}
+                    className={`flex flex-col items-center justify-center gap-0.5 cursor-pointer transition-colors ${isToday ? 'bg-orange-50/50' : 'bg-[#fbfbfb] hover:bg-gray-50'}`}
+                    style={{ height: WK_HEADER_PX }}
                   >
-                    <span className={`text-[10px] uppercase tracking-widest font-bold ${isToday ? 'text-orange-650' : 'text-[#9a9a9a]'}`}>{DOW[i]}</span>
-                    <span className={`inline-flex items-center justify-center font-extrabold text-[16px] leading-none w-8 h-8 rounded-full ${isToday ? 'bg-[#161616] text-white' : 'text-[#2b2b2b]'}`}>
+                    <span className={`text-[10px] uppercase tracking-widest font-bold ${isToday ? 'text-orange-650' : 'text-[#9a9a9a]'}`}>{DOW[di]}</span>
+                    <span className={`inline-flex items-center justify-center font-extrabold text-[15px] leading-none w-7 h-7 rounded-full ${isToday ? 'bg-[#161616] text-white' : 'text-[#2b2b2b]'}`}>
                       {c.getDate()}
                     </span>
                   </button>
-                );
-              })}
-            </div>
 
-            {/* Riga "senza orario" (task ricorrenti / impegni a tutto il giorno) */}
-            <div className="grid border-b border-[#ececec] bg-[#fcfcfc]" style={{ gridTemplateColumns: cols }}>
-              <div className="flex items-start justify-end pr-1.5 pt-1.5 border-r border-[#f0f0f0]">
-                <span className="text-[8.5px] uppercase tracking-wide font-bold text-[#b5b5b5] text-right leading-tight">tutto<br/>il dì</span>
-              </div>
-              {days.map((c, i) => {
-                const iso = isoDate(c);
-                const untimed = tasksOnDate(iso).filter(t => !t.time);
-                return (
+                  {/* Fascia "senza orario" */}
                   <div
-                    key={i}
                     onClick={() => onNewTask(iso)}
-                    className="border-r border-[#f0f0f0] last:border-r-0 p-1 flex flex-col gap-1 min-h-[34px] cursor-pointer hover:bg-gray-50/60"
+                    className="border-t border-[#f0f0f0] px-1 py-1 flex flex-col gap-0.5 overflow-hidden cursor-pointer hover:bg-gray-50/60"
+                    style={{ height: WK_ALLDAY_PX }}
                   >
-                    {untimed.map(t => {
+                    {untimed.slice(0, 1).map(t => {
                       const done = taskDoneOn(t, iso);
                       const isProj = !!t._proj;
                       return (
@@ -428,39 +439,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         </button>
                       );
                     })}
+                    {untimed.length > 1 && (
+                      <button onClick={(e) => { e.stopPropagation(); onSetCalDate(c); onSetCalView('day'); }} className="text-[9px] font-bold text-gray-500 pl-1 text-left bg-transparent border-none cursor-pointer hover:text-black">
+                        +{untimed.length - 1} senza orario
+                      </button>
+                    )}
                   </div>
-                );
-              })}
-            </div>
 
-            {/* Griglia oraria */}
-            <div className="grid" style={{ gridTemplateColumns: cols }}>
-              {/* Gutter ore */}
-              <div className="relative border-r border-[#f0f0f0]" style={{ height: gridH }}>
-                {hours.map((h, idx) => (
-                  <div key={h} className="absolute right-1.5 -translate-y-1/2 text-[10px] font-bold text-[#b0b0b0] tabular-nums" style={{ top: idx * WK_HOUR_PX }}>
-                    {idx === 0 ? '' : `${h}:00`}
-                  </div>
-                ))}
-              </div>
-
-              {/* Colonne giorno */}
-              {days.map((c, di) => {
-                const iso = isoDate(c);
-                const isToday = iso === todayISO;
-                const timed = tasksOnDate(iso).filter(t => !!t.time);
-                const appts = apptsOn(iso).filter(a => !!a.time);
-                const events = [
-                  ...timed.map(t => ({ kind: 'task' as const, id: t.id, start: hhmmToMin(t.time!), title: t.title, t })),
-                  ...appts.map(a => ({ kind: 'appt' as const, id: a.id, start: hhmmToMin(a.time!), title: a.title, a })),
-                ].map(e => ({ ...e, end: e.start + WK_EVENT_MIN }));
-                const placed = packDay(events);
-
-                return (
+                  {/* Corpo orario */}
                   <div
-                    key={di}
                     onClick={() => onNewTask(iso)}
-                    className={`relative border-r border-[#f0f0f0] last:border-r-0 cursor-pointer ${isToday ? 'bg-orange-50/15' : 'hover:bg-gray-50/40'}`}
+                    className={`relative border-t border-[#f0f0f0] cursor-pointer ${isToday ? 'bg-orange-50/10' : 'hover:bg-gray-50/40'}`}
                     style={{
                       height: gridH,
                       backgroundImage: `repeating-linear-gradient(to bottom, transparent, transparent ${WK_HOUR_PX - 1}px, #f1f1f1 ${WK_HOUR_PX - 1}px, #f1f1f1 ${WK_HOUR_PX}px)`,
@@ -506,9 +495,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       );
                     })}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
