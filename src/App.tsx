@@ -100,6 +100,7 @@ import {
   VaultConfig,
   HrEvent,
 } from './types';
+import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
 import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, canAdmin, canAnywhere, canView, canOperate } from './access';
 
@@ -2208,6 +2209,7 @@ export default function App() {
   const [tFreq, setTFreq] = useState<'once' | 'daily' | 'weekly' | 'monthly'>('once');
   const [tPrio, setTPrio] = useState<'urgente' | 'alta' | 'media' | 'bassa'>('media');
   const [tTipo, setTTipo] = useState('');
+  const [tActivityId, setTActivityId] = useState('');
   const [tAssignees, setTAssignees] = useState<string[]>([]);   // multi-assegnatario
   const [tProjectId, setTProjectId] = useState('');
   const [tNotes, setTNotes] = useState('');
@@ -2329,7 +2331,38 @@ export default function App() {
   // ----------------------------------------------------
   
   // 1. Task checklist operations
+  /** Auto-punteggio dalla produttività: al completamento di un task assegnato,
+   * genera (o rimuove) un evento punti per ogni assegnatario. Punti/valore dall'attività
+   * di catalogo se indicata, altrimenti dalla priorità. Id deterministico → niente doppioni. */
+  const awardTaskPoints = (t: any, date: string, add: boolean) => {
+    const assignees: string[] = (t.assignees && t.assignees.length ? t.assignees : (t.assignee ? [t.assignee] : [])).filter(Boolean);
+    if (!assignees.length) return;
+    const act = t.activityId ? activityById(t.activityId) : undefined;
+    const pts = act ? act.points : (PRIORITY_POINTS[t.priority] ?? 2);
+    if (!act && pts === 0) return;
+    const val = act ? activityValue(act) : 0;
+    const isRec = t.frequency && t.frequency !== 'once';
+    assignees.forEach((uid) => {
+      const eid = isRec ? `auto-task-${t.id}-${uid}-${date}` : `auto-task-${t.id}-${uid}`;
+      if (add) {
+        const ev: PointEvent = {
+          id: eid, uid, activityId: t.activityId || 'produttivita',
+          label: act ? act.label : `Completato: ${t.title || 'Task'}`,
+          points: pts, value: val, auto: true, date,
+          refType: 'task', refId: t.id, by: currentUser?.uid || null, byName: currentUser?.name || null, createdAt: Date.now(),
+        };
+        setPointEvents((prev) => [...prev.filter((e) => e.id !== eid), ev]);
+        writeNode(`pointEvents/${uid}/${eid}`, ev).catch(() => {});
+        if (uid !== currentUser?.uid) pushNotification(uid, { type: 'punti', title: `+${pts} punti · ${ev.label}`, link: '#team' });
+      } else {
+        setPointEvents((prev) => prev.filter((e) => e.id !== eid));
+        removeNode(`pointEvents/${uid}/${eid}`).catch(() => {});
+      }
+    });
+  };
+
   const handleToggleTask = (id: string, date: string) => {
+    const t0 = tasks[id];
     setTasks(prev => {
       const t = prev[id];
       if (!t) return prev;
@@ -2348,6 +2381,11 @@ export default function App() {
       syncState('tasks', nextTasks);
       return nextTasks;
     });
+    // Auto-punteggio (fuori dal setter per evitare doppie esecuzioni in strict mode)
+    if (t0) {
+      const add = t0.frequency === 'once' ? !t0.done : !t0.completions?.[date];
+      awardTaskPoints(t0, date, add);
+    }
     showToast('Stato task aggiornato!');
   };
 
@@ -2380,6 +2418,7 @@ export default function App() {
     setTFreq(t.frequency);
     setTPrio(t.priority);
     setTTipo(t.tipo || '');
+    setTActivityId((t as any).activityId || '');
     setTAssignees(t.assignees && t.assignees.length ? t.assignees : t.assignee ? [t.assignee] : []);
     setTProjectId(t.projectId || '');
     setTNotes(t.notes || '');
@@ -2419,6 +2458,7 @@ export default function App() {
           frequency: tFreq,
           priority: tPrio,
           tipo: tTipo.trim() || null,
+          activityId: tActivityId || null,
           assignee: tAssignees[0] || null,
           assignees: tAssignees.length ? tAssignees : null,
           projectId: tProjectId || null,
@@ -2436,6 +2476,7 @@ export default function App() {
           frequency: tFreq,
           priority: tPrio,
           tipo: tTipo.trim() || null,
+          activityId: tActivityId || null,
           assignee: tAssignees[0] || null,
           assignees: tAssignees.length ? tAssignees : null,
           projectId: tProjectId || null,
@@ -4259,6 +4300,7 @@ export default function App() {
               setTFreq('once');
               setTPrio('media');
               setTTipo('');
+              setTActivityId('');
               setTAssignees([]);
               setTProjectId('');
               setTNotes('');
@@ -4295,6 +4337,7 @@ export default function App() {
               setTFreq('once');
               setTPrio('media');
               setTTipo('');
+              setTActivityId('');
               setTAssignees([]);
               setTProjectId('');
               setTNotes('');
@@ -5441,6 +5484,17 @@ export default function App() {
               </datalist>
             </label>
           </div>
+
+          {/* Attività del catalogo punti → punteggio automatico al completamento */}
+          <label className="flex flex-col gap-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Attività (catalogo punti · auto al completamento)</span>
+            <select value={tActivityId} onChange={(e) => setTActivityId(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
+              <option value="">Nessuna — punti dalla priorità ({PRIORITY_POINTS[tPrio] ?? 2})</option>
+              {catalogFor('team').filter((a) => a.id !== 'manual').map((a) => (
+                <option key={a.id} value={a.id}>{a.label} · {a.points >= 0 ? '+' : ''}{a.points} pt · {eur(activityValue(a))}</option>
+              ))}
+            </select>
+          </label>
 
           <div className="flex flex-col gap-1.5">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Assegna a (anche più persone)</span>

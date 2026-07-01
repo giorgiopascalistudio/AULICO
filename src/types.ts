@@ -160,6 +160,7 @@ export interface Task {
   frequency: 'once' | 'daily' | 'weekly' | 'monthly';
   priority: 'urgente' | 'alta' | 'media' | 'bassa';
   tipo?: string | null;          // tipologia attività (rilievo, progetto 3D, computo…)
+  activityId?: string | null;    // attività del catalogo punti (auto-punteggio al completamento)
   assignee?: string | null;      // primo assegnatario (compat: filtri/regole esistenti)
   assignees?: string[] | null;   // multi-assegnatario: il task compare nel calendario di tutti
   projectId?: string | null;
@@ -517,6 +518,7 @@ export interface PointActivity {
   points: number;          // positivo = merito; negativo = penalità (precisione/affidabilità)
   category: string;        // es. 'Produttività','Qualità','Puntualità','Relazione'
   audience: PointAudience;
+  value?: number;          // valore economico "erogato" (€) dell'attività
 }
 
 /** Evento punti assegnato (nodo pointEvents/<id>). */
@@ -526,6 +528,8 @@ export interface PointEvent {
   activityId: string;      // id catalogo oppure 'manual'
   label: string;           // descrizione (denormalizzata)
   points: number;          // anche negativo
+  value?: number | null;   // valore economico "erogato" (€) generato dall'attività
+  auto?: boolean;          // true se generato automaticamente dalla produttività (completamento task)
   date: string;            // yyyy-mm-dd
   note?: string | null;
   refType?: string | null; // 'project'|'task'|'cantiere'|'materico'…

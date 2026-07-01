@@ -12,8 +12,8 @@ import {
 } from 'lucide-react';
 import type { UserProfile, Task, PointEvent, AccessMap, AccessLevel, UserRole, Societa } from '../types';
 import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL } from '../access';
-import { tierFor, nextTier } from '../points';
-import { initials } from '../utils';
+import { tierFor, nextTier, erogatoOf, profileCompleteness } from '../points';
+import { initials, eur } from '../utils';
 
 type Member = UserProfile & { uid: string };
 interface Props {
@@ -151,9 +151,11 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
   const overdue = myTasks.filter((t: any) => !t.done && t.date && t.date < today).length;
   const completed = myTasks.filter((t: any) => t.done).length;
 
-  // Merito & bonus
+  // Merito & bonus + erogato (valore economico) + completezza profilo
   const pts = pointEvents.filter((e) => e.uid === sel.uid).reduce((s, e) => s + (e.points || 0), 0);
   const tier = tierFor(pts); const nxt = nextTier(pts);
+  const erogato = erogatoOf(pointEvents, sel.uid);
+  const prof = profileCompleteness(sel);
 
   const fns = Array.isArray(sel.functions) ? sel.functions : (sel.functions ? Object.keys(sel.functions as any) : []);
   const setLevel = (s: Societa, val: AccessLevel | '') => { setAccess((prev) => { const n: AccessMap = { ...prev }; if (!val) delete n[s]; else n[s] = { ...(n[s] || {}), default: val }; return n; }); setDirty(true); };
@@ -189,9 +191,21 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
               <span className="text-[20px] font-black text-[#161616]">{pts}</span><span className="text-[11px] text-[#9a9a9a]">punti</span>
             </div>
             <p className="text-[11.5px] text-[#8a8a8a]">Bonus fascia: <b className="text-[#161616]">{tier.bonusPct}%</b>{tier.perk ? ` · ${tier.perk}` : ''}</p>
+            <p className="text-[11.5px] text-[#8a8a8a]">Erogato (valore attività): <b className="text-[#161616]">{eur(erogato)}</b></p>
             {nxt && <p className="text-[11px] text-[#a0a0a0]">Ancora <b>{nxt.remaining}</b> punti per {nxt.tier.label}.</p>}
           </Box>
         </div>
+
+        {/* Completezza profilo (incentiva banca dati aggiornata) */}
+        <Box title="Completezza profilo" icon={UserCog}>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-2.5 rounded-full bg-gray-100 overflow-hidden">
+              <div className="h-full rounded-full transition-all" style={{ width: `${prof.pct}%`, background: prof.pct >= 100 ? '#059669' : prof.pct >= 60 ? '#b45309' : '#dc2626' }} />
+            </div>
+            <span className="text-[14px] font-black text-[#161616]">{prof.pct}%</span>
+          </div>
+          {prof.missing.length > 0 ? <p className="text-[11.5px] text-[#8a8a8a]">Mancano: {prof.missing.join(', ')}.</p> : <p className="text-[11.5px] text-emerald-600 font-semibold">Profilo completo.</p>}
+        </Box>
 
         {/* Produttività */}
         <Box title="Produttività (task assegnati)" icon={CheckCircle2}>

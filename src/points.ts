@@ -104,6 +104,41 @@ export function activityById(id: string): PointActivity | undefined {
   return POINT_CATALOG.find((a) => a.id === id);
 }
 
+/** Valore economico ("erogato") di un'attività: esplicito se presente, altrimenti €10 per punto. */
+export function activityValue(a?: PointActivity | null): number {
+  if (!a) return 0;
+  return a.value != null ? a.value : Math.max(0, a.points) * 10;
+}
+
+/** Punti automatici per un task senza attività di catalogo, in base alla priorità. */
+export const PRIORITY_POINTS: Record<string, number> = { urgente: 5, alta: 4, media: 2, bassa: 1 };
+
+/** Totale "erogato" (€) di un collaboratore dai suoi eventi punti. */
+export function erogatoOf(events: PointEvent[], uid: string): number {
+  return events.filter((e) => e.uid === uid).reduce((s, e) => s + (e.value || 0), 0);
+}
+
+/** Campi che concorrono alla completezza del profilo (incentiva la banca dati aggiornata). */
+export const PROFILE_FIELDS: { key: string; label: string }[] = [
+  { key: 'name', label: 'Nome' },
+  { key: 'email', label: 'Email' },
+  { key: 'telefono', label: 'Telefono' },
+  { key: 'photoURL', label: 'Foto' },
+  { key: 'title', label: 'Ruolo/qualifica' },
+  { key: 'functions', label: 'Mansioni' },
+];
+/** % completezza profilo + campi mancanti. */
+export function profileCompleteness(u: any): { pct: number; done: number; total: number; missing: string[] } {
+  const has = (k: string) => {
+    const v = u?.[k];
+    if (k === 'functions') return Array.isArray(v) ? v.length > 0 : !!v && Object.keys(v).length > 0;
+    return v != null && String(v).trim() !== '';
+  };
+  const missing = PROFILE_FIELDS.filter((f) => !has(f.key)).map((f) => f.label);
+  const done = PROFILE_FIELDS.length - missing.length;
+  return { pct: Math.round((done / PROFILE_FIELDS.length) * 100), done, total: PROFILE_FIELDS.length, missing };
+}
+
 /** Fasce bonus (ranking). minPoints crescente; l'ultima ≤ punti vince. */
 export const BONUS_TIERS: BonusTier[] = [
   { id: 'base', label: 'Base', minPoints: 0, bonusPct: 0, color: '#a8a29e' },

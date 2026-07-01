@@ -112,7 +112,10 @@
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
       ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
       "$uid": {
-        ".read": "auth != null && auth.uid == $uid"
+        ".read": "auth != null && auth.uid == $uid",
+        "$id": {
+          ".write": "auth != null && auth.uid == $uid && $id.beginsWith('auto-') && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner' && (!newData.exists() || (newData.child('auto').val() == true && newData.child('uid').val() == $uid))"
+        }
       }
     },
 

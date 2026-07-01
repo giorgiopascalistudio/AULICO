@@ -26,7 +26,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { UserProfile, Project, Task, PointEvent } from '../types';
 import { initials } from '../utils';
-import { leaderboard, tierFor, nextTier, catalogFor, POINT_CATALOG } from '../points';
+import { leaderboard, tierFor, nextTier, catalogFor, POINT_CATALOG, activityValue } from '../points';
 import { TeamRegistro } from './TeamRegistro';
 
 interface TeamViewProps {
@@ -1088,6 +1088,7 @@ const IncentivesBoard: React.FC<{
       activityId: act.id,
       label: act.id === 'manual' ? (note.trim() || 'Assegnazione manuale') : act.label,
       points,
+      value: act.id === 'manual' ? 0 : activityValue(act),
       date: new Date().toISOString().slice(0, 10),
       note: note.trim() || null,
       createdAt: Date.now(),
