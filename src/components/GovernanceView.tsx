@@ -113,6 +113,7 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
   const [selId, setSelId] = React.useState<string | null>(null);
   const [collapsed, setCollapsed] = React.useState<Record<string, boolean>>({});
   const [chart, setChart] = React.useState<'societario' | 'funzionale'>('funzionale');
+  const [zoom, setZoom] = React.useState(1);
   const roots = childrenOf(null).filter((n) => (n.chart || 'funzionale') === chart);
   const sel = selId ? nodes.find((n) => n.id === selId) || null : null;
 
@@ -124,46 +125,70 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
   };
   const seed = () => { buildGroupSeed().forEach(onSaveNode); };
 
-  const Row: React.FC<{ node: OrgNode; depth: number }> = ({ node, depth }) => {
+  // Nodo-box dello schema (ricorsivo, con connettori CSS via .orgchart)
+  const ChartNode: React.FC<{ node: OrgNode }> = ({ node }) => {
     const kids = childrenOf(node.id);
     const meta = KIND_META[node.kind];
     const Icon = meta.icon;
     const isCol = collapsed[node.id];
     const isSel = selId === node.id;
+    const canAdd = canEdit && node.kind !== 'ruolo';
     return (
-      <div>
-        <div onClick={() => setSelId(node.id)} className={`flex items-center gap-2 py-1.5 pr-2 rounded-lg cursor-pointer transition-colors ${isSel ? 'bg-[#161616]/[0.06]' : 'hover:bg-gray-50'}`} style={{ paddingLeft: 6 + depth * 18 }}>
-          {kids.length > 0 ? (
-            <button onClick={(e) => { e.stopPropagation(); setCollapsed((c) => ({ ...c, [node.id]: !c[node.id] })); }} className="w-4 h-4 flex items-center justify-center text-[#9a9a9a] shrink-0 cursor-pointer bg-transparent border-none">{isCol ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}</button>
-          ) : <span className="w-4 shrink-0" />}
-          <span className="w-6 h-6 rounded-md flex items-center justify-center shrink-0" style={{ background: `${meta.color}14`, color: meta.color }}><Icon className="w-3.5 h-3.5" /></span>
-          <span className="text-[13.5px] font-bold text-[#161616] truncate">{node.label}</span>
-          {node.person && <span className="text-[11.5px] text-[#6b6b6b] truncate">· {node.person}</span>}
-          {node.kind === 'societa' && node.quota != null && <span className="text-[10px] font-bold text-[#8a8a8a] bg-gray-100 px-1.5 py-0.5 rounded-full shrink-0">{node.quota}%</span>}
-          {node.identita && <span className="text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 shrink-0">{node.identita}</span>}
-          {canEdit && node.kind !== 'ruolo' && <button onClick={(e) => { e.stopPropagation(); addNode(node); }} title="Aggiungi sotto-elemento" className="ml-auto w-6 h-6 rounded-md flex items-center justify-center text-[#9a9a9a] hover:bg-gray-200 hover:text-[#161616] shrink-0 cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /></button>}
+      <li>
+        <div className="og-wrap">
+          <div
+            onClick={() => setSelId(node.id)}
+            className={`og-node relative inline-flex flex-col items-center text-center align-top bg-white border rounded-2xl px-3.5 py-2.5 cursor-pointer transition-all select-none ${isSel ? 'shadow-md -translate-y-0.5' : 'shadow-sm hover:shadow-md hover:-translate-y-0.5'}`}
+            style={{ borderColor: isSel ? meta.color : '#e2e2e2', borderWidth: isSel ? 2 : 1, minWidth: 148, maxWidth: 210, boxShadow: isSel ? `0 6px 18px ${meta.color}22` : undefined }}
+          >
+            <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-6 rounded-lg flex items-center justify-center shadow-sm" style={{ background: meta.color, color: '#fff' }}><Icon className="w-3.5 h-3.5" /></span>
+            <span className="text-[12.5px] font-extrabold text-[#161616] leading-tight mt-2.5 break-words">{node.label}</span>
+            {node.person && <span className="text-[10.5px] text-[#6b6b6b] font-semibold mt-0.5 break-words leading-tight">{node.person}</span>}
+            <div className="flex items-center gap-1 mt-1 flex-wrap justify-center">
+              {node.quota != null && <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full" style={{ background: `${meta.color}14`, color: meta.color }}>{node.quota}%</span>}
+              {node.identita && <span className="text-[8.5px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700">{node.identita}</span>}
+            </div>
+            {/* controlli */}
+            <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+              {kids.length > 0 && (
+                <button onClick={(e) => { e.stopPropagation(); setCollapsed((c) => ({ ...c, [node.id]: !c[node.id] })); }} title={isCol ? `Espandi (${kids.length})` : 'Comprimi'} className="w-5 h-5 rounded-full bg-white border border-[#d7d7d3] flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] hover:border-[#161616] shadow-sm cursor-pointer">
+                  {isCol ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3 rotate-90" />}
+                </button>
+              )}
+              {canAdd && <button onClick={(e) => { e.stopPropagation(); addNode(node); }} title="Aggiungi sotto-elemento" className="w-5 h-5 rounded-full bg-[#161616] text-white flex items-center justify-center hover:bg-black shadow-sm cursor-pointer border-none"><Plus className="w-3 h-3" /></button>}
+            </div>
+            {isCol && kids.length > 0 && <span className="absolute -bottom-2.5 -right-2 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-gray-200 text-[#555]">+{kids.length}</span>}
+          </div>
         </div>
-        {!isCol && kids.map((k) => <Row key={k.id} node={k} depth={depth + 1} />)}
-      </div>
+        {!isCol && kids.length > 0 && <ul>{kids.map((k) => <ChartNode key={k.id} node={k} />)}</ul>}
+      </li>
     );
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4">
-      <div className="lg:flex-1 bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm min-h-[420px]">
+    <div className="flex flex-col lg:flex-row gap-4 items-start">
+      <div className="lg:flex-1 w-full bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm min-h-[440px]">
         <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
           {/* Toggle tipo organigramma */}
           <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
-            {([['societario', 'Societario'], ['funzionale', 'Funzionale']] as const).map(([id, lbl]) => (
+            {([['funzionale', 'Funzionale'], ['societario', 'Societario']] as const).map(([id, lbl]) => (
               <button key={id} onClick={() => { setChart(id); setSelId(null); }} className={`text-[11.5px] font-bold px-3 py-1.5 rounded-full cursor-pointer border-none transition-all ${chart === id ? 'bg-[#161616] text-white shadow-xs' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{lbl}</button>
             ))}
           </div>
-          {canEdit && (
-            <div className="flex items-center gap-2">
-              <button onClick={seed} title="Precompila con la struttura delle immagini" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Network className="w-3.5 h-3.5" /> Carica esempio</button>
-              <button onClick={() => addNode(null)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> {chart === 'societario' ? 'Società' : 'Ramo'}</button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* zoom */}
+            <div className="inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] rounded-full">
+              <button onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))} className="w-7 h-7 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">−</button>
+              <span className="text-[11px] font-bold text-[#6b6b6b] w-9 text-center">{Math.round(zoom * 100)}%</span>
+              <button onClick={() => setZoom((z) => Math.min(1.4, +(z + 0.1).toFixed(2)))} className="w-7 h-7 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">+</button>
             </div>
-          )}
+            {canEdit && (
+              <>
+                <button onClick={seed} title="Precompila con la struttura delle immagini" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Network className="w-3.5 h-3.5" /> Carica esempio</button>
+                <button onClick={() => addNode(null)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> {chart === 'societario' ? 'Società' : 'Ramo'}</button>
+              </>
+            )}
+          </div>
         </div>
         {roots.length === 0 ? (
           <div className="text-center py-14">
@@ -171,20 +196,26 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
             <p className="text-[13px] text-[#8a8a8a] mb-4">Organigramma {chart} vuoto.{canEdit ? ' Caricalo dalle immagini o aggiungi a mano.' : ''}</p>
             {canEdit && <button onClick={seed} className="px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Carica organigrammi (come da immagini)</button>}
           </div>
-        ) : roots.map((r) => <Row key={r.id} node={r} depth={0} />)}
+        ) : (
+          <div className="overflow-auto -mx-1 px-1 pb-2" style={{ maxHeight: '68vh' }}>
+            <div className="orgchart" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
+              <ul>{roots.map((r) => <ChartNode key={r.id} node={r} />)}</ul>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Pannello dettaglio nodo */}
-      <div className="lg:w-[340px] bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm">
-        {!sel ? <p className="text-[13px] text-[#9a9a9a] text-center py-10">Seleziona un elemento per modificarlo.</p> : (
-          <NodeEditor key={sel.id} node={sel} members={members} canEdit={canEdit} onSave={onSaveNode} onDelete={(id) => { onDeleteNode(id); setSelId(null); }} hasChildren={childrenOf(sel.id).length > 0} />
+      <div className="lg:w-[340px] w-full lg:sticky lg:top-4 bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm">
+        {!sel ? <p className="text-[13px] text-[#9a9a9a] text-center py-10">Seleziona un box dello schema per modificarlo, oppure usa <b className="text-[#161616]">＋</b> su un nodo per aggiungere un sotto-elemento.</p> : (
+          <NodeEditor key={sel.id} node={sel} members={members} canEdit={canEdit} onSave={onSaveNode} onDelete={(id) => { onDeleteNode(id); setSelId(null); }} hasChildren={childrenOf(sel.id).length > 0} onAddChild={() => addNode(sel)} />
         )}
       </div>
     </div>
   );
 };
 
-const NodeEditor: React.FC<{ node: OrgNode; members: Member[]; canEdit: boolean; onSave: (n: OrgNode) => void; onDelete: (id: string) => void; hasChildren: boolean }> = ({ node, members, canEdit, onSave, onDelete, hasChildren }) => {
+const NodeEditor: React.FC<{ node: OrgNode; members: Member[]; canEdit: boolean; onSave: (n: OrgNode) => void; onDelete: (id: string) => void; hasChildren: boolean; onAddChild?: () => void }> = ({ node, members, canEdit, onSave, onDelete, hasChildren, onAddChild }) => {
   const [d, setD] = React.useState<OrgNode>(node);
   React.useEffect(() => setD(node), [node]);
   const meta = KIND_META[node.kind];
@@ -219,7 +250,12 @@ const NodeEditor: React.FC<{ node: OrgNode; members: Member[]; canEdit: boolean;
           <label className="flex flex-col gap-1"><Lbl>PFV — Prodotto Finale di Valore</Lbl><textarea disabled={!canEdit} value={d.pfv || ''} onChange={(e) => set({ pfv: e.target.value })} rows={2} className={`${inp} resize-none`} placeholder="Es. l'emozione suscitata nel cliente" /></label>
         </>
       )}
-      {canEdit && <button onClick={save} className="mt-1 px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Salva</button>}
+      {canEdit && (
+        <div className="flex flex-col gap-2 mt-1">
+          <button onClick={save} className="px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Salva</button>
+          {node.kind !== 'ruolo' && onAddChild && <button onClick={onAddChild} className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12.5px] font-bold cursor-pointer"><Plus className="w-3.5 h-3.5" /> Aggiungi {node.kind === 'societa' ? 'area / sotto-società' : 'ruolo'}</button>}
+        </div>
+      )}
     </div>
   );
 };

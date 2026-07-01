@@ -491,3 +491,76 @@ textarea:focus {
   .print-area { position: absolute !important; left: 0; top: 0; width: 100%; border: none !important; box-shadow: none !important; }
   .no-print { display: none !important; }
 }
+
+/* ---------- Organigramma (schema ad albero con connettori) ---------- */
+.orgchart { display: inline-block; min-width: 100%; padding: 8px 8px 24px; }
+.orgchart ul {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 22px 0 0;
+  margin: 0;
+  list-style: none;
+}
+.orgchart li {
+  position: relative;
+  list-style: none;
+  padding: 22px 10px 0;
+  text-align: center;
+}
+/* connettore verticale sopra ogni nodo figlio */
+.orgchart li::before,
+.orgchart li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 50%;
+  width: 50%;
+  height: 22px;
+  border-top: 2px solid #d7d7d3;
+}
+.orgchart li::after {
+  right: auto;
+  left: 50%;
+  border-left: 2px solid #d7d7d3;
+}
+/* figlio unico: solo il tratto verticale, niente orizzontale */
+.orgchart li:only-child::before,
+.orgchart li:only-child::after { display: none; }
+.orgchart li:only-child { padding-top: 22px; }
+.orgchart li:only-child > .og-wrap::before {
+  content: '';
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  width: 0;
+  height: 22px;
+  border-left: 2px solid #d7d7d3;
+}
+/* primo/ultimo: arrotonda gli angoli del giunto */
+.orgchart li:first-child::before,
+.orgchart li:last-child::after { border: 0 none; }
+.orgchart li:last-child::before {
+  border-right: 2px solid #d7d7d3;
+  border-radius: 0 8px 0 0;
+}
+.orgchart li:first-child::after {
+  border-radius: 8px 0 0 0;
+}
+/* tratto verticale che scende dal genitore verso la riga dei figli */
+.orgchart ul ul::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 22px;
+  border-left: 2px solid #d7d7d3;
+}
+/* radice: nessun connettore in cima */
+.orgchart > ul { padding-top: 0; }
+.orgchart > ul > li { padding-top: 0; }
+.orgchart > ul > li::before,
+.orgchart > ul > li::after { display: none; }
+.orgchart > ul > li:only-child > .og-wrap::before { display: none; }
+.og-wrap { position: relative; display: inline-block; }

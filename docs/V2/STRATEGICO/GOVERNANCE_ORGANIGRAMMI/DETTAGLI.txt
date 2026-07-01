@@ -1,0 +1,42 @@
+All’interno dell’ecosistema dell'app, la sezione Governance (o "Governance e Organizzazione") è lo strumento dinamico e interattivo che definisce "chi fa cosa" e come devono essere svolte le attività all'interno del gruppo
+. Questa sezione è gestita centralmente dalla società Strategico attraverso l'area Risorse Umane (HR)
+.
+Ecco nel dettaglio cosa deve essere inserito nella sezione Governance:
+1. Organigrammi Dinamici, con la possibilità di aggiungere nuovi rami modificarli o eliminarli, si deve interfacciare con il resto/permessi/autorizzazioni
+L'organigramma non deve essere una semplice immagine statica, ma una struttura su più livelli che riflette l'evoluzione aziendale
+:
+Livello Societario: La gerarchia delle cinque realtà del gruppo (Strategico, Unico, Onirico, Materico e Fantastico) poste sotto la holding
+.
+Livello di Area: Ogni società deve mostrare le sue tre aree fondamentali: Amministrativa/Contabile, Produzione e Commerciale
+.
+Livello delle Persone: Associazione dei nomi e dei volti dei collaboratori alle specifiche mansioni e responsabilità (es. Mino come responsabile dei rilievi)
+.
+2. Mansionari e Prodotti Finali di Valore
+Ogni ruolo deve essere codificato per evitare ambiguità operative
+:
+Definizione delle Mansioni: Elenco dettagliato dei compiti e delle responsabilità per ciascuna figura
+.
+Prodotto Finale di Valore (PFV): La definizione dell'obiettivo qualitativo atteso per ogni ruolo (ad esempio, per un addetto ai render il PFV è l'emozione suscitata nel cliente, non solo l'immagine tecnica)
+.
+Identità Societaria: La distinzione tra Amministratore, Soci, Dipendenti (con contratto) e Collaboratori
+.
+3. Procedure Operative Standard (SOP)
+Guide digitali passo-passo che spiegano come utilizzare strumenti o svolgere processi
+:
+Manuali d'uso: Ad esempio, una procedura chiara su come si estrae lo strumento dalla borsa e come si esegue un rilievo con il laser scanner
+.
+Accessibilità: Le guide devono essere consultabili via mobile direttamente sul cantiere in caso di dubbi
+.
+4. Gestione Protetta delle Credenziali
+Un'area specifica della Governance, protetta da una master password o "lucchetto", dedicata alla conservazione di codici utente, password e chiavi di accesso a tutti i sistemi gestionali e ai canali social del gruppo
+.
+5. Monitoraggio Performance e Incentivi
+Statistiche KPI: Tracciamento delle attività svolte per misurare il merito e la performance individuale
+.
+Piano Incentivante: Un sistema a punteggio che, basandosi sui dati statistici reali, sblocca bonus o premi per i collaboratori più produttivi
+.
+6. Registro Attività (Audit)
+Un registro inalterabile di tutte le azioni compiute all'interno dello studio (creazioni, modifiche, eliminazioni, ripristini), utile per fini di sicurezza e controllo interno
+.
+7. Permessi e Sicurezza
+L'intera struttura della Governance funge da filtro per i permessi d’accesso al software: il sistema riconosce il ruolo dell'utente nell'organigramma e abilita la visualizzazione solo delle sezioni e dei dati (come quelli sensibili del CRM) pertinenti alla sua mansione
