@@ -860,6 +860,14 @@ export interface ClientRecord {
   credentials?: ContactCredential[] | null;  // credenziali protette (social/gestionali)
   privacyLiberatoria?: boolean;              // liberatoria immagini/video cantiere firmata
   interactions?: ContactInteraction[] | null; // memoria storica (riunioni/eventi/campagne/regali)
+  // --- Ranking partner/fornitori (valutazione a stelle 0–5 per criterio) ---
+  partnerRating?: {
+    tempistiche?: number;      // rispetto dei tempi concordati
+    qualita?: number;          // qualità delle lavorazioni
+    preventivazione?: number;  // velocità di preventivazione
+    costo?: number;            // competitività di costo
+    organizzazione?: number;   // organizzazione di cantiere & maestranze
+  } | null;
   notes?: string | null;
   createdBy: string;
   createdAt: number;

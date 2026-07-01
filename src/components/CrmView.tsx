@@ -480,6 +480,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
         <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico il registro…</div>}>
           <CrmRegistro
             title="Fornitori & Subappaltatori"
+            variant="fornitori"
             restrictRoles={['fornitore', 'impresa']}
             clients={Object.values(clients)}
             societies={CRM_SOCIETIES}

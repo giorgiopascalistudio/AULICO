@@ -12,7 +12,7 @@ import React from 'react';
 import {
   Users, Plus, Search, Mail, Phone, MapPin, FileText, Lock, AlertTriangle,
   Clock, CheckCircle2, XCircle, Eye, EyeOff, Edit2, Trash2, Share2, Calendar,
-  Gift, Megaphone, Target, ChevronDown, FolderOpen, Hash, UserCog, Upload, Download, FileDown,
+  Gift, Megaphone, Target, ChevronDown, FolderOpen, Hash, UserCog, Upload, Download, FileDown, Star,
 } from 'lucide-react';
 import type { ClientRecord, BrandAsset, ContactCredential, ContactInteraction } from '../types';
 
@@ -34,20 +34,45 @@ interface Props {
   projectsOf?: (rec: ClientRecord) => ProjRef[];
   memberName?: (uid: string) => string;
   restrictRoles?: string[];   // se presente: lista pre-filtrata a questi ruoli (es. fornitori)
+  variant?: 'clienti' | 'fornitori';  // filtri e scheda differenziati
   title?: string;
 }
 
 const onKeys = (m?: Record<string, boolean>) => Object.keys(m || {}).filter((k) => m![k]);
 const fmtDate = (s?: string) => (s ? new Date(s).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' }) : '');
+
+// ---- Ranking partner/fornitori ----
+const RATING_CRITERIA: [keyof NonNullable<ClientRecord['partnerRating']>, string][] = [
+  ['tempistiche', 'Tempistiche rispettate'],
+  ['qualita', 'Qualità delle lavorazioni'],
+  ['preventivazione', 'Velocità di preventivazione'],
+  ['costo', 'Costo / competitività'],
+  ['organizzazione', 'Organizzazione & maestranze'],
+];
+const ratingAvg = (r?: ClientRecord['partnerRating'] | null): number => {
+  if (!r) return 0;
+  const vals = RATING_CRITERIA.map(([k]) => r[k]).filter((v) => typeof v === 'number' && (v as number) > 0) as number[];
+  return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+};
+const Stars: React.FC<{ value: number; size?: number; onSet?: (v: number) => void }> = ({ value, size = 14, onSet }) => (
+  <span className="inline-flex items-center gap-0.5">
+    {[1, 2, 3, 4, 5].map((i) => (
+      <Star key={i} className={`${onSet ? 'cursor-pointer' : ''}`} onClick={onSet ? () => onSet(i) : undefined} style={{ width: size, height: size }}
+        fill={i <= Math.round(value) ? '#f59e0b' : 'none'} color={i <= Math.round(value) ? '#f59e0b' : '#d0d0d0'} />
+    ))}
+  </span>
+);
 const tierStyle = (t?: number | null) => (t === 1 ? 'bg-rose-50 text-rose-700' : t === 2 ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-700');
 const INT_ICON = { riunione: FileText, evento: Calendar, campagna: Megaphone, regalo: Gift } as const;
 const INT_LABEL = { riunione: 'Riunione / Nota', evento: 'Evento', campagna: 'Campagna', regalo: 'Pensiero / Gadget' } as const;
 
-export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, onImport, paymentStatus, projectsOf, memberName, restrictRoles, title }) => {
+export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, onImport, paymentStatus, projectsOf, memberName, restrictRoles, variant = 'clienti', title }) => {
+  const isFornitori = variant === 'fornitori';
   const [selId, setSelId] = React.useState<string | null>(null);
   const [search, setSearch] = React.useState('');
   const [soc, setSoc] = React.useState<'all' | string>('all');
   const [role, setRole] = React.useState<'all' | string>('all');
+  const [minStars, setMinStars] = React.useState(0);
   const [detTab, setDetTab] = React.useState<'anagrafica' | 'brand' | 'credenziali' | 'storia'>('anagrafica');
   const [pwShown, setPwShown] = React.useState<Record<string, boolean>>({});
 
@@ -58,9 +83,10 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
       if (q && !(`${c.name} ${c.companyName || ''} ${c.email || ''} ${c.phone || ''} ${c.codiceReferenza || ''} ${(c.targetTags || []).join(' ')}`.toLowerCase().includes(q))) return false;
       if (soc !== 'all' && !c.societies?.[soc]) return false;
       if (role !== 'all' && !c.roles?.[role]) return false;
+      if (isFornitori && minStars > 0 && ratingAvg(c.partnerRating) < minStars) return false;
       return true;
     })
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => (isFornitori ? (ratingAvg(b.partnerRating) - ratingAvg(a.partnerRating)) || a.name.localeCompare(b.name) : a.name.localeCompare(b.name)));
 
   // seleziona il primo della lista filtrata se nulla è selezionato o l'attuale è uscito dai filtri
   React.useEffect(() => {
@@ -95,6 +121,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
     ['Data inizio', (c) => c.dataInizio || ''],
     ['Data fine', (c) => c.dataFine || ''],
     ['Da incassare', (c) => { const p = paymentStatus(c); return p.daIncassare ? p.daIncassare.toFixed(2) : ''; }],
+    ...(isFornitori ? [['Valutazione', (c: ClientRecord) => { const a = ratingAvg(c.partnerRating); return a ? a.toFixed(1) : ''; }] as [string, (c: ClientRecord) => string]] : []),
   ];
   const exportCsv = () => {
     const esc = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
@@ -140,19 +167,32 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
             <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cerca nome, azienda, email, codice…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616]" />
           </div>
-          {/* Filtri compatti: Società + Tipo */}
+          {/* Filtri compatti — differenziati clienti / fornitori */}
           <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <select value={soc} onChange={(e) => setSoc(e.target.value)} className="w-full appearance-none pl-3 pr-7 py-2 rounded-xl border border-[#e2e2e2] text-[12px] font-semibold text-[#333] bg-white outline-none focus:border-[#161616] cursor-pointer">
-                <option value="all">Tutte le società</option>
-                {societies.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            {isFornitori ? (
+              <div className="relative flex-1">
+                <select value={minStars} onChange={(e) => setMinStars(Number(e.target.value))} className="w-full appearance-none pl-3 pr-7 py-2 rounded-xl border border-[#e2e2e2] text-[12px] font-semibold text-[#333] bg-white outline-none focus:border-[#161616] cursor-pointer">
+                  <option value={0}>Tutte le valutazioni</option>
+                  <option value={4}>★★★★ e più</option>
+                  <option value={3}>★★★ e più</option>
+                  <option value={2}>★★ e più</option>
+                  <option value={1}>★ e più</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+            ) : (
+              <div className="relative flex-1">
+                <select value={soc} onChange={(e) => setSoc(e.target.value)} className="w-full appearance-none pl-3 pr-7 py-2 rounded-xl border border-[#e2e2e2] text-[12px] font-semibold text-[#333] bg-white outline-none focus:border-[#161616] cursor-pointer">
+                  <option value="all">Tutte le società</option>
+                  {societies.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+            )}
             {filterRoles.length > 0 && (
               <div className="relative flex-1">
                 <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full appearance-none pl-3 pr-7 py-2 rounded-xl border border-[#e2e2e2] text-[12px] font-semibold text-[#333] bg-white outline-none focus:border-[#161616] cursor-pointer">
-                  <option value="all">Tutti i tipi</option>
+                  <option value="all">{isFornitori ? 'Tutte le categorie' : 'Tutti i tipi'}</option>
                   {filterRoles.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
                 </select>
                 <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -187,6 +227,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
                     {onKeys(c.roles)[0] && <span className="text-[9px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full shrink-0">{roleLabel(onKeys(c.roles)[0])}</span>}
                   </div>
                   {c.companyName && <p className="text-[11.5px] text-[#8a8a8a] truncate mt-0.5 font-medium">{c.companyName}</p>}
+                  {isFornitori && (() => { const avg = ratingAvg(c.partnerRating); return <div className="flex items-center gap-1.5 mt-1"><Stars value={avg} size={13} />{avg > 0 && <span className="text-[10.5px] font-bold text-[#8a8a8a]">{avg.toFixed(1)}</span>}</div>; })()}
                   <div className="flex flex-wrap items-center gap-1 mt-1.5">
                     {c.tier && <span className={`text-[9.5px] font-bold px-1.5 py-0.5 rounded ${tierStyle(c.tier)}`}>Fascia {c.tier}</span>}
                     {c.acquisitionChannel && <span className="text-[9.5px] bg-gray-50 text-gray-500 border border-gray-100 px-1.5 py-0.5 rounded capitalize">{c.acquisitionChannel}</span>}
@@ -254,7 +295,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
               </div>
 
               <div className="flex-1 overflow-y-auto p-5">
-                {detTab === 'anagrafica' && <AnagraficaPane sel={sel} pay={pay} societies={societies} roles={roles} onPatch={patch} projectsOf={projectsOf} memberName={memberName} />}
+                {detTab === 'anagrafica' && <AnagraficaPane sel={sel} pay={pay} societies={societies} roles={roles} onPatch={patch} projectsOf={projectsOf} memberName={memberName} isFornitori={isFornitori} />}
                 {detTab === 'brand' && <BrandPane sel={sel} onSave={(b) => patch({ brandAsset: b })} />}
                 {detTab === 'credenziali' && <CredenzialiPane sel={sel} pwShown={pwShown} setPwShown={setPwShown} onSave={(cr) => patch({ credentials: cr })} />}
                 {detTab === 'storia' && <StoriaPane sel={sel} onSave={(it) => patch({ interactions: it })} />}
@@ -274,7 +315,7 @@ const Info: React.FC<{ icon: any; label: string; children: React.ReactNode }> = 
 const Box: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-4 flex flex-col gap-3.5"><h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[#666]">{title}</h4>{children}</div>
 );
-const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc[]; roles: Role[]; onPatch: (c: Partial<ClientRecord>) => void; projectsOf?: (rec: ClientRecord) => ProjRef[]; memberName?: (uid: string) => string }> = ({ sel, pay, roles, onPatch, projectsOf, memberName }) => {
+const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc[]; roles: Role[]; onPatch: (c: Partial<ClientRecord>) => void; projectsOf?: (rec: ClientRecord) => ProjRef[]; memberName?: (uid: string) => string; isFornitori?: boolean }> = ({ sel, pay, roles, onPatch, projectsOf, memberName, isFornitori }) => {
   const roleLabel = (id: string) => roles.find((r) => r.id === id)?.label || id;
   const onTogglePrivacy = (v: boolean) => onPatch({ privacyLiberatoria: v });
   const [ref, setRef] = React.useState(sel.codiceReferenza || '');
@@ -389,6 +430,33 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
           </button>
         </div>
       </Box>
+
+      {/* Ranking & valutazione (solo fornitori/partner) */}
+      {isFornitori && (() => {
+        const rt = sel.partnerRating || {};
+        const avg = ratingAvg(rt);
+        const setCrit = (k: keyof NonNullable<ClientRecord['partnerRating']>, v: number) => onPatch({ partnerRating: { ...rt, [k]: (rt[k] === v ? 0 : v) } });
+        return (
+          <Box title="Ranking & valutazione">
+            <div className="flex items-center justify-between gap-3 bg-white p-3 rounded-lg border border-[#f0f0f0]">
+              <div>
+                <p className="text-[12px] font-bold text-[#444]">Punteggio complessivo</p>
+                <p className="text-[11px] text-[#8a8a8a]">Media dei criteri valutati</p>
+              </div>
+              <div className="flex items-center gap-2"><Stars value={avg} size={18} /><span className="text-[16px] font-black text-[#161616]">{avg ? avg.toFixed(1) : '—'}</span></div>
+            </div>
+            <div className="flex flex-col gap-2 mt-1">
+              {RATING_CRITERIA.map(([k, label]) => (
+                <div key={k} className="flex items-center justify-between gap-2">
+                  <span className="text-[12px] font-medium text-[#444]">{label}</span>
+                  <Stars value={rt[k] || 0} size={16} onSet={(v) => setCrit(k, v)} />
+                </div>
+              ))}
+            </div>
+            <p className="text-[10.5px] text-[#b0b0b0] leading-relaxed mt-1">Clic sulle stelle per valutare (riclicca sulla stessa per azzerare). Le imprese con punteggio più alto compaiono in cima al registro fornitori.</p>
+          </Box>
+        );
+      })()}
     </div>
   );
 };
