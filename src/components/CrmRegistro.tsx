@@ -12,7 +12,7 @@ import React from 'react';
 import {
   Users, Plus, Search, Mail, Phone, MapPin, FileText, Lock, AlertTriangle,
   Clock, CheckCircle2, XCircle, Eye, EyeOff, Edit2, Trash2, Share2, Calendar,
-  Gift, Megaphone, Target, ChevronDown, FolderOpen, Hash, UserCog, Upload,
+  Gift, Megaphone, Target, ChevronDown, FolderOpen, Hash, UserCog, Upload, Download, FileDown,
 } from 'lucide-react';
 import type { ClientRecord, BrandAsset, ContactCredential, ContactInteraction } from '../types';
 
@@ -77,6 +77,50 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
 
   const roleLabel = (id: string) => roles.find((r) => r.id === id)?.label || id;
 
+  // ---- Export (rispetta i filtri correnti) ----
+  const respName = (c: ClientRecord) => c.responsabileNome || Object.keys(c.responsabili || {}).map((u) => (memberName ? memberName(u) : u)).join(', ');
+  const EXP_COLS: [string, (c: ClientRecord) => string][] = [
+    ['Codice', (c) => c.codiceReferenza || ''],
+    ['Nome', (c) => c.name],
+    ['Tipo', (c) => c.type],
+    ['Email', (c) => c.email || ''],
+    ['Telefono', (c) => c.phone || ''],
+    ['Indirizzo', (c) => c.address || ''],
+    ['Fascia', (c) => (c.tier ? String(c.tier) : '')],
+    ['Stato', (c) => (c.stato || '')],
+    ['Responsabile', (c) => respName(c)],
+    ['Rif. comunicazione', (c) => c.riferimentoComunicazione || ''],
+    ['Preventivo', (c) => (c.preventivoStato === 'firmato' ? 'Firmato' : c.preventivoStato === 'non_firmato' ? 'Non firmato' : '')],
+    ['Saldato', (c) => (c.saldato === true ? 'SI' : c.saldato === false ? 'NO' : '')],
+    ['Data inizio', (c) => c.dataInizio || ''],
+    ['Data fine', (c) => c.dataFine || ''],
+    ['Da incassare', (c) => { const p = paymentStatus(c); return p.daIncassare ? p.daIncassare.toFixed(2) : ''; }],
+  ];
+  const exportCsv = () => {
+    const esc = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
+    const csv = [EXP_COLS.map((c) => c[0]), ...list.map((c) => EXP_COLS.map(([, f]) => f(c)))].map((r) => r.map(esc).join(';')).join('\r\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `registro-${(title || 'clienti').toLowerCase().replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  const exportPdf = () => {
+    const esc = (v: string) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const w = window.open('', '_blank');
+    if (!w) return;
+    const head = EXP_COLS.map((c) => `<th>${esc(c[0])}</th>`).join('');
+    const body = list.map((c) => `<tr>${EXP_COLS.map(([, f]) => `<td>${esc(f(c))}</td>`).join('')}</tr>`).join('');
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title || 'Registro clienti')}</title>
+      <style>body{font-family:Inter,Arial,sans-serif;color:#161616;padding:24px}h1{font-size:18px;margin:0 0 4px}p{color:#888;font-size:12px;margin:0 0 16px}
+      table{border-collapse:collapse;width:100%;font-size:10.5px}th,td{border:1px solid #ddd;padding:5px 7px;text-align:left}th{background:#f4f4f2;text-transform:uppercase;font-size:9px;letter-spacing:.04em}tr:nth-child(even) td{background:#fafafa}</style></head>
+      <body><h1>${esc(title || 'Registro clienti')}</h1><p>${list.length} contatti · ${new Date().toLocaleDateString('it-IT')}</p>
+      <table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
+      <script>window.onload=function(){window.print();}<\/script></body></html>`);
+    w.document.close();
+  };
+
   return (
     <div className="flex flex-col lg:flex-row gap-4 min-h-[560px]">
       {/* ===== LISTA (master) ===== */}
@@ -84,8 +128,10 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
         <div className="p-3.5 border-b border-[#f0f0f0] flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
             <h3 className="inline-flex items-center gap-2 text-[14px] font-extrabold text-[#161616]"><Users className="w-4.5 h-4.5" /> {title || 'Registro Unico'} <span className="text-[#b0b0b0] font-bold">({list.length})</span></h3>
-            <div className="flex items-center gap-2">
-              {onImport && <button onClick={onImport} title="Importa da CSV (registro clienti)" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Upload className="w-3.5 h-3.5" /> Importa CSV</button>}
+            <div className="flex items-center gap-1.5 flex-wrap justify-end">
+              <button onClick={exportCsv} title="Esporta CSV (filtri applicati)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Download className="w-3.5 h-3.5" /> CSV</button>
+              <button onClick={exportPdf} title="Esporta PDF / stampa (filtri applicati)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><FileDown className="w-3.5 h-3.5" /> PDF</button>
+              {onImport && <button onClick={onImport} title="Importa da CSV (registro clienti)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Upload className="w-3.5 h-3.5" /> Importa</button>}
               <button onClick={onNew} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> Nuovo</button>
             </div>
           </div>
@@ -232,7 +278,10 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
   const roleLabel = (id: string) => roles.find((r) => r.id === id)?.label || id;
   const onTogglePrivacy = (v: boolean) => onPatch({ privacyLiberatoria: v });
   const [ref, setRef] = React.useState(sel.codiceReferenza || '');
-  React.useEffect(() => { setRef(sel.codiceReferenza || ''); }, [sel.id]);
+  const [refBy, setRefBy] = React.useState(sel.referredByCode || '');
+  const [respNome, setRespNome] = React.useState(sel.responsabileNome || '');
+  const [rifCom, setRifCom] = React.useState(sel.riferimentoComunicazione || '');
+  React.useEffect(() => { setRef(sel.codiceReferenza || ''); setRefBy(sel.referredByCode || ''); setRespNome(sel.responsabileNome || ''); setRifCom(sel.riferimentoComunicazione || ''); }, [sel.id]);
   const projects = projectsOf ? projectsOf(sel) : [];
   // team di riferimento: responsabili rubrica + manager dei progetti collegati
   const teamUids = Array.from(new Set([...Object.keys(sel.responsabili || {}).filter((u) => sel.responsabili![u]), ...projects.map((p) => p.manager).filter(Boolean) as string[]]));
@@ -260,8 +309,10 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
       <Box title="Riferimenti & relazioni">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1 inline-flex items-center gap-1"><Hash className="w-3 h-3" /> Codice referenza</p>
-            <input value={ref} onChange={(e) => setRef(e.target.value)} onBlur={saveRef} placeholder="es. REF-2026-014" className="w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white" />
+            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1 inline-flex items-center gap-1"><Hash className="w-3 h-3" /> Codice referral (proprio)</p>
+            <input value={ref} onChange={(e) => setRef(e.target.value.toUpperCase())} onBlur={saveRef} placeholder="auto: nome+anno" className="w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] font-mono outline-none focus:border-[#161616] bg-white" />
+            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1 mt-2 inline-flex items-center gap-1">Portato da (referral)</p>
+            <input value={refBy} onChange={(e) => setRefBy(e.target.value.toUpperCase())} onBlur={() => (sel.referredByCode || '') !== refBy && onPatch({ referredByCode: refBy || null })} placeholder="codice di chi ha segnalato" className="w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] font-mono outline-none focus:border-[#161616] bg-white" />
           </div>
           <div>
             <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1 inline-flex items-center gap-1"><UserCog className="w-3 h-3" /> Team di riferimento</p>
@@ -284,6 +335,44 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
               ))}
             </div>
           )}
+        </div>
+      </Box>
+
+      {/* Pratica & registro (campi Registro Clienti, editabili inline) */}
+      <Box title="Pratica & registro">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div>
+            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Stato</p>
+            <select value={sel.stato || ''} onChange={(e) => onPatch({ stato: (e.target.value || null) as any })} className="w-full px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white cursor-pointer">
+              <option value="">—</option><option value="attivo">Attivo</option><option value="chiuso">Chiuso</option>
+            </select>
+          </div>
+          <div>
+            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Preventivo</p>
+            <select value={sel.preventivoStato || ''} onChange={(e) => onPatch({ preventivoStato: (e.target.value || null) as any })} className="w-full px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white cursor-pointer">
+              <option value="">—</option><option value="firmato">Firmato</option><option value="non_firmato">Non firmato</option>
+            </select>
+          </div>
+          <div>
+            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Saldato</p>
+            <button onClick={() => onPatch({ saldato: !(sel.saldato ?? false) })} className={`w-full px-2.5 py-2 rounded-lg text-[12.5px] font-bold border cursor-pointer ${sel.saldato ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white text-[#8a8a8a] border-[#e2e2e2]'}`}>{sel.saldato ? 'Sì' : 'No'}</button>
+          </div>
+          <div>
+            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Data inizio</p>
+            <input type="date" value={sel.dataInizio || ''} onChange={(e) => onPatch({ dataInizio: e.target.value || null })} className="w-full px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white" />
+          </div>
+          <div>
+            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Data fine</p>
+            <input type="date" value={sel.dataFine || ''} onChange={(e) => onPatch({ dataFine: e.target.value || null })} className="w-full px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white" />
+          </div>
+          <div>
+            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Responsabile</p>
+            <input value={respNome} onChange={(e) => setRespNome(e.target.value)} onBlur={() => (sel.responsabileNome || '') !== respNome && onPatch({ responsabileNome: respNome || null })} className="w-full px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white" />
+          </div>
+        </div>
+        <div>
+          <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Riferimento comunicazione</p>
+          <input value={rifCom} onChange={(e) => setRifCom(e.target.value)} onBlur={() => (sel.riferimentoComunicazione || '') !== rifCom && onPatch({ riferimentoComunicazione: rifCom || null })} className="w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white" />
         </div>
       </Box>
 

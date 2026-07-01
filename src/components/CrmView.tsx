@@ -12,7 +12,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   Target, Plus, X, ChevronLeft, ChevronRight, Building2, Phone, Mail,
-  MessageSquarePlus, Trash2, Briefcase, ArrowRightCircle, Euro, MessageCircle, FolderOpen, CheckCircle2, Split, Upload
+  MessageSquarePlus, Trash2, Briefcase, ArrowRightCircle, Euro, MessageCircle, FolderOpen, CheckCircle2, Split, Upload, RefreshCw
 } from 'lucide-react';
 import { initials, eur } from '../utils';
 import { ClientImportModal } from './CrmImport';
@@ -311,6 +311,15 @@ export const CrmView: React.FC<CrmViewProps> = ({
     return { inv, fatturato, incassato, daIncassare, scadOpen };
   };
   const memberName = (uid: string) => members.find((m) => m.uid === uid)?.name || uid;
+  // Codice referral univoco: iniziali/nome + anno (2 cifre) + suffisso casuale finché non è unico.
+  const genRefCode = (nameLike: string): string => {
+    const base = (nameLike || 'CL').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 6) || 'CL';
+    const yr = String(new Date().getFullYear()).slice(2);
+    const existing = new Set(Object.values(clients).map((c) => (c.codiceReferenza || '').toUpperCase()).filter(Boolean));
+    let code = '';
+    do { const rnd = Math.random().toString(36).slice(2, 5).toUpperCase(); code = `${base}${yr}${rnd}`; } while (existing.has(code));
+    return code;
+  };
   const openNewClient = () => {
     setClDraft({
       type: clientCat === 'partner' ? 'azienda' : 'privato',
@@ -339,10 +348,17 @@ export const CrmView: React.FC<CrmViewProps> = ({
       codiceFiscale: d.codiceFiscale || null, companyName: d.companyName || null,
       partitaIva: d.partitaIva || null, pec: d.pec || null, sdi: d.sdi || null,
       tier: d.tier || null, responsabili: d.responsabili || undefined,
+      responsabileNome: d.responsabileNome || null,
       roles: d.roles || undefined, societies: d.societies || undefined,
       targetTags: (d.targetTags && d.targetTags.length ? d.targetTags : null),
       acquisitionChannel: d.acquisitionChannel || null,
-      codiceReferenza: d.codiceReferenza || null,
+      // codice referral proprio: generato una volta e mantenuto univoco
+      codiceReferenza: d.codiceReferenza || genRefCode(d.type === 'azienda' ? (d.companyName || name) : (d.lastName || d.firstName || name)),
+      referredByCode: d.referredByCode || null,
+      // campi Registro Clienti / pratica
+      stato: d.stato ?? null, riferimentoComunicazione: d.riferimentoComunicazione || null,
+      preventivoStato: d.preventivoStato ?? null, saldato: d.saldato ?? null,
+      dataInizio: d.dataInizio || null, dataFine: d.dataFine || null,
       // preserva i campi ricchi gestiti inline nella scheda (registro master-detail)
       brandAsset: d.brandAsset ?? null, credentials: d.credentials ?? null,
       privacyLiberatoria: d.privacyLiberatoria, interactions: d.interactions ?? null,
@@ -734,6 +750,45 @@ export const CrmView: React.FC<CrmViewProps> = ({
                 </div>
               </Field>
             )}
+            {/* Pratica & Registro clienti */}
+            <div className="border-t border-[#f0f0f0] pt-3 mt-1">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Pratica & registro</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Field label="Stato">
+                  <select value={clDraft.stato || ''} onChange={(e) => setClDraft((d) => ({ ...d, stato: (e.target.value || null) as any }))} className="crm-input">
+                    <option value="">—</option><option value="attivo">Attivo</option><option value="chiuso">Chiuso</option>
+                  </select>
+                </Field>
+                <Field label="Preventivo">
+                  <select value={clDraft.preventivoStato || ''} onChange={(e) => setClDraft((d) => ({ ...d, preventivoStato: (e.target.value || null) as any }))} className="crm-input">
+                    <option value="">—</option><option value="firmato">Firmato</option><option value="non_firmato">Non firmato</option>
+                  </select>
+                </Field>
+                <Field label="Data inizio"><input type="date" value={clDraft.dataInizio || ''} onChange={(e) => setClDraft((d) => ({ ...d, dataInizio: e.target.value || null }))} className="crm-input" /></Field>
+                <Field label="Data fine"><input type="date" value={clDraft.dataFine || ''} onChange={(e) => setClDraft((d) => ({ ...d, dataFine: e.target.value || null }))} className="crm-input" /></Field>
+                <Field label="Responsabile (nome)"><input value={clDraft.responsabileNome || ''} onChange={(e) => setClDraft((d) => ({ ...d, responsabileNome: e.target.value || null }))} className="crm-input" /></Field>
+                <Field label="Riferimento comunicazione"><input value={clDraft.riferimentoComunicazione || ''} onChange={(e) => setClDraft((d) => ({ ...d, riferimentoComunicazione: e.target.value || null }))} className="crm-input" /></Field>
+              </div>
+              <label className="flex items-center gap-2 mt-2.5 cursor-pointer text-[13px] font-semibold text-[#333]">
+                <input type="checkbox" checked={clDraft.saldato === true} onChange={(e) => setClDraft((d) => ({ ...d, saldato: e.target.checked }))} className="w-4 h-4 accent-[#161616]" /> Saldato
+              </label>
+            </div>
+
+            {/* Codice referral */}
+            <div className="border-t border-[#f0f0f0] pt-3">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Referral</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Field label="Codice referral (proprio)">
+                  <div className="flex items-center gap-1.5">
+                    <input readOnly value={clDraft.codiceReferenza || '— generato al salvataggio'} className="crm-input font-mono flex-1 bg-gray-50" />
+                    {clDraft.codiceReferenza && (
+                      <button type="button" title="Rigenera" onClick={() => setClDraft((d) => ({ ...d, codiceReferenza: genRefCode(d.type === 'azienda' ? (d.companyName || d.name || '') : (d.lastName || d.firstName || d.name || '')) }))} className="px-2 py-2 rounded-lg border border-[#e2e2e2] hover:border-black text-[#161616] cursor-pointer bg-white"><RefreshCw className="w-3.5 h-3.5" /></button>
+                    )}
+                  </div>
+                </Field>
+                <Field label="Portato da (codice referral)"><input value={clDraft.referredByCode || ''} onChange={(e) => setClDraft((d) => ({ ...d, referredByCode: e.target.value.toUpperCase() || null }))} placeholder="Codice di chi ha segnalato" className="crm-input font-mono" /></Field>
+              </div>
+            </div>
             <button onClick={saveClientDraft} className="mt-1 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[13px] cursor-pointer border-none">{clDraft.id ? 'Salva modifiche' : 'Aggiungi cliente'}</button>
           </div>
         </Overlay>
