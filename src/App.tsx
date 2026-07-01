@@ -97,6 +97,7 @@ import {
   GovernanceMansionario,
   VaultEntry,
   VaultConfig,
+  HrEvent,
 } from './types';
 
 import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, canAdmin, canAnywhere, canView, canOperate } from './access';
@@ -161,6 +162,7 @@ import { SectionPlaceholder } from './components/SectionPlaceholder';
 import { GroupTabBar } from './components/GroupTabBar';
 import { MarketingSection } from './components/sections/MarketingSection';
 const GovernanceView = React.lazy(() => import('./components/GovernanceView').then((m) => ({ default: m.GovernanceView })));
+const HrAgendaView = React.lazy(() => import('./components/HrAgendaView').then((m) => ({ default: m.HrAgendaView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -365,6 +367,7 @@ export default function App() {
   const [governanceVault, setGovernanceVault] = useState<Record<string, VaultEntry>>({});
   const [vaultConfig, setVaultConfig] = useState<VaultConfig>({});
   const [newsletterSubs, setNewsletterSubs] = useState<Record<string, any>>({});
+  const [hrEvents, setHrEvents] = useState<Record<string, HrEvent>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1634,6 +1637,7 @@ export default function App() {
       add('governanceVault', setGovernanceVault);
       subs.push(watchNode('governanceVaultConfig', (v) => setVaultConfig(v || {}), () => {}));
       subs.push(watchNode('newsletter', (v) => setNewsletterSubs(v || {}), () => {}));
+      add('hrEvents', setHrEvents);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
@@ -3272,6 +3276,18 @@ export default function App() {
     setVaultConfig(enriched);
     return writeNode('governanceVaultConfig', enriched).catch(() => { showToast('Errore salvataggio password sezione.', 'err'); throw new Error('vault-config'); });
   };
+  // ---- Agenda Risorse Umane (hrEvents) ----
+  const handleSaveHrEvent = (e: HrEvent) => {
+    const enriched: HrEvent = { ...e, createdBy: e.createdBy || currentUser?.uid || null };
+    setHrEvents((prev) => ({ ...prev, [e.id]: enriched }));
+    writeNode(`hrEvents/${e.id}`, enriched).catch(() => showToast('Errore agenda HR (controlla regole).', 'err'));
+  };
+  const handleDeleteHrEvent = (id: string) => {
+    askDelete('Eliminare l\'evento dall\'agenda HR?', null, () => {
+      setHrEvents((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`hrEvents/${id}`).catch(() => {});
+    });
+  };
 
   // ---- Notifiche persistenti (notifications/<uid>) ----
   const pushNotification = (uid: string, payload: { type: string; title: string; body?: string | null; link?: string | null }) => {
@@ -4798,6 +4814,15 @@ export default function App() {
         const sec = society?.sections.find((s) => s.id === activeSection);
         if (!society || !sec) return <p className="text-[13px] text-[#8a8a8a]">Sezione non trovata.</p>;
         if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
+        // Il portale "Risorse Umane" ha come dashboard l'agenda HR dedicata.
+        if (activeSection === 'hr') {
+          const hrMembers = Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }));
+          return (
+            <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico l'agenda…</div>}>
+              <HrAgendaView events={hrEvents} members={hrMembers} canEdit={currentUser.role === 'admin' || currentUser.role === 'manager'} color={society.color} onSave={handleSaveHrEvent} onDelete={handleDeleteHrEvent} />
+            </React.Suspense>
+          );
+        }
         const ctx: DashboardCtx = {
           societa: activeSocieta,
           profile: currentUser,

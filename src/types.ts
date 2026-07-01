@@ -940,6 +940,26 @@ export interface VaultConfig {
   updatedAt?: number;
   by?: string | null;
 }
+/** Categoria evento dell'agenda Risorse Umane. */
+export type HrEventCategory =
+  | 'riunione_1_1' | 'riunione_tecnica' | 'riunione_amministrativa' | 'riunione_marketing'
+  | 'team_building' | 'formazione_gruppo' | 'viaggio_formazione' | 'assenza' | 'vacanza';
+/** Evento dell'agenda Risorse Umane (nodo `hrEvents/<id>`). */
+export interface HrEvent {
+  id: string;
+  title: string;
+  category: HrEventCategory;
+  date: string;                // yyyy-mm-dd (inizio)
+  endDate?: string | null;     // yyyy-mm-dd (fine, per periodi: assenza/vacanza/viaggio)
+  time?: string | null;        // HH:mm (per le riunioni)
+  allDay?: boolean;
+  participants?: Record<string, boolean>; // uid dei membri coinvolti
+  location?: string | null;
+  notes?: string | null;
+  createdBy?: string | null;
+  createdAt: number;
+  updatedAt?: number;
+}
 /** Procedura operativa standard (nodo `governanceSop/<id>`): guida passo-passo. */
 export interface GovernanceSop {
   id: string;
