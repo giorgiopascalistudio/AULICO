@@ -4215,6 +4215,14 @@ export default function App() {
       canAssignPoints={canManageAccess}
       onAddPoints={handleAddPointEvent}
       onDeletePoints={handleDeletePointEvent}
+      pending={Object.entries(accounts).filter(([, a]: any) => a?.status === 'pending').map(([uid, a]: any) => ({ ...a, uid })) as any}
+      canManageAccess={canManageAccess}
+      canMakeAdmin={currentUser.role === 'admin'}
+      onApproveAccount={(uid, role) => handleApproveAccount(uid, role)}
+      onRejectAccount={handleRejectAccount}
+      onChangeRole={(uid, role) => handleChangeAccountRole(uid, role)}
+      onToggleActive={(uid, active) => updateAccount(uid, { active }).catch(() => showToast('Errore di scrittura.', 'err'))}
+      onSaveAccess={(uid, access) => updateAccount(uid, { access: access && Object.keys(access).length ? access : null }).then(() => showToast('Permessi aggiornati.')).catch(() => showToast('Errore: controlla le regole.', 'err'))}
     />
   );
 

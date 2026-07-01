@@ -27,6 +27,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { UserProfile, Project, Task, PointEvent } from '../types';
 import { initials } from '../utils';
 import { leaderboard, tierFor, nextTier, catalogFor, POINT_CATALOG } from '../points';
+import { TeamRegistro } from './TeamRegistro';
 
 interface TeamViewProps {
   users: Record<string, UserProfile>;
@@ -49,6 +50,15 @@ interface TeamViewProps {
   // Gestione accessi (approvazione Team) — esclusiva di Risorse Umane
   onManageAccess?: () => void;
   pendingCount?: number;
+  // Registro Team (master-detail) + gestione accessi dalla scheda
+  pending?: (UserProfile & { uid: string })[];
+  canManageAccess?: boolean;
+  canMakeAdmin?: boolean;
+  onApproveAccount?: (uid: string, role: any) => void;
+  onRejectAccount?: (uid: string) => void;
+  onChangeRole?: (uid: string, role: any) => void;
+  onToggleActive?: (uid: string, active: boolean) => void;
+  onSaveAccess?: (uid: string, access: any) => void;
 }
 
 export const TeamView: React.FC<TeamViewProps> = ({
@@ -69,7 +79,15 @@ export const TeamView: React.FC<TeamViewProps> = ({
   onAddPoints,
   onDeletePoints,
   onManageAccess,
-  pendingCount = 0
+  pendingCount = 0,
+  pending = [],
+  canManageAccess = false,
+  canMakeAdmin = false,
+  onApproveAccount,
+  onRejectAccount,
+  onChangeRole,
+  onToggleActive,
+  onSaveAccess,
 }) => {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
@@ -227,19 +245,6 @@ export const TeamView: React.FC<TeamViewProps> = ({
             </button>
           </div>
 
-          {onManageAccess && (
-            <button
-              onClick={onManageAccess}
-              className="relative inline-flex items-center gap-1.5 text-[12.5px] font-bold px-3.5 py-2 rounded-full bg-[#161616] text-white hover:bg-black cursor-pointer border-none"
-              title="Gestione accessi"
-            >
-              <Users className="w-3.5 h-3.5" /> Gestione accessi
-              {pendingCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white">{pendingCount}</span>
-              )}
-            </button>
-          )}
-
           {peopleTab === 'clienti' && (
             <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] animate-[fadeIn_0.18s_ease_both]">
               {(['tutti', 'studio', 'strategico', 'materico'] as const).map(sec => {
@@ -355,9 +360,25 @@ export const TeamView: React.FC<TeamViewProps> = ({
           : "Elenco dei committenti registrati per i settori dello studio (Architettura, Brand e Finiture d'Interni) con credenziali di accesso dedicate."}
       </p>
 
-      {/* DASHBOARD PRODUTTIVITÀ (solo team) */}
+      {/* TEAM come REGISTRO (master-detail) + gestione accessi dalla scheda */}
       {peopleTab === 'team' && (
-        <ProductivityDashboard members={teamList} tasks={tasks} />
+        <TeamRegistro
+          members={teamList as any}
+          pending={pending}
+          tasks={tasks}
+          pointEvents={pointEvents}
+          myUid={myUid}
+          canManage={canManageAccess}
+          canMakeAdmin={canMakeAdmin}
+          onApprove={(uid, role) => onApproveAccount?.(uid, role)}
+          onReject={(uid) => onRejectAccount?.(uid)}
+          onChangeRole={(uid, role) => onChangeRole?.(uid, role)}
+          onToggleActive={(uid, active) => onToggleActive?.(uid, active)}
+          onSaveAccess={(uid, access) => onSaveAccess?.(uid, access)}
+          onEditUser={onEditUser}
+          onNewUser={onNewUser}
+          onPreview={onPreviewClient}
+        />
       )}
 
       {/* INCENTIVI & POINT SYSTEM (team e partner) */}
@@ -372,8 +393,8 @@ export const TeamView: React.FC<TeamViewProps> = ({
         />
       )}
 
-      {/* RENDER GRID MODE */}
-      {viewMode === 'grid' ? (
+      {/* RENDER GRID / TABLE (solo partner; il team usa TeamRegistro) */}
+      {peopleTab !== 'team' && (viewMode === 'grid' ? (
         <AnimatePresence mode="wait">
           {peopleTab === 'team' ? (
             /* TEAM GRID */
@@ -1032,7 +1053,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
             </table>
           </div>
         </motion.div>
-      )}
+      ))}
     </div>
   );
 };
