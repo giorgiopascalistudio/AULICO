@@ -12,9 +12,10 @@
 import React, { useMemo, useState } from 'react';
 import {
   Target, Plus, X, ChevronLeft, ChevronRight, Building2, Phone, Mail,
-  MessageSquarePlus, Trash2, Briefcase, ArrowRightCircle, Euro, MessageCircle, FolderOpen, CheckCircle2, Split
+  MessageSquarePlus, Trash2, Briefcase, ArrowRightCircle, Euro, MessageCircle, FolderOpen, CheckCircle2, Split, Upload
 } from 'lucide-react';
 import { initials, eur } from '../utils';
+import { ClientImportModal } from './CrmImport';
 import { ClientRecord, Project, UserProfile, Quote } from '../types';
 
 // Dashboard CRM (grafici recharts) — lazy: il chunk recharts si carica solo all'apertura.
@@ -70,6 +71,7 @@ interface CrmViewProps {
   clients?: Record<string, ClientRecord>;
   onSaveClient?: (rec: ClientRecord) => void;
   onDeleteClient?: (id: string) => void;
+  onImportClients?: (recs: ClientRecord[]) => { added: number; skipped: number };
   projects?: Project[];
   members?: UserProfile[];
   quotes?: Quote[];
@@ -154,6 +156,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
   clients = {},
   onSaveClient,
   onDeleteClient,
+  onImportClients,
   projects = [],
   members = [],
   quotes = [],
@@ -163,6 +166,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
   onTrashItem
 }) => {
   const [tab, setTab] = useState<'dashboard' | 'pipeline' | 'fornitori' | 'clienti'>('dashboard');
+  const [importOpen, setImportOpen] = useState(false);
   const [openLead, setOpenLead] = useState<string | null>(null);
   const [openSupplier, setOpenSupplier] = useState<string | null>(null);
   const [newLeadOpen, setNewLeadOpen] = useState(false);
@@ -486,11 +490,16 @@ export const CrmView: React.FC<CrmViewProps> = ({
             onDelete={(rec) => (askDelete ? askDelete('Elimina contatto', `Eliminare "${rec.name}" dal registro?`, () => onDeleteClient?.(rec.id)) : onDeleteClient?.(rec.id))}
             onEdit={openEditClient}
             onNew={openNewClient}
+            onImport={onImportClients ? () => setImportOpen(true) : undefined}
             paymentStatus={(rec) => { const p = paymentsOfClient(rec); return { ok: p.daIncassare <= 0.5, daIncassare: p.daIncassare }; }}
             projectsOf={(rec) => projectsOfClient(rec).map((p) => ({ id: p.id, name: p.name, status: p.status, manager: p.manager || null }))}
             memberName={memberName}
           />
         </React.Suspense>
+      )}
+
+      {importOpen && onImportClients && (
+        <ClientImportModal onClose={() => setImportOpen(false)} onImport={onImportClients} myUid={myUid} />
       )}
 
       {/* DETTAGLIO CLIENTE */}

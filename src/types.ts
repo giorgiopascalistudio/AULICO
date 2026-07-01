@@ -835,9 +835,17 @@ export interface ClientRecord {
   partitaIva?: string | null;  // (azienda)
   pec?: string | null;         // (azienda)
   sdi?: string | null;         // (azienda) codice destinatario FE
-  tier?: 1 | 2 | 3 | null;     // fascia/classificazione cliente
+  tier?: 1 | 2 | 3 | null;     // fascia/classificazione cliente (1/2/3 Fascia)
   responsabili?: Record<string, boolean>; // uid dei membri studio responsabili
+  responsabileNome?: string | null;   // nome responsabile (testo, es. da import registro)
   accountUid?: string | null;  // opz.: account portale collegato (users/<uid>)
+  // --- Campi Registro Clienti (import Excel) ---
+  stato?: 'attivo' | 'chiuso' | null;         // stato pratica/rapporto
+  riferimentoComunicazione?: string | null;   // referente per le comunicazioni
+  preventivoStato?: 'firmato' | 'non_firmato' | null;
+  saldato?: boolean | null;
+  dataInizio?: string | null;  // ISO yyyy-mm-dd (o testo)
+  dataFine?: string | null;
   // --- Registro Unico delle Persone (CRM Fase 1) ---
   roles?: Record<string, boolean>;     // tipi contatto multipli: cliente/lead/ex_cliente/investitore/
                                        // investitore_potenziale/fornitore/impresa/agenzia_immobiliare/

@@ -3127,6 +3127,28 @@ export default function App() {
       showToast('Cliente spostato nel Cestino.', 'err');
     });
   };
+  // Import massivo dal Registro Clienti (CSV). Dedup su nome+telefono; salva i nuovi su `clients`.
+  const handleImportClients = (recs: ClientRecord[]): { added: number; skipped: number } => {
+    if (currentUser?.role !== 'admin' && currentUser?.role !== 'manager') return { added: 0, skipped: recs.length };
+    const key = (name?: string | null, phone?: string | null) => `${(name || '').trim().toLowerCase()}|${(phone || '').replace(/\s+/g, '')}`;
+    const existing = new Set(Object.values(clients).map((c) => key(c.name, c.phone)));
+    let added = 0, skipped = 0;
+    const toWrite: ClientRecord[] = [];
+    recs.forEach((r) => {
+      const k = key(r.name, r.phone);
+      if (!r.name?.trim() || existing.has(k)) { skipped++; return; }
+      existing.add(k);
+      const rec: ClientRecord = { ...r, id: r.id || `cli-${Date.now()}-${Math.floor(Math.random() * 90000)}`, createdBy: currentUser?.uid || 'admin', createdAt: Date.now() };
+      toWrite.push(rec);
+      added++;
+    });
+    if (toWrite.length) {
+      setClients((prev) => { const n = { ...prev }; toWrite.forEach((r) => { n[r.id] = r; }); return n; });
+      toWrite.forEach((r) => writeNode(`clients/${r.id}`, r).catch(() => {}));
+      logAudit('create', 'rubrica', `Import registro clienti: ${added} contatti`, 'CSV');
+    }
+    return { added, skipped };
+  };
 
   // ---- Governance & Organigrammi ----
   const handleSaveOrgNode = (n: OrgNode) => {
@@ -4568,6 +4590,7 @@ export default function App() {
             clients={clients}
             onSaveClient={handleSaveClient}
             onDeleteClient={handleDeleteClient}
+            onImportClients={canManageAccess ? handleImportClients : undefined}
             projects={Object.values(projects)}
             members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff'))}
             quotes={Object.values(quotes)}

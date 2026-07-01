@@ -12,7 +12,7 @@ import React from 'react';
 import {
   Users, Plus, Search, Mail, Phone, MapPin, FileText, Lock, AlertTriangle,
   Clock, CheckCircle2, XCircle, Eye, EyeOff, Edit2, Trash2, Share2, Calendar,
-  Gift, Megaphone, Target, ChevronDown, FolderOpen, Hash, UserCog,
+  Gift, Megaphone, Target, ChevronDown, FolderOpen, Hash, UserCog, Upload,
 } from 'lucide-react';
 import type { ClientRecord, BrandAsset, ContactCredential, ContactInteraction } from '../types';
 
@@ -29,6 +29,7 @@ interface Props {
   onDelete: (rec: ClientRecord) => void;
   onEdit: (id: string) => void;
   onNew: () => void;
+  onImport?: () => void;
   paymentStatus: (rec: ClientRecord) => PayInfo;
   projectsOf?: (rec: ClientRecord) => ProjRef[];
   memberName?: (uid: string) => string;
@@ -42,7 +43,7 @@ const tierStyle = (t?: number | null) => (t === 1 ? 'bg-rose-50 text-rose-700' :
 const INT_ICON = { riunione: FileText, evento: Calendar, campagna: Megaphone, regalo: Gift } as const;
 const INT_LABEL = { riunione: 'Riunione / Nota', evento: 'Evento', campagna: 'Campagna', regalo: 'Pensiero / Gadget' } as const;
 
-export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, paymentStatus, projectsOf, memberName, restrictRoles, title }) => {
+export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, onImport, paymentStatus, projectsOf, memberName, restrictRoles, title }) => {
   const [selId, setSelId] = React.useState<string | null>(null);
   const [search, setSearch] = React.useState('');
   const [soc, setSoc] = React.useState<'all' | string>('all');
@@ -83,7 +84,10 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
         <div className="p-3.5 border-b border-[#f0f0f0] flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
             <h3 className="inline-flex items-center gap-2 text-[14px] font-extrabold text-[#161616]"><Users className="w-4.5 h-4.5" /> {title || 'Registro Unico'} <span className="text-[#b0b0b0] font-bold">({list.length})</span></h3>
-            <button onClick={onNew} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> Nuovo</button>
+            <div className="flex items-center gap-2">
+              {onImport && <button onClick={onImport} title="Importa da CSV (registro clienti)" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Upload className="w-3.5 h-3.5" /> Importa CSV</button>}
+              <button onClick={onNew} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> Nuovo</button>
+            </div>
           </div>
           {/* Ricerca */}
           <div className="relative">
