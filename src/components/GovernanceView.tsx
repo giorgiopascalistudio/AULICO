@@ -63,21 +63,21 @@ function buildGroupSeed(): OrgNode[] {
     ruoli.forEach(([rlabel, rperson], i) => add({ id: `${aid}-${i}`, parentId: aid, kind: 'ruolo', label: rlabel, person: rperson || null, chart: 'funzionale' }));
   });
 
-  // ---- ORGANIGRAMMA SOCIETARIO (holding e quote) ----
-  add({ id: 's-holding', kind: 'societa', label: 'DF Holdings S.r.l.', quota: 100, chart: 'societario' });
-  // Socio unico della holding
-  add({ id: 's-holding-socio', parentId: 's-holding', kind: 'ruolo', label: 'Dario Flore', person: 'Socio unico', quota: 100, identita: 'socio', chart: 'societario' });
-  // Società partecipate: [id, nome, quota holding, soci diretti]. Onirico è una STP → Dario Flore 67% + holding 33%.
-  const soc: [string, string, number, [string, number][]?][] = [
-    ['s-onirico', 'Onirico Design S.T.P. S.r.l.', 33, [['Dario Flore', 67]]],
-    ['s-strategico', 'Strategico S.r.l.', 100],
-    ['s-unico', 'Unico RE S.r.l.', 100],
-    ['s-materico', 'Materico S.r.l.', 60, [['Marco Epifani', 20], ['Raffaele Zivoli', 20]]],
-  ];
-  soc.forEach(([sid, slabel, q, soci]) => {
-    add({ id: sid, parentId: 's-holding', kind: 'societa', label: slabel, quota: q, chart: 'societario' });
-    (soci || []).forEach(([sn, sq], i) => add({ id: `${sid}-socio-${i}`, parentId: sid, kind: 'ruolo', label: sn, quota: sq, identita: 'socio', chart: 'societario' }));
-  });
+  // ---- ORGANIGRAMMA SOCIETARIO (i soci stanno SOPRA la società posseduta) ----
+  // Persona fisica in cima: Dario Flore, socio unico della holding.
+  add({ id: 's-flore', kind: 'ruolo', label: 'Dario Flore', person: 'Socio unico', identita: 'socio', chart: 'societario' });
+  // La holding è posseduta al 100% da Dario Flore.
+  add({ id: 's-holding', parentId: 's-flore', kind: 'societa', label: 'DF Holdings S.r.l.', quota: 100, chart: 'societario' });
+  // Società interamente controllate dalla holding.
+  add({ id: 's-strategico', parentId: 's-holding', kind: 'societa', label: 'Strategico S.r.l.', quota: 100, chart: 'societario' });
+  add({ id: 's-unico', parentId: 's-holding', kind: 'societa', label: 'Unico RE S.r.l.', quota: 100, chart: 'societario' });
+  // Onirico (STP): Dario Flore 67% diretto (socio di maggioranza) + holding 33%.
+  add({ id: 's-onirico', parentId: 's-flore', kind: 'societa', label: 'Onirico Design S.T.P. S.r.l.', person: 'Dario Flore 67% · DF Holdings 33%', quota: 67, chart: 'societario' });
+  // Materico: i soci (holding di maggioranza + Epifani + Zivoli) sono SOPRA, la società è il figlio comune.
+  add({ id: 's-mat-df', parentId: 's-holding', kind: 'ruolo', label: 'DF Holdings', person: 'Socio Materico', identita: 'socio', quota: 60, chart: 'societario' });
+  add({ id: 's-mat-epifani', parentId: 's-flore', kind: 'ruolo', label: 'Marco Epifani', person: 'Socio Materico', identita: 'socio', quota: 20, chart: 'societario' });
+  add({ id: 's-mat-zivoli', parentId: 's-flore', kind: 'ruolo', label: 'Raffaele Zivoli', person: 'Socio Materico', identita: 'socio', quota: 20, chart: 'societario' });
+  add({ id: 's-materico', parentId: 's-mat-df', kind: 'societa', label: 'Materico S.r.l.', person: 'DF Holdings 60% · Epifani 20% · Zivoli 20%', quota: 100, chart: 'societario' });
   return out;
 }
 
@@ -128,7 +128,7 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
   };
   const seed = () => { buildGroupSeed().forEach(onSaveNode); };
 
-  // Nodo dello schema verticale (ricorsivo, connettori CSS via .orgtree)
+  // Nodo box dello schema orizzontale (ricorsivo, connettori CSS via .orgchart)
   const ChartNode: React.FC<{ node: OrgNode }> = ({ node }) => {
     const kids = childrenOf(node.id);
     const meta = KIND_META[node.kind];
@@ -138,27 +138,29 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
     const canAdd = canEdit && node.kind !== 'ruolo';
     return (
       <li>
-        <div className="og-row">
+        <div className="inline-block align-top">
           <div
             onClick={() => setSelId(node.id)}
-            className={`og-node group relative inline-flex items-center gap-2.5 bg-white border rounded-[14px] pl-2 pr-2.5 py-1.5 cursor-pointer transition-all select-none ${isSel ? 'shadow-md' : 'shadow-sm hover:shadow-md'}`}
-            style={{ borderColor: isSel ? meta.color : '#e2e2e2', borderWidth: isSel ? 2 : 1, minWidth: 220, boxShadow: isSel ? `0 6px 16px ${meta.color}22` : undefined }}
+            className={`og-node group relative inline-flex flex-col items-center text-center bg-white border rounded-2xl px-3 pt-3.5 pb-2.5 cursor-pointer transition-all select-none ${isSel ? 'shadow-md -translate-y-0.5' : 'shadow-sm hover:shadow-md hover:-translate-y-0.5'}`}
+            style={{ borderColor: isSel ? meta.color : '#e2e2e2', borderWidth: isSel ? 2 : 1, minWidth: 150, maxWidth: 210, boxShadow: isSel ? `0 6px 16px ${meta.color}22` : undefined }}
           >
-            <span className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: meta.color, color: '#fff' }}><Icon className="w-4 h-4" /></span>
-            <div className="flex flex-col min-w-0 leading-tight">
-              <span className="text-[12.5px] font-extrabold text-[#161616] truncate">{node.label}</span>
-              {node.person && <span className="text-[10.5px] text-[#6b6b6b] font-semibold truncate">{node.person}</span>}
-            </div>
-            <div className="flex items-center gap-1 ml-auto pl-1 shrink-0">
-              {node.quota != null && <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full" style={{ background: `${meta.color}14`, color: meta.color }}>{node.quota}%</span>}
-              {node.identita && <span className="text-[8.5px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700">{node.identita}</span>}
+            <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-6.5 h-6.5 rounded-lg flex items-center justify-center shadow-sm" style={{ background: meta.color, color: '#fff' }}><Icon className="w-3.5 h-3.5" /></span>
+            <span className="text-[12.5px] font-extrabold text-[#161616] leading-tight break-words mt-1">{node.label}</span>
+            {node.person && <span className="text-[10px] text-[#6b6b6b] font-semibold mt-0.5 break-words leading-tight">{node.person}</span>}
+            {(node.quota != null || node.identita) && (
+              <div className="flex items-center gap-1 mt-1.5 flex-wrap justify-center">
+                {node.quota != null && <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full" style={{ background: `${meta.color}14`, color: meta.color }}>{node.quota}%</span>}
+                {node.identita && <span className="text-[8.5px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700">{node.identita}</span>}
+              </div>
+            )}
+            {/* controlli */}
+            <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
               {kids.length > 0 && (
-                <button onClick={(e) => { e.stopPropagation(); setCollapsed((c) => ({ ...c, [node.id]: !c[node.id] })); }} title={isCol ? `Espandi (${kids.length})` : 'Comprimi'} className="w-5.5 h-5.5 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer border-none shrink-0">
-                  {isCol ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                <button onClick={(e) => { e.stopPropagation(); setCollapsed((c) => ({ ...c, [node.id]: !c[node.id] })); }} title={isCol ? `Espandi (${kids.length})` : 'Comprimi'} className="w-5 h-5 rounded-full bg-white border border-[#d7d7d3] flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] hover:border-[#161616] shadow-sm cursor-pointer text-[11px] font-black leading-none">
+                  {isCol ? `+${kids.length}` : '−'}
                 </button>
               )}
-              {isCol && kids.length > 0 && <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-gray-200 text-[#555]">{kids.length}</span>}
-              {canAdd && <button onClick={(e) => { e.stopPropagation(); addNode(node); }} title="Aggiungi sotto-elemento" className="w-5.5 h-5.5 rounded-full bg-[#161616] text-white flex items-center justify-center hover:bg-black cursor-pointer border-none shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"><Plus className="w-3.5 h-3.5" /></button>}
+              {canAdd && <button onClick={(e) => { e.stopPropagation(); addNode(node); }} title="Aggiungi sotto-elemento" className="w-5 h-5 rounded-full bg-[#161616] text-white flex items-center justify-center hover:bg-black shadow-sm cursor-pointer border-none opacity-0 group-hover:opacity-100 transition-opacity"><Plus className="w-3 h-3" /></button>}
             </div>
           </div>
         </div>
@@ -169,7 +171,7 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 items-start">
-      <div className="lg:flex-1 w-full bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm min-h-[440px]">
+      <div className="lg:flex-1 w-full min-w-0 bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm min-h-[440px]">
         <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
           {/* Toggle tipo organigramma */}
           <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
@@ -184,11 +186,11 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
               <span className="w-px h-4 bg-[#dcdcdc]" />
               <button onClick={() => { const c: Record<string, boolean> = {}; nodes.forEach((n) => { if (childrenOf(n.id).length) c[n.id] = true; }); setCollapsed(c); }} className="px-2.5 h-7 flex items-center hover:text-[#161616] cursor-pointer bg-transparent border-none">Comprimi</button>
             </div>
-            {/* zoom */}
+            {/* zoom (100% = adatta alla pagina) */}
             <div className="inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] rounded-full">
               <button onClick={() => setZoom((z) => Math.max(0.6, +(z - 0.1).toFixed(2)))} className="w-7 h-7 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">−</button>
               <span className="text-[11px] font-bold text-[#6b6b6b] w-9 text-center">{Math.round(zoom * 100)}%</span>
-              <button onClick={() => setZoom((z) => Math.min(1.4, +(z + 0.1).toFixed(2)))} className="w-7 h-7 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">+</button>
+              <button onClick={() => setZoom((z) => Math.min(1.6, +(z + 0.1).toFixed(2)))} className="w-7 h-7 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">+</button>
             </div>
             {canEdit && (
               <>
@@ -205,11 +207,9 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
             {canEdit && <button onClick={seed} className="px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Carica organigrammi (come da immagini)</button>}
           </div>
         ) : (
-          <div className="overflow-auto -mx-1 px-1 pb-2" style={{ maxHeight: '70vh' }}>
-            <div className="orgtree" style={{ transform: `scale(${zoom})`, transformOrigin: 'top left', width: `${100 / zoom}%` }}>
-              <ul>{roots.map((r) => <ChartNode key={r.id} node={r} />)}</ul>
-            </div>
-          </div>
+          <OrgCanvas zoom={zoom} depsKey={`${chart}-${nodes.length}-${Object.keys(collapsed).length}`}>
+            <div className="orgchart"><ul>{roots.map((r) => <ChartNode key={r.id} node={r} />)}</ul></div>
+          </OrgCanvas>
         )}
       </div>
 
@@ -218,6 +218,45 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
         {!sel ? <p className="text-[13px] text-[#9a9a9a] text-center py-10">Seleziona un box dello schema per modificarlo, oppure usa <b className="text-[#161616]">＋</b> su un nodo per aggiungere un sotto-elemento.</p> : (
           <NodeEditor key={sel.id} node={sel} members={members} canEdit={canEdit} onSave={onSaveNode} onDelete={(id) => { onDeleteNode(id); setSelId(null); }} hasChildren={childrenOf(sel.id).length > 0} onAddChild={() => addNode(sel)} />
         )}
+      </div>
+    </div>
+  );
+};
+
+/** Canvas che rimpicciolisce lo schema per farlo stare nella larghezza disponibile (auto-fit). */
+const OrgCanvas: React.FC<{ zoom: number; depsKey: string; children: React.ReactNode }> = ({ zoom, depsKey, children }) => {
+  const wrapRef = React.useRef<HTMLDivElement>(null);
+  const innerRef = React.useRef<HTMLDivElement>(null);
+  const [fit, setFit] = React.useState(1);
+  const [size, setSize] = React.useState<{ w: number; h: number }>({ w: 0, h: 0 });
+  const [avail, setAvail] = React.useState(0);
+
+  React.useLayoutEffect(() => {
+    const measure = () => {
+      const a = wrapRef.current?.clientWidth ?? 0;
+      const nat = innerRef.current?.scrollWidth ?? 0;
+      const natH = innerRef.current?.scrollHeight ?? 0;
+      setAvail(a);
+      setSize({ w: nat, h: natH });
+      setFit(nat > 0 && a > 0 ? Math.min(1, a / nat) : 1);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (wrapRef.current) ro.observe(wrapRef.current);
+    if (innerRef.current) ro.observe(innerRef.current);
+    return () => ro.disconnect();
+  }, [depsKey]);
+
+  const scale = fit * zoom;
+  const scaledW = size.w * scale;
+  const scaledH = size.h * scale;
+  const overflowX = scaledW > avail + 1;
+  return (
+    <div ref={wrapRef} style={{ overflowX: overflowX ? 'auto' : 'hidden', overflowY: 'auto', maxHeight: '72vh' }}>
+      <div style={{ width: scaledW ? scaledW : '100%', height: scaledH || undefined, margin: '0 auto', position: 'relative' }}>
+        <div ref={innerRef} style={{ position: 'absolute', top: 0, left: 0, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+          {children}
+        </div>
       </div>
     </div>
   );

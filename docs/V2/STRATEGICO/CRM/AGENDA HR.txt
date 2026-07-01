@@ -1,0 +1,10 @@
+Nella sezione HR andrebbe messo un AGENDA che dovrebbe mettere in evidenza le giornate 
+- Riunioni 1:1
+- Riunioni tecniche
+- Riunioni amministrative
+- Riunioni marketing
+- Team building
+- Formazione di gruppo
+- Viaggi di formazione presso aziende
+- Assenze
+- Vacanza
