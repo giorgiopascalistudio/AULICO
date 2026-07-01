@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * AuditView — Registro attività (audit log, nodo `auditLog`). Trail delle azioni
- * dello studio (create/update/delete/restore…). Solo admin/manager. Sola lettura.
+ * dello studio (create/update/delete/restore…). Lettura admin/manager;
+ * l'admin può eliminare singole voci.
  */
 import React, { useMemo, useState } from 'react';
-import { ScrollText, Search, Plus, Pencil, Trash2, RotateCcw, Dot } from 'lucide-react';
+import { ScrollText, Search, Plus, Pencil, Trash2, RotateCcw, Dot, X } from 'lucide-react';
 import { AuditEntry } from '../types';
 
 const ACTION: Record<string, { label: string; color: string; icon: React.ComponentType<{ className?: string }> }> = {
@@ -20,7 +21,7 @@ const ACTION: Record<string, { label: string; color: string; icon: React.Compone
 
 const fmt = (t: number) => new Date(t).toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
-export const AuditView: React.FC<{ entries: AuditEntry[] }> = ({ entries }) => {
+export const AuditView: React.FC<{ entries: AuditEntry[]; onDelete?: (id: string) => void }> = ({ entries, onDelete }) => {
   const [q, setQ] = useState('');
   const [section, setSection] = useState<'all' | string>('all');
   const [action, setAction] = useState<'all' | string>('all');
@@ -39,7 +40,7 @@ export const AuditView: React.FC<{ entries: AuditEntry[] }> = ({ entries }) => {
     <div className="flex flex-col gap-5 text-left">
       <div>
         <h2 className="text-[22px] font-black tracking-tight text-[#161616] leading-none flex items-center gap-2"><ScrollText className="w-5 h-5" /> Registro attività</h2>
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1.5">Trail delle azioni dello studio (creazioni, modifiche, eliminazioni, ripristini). Sola lettura.</p>
+        <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1.5">Trail delle azioni dello studio (creazioni, modifiche, eliminazioni, ripristini).{onDelete ? ' L\'amministratore può eliminare singole voci.' : ' Sola lettura.'}</p>
       </div>
 
       {/* Filtri */}
@@ -79,6 +80,9 @@ export const AuditView: React.FC<{ entries: AuditEntry[] }> = ({ entries }) => {
                   </div>
                 </div>
                 <span className="text-[11px] text-[#9a9a9a] shrink-0">{fmt(e.at)}</span>
+                {onDelete && (
+                  <button onClick={() => onDelete(e.id)} title="Elimina voce" className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-[#b0b0b0] hover:text-rose-600 hover:bg-rose-50 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button>
+                )}
               </div>
             );
           })}

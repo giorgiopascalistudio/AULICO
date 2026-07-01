@@ -192,6 +192,9 @@ export const TeamView: React.FC<TeamViewProps> = ({
     show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 220, damping: 20 } }
   };
 
+  // I clienti vivono nel CRM (Registro contatti), non più in Team & Permessi.
+  React.useEffect(() => { if (peopleTab === 'clienti') onSetPeopleTab('team'); }, [peopleTab]);
+
   return (
     <div className="flex flex-col gap-5 text-left animate-[riseIn_0.42s_ease_both]">
       {/* Search and Navigation Toolbar */}
@@ -210,18 +213,6 @@ export const TeamView: React.FC<TeamViewProps> = ({
               }`}
             >
               <Users className="w-3.5 h-3.5" /> Team
-            </button>
-            <button
-              onClick={() => {
-                onSetPeopleTab('clienti');
-                setSearchQuery('');
-                setSelectedSector('tutti');
-              }}
-              className={`flex items-center gap-1.5 text-[12.5px] font-bold px-[15px] py-1.5 rounded-full transition-all cursor-pointer border-none bg-transparent ${
-                peopleTab === 'clienti' ? 'bg-white text-[#161616] shadow-xs font-extrabold' : 'text-[#8a8a8a] hover:text-[#161616]'
-              }`}
-            >
-              <User className="w-3.5 h-3.5" /> Clienti
             </button>
             <button
               onClick={() => {

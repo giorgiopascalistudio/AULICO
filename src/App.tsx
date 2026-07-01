@@ -1910,6 +1910,14 @@ export default function App() {
     const entry: AuditEntry = { id, action, section, label, detail: detail || null, by: currentUser.uid, byName: currentUser.name || null, at: Date.now() };
     writeNode(`auditLog/${id}`, entry).catch(() => {});
   };
+  // Solo admin: rimuove una voce dal Registro attività (le regole consentono il delete solo all'admin).
+  const handleDeleteAudit = (id: string) => {
+    if (currentUser?.role !== 'admin') return;
+    askDelete('Eliminare la voce dal Registro attività?', 'Il registro è pensato per essere inalterabile: elimina solo se necessario.', () => {
+      setAuditLog((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`auditLog/${id}`).catch(() => showToast('Errore eliminazione (controlla regole).', 'err'));
+    });
+  };
 
   const moveToTrash = (section: string, label: string, payload: any, meta?: Record<string, string>, detail?: string) => {
     if (!currentUser || !isStudioRole(currentUser.role)) return;
@@ -4515,7 +4523,7 @@ export default function App() {
 
       case 'registro':
         if (currentUser.role !== 'admin' && currentUser.role !== 'manager') return null;
-        return <AuditView entries={Object.values(auditLog)} />;
+        return <AuditView entries={Object.values(auditLog)} onDelete={currentUser.role === 'admin' ? handleDeleteAudit : undefined} />;
 
       case 'richieste-clienti':
         if (currentUser.role !== 'admin' && currentUser.role !== 'manager') return null;
