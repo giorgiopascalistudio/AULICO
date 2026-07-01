@@ -492,75 +492,34 @@ textarea:focus {
   .no-print { display: none !important; }
 }
 
-/* ---------- Organigramma (schema ad albero con connettori) ---------- */
-.orgchart { display: inline-block; min-width: 100%; padding: 8px 8px 24px; }
-.orgchart ul {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  padding: 22px 0 0;
-  margin: 0;
-  list-style: none;
-}
-.orgchart li {
-  position: relative;
-  list-style: none;
-  padding: 22px 10px 0;
-  text-align: center;
-}
-/* connettore verticale sopra ogni nodo figlio */
-.orgchart li::before,
-.orgchart li::after {
+/* ---------- Organigramma (schema verticale ad albero, cresce in basso) ---------- */
+.orgtree, .orgtree ul { list-style: none; margin: 0; padding: 0; }
+.orgtree li { position: relative; padding-left: 30px; }
+/* tronco verticale: ogni nodo disegna il proprio segmento a sinistra */
+.orgtree li::before {
   content: '';
   position: absolute;
+  left: 13px;
   top: 0;
-  right: 50%;
-  width: 50%;
-  height: 22px;
-  border-top: 2px solid #d7d7d3;
+  width: 0;
+  height: 100%;
+  border-left: 2px solid #d9d9d5;
 }
-.orgchart li::after {
-  right: auto;
-  left: 50%;
-  border-left: 2px solid #d7d7d3;
-}
-/* figlio unico: solo il tratto verticale, niente orizzontale */
-.orgchart li:only-child::before,
-.orgchart li:only-child::after { display: none; }
-.orgchart li:only-child { padding-top: 22px; }
-.orgchart li:only-child > .og-wrap::before {
+/* gomito orizzontale verso il box */
+.orgtree li::after {
   content: '';
   position: absolute;
-  top: -22px;
-  left: 50%;
-  width: 0;
-  height: 22px;
-  border-left: 2px solid #d7d7d3;
+  left: 13px;
+  top: 28px;
+  width: 17px;
+  height: 0;
+  border-top: 2px solid #d9d9d5;
 }
-/* primo/ultimo: arrotonda gli angoli del giunto */
-.orgchart li:first-child::before,
-.orgchart li:last-child::after { border: 0 none; }
-.orgchart li:last-child::before {
-  border-right: 2px solid #d7d7d3;
-  border-radius: 0 8px 0 0;
-}
-.orgchart li:first-child::after {
-  border-radius: 8px 0 0 0;
-}
-/* tratto verticale che scende dal genitore verso la riga dei figli */
-.orgchart ul ul::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 0;
-  height: 22px;
-  border-left: 2px solid #d7d7d3;
-}
-/* radice: nessun connettore in cima */
-.orgchart > ul { padding-top: 0; }
-.orgchart > ul > li { padding-top: 0; }
-.orgchart > ul > li::before,
-.orgchart > ul > li::after { display: none; }
-.orgchart > ul > li:only-child > .og-wrap::before { display: none; }
-.og-wrap { position: relative; display: inline-block; }
+/* l'ultimo figlio interrompe il tronco all'altezza del gomito */
+.orgtree li:last-child::before { height: 29px; }
+/* radice: nessun connettore */
+.orgtree > ul > li { padding-left: 0; }
+.orgtree > ul > li::before,
+.orgtree > ul > li::after { display: none; }
+/* riga del nodo */
+.orgtree .og-row { padding: 5px 0; }

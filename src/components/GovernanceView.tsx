@@ -64,9 +64,12 @@ function buildGroupSeed(): OrgNode[] {
   });
 
   // ---- ORGANIGRAMMA SOCIETARIO (holding e quote) ----
-  add({ id: 's-holding', kind: 'societa', label: 'DF Holdings S.r.l.', person: 'Dario Flore (Socio unico)', quota: 100, chart: 'societario' });
+  add({ id: 's-holding', kind: 'societa', label: 'DF Holdings S.r.l.', quota: 100, chart: 'societario' });
+  // Socio unico della holding
+  add({ id: 's-holding-socio', parentId: 's-holding', kind: 'ruolo', label: 'Dario Flore', person: 'Socio unico', quota: 100, identita: 'socio', chart: 'societario' });
+  // Società partecipate: [id, nome, quota holding, soci diretti]. Onirico è una STP → Dario Flore 67% + holding 33%.
   const soc: [string, string, number, [string, number][]?][] = [
-    ['s-onirico', 'Onirico Design S.T.P. S.r.l.', 100],
+    ['s-onirico', 'Onirico Design S.T.P. S.r.l.', 33, [['Dario Flore', 67]]],
     ['s-strategico', 'Strategico S.r.l.', 100],
     ['s-unico', 'Unico RE S.r.l.', 100],
     ['s-materico', 'Materico S.r.l.', 60, [['Marco Epifani', 20], ['Raffaele Zivoli', 20]]],
@@ -125,7 +128,7 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
   };
   const seed = () => { buildGroupSeed().forEach(onSaveNode); };
 
-  // Nodo-box dello schema (ricorsivo, con connettori CSS via .orgchart)
+  // Nodo dello schema verticale (ricorsivo, connettori CSS via .orgtree)
   const ChartNode: React.FC<{ node: OrgNode }> = ({ node }) => {
     const kids = childrenOf(node.id);
     const meta = KIND_META[node.kind];
@@ -135,29 +138,28 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
     const canAdd = canEdit && node.kind !== 'ruolo';
     return (
       <li>
-        <div className="og-wrap">
+        <div className="og-row">
           <div
             onClick={() => setSelId(node.id)}
-            className={`og-node relative inline-flex flex-col items-center text-center align-top bg-white border rounded-2xl px-3.5 py-2.5 cursor-pointer transition-all select-none ${isSel ? 'shadow-md -translate-y-0.5' : 'shadow-sm hover:shadow-md hover:-translate-y-0.5'}`}
-            style={{ borderColor: isSel ? meta.color : '#e2e2e2', borderWidth: isSel ? 2 : 1, minWidth: 148, maxWidth: 210, boxShadow: isSel ? `0 6px 18px ${meta.color}22` : undefined }}
+            className={`og-node group relative inline-flex items-center gap-2.5 bg-white border rounded-[14px] pl-2 pr-2.5 py-1.5 cursor-pointer transition-all select-none ${isSel ? 'shadow-md' : 'shadow-sm hover:shadow-md'}`}
+            style={{ borderColor: isSel ? meta.color : '#e2e2e2', borderWidth: isSel ? 2 : 1, minWidth: 220, boxShadow: isSel ? `0 6px 16px ${meta.color}22` : undefined }}
           >
-            <span className="absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-6 rounded-lg flex items-center justify-center shadow-sm" style={{ background: meta.color, color: '#fff' }}><Icon className="w-3.5 h-3.5" /></span>
-            <span className="text-[12.5px] font-extrabold text-[#161616] leading-tight mt-2.5 break-words">{node.label}</span>
-            {node.person && <span className="text-[10.5px] text-[#6b6b6b] font-semibold mt-0.5 break-words leading-tight">{node.person}</span>}
-            <div className="flex items-center gap-1 mt-1 flex-wrap justify-center">
+            <span className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: meta.color, color: '#fff' }}><Icon className="w-4 h-4" /></span>
+            <div className="flex flex-col min-w-0 leading-tight">
+              <span className="text-[12.5px] font-extrabold text-[#161616] truncate">{node.label}</span>
+              {node.person && <span className="text-[10.5px] text-[#6b6b6b] font-semibold truncate">{node.person}</span>}
+            </div>
+            <div className="flex items-center gap-1 ml-auto pl-1 shrink-0">
               {node.quota != null && <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full" style={{ background: `${meta.color}14`, color: meta.color }}>{node.quota}%</span>}
               {node.identita && <span className="text-[8.5px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700">{node.identita}</span>}
-            </div>
-            {/* controlli */}
-            <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
               {kids.length > 0 && (
-                <button onClick={(e) => { e.stopPropagation(); setCollapsed((c) => ({ ...c, [node.id]: !c[node.id] })); }} title={isCol ? `Espandi (${kids.length})` : 'Comprimi'} className="w-5 h-5 rounded-full bg-white border border-[#d7d7d3] flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] hover:border-[#161616] shadow-sm cursor-pointer">
-                  {isCol ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3 rotate-90" />}
+                <button onClick={(e) => { e.stopPropagation(); setCollapsed((c) => ({ ...c, [node.id]: !c[node.id] })); }} title={isCol ? `Espandi (${kids.length})` : 'Comprimi'} className="w-5.5 h-5.5 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer border-none shrink-0">
+                  {isCol ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
               )}
-              {canAdd && <button onClick={(e) => { e.stopPropagation(); addNode(node); }} title="Aggiungi sotto-elemento" className="w-5 h-5 rounded-full bg-[#161616] text-white flex items-center justify-center hover:bg-black shadow-sm cursor-pointer border-none"><Plus className="w-3 h-3" /></button>}
+              {isCol && kids.length > 0 && <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-gray-200 text-[#555]">{kids.length}</span>}
+              {canAdd && <button onClick={(e) => { e.stopPropagation(); addNode(node); }} title="Aggiungi sotto-elemento" className="w-5.5 h-5.5 rounded-full bg-[#161616] text-white flex items-center justify-center hover:bg-black cursor-pointer border-none shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"><Plus className="w-3.5 h-3.5" /></button>}
             </div>
-            {isCol && kids.length > 0 && <span className="absolute -bottom-2.5 -right-2 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-gray-200 text-[#555]">+{kids.length}</span>}
           </div>
         </div>
         {!isCol && kids.length > 0 && <ul>{kids.map((k) => <ChartNode key={k.id} node={k} />)}</ul>}
@@ -176,9 +178,15 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
             ))}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            {/* comprimi / espandi tutto */}
+            <div className="inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] rounded-full text-[11px] font-bold text-[#6b6b6b]">
+              <button onClick={() => setCollapsed({})} className="px-2.5 h-7 flex items-center hover:text-[#161616] cursor-pointer bg-transparent border-none">Espandi</button>
+              <span className="w-px h-4 bg-[#dcdcdc]" />
+              <button onClick={() => { const c: Record<string, boolean> = {}; nodes.forEach((n) => { if (childrenOf(n.id).length) c[n.id] = true; }); setCollapsed(c); }} className="px-2.5 h-7 flex items-center hover:text-[#161616] cursor-pointer bg-transparent border-none">Comprimi</button>
+            </div>
             {/* zoom */}
             <div className="inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] rounded-full">
-              <button onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))} className="w-7 h-7 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">−</button>
+              <button onClick={() => setZoom((z) => Math.max(0.6, +(z - 0.1).toFixed(2)))} className="w-7 h-7 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">−</button>
               <span className="text-[11px] font-bold text-[#6b6b6b] w-9 text-center">{Math.round(zoom * 100)}%</span>
               <button onClick={() => setZoom((z) => Math.min(1.4, +(z + 0.1).toFixed(2)))} className="w-7 h-7 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">+</button>
             </div>
@@ -197,8 +205,8 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; childrenOf: (pid: string | null
             {canEdit && <button onClick={seed} className="px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Carica organigrammi (come da immagini)</button>}
           </div>
         ) : (
-          <div className="overflow-auto -mx-1 px-1 pb-2" style={{ maxHeight: '68vh' }}>
-            <div className="orgchart" style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
+          <div className="overflow-auto -mx-1 px-1 pb-2" style={{ maxHeight: '70vh' }}>
+            <div className="orgtree" style={{ transform: `scale(${zoom})`, transformOrigin: 'top left', width: `${100 / zoom}%` }}>
               <ul>{roots.map((r) => <ChartNode key={r.id} node={r} />)}</ul>
             </div>
           </div>
