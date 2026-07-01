@@ -91,6 +91,7 @@ export interface SectionConfig {
   legacyRoute?: string;       // route esistente in renderView (per kind 'view' senza `view`)
   preset?: SectionPreset;     // stato da impostare prima del render
   note?: string;              // testo per i placeholder
+  dashLabel?: string;         // etichetta della voce "dashboard" nel portale di gruppo (default "Dashboard")
 }
 
 export interface SocietyConfig {
@@ -200,7 +201,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
     id: 'strategico', label: SOCIETA_LABEL.strategico, color: SOCIETY_COLOR.strategico,
     sections: [
       // === SOTTO-CATEGORIA: Risorse Umane ===
-      { id: 'hr', label: 'Risorse Umane', icon: Users, module: 'hr', kind: 'group' },
+      { id: 'hr', label: 'Risorse Umane', icon: Users, module: 'hr', kind: 'group', dashLabel: 'Agenda HR' },
       { id: 'hr-crm', label: 'CRM', icon: BookUser, parent: 'hr', shared: true, module: 'crm', legacyRoute: 'crm' },
       { id: 'hr-recruiting', label: 'Recruiting', icon: UserPlus, parent: 'hr', module: 'hr', kind: 'placeholder', note: 'Job description, annunci, colloqui, piani di inserimento.' },
       { id: 'hr-governance', label: 'Governance', icon: Network, parent: 'hr', module: 'governance', view: 'governance', note: 'Organigramma, mansionari, procedure (SOP), team & permessi, cassaforte password.' },

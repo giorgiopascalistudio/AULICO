@@ -21,7 +21,8 @@ import {
   Bell,
   Check,
   X,
-  LayoutGrid
+  LayoutGrid,
+  CalendarDays
 } from 'lucide-react';
 
 import {
@@ -4922,7 +4923,7 @@ export default function App() {
     if (!group) return null;
     const children = society.sections.filter((c) => c.parent === group!.id && canViewSection(currentUser, activeSocieta, c));
     const tabs = [
-      { id: group.id, label: 'Dashboard', icon: LayoutGrid },
+      { id: group.id, label: group.dashLabel || 'Dashboard', icon: group.dashLabel ? CalendarDays : LayoutGrid },
       ...children.map((c) => ({ id: c.id, label: c.label, icon: c.icon })),
     ];
     return { tabs, activeId: activeSection, slug: societaSlug(activeSocieta) };

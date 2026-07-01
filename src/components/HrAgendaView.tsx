@@ -8,7 +8,7 @@
  */
 import React from 'react';
 import {
-  CalendarDays, Plus, X, ChevronLeft, ChevronRight, Trash2, MapPin, Users2,
+  CalendarDays, Plus, X, ChevronLeft, ChevronRight, Trash2, MapPin, Users2, ChevronDown,
 } from 'lucide-react';
 import type { HrEvent, HrEventCategory } from '../types';
 
@@ -34,6 +34,13 @@ export const CAT_META: Record<HrEventCategory, { label: string; short: string; c
   vacanza: { label: 'Vacanza', short: 'Vacanza', color: '#ea580c' },
 };
 const CATS = Object.keys(CAT_META) as HrEventCategory[];
+// Raggruppamento per il menu a tendina (niente distesa di bottoni)
+const CAT_GROUPS: { label: string; cats: HrEventCategory[] }[] = [
+  { label: 'Riunioni', cats: ['riunione_1_1', 'riunione_tecnica', 'riunione_amministrativa', 'riunione_marketing'] },
+  { label: 'Formazione', cats: ['formazione_gruppo', 'viaggio_formazione'] },
+  { label: 'Team', cats: ['team_building'] },
+  { label: 'Assenze', cats: ['assenza', 'vacanza'] },
+];
 
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const parseIso = (s: string) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); };
@@ -72,13 +79,36 @@ export const HrAgendaView: React.FC<Props> = ({ events, members, canEdit = false
         {canEdit && <button onClick={() => setEditing(blank())} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuovo evento</button>}
       </div>
 
-      {/* Filtri categoria */}
-      <div className="pillbar flex items-center gap-1.5 flex-wrap">
-        <button onClick={() => setFilter('all')} className={`text-[11.5px] font-bold px-3 py-1.5 rounded-full cursor-pointer border transition-all ${filter === 'all' ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#8a8a8a] border-[#e2e2e2] hover:text-[#161616]'}`}>Tutte</button>
-        {CATS.map((c) => {
-          const m = CAT_META[c]; const on = filter === c;
-          return <button key={c} onClick={() => setFilter(c)} className={`inline-flex items-center gap-1.5 text-[11.5px] font-bold px-3 py-1.5 rounded-full cursor-pointer border transition-all ${on ? 'text-white border-transparent' : 'bg-white text-[#6b6b6b] border-[#e2e2e2] hover:text-[#161616]'}`} style={on ? { background: m.color } : undefined}><span className="w-2 h-2 rounded-full" style={{ background: on ? '#fff' : m.color }} /> {m.label}</button>;
-        })}
+      {/* Filtro categoria — un solo menu a tendina raggruppato + legenda compatta */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <select value={filter} onChange={(e) => setFilter(e.target.value as any)} className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold text-[#161616] bg-white outline-none focus:border-[#161616] cursor-pointer">
+              <option value="all">Tutte le categorie</option>
+              {CAT_GROUPS.map((g) => (
+                <optgroup key={g.label} label={g.label}>
+                  {g.cats.map((c) => <option key={c} value={c}>{CAT_META[c].label}</option>)}
+                </optgroup>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+          {filter !== 'all' && (
+            <span className="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-white px-2.5 py-1.5 rounded-full" style={{ background: CAT_META[filter].color }}>
+              <span className="w-2 h-2 rounded-full bg-white" /> {CAT_META[filter].label}
+              <button onClick={() => setFilter('all')} className="ml-0.5 text-white/80 hover:text-white cursor-pointer bg-transparent border-none inline-flex"><X className="w-3 h-3" /></button>
+            </span>
+          )}
+        </div>
+        {/* Legenda colori (informativa, non cliccabile) */}
+        <div className="flex items-center gap-x-3 gap-y-1 flex-wrap">
+          {CAT_GROUPS.map((g) => (
+            <span key={g.label} className="inline-flex items-center gap-1.5">
+              {g.cats.map((c) => <span key={c} title={CAT_META[c].label} className="w-2.5 h-2.5 rounded-full" style={{ background: CAT_META[c].color }} />)}
+              <span className="text-[10.5px] font-semibold text-[#9a9a9a]">{g.label}</span>
+            </span>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 items-start">
@@ -148,14 +178,20 @@ const HrEventEditor: React.FC<{ ev: HrEvent; members: Member[]; canEdit: boolean
         </div>
         <div className="flex flex-col gap-3">
           <input disabled={!canEdit} value={d.title} onChange={(e) => set({ title: e.target.value })} placeholder="Titolo (es. 1:1 con Rosa)" className={inp} />
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a] mb-1.5">Categoria</p>
-            <div className="flex flex-wrap gap-1.5">
-              {CATS.map((c) => { const m = CAT_META[c]; const on = d.category === c; return (
-                <button key={c} type="button" disabled={!canEdit} onClick={() => set({ category: c })} className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full border ${on ? 'text-white border-transparent' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`} style={on ? { background: m.color } : undefined}><span className="w-2 h-2 rounded-full" style={{ background: on ? '#fff' : m.color }} /> {m.label}</button>
-              ); })}
+          <label className="flex flex-col gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Categoria</span>
+            <div className="relative">
+              <span className="w-2.5 h-2.5 rounded-full absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ background: CAT_META[d.category].color }} />
+              <select disabled={!canEdit} value={d.category} onChange={(e) => set({ category: e.target.value as HrEventCategory })} className={`${inp} appearance-none pl-7 pr-8`}>
+                {CAT_GROUPS.map((g) => (
+                  <optgroup key={g.label} label={g.label}>
+                    {g.cats.map((c) => <option key={c} value={c}>{CAT_META[c].label}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
-          </div>
+          </label>
           <div className="grid grid-cols-2 gap-2">
             <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">{isPeriod ? 'Dal' : 'Data'}</span><input disabled={!canEdit} type="date" value={d.date} onChange={(e) => set({ date: e.target.value })} className={inp} /></label>
             {isPeriod ? (
