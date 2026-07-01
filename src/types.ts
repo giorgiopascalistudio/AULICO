@@ -860,17 +860,24 @@ export interface ClientRecord {
 // ---- Governance & Organigrammi (Strategico/HR) ----
 export type OrgKind = 'societa' | 'area' | 'ruolo';
 export type OrgIdentita = 'amministratore' | 'socio' | 'dipendente' | 'collaboratore';
-/** Nodo dell'organigramma dinamico (nodo `governanceOrg/<id>`). parentId null = livello societario. */
+/** Arco verso un nodo-genitore, con quota % sul collegamento (es. socio → società). */
+export interface OrgParentRef { id: string; quota?: number | null; }
+/** Nodo dell'organigramma dinamico (nodo `governanceOrg/<id>`).
+ * Supporta PIÙ genitori (grafo/DAG): un box può essere posseduto/dipendere da più elementi
+ * ognuno con la propria quota (es. Materico ← DF Holdings 60% + Epifani 20% + Zivoli 20%).
+ * `parentId` resta per retro-compatibilità (equivale a un solo genitore). */
 export interface OrgNode {
   id: string;
-  parentId: string | null;
+  parentId?: string | null;      // legacy: singolo genitore (null = radice)
+  parents?: OrgParentRef[];       // NEW: genitori multipli con quota sull'arco
   kind: OrgKind;
   chart?: 'societario' | 'funzionale'; // a quale organigramma appartiene (default funzionale)
   label: string;                 // nome società / area / ruolo
   person?: string | null;        // nome persona associata (livello persone)
   personUid?: string | null;     // collegamento account team
-  quota?: number | null;         // % (livello societario)
+  quota?: number | null;         // % nodo (legacy; nel societario si preferisce la quota sull'arco)
   identita?: OrgIdentita | null; // Amministratore/Socio/Dipendente/Collaboratore
+  desc?: string | null;          // descrizione/settore sotto il nome (es. "Servizi di Ingegneria")
   mansioni?: string | null;      // elenco compiti/responsabilità
   pfv?: string | null;           // Prodotto Finale di Valore
   societa?: string | null;       // chiave società di appartenenza (per filtri)

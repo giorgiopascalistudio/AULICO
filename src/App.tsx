@@ -92,6 +92,7 @@ import {
   PointEvent,
   MatericoPenalty,
   OrgNode,
+  OrgParentRef,
   GovernanceSop,
 } from './types';
 
@@ -3115,14 +3116,52 @@ export default function App() {
     setGovernanceOrg((prev) => ({ ...prev, [n.id]: n }));
     writeNode(`governanceOrg/${n.id}`, n).catch(() => showToast('Errore Governance (controlla regole).', 'err'));
   };
+  // "Carica esempio": scrive il seed e rimuove i residui delle versioni precedenti del seed.
+  const handleSeedOrg = (seedNodes: OrgNode[]) => {
+    const seededIds = new Set(seedNodes.map((n) => n.id));
+    const LEGACY_SEED_IDS = ['s-holding-socio', 's-mat-df', 's-mat-epifani', 's-mat-zivoli', 's-onirico-socio-0', 's-materico-socio-0', 's-materico-socio-1'];
+    setGovernanceOrg((prev) => {
+      const next = { ...prev };
+      LEGACY_SEED_IDS.forEach((id) => { if (next[id] && !seededIds.has(id)) delete next[id]; });
+      seedNodes.forEach((n) => { next[n.id] = n; });
+      return next;
+    });
+    LEGACY_SEED_IDS.forEach((id) => { if (governanceOrg[id] && !seededIds.has(id)) removeNode(`governanceOrg/${id}`).catch(() => {}); });
+    seedNodes.forEach((n) => writeNode(`governanceOrg/${n.id}`, n).catch(() => showToast('Errore Governance (controlla regole).', 'err')));
+  };
   const handleDeleteOrgNode = (id: string) => {
-    askDelete('Eliminare dall\'organigramma?', 'Verranno rimossi anche eventuali elementi figli.', () => {
+    askDelete('Eliminare dall\'organigramma?', 'Verranno rimossi anche gli elementi che dipendono solo da questo. I riferimenti negli altri box vengono ripuliti.', () => {
       const all = governanceOrg;
+      const parentsOf = (x: OrgNode): string[] => (x.parents && x.parents.length ? x.parents.map((p) => p.id) : (x.parentId ? [x.parentId] : []));
+      // Elimina un nodo e, a cascata, solo i figli che restano ORFANI (nessun altro genitore).
       const toDel = new Set<string>();
-      const collect = (nid: string) => { toDel.add(nid); Object.values(all).forEach((x) => { if ((x.parentId || null) === nid) collect(x.id); }); };
+      const collect = (nid: string) => {
+        if (toDel.has(nid)) return;
+        toDel.add(nid);
+        Object.values(all).forEach((x) => {
+          const ps = parentsOf(x);
+          if (ps.includes(nid) && ps.every((p) => toDel.has(p))) collect(x.id);
+        });
+      };
       collect(id);
-      setGovernanceOrg((prev) => { const n = { ...prev }; toDel.forEach((d) => delete n[d]); return n; });
+      // Ripulisce i riferimenti (parents/parentId) verso i nodi eliminati nei box superstiti.
+      const updates: OrgNode[] = [];
+      Object.values(all).forEach((x) => {
+        if (toDel.has(x.id)) return;
+        const ps = x.parents && x.parents.length ? x.parents : (x.parentId ? [{ id: x.parentId } as OrgParentRef] : []);
+        if (ps.some((p) => toDel.has(p.id))) {
+          const kept = ps.filter((p) => !toDel.has(p.id));
+          updates.push({ ...x, parents: kept, parentId: kept.length === 1 ? kept[0].id : null, updatedAt: Date.now() });
+        }
+      });
+      setGovernanceOrg((prev) => {
+        const n = { ...prev };
+        toDel.forEach((d) => delete n[d]);
+        updates.forEach((u) => { n[u.id] = u; });
+        return n;
+      });
       toDel.forEach((d) => removeNode(`governanceOrg/${d}`).catch(() => {}));
+      updates.forEach((u) => writeNode(`governanceOrg/${u.id}`, u).catch(() => {}));
     });
   };
   const handleSaveSop = (s: GovernanceSop) => {
@@ -4679,6 +4718,7 @@ export default function App() {
                 canEdit={currentUser.role === 'admin' || currentUser.role === 'manager'}
                 onSaveNode={handleSaveOrgNode}
                 onDeleteNode={handleDeleteOrgNode}
+                onSeed={handleSeedOrg}
                 onSaveSop={handleSaveSop}
                 onDeleteSop={handleDeleteSop}
                 onNav={(h) => { window.location.hash = h; }}
