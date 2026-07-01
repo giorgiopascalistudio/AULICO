@@ -33,6 +33,9 @@ interface Props {
   paymentStatus: (rec: ClientRecord) => PayInfo;
   projectsOf?: (rec: ClientRecord) => ProjRef[];
   memberName?: (uid: string) => string;
+  consentsOf?: (rec: ClientRecord) => { hasAccount: boolean; privacy: boolean; newsletter: boolean };
+  duplicatesOf?: (rec: ClientRecord) => ClientRecord[];
+  onMerge?: (survivor: ClientRecord, dupIds: string[]) => void;
   restrictRoles?: string[];   // se presente: lista pre-filtrata a questi ruoli (es. fornitori)
   variant?: 'clienti' | 'fornitori';  // filtri e scheda differenziati
   title?: string;
@@ -66,7 +69,7 @@ const tierStyle = (t?: number | null) => (t === 1 ? 'bg-rose-50 text-rose-700' :
 const INT_ICON = { riunione: FileText, evento: Calendar, campagna: Megaphone, regalo: Gift } as const;
 const INT_LABEL = { riunione: 'Riunione / Nota', evento: 'Evento', campagna: 'Campagna', regalo: 'Pensiero / Gadget' } as const;
 
-export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, onImport, paymentStatus, projectsOf, memberName, restrictRoles, variant = 'clienti', title }) => {
+export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, onImport, paymentStatus, projectsOf, memberName, consentsOf, duplicatesOf, onMerge, restrictRoles, variant = 'clienti', title }) => {
   const isFornitori = variant === 'fornitori';
   const [selId, setSelId] = React.useState<string | null>(null);
   const [search, setSearch] = React.useState('');
@@ -295,7 +298,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
               </div>
 
               <div className="flex-1 overflow-y-auto p-5">
-                {detTab === 'anagrafica' && <AnagraficaPane sel={sel} pay={pay} societies={societies} roles={roles} onPatch={patch} projectsOf={projectsOf} memberName={memberName} isFornitori={isFornitori} />}
+                {detTab === 'anagrafica' && <AnagraficaPane sel={sel} pay={pay} societies={societies} roles={roles} onPatch={patch} projectsOf={projectsOf} memberName={memberName} isFornitori={isFornitori} consents={consentsOf ? consentsOf(sel) : undefined} duplicates={duplicatesOf ? duplicatesOf(sel) : []} onMerge={onMerge} />}
                 {detTab === 'brand' && <BrandPane sel={sel} onSave={(b) => patch({ brandAsset: b })} />}
                 {detTab === 'credenziali' && <CredenzialiPane sel={sel} pwShown={pwShown} setPwShown={setPwShown} onSave={(cr) => patch({ credentials: cr })} />}
                 {detTab === 'storia' && <StoriaPane sel={sel} onSave={(it) => patch({ interactions: it })} />}
@@ -315,7 +318,7 @@ const Info: React.FC<{ icon: any; label: string; children: React.ReactNode }> = 
 const Box: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-4 flex flex-col gap-3.5"><h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[#666]">{title}</h4>{children}</div>
 );
-const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc[]; roles: Role[]; onPatch: (c: Partial<ClientRecord>) => void; projectsOf?: (rec: ClientRecord) => ProjRef[]; memberName?: (uid: string) => string; isFornitori?: boolean }> = ({ sel, pay, roles, onPatch, projectsOf, memberName, isFornitori }) => {
+const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc[]; roles: Role[]; onPatch: (c: Partial<ClientRecord>) => void; projectsOf?: (rec: ClientRecord) => ProjRef[]; memberName?: (uid: string) => string; isFornitori?: boolean; consents?: { hasAccount: boolean; privacy: boolean; newsletter: boolean }; duplicates?: ClientRecord[]; onMerge?: (survivor: ClientRecord, dupIds: string[]) => void }> = ({ sel, pay, roles, onPatch, projectsOf, memberName, isFornitori, consents, duplicates = [], onMerge }) => {
   const roleLabel = (id: string) => roles.find((r) => r.id === id)?.label || id;
   const onTogglePrivacy = (v: boolean) => onPatch({ privacyLiberatoria: v });
   const [ref, setRef] = React.useState(sel.codiceReferenza || '');
@@ -324,11 +327,23 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
   const [rifCom, setRifCom] = React.useState(sel.riferimentoComunicazione || '');
   React.useEffect(() => { setRef(sel.codiceReferenza || ''); setRefBy(sel.referredByCode || ''); setRespNome(sel.responsabileNome || ''); setRifCom(sel.riferimentoComunicazione || ''); }, [sel.id]);
   const projects = projectsOf ? projectsOf(sel) : [];
+  const dupIds = duplicates.map((d) => d.id);
   // team di riferimento: responsabili rubrica + manager dei progetti collegati
   const teamUids = Array.from(new Set([...Object.keys(sel.responsabili || {}).filter((u) => sel.responsabili![u]), ...projects.map((p) => p.manager).filter(Boolean) as string[]]));
   const saveRef = () => { if ((sel.codiceReferenza || '') !== ref) onPatch({ codiceReferenza: ref || null }); };
   return (
     <div className="flex flex-col gap-4">
+      {/* Banner duplicati — stesso nome+telefono (spesso per progetti multipli) */}
+      {duplicates.length > 0 && onMerge && (
+        <div className="bg-amber-50 border border-amber-200 rounded-[16px] p-3.5 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-bold text-amber-900">{duplicates.length} possibile/i duplicato/i</p>
+            <p className="text-[11.5px] text-amber-800/90 mt-0.5">Stesso nome e telefono (probabili schede create per progetti diversi): {duplicates.map((d) => d.name).join(', ')}.</p>
+          </div>
+          <button onClick={() => onMerge(sel, dupIds)} className="shrink-0 self-center px-3 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-[12px] font-bold cursor-pointer border-none">Unisci in questa scheda</button>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Box title="Contatti & recapiti">
           {sel.email && <Info icon={Mail} label="Email"><a href={`mailto:${sel.email}`} className="hover:underline">{sel.email}</a></Info>}
@@ -429,6 +444,19 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
             <div><p className="text-[12px] font-bold text-[#444]">Liberatoria privacy immagini</p><p className={`text-[12px] ${sel.privacyLiberatoria ? 'text-emerald-600 font-medium' : 'text-rose-500 font-extrabold'}`}>{sel.privacyLiberatoria ? 'Firmata' : 'NON firmata — clicca per segnare firmata'}</p></div>
           </button>
         </div>
+        {/* Consensi auto dall'account portale collegato */}
+        {consents && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+            <div className="flex items-center gap-3 bg-white p-3 rounded-lg border border-[#f0f0f0]">
+              {consents.hasAccount ? (consents.privacy ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <XCircle className="w-5 h-5 text-rose-500 shrink-0" />) : <Clock className="w-5 h-5 text-gray-400 shrink-0" />}
+              <div><p className="text-[12px] font-bold text-[#444]">Consenso privacy (registrazione)</p><p className={`text-[12px] ${!consents.hasAccount ? 'text-gray-500' : consents.privacy ? 'text-emerald-600 font-medium' : 'text-rose-500 font-bold'}`}>{!consents.hasAccount ? 'Nessun account collegato' : consents.privacy ? 'Accettato' : 'Non completato'}</p></div>
+            </div>
+            <div className="flex items-center gap-3 bg-white p-3 rounded-lg border border-[#f0f0f0]">
+              {consents.hasAccount ? (consents.newsletter ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : <XCircle className="w-5 h-5 text-gray-300 shrink-0" />) : <Clock className="w-5 h-5 text-gray-400 shrink-0" />}
+              <div><p className="text-[12px] font-bold text-[#444]">Newsletter</p><p className={`text-[12px] ${!consents.hasAccount ? 'text-gray-500' : consents.newsletter ? 'text-emerald-600 font-medium' : 'text-gray-500'}`}>{!consents.hasAccount ? 'Nessun account collegato' : consents.newsletter ? 'Iscritto' : 'Non iscritto'}</p></div>
+            </div>
+          </div>
+        )}
       </Box>
 
       {/* Ranking & valutazione (solo fornitori/partner) */}

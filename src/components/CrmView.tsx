@@ -72,6 +72,9 @@ interface CrmViewProps {
   onSaveClient?: (rec: ClientRecord) => void;
   onDeleteClient?: (id: string) => void;
   onImportClients?: (recs: ClientRecord[]) => { added: number; skipped: number };
+  onMergeClients?: (survivor: ClientRecord, dupIds: string[]) => void;
+  usersAll?: Record<string, UserProfile>;
+  newsletter?: Record<string, any>;
   projects?: Project[];
   members?: UserProfile[];
   quotes?: Quote[];
@@ -157,6 +160,9 @@ export const CrmView: React.FC<CrmViewProps> = ({
   onSaveClient,
   onDeleteClient,
   onImportClients,
+  onMergeClients,
+  usersAll = {},
+  newsletter = {},
   projects = [],
   members = [],
   quotes = [],
@@ -319,6 +325,20 @@ export const CrmView: React.FC<CrmViewProps> = ({
     let code = '';
     do { const rnd = Math.random().toString(36).slice(2, 5).toUpperCase(); code = `${base}${yr}${rnd}`; } while (existing.has(code));
     return code;
+  };
+  // Consensi auto dall'account portale collegato: privacy (profileComplete) + newsletter (nodo newsletter/<uid>)
+  const consentsOf = (rec: ClientRecord) => {
+    const uid = rec.accountUid;
+    if (!uid) return { hasAccount: false, privacy: false, newsletter: false };
+    const u: any = usersAll[uid];
+    return { hasAccount: !!u, privacy: !!u?.profileComplete, newsletter: !!newsletter[uid] };
+  };
+  // Rilevamento duplicati: schede con stesso nome+telefono normalizzati (tipicamente per progetti multipli)
+  const dupKey = (c: ClientRecord) => `${(c.name || '').trim().toLowerCase()}|${(c.phone || '').replace(/\s+/g, '')}`;
+  const duplicatesOf = (rec: ClientRecord): ClientRecord[] => {
+    const k = dupKey(rec);
+    if (!rec.name?.trim()) return [];
+    return Object.values(clients).filter((c) => c.id !== rec.id && dupKey(c) === k);
   };
   const openNewClient = () => {
     setClDraft({
@@ -511,6 +531,9 @@ export const CrmView: React.FC<CrmViewProps> = ({
             paymentStatus={(rec) => { const p = paymentsOfClient(rec); return { ok: p.daIncassare <= 0.5, daIncassare: p.daIncassare }; }}
             projectsOf={(rec) => projectsOfClient(rec).map((p) => ({ id: p.id, name: p.name, status: p.status, manager: p.manager || null }))}
             memberName={memberName}
+            consentsOf={consentsOf}
+            duplicatesOf={duplicatesOf}
+            onMerge={onMergeClients}
           />
         </React.Suspense>
       )}

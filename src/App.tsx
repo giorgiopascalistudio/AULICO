@@ -364,6 +364,7 @@ export default function App() {
   const [governanceMansionari, setGovernanceMansionari] = useState<Record<string, GovernanceMansionario>>({});
   const [governanceVault, setGovernanceVault] = useState<Record<string, VaultEntry>>({});
   const [vaultConfig, setVaultConfig] = useState<VaultConfig>({});
+  const [newsletterSubs, setNewsletterSubs] = useState<Record<string, any>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1632,6 +1633,7 @@ export default function App() {
       add('governanceMansionari', setGovernanceMansionari);
       add('governanceVault', setGovernanceVault);
       subs.push(watchNode('governanceVaultConfig', (v) => setVaultConfig(v || {}), () => {}));
+      subs.push(watchNode('newsletter', (v) => setNewsletterSubs(v || {}), () => {}));
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
@@ -3149,6 +3151,34 @@ export default function App() {
     }
     return { added, skipped };
   };
+  // Unione duplicati: fonde le schede `dupIds` in `survivor` (progetti ri-puntati, campi combinati, dup nel Cestino).
+  const handleMergeClients = (survivor: ClientRecord, dupIds: string[]) => {
+    if (currentUser?.role !== 'admin' && currentUser?.role !== 'manager') return;
+    const dups = dupIds.map((id) => clients[id]).filter(Boolean) as ClientRecord[];
+    if (!dups.length) return;
+    askDelete('Unire i duplicati?', `${dups.length} scheda/e verranno unite in "${survivor.name}" e spostate nel Cestino. I progetti collegati passano a questa scheda.`, () => {
+      const merged: ClientRecord = { ...survivor };
+      const scalarKeys: (keyof ClientRecord)[] = ['email', 'phone', 'whatsapp', 'address', 'codiceFiscale', 'companyName', 'partitaIva', 'pec', 'sdi', 'tier', 'acquisitionChannel', 'notes', 'stato', 'preventivoStato', 'saldato', 'dataInizio', 'dataFine', 'responsabileNome', 'riferimentoComunicazione', 'referredByCode', 'accountUid', 'codiceReferenza'];
+      scalarKeys.forEach((k) => { if ((merged as any)[k] == null || (merged as any)[k] === '') { for (const d of dups) { const v = (d as any)[k]; if (v != null && v !== '') { (merged as any)[k] = v; break; } } } });
+      (['responsabili', 'roles', 'societies'] as const).forEach((k) => { const m: Record<string, boolean> = { ...((merged as any)[k] || {}) }; dups.forEach((d) => Object.assign(m, (d as any)[k] || {})); if (Object.keys(m).length) (merged as any)[k] = m; });
+      if (!merged.partnerRating) { const d = dups.find((x) => x.partnerRating); if (d) merged.partnerRating = d.partnerRating; }
+      const ints = [...(survivor.interactions || []), ...dups.flatMap((d) => d.interactions || [])];
+      if (ints.length) merged.interactions = ints;
+      merged.updatedAt = Date.now();
+      // ri-punta i progetti dai duplicati alla scheda superstite
+      setProjects((prev) => {
+        const next = { ...prev }; let changed = false;
+        Object.values(next).forEach((p) => { if (p.clientRecordId && dupIds.includes(p.clientRecordId)) { next[p.id] = { ...p, clientRecordId: survivor.id }; changed = true; } });
+        if (changed) syncState('projects', next);
+        return next;
+      });
+      setClients((prev) => { const n = { ...prev }; n[survivor.id] = merged; dupIds.forEach((id) => delete n[id]); return n; });
+      writeNode(`clients/${survivor.id}`, merged).catch(() => {});
+      dups.forEach((d) => { moveToTrash('rubrica', d.name || 'Cliente', d, undefined, `unito in ${survivor.name}`); removeNode(`clients/${d.id}`).catch(() => {}); });
+      logAudit('update', 'rubrica', `Unione duplicati → ${survivor.name}`, `${dups.length} schede`);
+      showToast('Duplicati uniti.', 'ok');
+    });
+  };
 
   // ---- Governance & Organigrammi ----
   const handleSaveOrgNode = (n: OrgNode) => {
@@ -4591,6 +4621,9 @@ export default function App() {
             onSaveClient={handleSaveClient}
             onDeleteClient={handleDeleteClient}
             onImportClients={canManageAccess ? handleImportClients : undefined}
+            onMergeClients={canManageAccess ? handleMergeClients : undefined}
+            usersAll={users}
+            newsletter={newsletterSubs}
             projects={Object.values(projects)}
             members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff'))}
             quotes={Object.values(quotes)}
