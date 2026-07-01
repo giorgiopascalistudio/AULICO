@@ -946,6 +946,34 @@ export interface VaultConfig {
   updatedAt?: number;
   by?: string | null;
 }
+/** Stato della pipeline "Potenziale Cantiere" (Materico, §3). */
+export type MatericoDealStage = 'nuovo' | 'valutazione' | 'preventivo' | 'contrattualizzazione' | 'vinta' | 'persa';
+/** Disciplina prevalente della commessa → responsabile (Raffaele=edile, Marco=impianti). */
+export type MatericoDiscipline = 'edile' | 'impianti' | 'misto';
+/** Commessa potenziale Materico (nodo `matericoDeals/<id>`). Ingresso del flusso realizzativo. */
+export interface MatericoDeal {
+  id: string;
+  title: string;                 // nome commessa
+  clientName?: string | null;
+  clientRecordId?: string | null;
+  projectId?: string | null;     // pratica Onirico collegata (se esiste)
+  address?: string | null;
+  lat?: number | null;           // geolocalizzazione (per la mappa operativa, §12)
+  lng?: number | null;
+  discipline?: MatericoDiscipline;
+  responsabileUid?: string | null; // Raffaele / Marco
+  stage: MatericoDealStage;
+  valoreStimato?: number | null; // ricavo previsto €
+  costoStimato?: number | null;  // costo imprese+materiali previsto €
+  probability?: number | null;   // 0–100 (probabilità di acquisizione)
+  notes?: string | null;
+  quoteId?: string | null;       // preventivo generato
+  cantiereId?: string | null;    // cantiere avviato
+  requestId?: string | null;     // richiesta Materico collegata
+  createdBy?: string | null;
+  createdAt: number;
+  updatedAt?: number;
+}
 /** Categoria evento dell'agenda Risorse Umane. */
 export type HrEventCategory =
   | 'riunione_1_1' | 'riunione_tecnica' | 'riunione_amministrativa' | 'riunione_marketing'

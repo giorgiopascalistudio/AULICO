@@ -99,6 +99,7 @@ import {
   VaultEntry,
   VaultConfig,
   HrEvent,
+  MatericoDeal,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -165,6 +166,7 @@ import { GroupTabBar } from './components/GroupTabBar';
 import { MarketingSection } from './components/sections/MarketingSection';
 const GovernanceView = React.lazy(() => import('./components/GovernanceView').then((m) => ({ default: m.GovernanceView })));
 const HrAgendaView = React.lazy(() => import('./components/HrAgendaView').then((m) => ({ default: m.HrAgendaView })));
+const MatericoDealsView = React.lazy(() => import('./components/MatericoDealsView').then((m) => ({ default: m.MatericoDealsView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -370,6 +372,7 @@ export default function App() {
   const [vaultConfig, setVaultConfig] = useState<VaultConfig>({});
   const [newsletterSubs, setNewsletterSubs] = useState<Record<string, any>>({});
   const [hrEvents, setHrEvents] = useState<Record<string, HrEvent>>({});
+  const [matericoDeals, setMatericoDeals] = useState<Record<string, MatericoDeal>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1643,6 +1646,7 @@ export default function App() {
       subs.push(watchNode('governanceVaultConfig', (v) => setVaultConfig(v || {}), () => {}));
       subs.push(watchNode('newsletter', (v) => setNewsletterSubs(v || {}), () => {}));
       add('hrEvents', setHrEvents);
+      add('matericoDeals', setMatericoDeals);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
@@ -1994,6 +1998,10 @@ export default function App() {
         case 'materico':
           setMatericoRequests((prev) => ({ ...prev, [id]: pl }));
           writeNode(`matericoRequests/${id}`, pl).catch(() => {});
+          break;
+        case 'materico-deal':
+          setMatericoDeals((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`matericoDeals/${id}`, pl).catch(() => {});
           break;
         case 'richiesta_cliente':
           setClientRequests((prev) => ({ ...prev, [id]: pl }));
@@ -3335,6 +3343,20 @@ export default function App() {
     askDelete('Eliminare l\'evento dall\'agenda HR?', null, () => {
       setHrEvents((prev) => { const n = { ...prev }; delete n[id]; return n; });
       removeNode(`hrEvents/${id}`).catch(() => {});
+    });
+  };
+  // ---- Potenziale Cantiere Materico (matericoDeals) ----
+  const handleSaveMatericoDeal = (d: MatericoDeal) => {
+    const enriched: MatericoDeal = { ...d, createdBy: d.createdBy || currentUser?.uid || null };
+    setMatericoDeals((prev) => ({ ...prev, [d.id]: enriched }));
+    writeNode(`matericoDeals/${d.id}`, enriched).catch(() => showToast('Errore Potenziale Cantiere (controlla regole).', 'err'));
+  };
+  const handleDeleteMatericoDeal = (id: string) => {
+    const d = matericoDeals[id];
+    askDelete('Eliminare la commessa potenziale?', d ? `"${d.title}"` : null, () => {
+      if (d) moveToTrash('materico-deal', d.title || 'Commessa', d, undefined, d.clientName || undefined);
+      setMatericoDeals((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`matericoDeals/${id}`).catch(() => {});
     });
   };
 
@@ -4840,6 +4862,20 @@ export default function App() {
                 onSavePost={handleSaveSocialPost}
                 onDeletePost={handleDeleteSocialPost}
               />
+            );
+          case 'materico-deals':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <MatericoDealsView
+                  deals={matericoDeals}
+                  members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
+                  clients={Object.values(clients).map((c) => ({ id: c.id, name: c.name }))}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSave={handleSaveMatericoDeal}
+                  onDelete={handleDeleteMatericoDeal}
+                />
+              </React.Suspense>
             );
           case 'governance':
             return (

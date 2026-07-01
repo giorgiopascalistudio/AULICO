@@ -305,6 +305,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
   {
     id: 'materico', label: SOCIETA_LABEL.materico, color: SOCIETY_COLOR.materico,
     sections: [
+      { id: 'potenziale', label: 'Potenziale Cantiere', icon: Target, module: 'produzione', view: 'materico-deals', note: 'Pipeline delle commesse potenziali: valutazione tecnico-economica prima del preventivo.' },
       { id: 'produzione', label: 'Lavori & Richieste', icon: Layers, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'materico' } },
       { id: 'fornitori', label: 'Imprese & Fornitori', icon: Truck, module: 'crm', legacyRoute: 'crm' },
       { id: 'contabilita', label: 'Contabilità', icon: DollarSign, module: 'finance', legacyRoute: 'finanze' },
