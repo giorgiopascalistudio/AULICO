@@ -430,6 +430,7 @@ export default function App() {
   const [apptWho, setApptWho] = useState<string[]>([]);   // uid partecipanti (team + clienti + partner)
   const [apptWhoFilter, setApptWhoFilter] = useState('');
   const [apptNote, setApptNote] = useState('');
+  const [apptPrivate, setApptPrivate] = useState(false);
 
   // Elenco pubblico dei membri studio (per i portali cliente/partner)
   const [directory, setDirectory] = useState<Record<string, { name: string; role: string }>>({});
@@ -1324,6 +1325,7 @@ export default function App() {
     setApptWho(currentUser ? [currentUser.uid] : []);   // il creatore è preselezionato
     setApptWhoFilter('');
     setApptNote('');
+    setApptPrivate(false);
     setApptOpen(true);
   };
   const handleSubmitAppointment = () => {
@@ -1332,7 +1334,7 @@ export default function App() {
       return;
     }
     const me = currentUser!.uid;
-    const who = apptWho.length ? apptWho : [me];
+    const who = apptPrivate ? [me] : (apptWho.length ? apptWho : [me]);
     // Partecipanti: il creatore (se coinvolto) è auto-confermato, gli altri in attesa
     const participants: Record<string, 'pending' | 'confermato'> = {};
     const participantNames: Record<string, string> = {};
@@ -1358,6 +1360,7 @@ export default function App() {
       status: allConfirmed ? 'confermato' : 'pending',
       participants,
       participantNames,
+      private: apptPrivate,
       createdAt: Date.now()
     };
     handleSaveAppointment(a);
@@ -2210,6 +2213,7 @@ export default function App() {
   const [tPrio, setTPrio] = useState<'urgente' | 'alta' | 'media' | 'bassa'>('media');
   const [tTipo, setTTipo] = useState('');
   const [tActivityId, setTActivityId] = useState('');
+  const [tPrivate, setTPrivate] = useState(false);
   const [tAssignees, setTAssignees] = useState<string[]>([]);   // multi-assegnatario
   const [tProjectId, setTProjectId] = useState('');
   const [tNotes, setTNotes] = useState('');
@@ -2419,6 +2423,7 @@ export default function App() {
     setTPrio(t.priority);
     setTTipo(t.tipo || '');
     setTActivityId((t as any).activityId || '');
+    setTPrivate(!!(t as any).private);
     setTAssignees(t.assignees && t.assignees.length ? t.assignees : t.assignee ? [t.assignee] : []);
     setTProjectId(t.projectId || '');
     setTNotes(t.notes || '');
@@ -2459,6 +2464,7 @@ export default function App() {
           priority: tPrio,
           tipo: tTipo.trim() || null,
           activityId: tActivityId || null,
+          private: tPrivate,
           assignee: tAssignees[0] || null,
           assignees: tAssignees.length ? tAssignees : null,
           projectId: tProjectId || null,
@@ -2477,6 +2483,7 @@ export default function App() {
           priority: tPrio,
           tipo: tTipo.trim() || null,
           activityId: tActivityId || null,
+          private: tPrivate,
           assignee: tAssignees[0] || null,
           assignees: tAssignees.length ? tAssignees : null,
           projectId: tProjectId || null,
@@ -4301,6 +4308,7 @@ export default function App() {
               setTPrio('media');
               setTTipo('');
               setTActivityId('');
+              setTPrivate(false);
               setTAssignees([]);
               setTProjectId('');
               setTNotes('');
@@ -4309,16 +4317,16 @@ export default function App() {
           />
         );
 
-      case 'calendario':
+      case 'calendario': {
+        const myUidC = currentUser.uid;
+        const mineTask = (t: any) => t.assignee === myUidC || (t.assignees || []).includes(myUidC) || t.createdBy === myUidC || t.owner === myUidC;
+        const mineAppt = (a: any) => (a.participants ? !!a.participants[myUidC] : a.ownerUid === myUidC);
         return (
           <CalendarView
-            tasks={Object.values(tasks).filter((t) =>
-              t.assignee === currentUser.uid || (t.assignees || []).includes(currentUser.uid) || t.createdBy === currentUser.uid || t.owner === currentUser.uid
-            )}
+            /* Agenda personale: società-wide (voci condivise) + le proprie voci private */
+            tasks={Object.values(tasks).filter((t) => (t.private ? mineTask(t) : true))}
             projects={Object.values(projects)}
-            appointments={Object.values(appointments).filter((a) =>
-              a.participants ? !!a.participants[currentUser.uid] : a.ownerUid === currentUser.uid
-            )}
+            appointments={Object.values(appointments).filter((a) => (a.private ? mineAppt(a) : true))}
             calView={calView}
             calDate={calDate}
             onSetCalView={setCalView}
@@ -4338,6 +4346,7 @@ export default function App() {
               setTPrio('media');
               setTTipo('');
               setTActivityId('');
+              setTPrivate(false);
               setTAssignees([]);
               setTProjectId('');
               setTNotes('');
@@ -4350,6 +4359,7 @@ export default function App() {
             onDeleteLeave={handleDeleteLeave}
           />
         );
+      }
 
       case 'progetti':
       case 'progetto':
@@ -4806,6 +4816,7 @@ export default function App() {
           tasks: Object.values(tasks),
           appointments: Object.values(appointments),
           clientRequests: Object.values(clientRequests),
+          notifications: notifications as any,
           go: (h) => { window.location.hash = h; },
         };
         return <SocietyDashboard spec={society.dashboard} ctx={ctx} societyLabel={society.label} color={society.color} />;
@@ -5407,6 +5418,11 @@ export default function App() {
             <textarea value={apptNote} onChange={(e) => setApptNote(e.target.value)} rows={2} className="input border border-[#e2e2e2] rounded-xl p-3 text-[14px] resize-none" />
           </label>
 
+          <label className="flex items-center gap-2 cursor-pointer text-[13.5px] font-semibold text-[#333]">
+            <input type="checkbox" checked={apptPrivate} onChange={(e) => setApptPrivate(e.target.checked)} className="w-4 h-4 accent-[#161616]" />
+            Personale (solo io) — impegno privato, non condiviso in agenda
+          </label>
+
           <button onClick={handleSubmitAppointment} className="mt-1 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[13px] cursor-pointer border-none">
             Crea appuntamento
           </button>
@@ -5494,6 +5510,11 @@ export default function App() {
                 <option key={a.id} value={a.id}>{a.label} · {a.points >= 0 ? '+' : ''}{a.points} pt · {eur(activityValue(a))}</option>
               ))}
             </select>
+          </label>
+
+          <label className="flex items-center gap-2 cursor-pointer text-[13.5px] font-semibold text-[#333]">
+            <input type="checkbox" checked={tPrivate} onChange={(e) => setTPrivate(e.target.checked)} className="w-4 h-4 accent-[#161616]" />
+            Personale (solo io) — non compare nell'agenda condivisa della squadra
           </label>
 
           <div className="flex flex-col gap-1.5">

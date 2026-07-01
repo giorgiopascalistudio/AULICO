@@ -114,6 +114,7 @@ export interface DashboardCtx {
   tasks: Task[];
   appointments: Appointment[];
   clientRequests: ClientRequest[];
+  notifications?: { id: string; title: string; body?: string | null; link?: string | null; read: boolean; at: number }[];
   go: (hash: string) => void;
 }
 
@@ -192,6 +193,72 @@ export const DEFAULT_DASHBOARD: DashboardSpec = {
   ],
 };
 
+/** Task "miei": assegnato, tra gli assegnatari, o owner. */
+const isMine = (t: Task, uid?: string) => !!uid && (t.assignee === uid || (t.assignees || []).includes(uid) || (t as any).owner === uid);
+
+/**
+ * Dashboard PERSONALE (home "Aulico"): le mie attività di oggi, stato delle attività
+ * di cui faccio parte, notifiche/messaggi e prossimi appuntamenti. Vedi §DASHBOARD.
+ */
+export const PERSONAL_DASHBOARD: DashboardSpec = {
+  widgets: [
+    {
+      id: 'stato-attivita', title: 'Le mie attività — stato', size: 'md',
+      compute: (c) => {
+        const uid = c.profile?.uid; const tk = todayKey();
+        const mine = c.tasks.filter((t) => isMine(t, uid));
+        const open = mine.filter((t) => !t.done).length;
+        const urgent = mine.filter((t) => !t.done && t.priority === 'urgente').length;
+        const overdue = mine.filter((t) => !t.done && (t.date || '') < tk).length;
+        const done = mine.filter((t) => t.done).length;
+        return { kind: 'list', items: [
+          { label: 'Aperti', meta: String(open), hash: '#calendario' },
+          { label: 'Urgenti', meta: String(urgent), hash: '#calendario' },
+          { label: 'Scaduti', meta: String(overdue), hash: '#calendario' },
+          { label: 'Completati', meta: String(done), hash: '#calendario' },
+        ] };
+      },
+    },
+    {
+      id: 'oggi', title: 'Le mie attività di oggi', size: 'lg',
+      compute: (c) => {
+        const uid = c.profile?.uid; const tk = todayKey();
+        const items = c.tasks
+          .filter((t) => isMine(t, uid) && !t.done && (t.date || '').slice(0, 10) === tk)
+          .sort((a, b) => (a.time || '').localeCompare(b.time || ''))
+          .slice(0, 8)
+          .map((t) => ({ label: t.title || 'Attività', meta: t.priority === 'urgente' ? 'URGENTE' : (t.time || ''), hash: '#calendario' }));
+        return { kind: 'list', items, emptyText: 'Nessuna attività per oggi 🎉' };
+      },
+    },
+    {
+      id: 'notifiche', title: 'Notifiche & messaggi', size: 'md',
+      compute: (c) => {
+        const items = (c.notifications || [])
+          .slice()
+          .sort((a, b) => (Number(a.read) - Number(b.read)) || (b.at - a.at))
+          .slice(0, 6)
+          .map((n) => ({ label: n.title, meta: n.read ? '' : '•', hash: n.link || '#' }));
+        return { kind: 'list', items, emptyText: 'Nessuna notifica' };
+      },
+    },
+    {
+      id: 'prossimi-appuntamenti', title: 'Prossimi appuntamenti', size: 'md',
+      compute: (c) => {
+        const uid = c.profile?.uid as string;
+        const now = Date.now();
+        const items = c.appointments
+          .filter((a) => (a.participants ? !!a.participants[uid] : (a as any).ownerUid === uid))
+          .filter((a) => new Date(`${a.date}T${(a as any).time || '00:00'}`).getTime() >= now - 36e5)
+          .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
+          .slice(0, 4)
+          .map((a) => ({ label: (a as any).title || 'Appuntamento', meta: new Date(a.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }), hash: '#calendario' }));
+        return { kind: 'list', items, emptyText: 'Nessun appuntamento in arrivo' };
+      },
+    },
+  ],
+};
+
 // ============================================================================
 // REGISTRY — seed iniziale (affinabile dall'utente)
 // ============================================================================
@@ -261,7 +328,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
   // -------------------------------------------------- AULICO (gruppo/shared)
   {
     id: 'holding', label: 'Aulico', color: SOCIETY_COLOR.holding,
-    dashboard: DEFAULT_DASHBOARD,
+    dashboard: PERSONAL_DASHBOARD,
     sections: [
       // Voci UNICHE per ogni account: una sola Dashboard e una sola Agenda,
       // mostrate in cima alla sidebar (fuori dalle categorie società).

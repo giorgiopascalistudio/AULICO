@@ -161,6 +161,7 @@ export interface Task {
   priority: 'urgente' | 'alta' | 'media' | 'bassa';
   tipo?: string | null;          // tipologia attività (rilievo, progetto 3D, computo…)
   activityId?: string | null;    // attività del catalogo punti (auto-punteggio al completamento)
+  private?: boolean;             // personale: visibile solo al creatore/assegnatario (non in agenda società)
   assignee?: string | null;      // primo assegnatario (compat: filtri/regole esistenti)
   assignees?: string[] | null;   // multi-assegnatario: il task compare nel calendario di tutti
   projectId?: string | null;
@@ -368,6 +369,7 @@ export interface Appointment {
   participants?: Record<string, 'pending' | 'confermato' | 'rifiutato'>;
   participantNames?: Record<string, string>;   // uid → nome (per render senza lookup)
   projectId?: string | null;
+  private?: boolean;       // personale: visibile solo al creatore (non condiviso in agenda di società)
   createdAt: number;
 }
 

@@ -112,9 +112,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   onDeleteLeave
 }) => {
   const todayISO = isoDate(new Date());
+  // Scope agenda: 'all' = tutta la squadra (voci condivise di società) · 'mine' = solo le mie
+  const [scope, setScope] = React.useState<'all' | 'mine'>('all');
+  const mineAppt = (a: Appointment) => (a.participants ? !!a.participants[myUid] : a.ownerUid === myUid);
+  const mineTask = (t: Task) => t.assignee === myUid || (t.assignees || []).includes(myUid) || t.owner === myUid || (!t.assignee && !(t.assignees || []).length && t.createdBy === myUid);
 
   const apptsOn = (iso: string): Appointment[] =>
-    (appointments || []).filter(a => a.date === iso).sort((a, b) => (a.time || '99').localeCompare(b.time || '99'));
+    (appointments || []).filter(a => a.date === iso && (scope === 'all' || mineAppt(a))).sort((a, b) => (a.time || '99').localeCompare(b.time || '99'));
 
   const occursOn = (t: Task, iso: string): boolean => {
     if (!t.date || iso < t.date) return false;
@@ -169,7 +173,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   };
 
   const tasksOnDate = (iso: string): Task[] => {
-    const std = tasks.filter(t => occursOn(t, iso) && (t.assignee === myUid || (t.assignees || []).includes(myUid) || t.owner === myUid || (!t.assignee && !(t.assignees || []).length && t.createdBy === myUid)));
+    const std = tasks.filter(t => occursOn(t, iso) && (scope === 'all' || mineTask(t)));
     const prj = projTasksOn(iso);
     return [...std, ...prj].sort((a, b) => {
       const timeCompare = (a.time || '99:99').localeCompare(b.time || '99:99');
@@ -733,20 +737,30 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           {calHeadLabel()}
         </div>
 
-        <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-2xl gap-[2px]">
-          {(['day', 'week', 'month'] as const).map(view => (
-            <button
-              key={view}
-              onClick={() => onSetCalView(view)}
-              className={`text-[12.5px] font-bold px-[15px] py-1.5 rounded-xl cursor-pointer border-none outline-none flex items-center justify-center min-w-[76px] transition-colors duration-150 ${
-                calView === view
-                  ? 'bg-white text-[#161616] font-extrabold shadow-2xs'
-                  : 'bg-transparent text-[#8a8a8a] hover:text-[#161616]'
-              }`}
-            >
-              {view === 'month' ? 'Mese' : view === 'week' ? 'Settimana' : 'Giorno'}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Scope: tutta la squadra vs solo le mie voci */}
+          <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-2xl gap-[2px]">
+            {(['all', 'mine'] as const).map((s) => (
+              <button key={s} onClick={() => setScope(s)} className={`text-[12px] font-bold px-3 py-1.5 rounded-xl cursor-pointer border-none transition-colors ${scope === s ? 'bg-white text-[#161616] font-extrabold shadow-2xs' : 'bg-transparent text-[#8a8a8a] hover:text-[#161616]'}`}>
+                {s === 'all' ? 'Tutta la squadra' : 'Solo le mie'}
+              </button>
+            ))}
+          </div>
+          <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-2xl gap-[2px]">
+            {(['day', 'week', 'month'] as const).map(view => (
+              <button
+                key={view}
+                onClick={() => onSetCalView(view)}
+                className={`text-[12.5px] font-bold px-[15px] py-1.5 rounded-xl cursor-pointer border-none outline-none flex items-center justify-center min-w-[76px] transition-colors duration-150 ${
+                  calView === view
+                    ? 'bg-white text-[#161616] font-extrabold shadow-2xs'
+                    : 'bg-transparent text-[#8a8a8a] hover:text-[#161616]'
+                }`}
+              >
+                {view === 'month' ? 'Mese' : view === 'week' ? 'Settimana' : 'Giorno'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
