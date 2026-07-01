@@ -47,13 +47,6 @@ const parentKind = (k: OrgKind): OrgKind => (k === 'ruolo' ? 'area' : 'societa')
 /** Genitori di un nodo (compatibile col vecchio parentId singolo). */
 const nodeParents = (n: OrgNode): OrgParentRef[] => (n.parents && n.parents.length ? n.parents : n.parentId ? [{ id: n.parentId }] : []);
 
-/** Stile box "Funzionale" (come immagine 1): intestazione colorata + sotto-box persona. */
-const FUNZ: Record<OrgKind, { head: string; headTx: string; body: string; bodyTx: string }> = {
-  societa: { head: '#e07a54', headTx: '#ffffff', body: '#f4e4cb', bodyTx: '#6a5030' },
-  area: { head: '#f2b200', headTx: '#3a2d00', body: '#fbe9b3', bodyTx: '#5c4a12' },
-  ruolo: { head: '#f9e4a0', headTx: '#5c4a12', body: '#fdf6d8', bodyTx: '#6b5a1e' },
-};
-
 /** Seed fedele alle due immagini (idempotente: id stabili → riesegue senza duplicare). */
 function buildGroupSeed(): OrgNode[] {
   const t = Date.now();
@@ -90,7 +83,7 @@ function buildGroupSeed(): OrgNode[] {
 
 // ============================ LAYOUT (grafo a livelli) ============================
 interface Pos { x: number; y: number; layer: number; }
-interface LEdge { from: string; to: string; quota?: number | null; sx: number; sy: number; ex: number; ey: number; midY: number; }
+interface LEdge { from: string; to: string; quota?: number | null; sx: number; sy: number; ex: number; ey: number; midY: number; left?: boolean; }
 interface Layout { pos: Map<string, Pos>; edges: LEdge[]; width: number; height: number; }
 
 function computeLayout(items: OrgNode[], collapsed: Record<string, boolean>, NW: number, NH: number, HG: number, VG: number): Layout {
@@ -177,6 +170,104 @@ function computeLayout(items: OrgNode[], collapsed: Record<string, boolean>, NW:
   return { pos, edges, width: width + 6, height: height + 6 };
 }
 
+/** Layout ad ALBERO che cresce anche in VERTICALE: i gruppi di sole foglie vengono impilati
+ * in colonna sotto il genitore (riduce la larghezza, molto più leggibile). Genitore primario =
+ * il più "profondo" tra i genitori; gli altri restano come archi secondari (con %). */
+function computeTreeLayout(items: OrgNode[], collapsed: Record<string, boolean>, NW: number, NH: number): Layout {
+  const byId = new Map(items.map((n) => [n.id, n]));
+  const parentsAll = (n: OrgNode) => nodeParents(n).map((p) => p.id).filter((id) => byId.has(id));
+  // profondità (longest path) per scegliere il genitore primario
+  const depth = new Map<string, number>();
+  const depthOf = (id: string, seen = new Set<string>()): number => {
+    if (depth.has(id)) return depth.get(id)!;
+    if (seen.has(id)) return 0;
+    seen.add(id);
+    const ps = parentsAll(byId.get(id)!);
+    const d = ps.length ? Math.max(...ps.map((p) => depthOf(p, seen))) + 1 : 0;
+    depth.set(id, d);
+    return d;
+  };
+  items.forEach((n) => depthOf(n.id));
+  const primaryParent = (n: OrgNode): string | null => {
+    const ps = parentsAll(n);
+    if (!ps.length) return null;
+    return ps.slice().sort((a, b) => (depth.get(b)! - depth.get(a)!))[0];
+  };
+  const order = (id: string) => { const n = byId.get(id)!; return n.order ?? n.createdAt ?? 0; };
+  const childrenMap = new Map<string, string[]>();
+  items.forEach((n) => { const p = primaryParent(n); if (p) { const a = childrenMap.get(p) || []; a.push(n.id); childrenMap.set(p, a); } });
+  const kidsOf = (id: string) => (collapsed[id] ? [] : (childrenMap.get(id) || []).slice().sort((a, b) => order(a) - order(b)));
+  const roots = items.filter((n) => !primaryParent(n)).map((n) => n.id).sort((a, b) => order(a) - order(b));
+
+  const VGAP = 46, HGAP = 22, SVGAP = 12, SINDENT = 24, STACK_MIN = 3;
+  const subW = new Map<string, number>(), subH = new Map<string, number>();
+  const stacked = new Set<string>();
+  const measure = (id: string) => {
+    const kids = kidsOf(id);
+    if (!kids.length) { subW.set(id, NW); subH.set(id, NH); return; }
+    kids.forEach(measure);
+    const allLeaves = kids.every((k) => kidsOf(k).length === 0);
+    if (allLeaves && kids.length >= STACK_MIN) {
+      stacked.add(id);
+      subW.set(id, SINDENT + NW);
+      subH.set(id, NH + kids.length * (NH + SVGAP));
+    } else {
+      const w = kids.reduce((s, k) => s + subW.get(k)!, 0) + (kids.length - 1) * HGAP;
+      subW.set(id, Math.max(NW, w));
+      subH.set(id, NH + VGAP + Math.max(...kids.map((k) => subH.get(k)!)));
+    }
+  };
+  roots.forEach(measure);
+
+  const pos = new Map<string, Pos>();
+  const place = (id: string, left: number, top: number) => {
+    const kids = kidsOf(id);
+    const w = subW.get(id)!;
+    if (!kids.length) { pos.set(id, { x: left + (w - NW) / 2, y: top, layer: 0 }); return; }
+    if (stacked.has(id)) {
+      pos.set(id, { x: left, y: top, layer: 0 });
+      let cy = top + NH + SVGAP;
+      kids.forEach((k) => { pos.set(k, { x: left + SINDENT, y: cy, layer: 0 }); cy += NH + SVGAP; });
+      return;
+    }
+    const childY = top + NH + VGAP;
+    let cx = left;
+    kids.forEach((k) => { place(k, cx, childY); cx += subW.get(k)! + HGAP; });
+    const fk = pos.get(kids[0])!, lk = pos.get(kids[kids.length - 1])!;
+    const center = ((fk.x + NW / 2) + (lk.x + NW / 2)) / 2;
+    pos.set(id, { x: center - NW / 2, y: top, layer: 0 });
+  };
+  let rx = 0;
+  roots.forEach((r) => { place(r, rx, 0); rx += subW.get(r)! + HGAP * 2; });
+
+  const visible = new Set(pos.keys());
+  const edges: LEdge[] = [];
+  items.forEach((n) => {
+    if (!visible.has(n.id)) return;
+    const cp = pos.get(n.id)!;
+    const ps = nodeParents(n).filter((p) => visible.has(p.id));
+    ps.forEach((pr, ci) => {
+      const pp = pos.get(pr.id)!;
+      const leftEntry = stacked.has(pr.id) && primaryParent(n) === pr.id;
+      if (leftEntry) {
+        const sx = pp.x + SINDENT / 2, sy = pp.y + NH, ey = cp.y + NH / 2, ex = cp.x;
+        edges.push({ from: pr.id, to: n.id, quota: pr.quota, sx, sy, ex, ey, midY: ey, left: true });
+      } else {
+        const sx = pp.x + NW / 2, sy = pp.y + NH;
+        const ex = cp.x + (NW * (ci + 1)) / (ps.length + 1), ey = cp.y;
+        const midY = sy + Math.max(14, (ey - sy) / 2);
+        edges.push({ from: pr.id, to: n.id, quota: pr.quota, sx, sy, ex, ey, midY });
+      }
+    });
+  });
+
+  let minX = Infinity; pos.forEach((p) => (minX = Math.min(minX, p.x))); if (!isFinite(minX)) minX = 0;
+  let width = 0, height = 0;
+  pos.forEach((p, k) => { const np = { ...p, x: p.x - minX }; pos.set(k, np); width = Math.max(width, np.x + NW); height = Math.max(height, np.y + NH); });
+  if (minX !== 0) edges.forEach((e) => { e.sx -= minX; e.ex -= minX; });
+  return { pos, edges, width: width + 6, height: height + 6 };
+}
+
 export const GovernanceView: React.FC<Props> = ({ org, sops, members, color = '#b45309', canEdit = false, onSaveNode, onDeleteNode, onSeed, onSaveSop, onDeleteSop, onNav }) => {
   const [tab, setTab] = React.useState<'organigramma' | 'mansionari' | 'sop' | 'collegamenti'>('organigramma');
   const nodes = Object.values(org);
@@ -214,11 +305,15 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; members: Member[]; canEdit: boo
   const [zoom, setZoom] = React.useState(1);
 
   const items = React.useMemo(() => nodes.filter((n) => (n.chart || 'funzionale') === chart), [nodes, chart]);
-  const NW = chart === 'societario' ? 210 : 144;
-  const NH = chart === 'societario' ? 84 : 54;
-  const HG = chart === 'societario' ? 30 : 16;
-  const VG = chart === 'societario' ? 64 : 52;
-  const layout = React.useMemo(() => computeLayout(items, collapsed, NW, NH, HG, VG), [items, collapsed, NW, NH, HG, VG]);
+  const NW = chart === 'societario' ? 204 : 172;
+  const NH = chart === 'societario' ? 84 : 62;
+  const HG = chart === 'societario' ? 30 : 18;
+  const VG = chart === 'societario' ? 64 : 50;
+  // Societario = grafo (più genitori, % sugli archi). Funzionale = albero che cresce anche in verticale.
+  const layout = React.useMemo(
+    () => (chart === 'societario' ? computeLayout(items, collapsed, NW, NH, HG, VG) : computeTreeLayout(items, collapsed, NW, NH)),
+    [items, collapsed, chart, NW, NH, HG, VG],
+  );
   const sel = selId ? items.find((n) => n.id === selId) || null : null;
   const childCount = (id: string) => items.filter((n) => nodeParents(n).some((p) => p.id === id)).length;
 
@@ -238,30 +333,17 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; members: Member[]; canEdit: boo
     setSelId(np.id);
   };
 
-  // ---- box render (stile per schema) ----
+  // ---- box render UNIFICATO (stesso stile nei due schemi) ----
   const Box: React.FC<{ n: OrgNode }> = ({ n }) => {
     const isSel = selId === n.id;
-    if (chart === 'societario') {
-      return (
-        <div className="w-full h-full rounded-[12px] overflow-hidden flex flex-col bg-white" style={{ boxShadow: isSel ? '0 10px 22px rgba(0,0,0,0.20)' : '0 3px 10px rgba(0,0,0,0.13)', border: isSel ? '2px solid #4338ca' : '1px solid #d6d6d6' }}>
-          <div style={{ height: 7, background: 'linear-gradient(180deg,#f4f4f4,#c6c6c6)' }} />
-          <div className="flex-1 flex flex-col items-center justify-center text-center px-2 py-1 min-h-0">
-            <span className="text-[11px] font-black text-[#2b2b2b] leading-[1.1] uppercase break-words line-clamp-2">{n.label}</span>
-            {n.person && <span className="text-[9px] font-bold text-[#7a7a7a] leading-tight mt-0.5">({n.person})</span>}
-            {n.desc && <><span className="block w-8 my-1 border-t border-[#e2e2e2]" /><span className="text-[8.5px] text-[#8a8a8a] leading-tight break-words line-clamp-2">{n.desc}</span></>}
-          </div>
-        </div>
-      );
-    }
-    const s = FUNZ[n.kind];
+    const meta = KIND_META[n.kind];
+    const Icon = meta.icon;
     return (
-      <div className="w-full h-full rounded-[6px] overflow-hidden flex flex-col" style={{ border: isSel ? '2px solid #161616' : '1px solid #c9bda0', boxShadow: isSel ? '0 6px 15px rgba(0,0,0,0.18)' : '0 1px 3px rgba(0,0,0,0.12)' }}>
-        <div className="flex-1 flex items-center justify-center text-center px-1.5 py-0.5 min-h-0" style={{ background: s.head, color: s.headTx }}>
-          <span className="text-[8.5px] font-bold uppercase leading-[1.05] break-words line-clamp-3 tracking-tight">{n.label}</span>
-        </div>
-        <div className="flex items-center justify-center text-center px-1" style={{ height: 17, background: n.person ? s.body : '#d9d9d9', color: s.bodyTx }}>
-          <span className="text-[8px] font-semibold leading-none truncate">{n.person || ' '}</span>
-        </div>
+      <div className="w-full h-full rounded-[14px] bg-white flex flex-col items-center justify-center text-center px-2.5 pt-2.5 pb-1.5 relative" style={{ border: isSel ? `2px solid ${meta.color}` : '1px solid #e2e2e2', boxShadow: isSel ? `0 8px 18px ${meta.color}26` : '0 2px 8px rgba(0,0,0,0.08)' }}>
+        <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-6 h-6 rounded-lg flex items-center justify-center shadow-sm shrink-0" style={{ background: meta.color, color: '#fff' }}><Icon className="w-3.5 h-3.5" /></span>
+        <span className="text-[12px] font-extrabold text-[#161616] leading-[1.12] mt-1 break-words line-clamp-2">{n.label}</span>
+        {n.person && <span className="text-[10px] text-[#6b6b6b] font-semibold leading-tight mt-0.5 break-words line-clamp-1">{n.person}</span>}
+        {n.desc && <span className="text-[9px] text-[#9a9a9a] leading-tight mt-0.5 break-words line-clamp-1">{n.desc}</span>}
       </div>
     );
   };
@@ -309,12 +391,15 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; members: Member[]; canEdit: boo
                   <marker id="og-arrow" markerWidth="9" markerHeight="9" refX="5.5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9a9a9a" /></marker>
                 </defs>
                 {layout.edges.map((e, i) => {
-                  const vertical = Math.abs(e.ex - e.sx) < 8;
-                  const lx = vertical ? e.sx + 13 : (e.sx + e.ex) / 2;
-                  const ly = vertical ? (e.sy + e.ey) / 2 : e.midY - 6;
+                  const d = e.left
+                    ? `M ${e.sx} ${e.sy} L ${e.sx} ${e.ey} L ${e.ex} ${e.ey}`
+                    : `M ${e.sx} ${e.sy} L ${e.sx} ${e.midY} L ${e.ex} ${e.midY} L ${e.ex} ${e.ey}`;
+                  const vertical = !e.left && Math.abs(e.ex - e.sx) < 8;
+                  const lx = e.left ? e.sx + 12 : vertical ? e.sx + 13 : (e.sx + e.ex) / 2;
+                  const ly = e.left ? e.ey - 5 : vertical ? (e.sy + e.ey) / 2 : e.midY - 6;
                   return (
                     <g key={i}>
-                      <path d={`M ${e.sx} ${e.sy} L ${e.sx} ${e.midY} L ${e.ex} ${e.midY} L ${e.ex} ${e.ey}`} fill="none" stroke="#9a9a9a" strokeWidth={1.5} markerEnd="url(#og-arrow)" />
+                      <path d={d} fill="none" stroke="#9a9a9a" strokeWidth={1.5} markerEnd="url(#og-arrow)" />
                       {e.quota != null && <text x={lx} y={ly} textAnchor="middle" style={{ fontSize: 10.5, fontWeight: 800, fill: '#2f2f2f', paintOrder: 'stroke', stroke: '#fff', strokeWidth: 3, strokeLinejoin: 'round' }}>{e.quota}%</text>}
                     </g>
                   );
