@@ -885,6 +885,44 @@ export interface OrgNode {
   createdAt: number;
   updatedAt?: number;
 }
+/** Voce del mansionario (nodo `governanceMansionari/<id>`): ruolo codificato con mansioni + PFV.
+ * Indipendente dall'organigramma (aggiungibile/modificabile/rimovibile a mano). */
+export interface GovernanceMansionario {
+  id: string;
+  role: string;                  // titolo del ruolo / figura
+  person?: string | null;        // persona che lo ricopre (facoltativo)
+  area?: string | null;          // area / società di riferimento
+  identita?: OrgIdentita | null; // Amministratore/Socio/Dipendente/Collaboratore
+  mansioni?: string | null;      // compiti & responsabilità
+  pfv?: string | null;           // Prodotto Finale di Valore
+  requisiti?: string | null;     // competenze/requisiti richiesti
+  order?: number;
+  createdAt: number;
+  updatedAt?: number;
+}
+/** Categoria di una credenziale nella cassaforte password. */
+export type VaultCategory = 'sito' | 'portale' | 'software' | 'strumento' | 'social' | 'altro';
+/** Voce della cassaforte credenziali (nodo `governanceVault/<id>`): password di siti/portali/software/strumenti.
+ * L'accesso alla sezione è protetto da una master password (hash in `governanceVaultConfig`). */
+export interface VaultEntry {
+  id: string;
+  label: string;                 // nome del servizio/strumento
+  category?: VaultCategory;
+  url?: string | null;
+  username?: string | null;
+  password?: string | null;
+  note?: string | null;
+  createdAt: number;
+  updatedAt?: number;
+  by?: string | null;
+}
+/** Config della cassaforte (nodo `governanceVaultConfig`): hash della master password + salt. */
+export interface VaultConfig {
+  passHash?: string | null;
+  salt?: string | null;
+  updatedAt?: number;
+  by?: string | null;
+}
 /** Procedura operativa standard (nodo `governanceSop/<id>`): guida passo-passo. */
 export interface GovernanceSop {
   id: string;

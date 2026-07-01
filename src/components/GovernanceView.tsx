@@ -11,9 +11,11 @@
 import React from 'react';
 import {
   Network, Plus, Trash2, Building2, Layers, UserCircle2,
-  ScrollText, Award, ShieldCheck, BookOpen, X, Pencil, CornerLeftUp,
+  Award, BookOpen, X, Pencil, CornerLeftUp,
+  Users, Lock, KeyRound, Eye, EyeOff, Globe, Wrench, ExternalLink, Copy, Search,
 } from 'lucide-react';
-import type { OrgNode, OrgKind, OrgIdentita, OrgParentRef, GovernanceSop } from '../types';
+import { safeUrl } from '../utils';
+import type { OrgNode, OrgKind, OrgIdentita, OrgParentRef, GovernanceSop, GovernanceMansionario, VaultEntry, VaultConfig, VaultCategory } from '../types';
 
 interface Member { uid: string; name: string; }
 interface Props {
@@ -27,6 +29,18 @@ interface Props {
   onSeed?: (nodes: OrgNode[]) => void;
   onSaveSop: (s: GovernanceSop) => void;
   onDeleteSop: (id: string) => void;
+  // Mansionari (CRUD)
+  mansionari?: Record<string, GovernanceMansionario>;
+  onSaveMansionario?: (m: GovernanceMansionario) => void;
+  onDeleteMansionario?: (id: string) => void;
+  // Cassaforte password
+  vault?: Record<string, VaultEntry>;
+  vaultConfig?: VaultConfig;
+  onSaveVaultEntry?: (e: VaultEntry) => void;
+  onDeleteVaultEntry?: (id: string) => void;
+  onSetVaultConfig?: (cfg: VaultConfig) => Promise<any>;
+  // Team & permessi (embedded)
+  teamSlot?: React.ReactNode;
   onNav?: (hash: string) => void;
 }
 
@@ -268,8 +282,8 @@ function computeTreeLayout(items: OrgNode[], collapsed: Record<string, boolean>,
   return { pos, edges, width: width + 6, height: height + 6 };
 }
 
-export const GovernanceView: React.FC<Props> = ({ org, sops, members, color = '#b45309', canEdit = false, onSaveNode, onDeleteNode, onSeed, onSaveSop, onDeleteSop, onNav }) => {
-  const [tab, setTab] = React.useState<'organigramma' | 'mansionari' | 'sop' | 'collegamenti'>('organigramma');
+export const GovernanceView: React.FC<Props> = ({ org, sops, members, canEdit = false, onSaveNode, onDeleteNode, onSeed, onSaveSop, onDeleteSop, mansionari = {}, onSaveMansionario, onDeleteMansionario, vault = {}, vaultConfig = {}, onSaveVaultEntry, onDeleteVaultEntry, onSetVaultConfig, teamSlot }) => {
+  const [tab, setTab] = React.useState<'organigramma' | 'mansionari' | 'sop' | 'team' | 'password'>('organigramma');
   const nodes = Object.values(org);
 
   return (
@@ -277,12 +291,12 @@ export const GovernanceView: React.FC<Props> = ({ org, sops, members, color = '#
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Network className="w-5.5 h-5.5" /> Governance & Organizzazione</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Chi fa cosa nel gruppo: organigrammi, mansionari, procedure.</p>
+          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Chi fa cosa nel gruppo: organigrammi, mansionari, procedure, team e credenziali.</p>
         </div>
       </div>
 
       <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] self-start flex-wrap">
-        {([['organigramma', 'Organigramma', Network], ['mansionari', 'Mansionari & PFV', Award], ['sop', 'Procedure (SOP)', BookOpen], ['collegamenti', 'Collegamenti', ShieldCheck]] as const).map(([id, lbl, Icon]) => (
+        {([['organigramma', 'Organigramma', Network], ['mansionari', 'Mansionari & PFV', Award], ['sop', 'Procedure (SOP)', BookOpen], ['team', 'Team & Permessi', Users], ['password', 'Password', KeyRound]] as const).map(([id, lbl, Icon]) => (
           <button key={id} onClick={() => setTab(id)} className={`inline-flex items-center gap-1.5 text-[12px] font-bold px-3.5 py-1.5 rounded-full cursor-pointer border-none transition-all ${tab === id ? 'bg-[#161616] text-white shadow-xs font-extrabold' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>
             <Icon className="w-3.5 h-3.5" /> {lbl}
           </button>
@@ -290,9 +304,10 @@ export const GovernanceView: React.FC<Props> = ({ org, sops, members, color = '#
       </div>
 
       {tab === 'organigramma' && <Organigramma nodes={nodes} members={members} canEdit={canEdit} onSaveNode={onSaveNode} onDeleteNode={onDeleteNode} onSeed={onSeed} />}
-      {tab === 'mansionari' && <Mansionari nodes={nodes} />}
+      {tab === 'mansionari' && <Mansionari nodes={nodes} mansionari={mansionari} canEdit={canEdit} onSave={onSaveMansionario} onDelete={onDeleteMansionario} />}
       {tab === 'sop' && <SopTab sops={sops} canEdit={canEdit} onSaveSop={onSaveSop} onDeleteSop={onDeleteSop} />}
-      {tab === 'collegamenti' && <Collegamenti onNav={onNav} color={color} />}
+      {tab === 'team' && <div>{teamSlot || <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Sezione Team non disponibile.</p>}</div>}
+      {tab === 'password' && <PasswordVault vault={vault} config={vaultConfig} canEdit={canEdit} onSave={onSaveVaultEntry} onDelete={onDeleteVaultEntry} onSetConfig={onSetVaultConfig} />}
     </div>
   );
 };
@@ -569,24 +584,81 @@ const NodeEditor: React.FC<{ node: OrgNode; allNodes: OrgNode[]; members: Member
   );
 };
 
-// ============================ MANSIONARI & PFV ============================
-const Mansionari: React.FC<{ nodes: OrgNode[] }> = ({ nodes }) => {
-  const ruoli = nodes.filter((n) => n.kind === 'ruolo').sort((a, b) => a.label.localeCompare(b.label));
-  if (ruoli.length === 0) return <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Nessun ruolo nell'organigramma. Aggiungi ruoli nella tab Organigramma.</p>;
+// ============================ MANSIONARI & PFV (CRUD) ============================
+const Mansionari: React.FC<{ nodes: OrgNode[]; mansionari: Record<string, GovernanceMansionario>; canEdit: boolean; onSave?: (m: GovernanceMansionario) => void; onDelete?: (id: string) => void }> = ({ nodes, mansionari, canEdit, onSave, onDelete }) => {
+  const [editing, setEditing] = React.useState<GovernanceMansionario | null>(null);
+  const list = Object.values(mansionari).sort((a, b) => (a.order ?? a.createdAt) - (b.order ?? b.createdAt));
+  const blank = (): GovernanceMansionario => ({ id: `mans-${Date.now()}`, role: '', person: null, area: null, identita: null, mansioni: null, pfv: null, requisiti: null, order: Date.now(), createdAt: Date.now() });
+  // Ruoli presenti nell'organigramma non ancora codificati → import rapido come mansionario.
+  const orgRoles = nodes.filter((n) => n.kind === 'ruolo');
+  const importable = orgRoles.filter((r) => !list.some((m) => m.role.trim().toLowerCase() === r.label.trim().toLowerCase()));
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-      {ruoli.map((r) => (
-        <div key={r.id} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm flex flex-col gap-2">
-          <div className="flex items-center justify-between gap-2">
-            <b className="text-[14px] text-[#161616]">{r.label}</b>
-            {r.identita && <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700">{r.identita}</span>}
-          </div>
-          {r.person && <span className="text-[12px] text-[#6b6b6b] font-semibold">{r.person}</span>}
-          {r.mansioni && <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">Mansioni</p><p className="text-[12.5px] text-[#333] leading-relaxed whitespace-pre-line">{r.mansioni}</p></div>}
-          {r.pfv && <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">PFV</p><p className="text-[12.5px] text-[#161616] font-medium italic">{r.pfv}</p></div>}
-          {!r.mansioni && !r.pfv && <p className="text-[12px] text-[#b0b0b0] italic">Mansioni e PFV da definire (tab Organigramma).</p>}
+    <div className="flex flex-col gap-3">
+      {canEdit && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <button onClick={() => setEditing(blank())} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuovo mansionario</button>
+          {importable.length > 0 && (
+            <select value="" onChange={(e) => { const r = orgRoles.find((x) => x.id === e.target.value); if (r && onSave) onSave({ id: `mans-${Date.now()}`, role: r.label, person: r.person || null, area: null, identita: r.identita || null, mansioni: r.mansioni || null, pfv: r.pfv || null, requisiti: null, order: Date.now(), createdAt: Date.now() }); }} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-semibold bg-white outline-none focus:border-[#161616] cursor-pointer">
+              <option value="">＋ Importa da organigramma…</option>
+              {importable.map((r) => <option key={r.id} value={r.id}>{r.label}{r.person ? ` · ${r.person}` : ''}</option>)}
+            </select>
+          )}
         </div>
-      ))}
+      )}
+      {list.length === 0 ? (
+        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Nessun mansionario.{canEdit ? ' Crea il primo o importalo dall\'organigramma.' : ''}</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {list.map((m) => (
+            <div key={m.id} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm flex flex-col gap-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <b className="text-[14px] text-[#161616]">{m.role || 'Senza titolo'}</b>
+                  {(m.person || m.area) && <p className="text-[11.5px] text-[#8a8a8a] mt-0.5">{[m.person, m.area].filter(Boolean).join(' · ')}</p>}
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  {m.identita && <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700">{m.identita}</span>}
+                  {canEdit && <><button onClick={() => setEditing(m)} className="p-1.5 rounded-lg hover:bg-gray-100 text-[#666] cursor-pointer bg-transparent border-none"><Pencil className="w-3.5 h-3.5" /></button><button onClick={() => onDelete?.(m.id)} className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button></>}
+                </div>
+              </div>
+              {m.mansioni && <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">Mansioni</p><p className="text-[12.5px] text-[#333] leading-relaxed whitespace-pre-line">{m.mansioni}</p></div>}
+              {m.pfv && <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">PFV</p><p className="text-[12.5px] text-[#161616] font-medium italic">{m.pfv}</p></div>}
+              {m.requisiti && <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">Requisiti</p><p className="text-[12.5px] text-[#555] leading-relaxed whitespace-pre-line">{m.requisiti}</p></div>}
+            </div>
+          ))}
+        </div>
+      )}
+      {editing && onSave && <MansionarioEditor mans={editing} onClose={() => setEditing(null)} onSave={(m) => { onSave(m); setEditing(null); }} />}
+    </div>
+  );
+};
+
+const MansionarioEditor: React.FC<{ mans: GovernanceMansionario; onClose: () => void; onSave: (m: GovernanceMansionario) => void }> = ({ mans, onClose, onSave }) => {
+  const [d, setD] = React.useState<GovernanceMansionario>(mans);
+  const set = (c: Partial<GovernanceMansionario>) => setD((p) => ({ ...p, ...c }));
+  const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white';
+  return (
+    <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-[24px] w-full max-w-lg max-h-[88vh] overflow-y-auto p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3"><h3 className="text-[16px] font-extrabold text-[#161616]">{mans.role ? 'Modifica mansionario' : 'Nuovo mansionario'}</h3><button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button></div>
+        <div className="flex flex-col gap-3">
+          <input value={d.role} onChange={(e) => set({ role: e.target.value })} placeholder="Ruolo / figura (es. Responsabile Rilievi)" className={inp} />
+          <div className="grid grid-cols-2 gap-2">
+            <input value={d.person || ''} onChange={(e) => set({ person: e.target.value || null })} placeholder="Persona" className={inp} />
+            <input value={d.area || ''} onChange={(e) => set({ area: e.target.value || null })} placeholder="Area / società" className={inp} />
+          </div>
+          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Identità societaria</span>
+            <select value={d.identita || ''} onChange={(e) => set({ identita: (e.target.value || null) as any })} className={inp}>
+              <option value="">—</option>{IDENTITA.map((i) => <option key={i.id} value={i.id}>{i.label}</option>)}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Mansioni (compiti & responsabilità)</span><textarea value={d.mansioni || ''} onChange={(e) => set({ mansioni: e.target.value || null })} rows={4} className={`${inp} resize-none`} /></label>
+          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">PFV — Prodotto Finale di Valore</span><textarea value={d.pfv || ''} onChange={(e) => set({ pfv: e.target.value || null })} rows={2} className={`${inp} resize-none`} placeholder="Es. l'emozione suscitata nel cliente" /></label>
+          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Requisiti / competenze</span><textarea value={d.requisiti || ''} onChange={(e) => set({ requisiti: e.target.value || null })} rows={2} className={`${inp} resize-none`} /></label>
+          <button onClick={() => onSave({ ...d, role: d.role.trim(), updatedAt: Date.now() })} disabled={!d.role.trim()} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Salva mansionario</button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -659,29 +731,229 @@ const SopEditor: React.FC<{ sop: GovernanceSop; onClose: () => void; onSave: (s:
   );
 };
 
-// ============================ COLLEGAMENTI ============================
-const Collegamenti: React.FC<{ onNav?: (hash: string) => void; color: string }> = ({ onNav }) => {
-  const cards = [
-    { label: 'Incentivi & Performance', desc: 'KPI e punteggio merito dei collaboratori.', icon: Award, hash: '#strategico/hr-team' },
-    { label: 'Registro attività (Audit)', desc: 'Trail inalterabile di tutte le azioni.', icon: ScrollText, hash: '#strategico/hr-registro' },
-    { label: 'Permessi & Accessi', desc: 'Ruoli e autorizzazioni (filtra le sezioni visibili).', icon: ShieldCheck, hash: '#strategico/hr-team' },
-  ];
+// ============================ CASSAFORTE PASSWORD ============================
+const VAULT_CATS: { id: VaultCategory; label: string; icon: any }[] = [
+  { id: 'sito', label: 'Siti', icon: Globe },
+  { id: 'portale', label: 'Portali', icon: ExternalLink },
+  { id: 'software', label: 'Software', icon: Wrench },
+  { id: 'strumento', label: 'Strumenti', icon: KeyRound },
+  { id: 'social', label: 'Social', icon: Users },
+  { id: 'altro', label: 'Altro', icon: Lock },
+];
+const catMeta = (c?: VaultCategory) => VAULT_CATS.find((x) => x.id === c) || VAULT_CATS[5];
+
+/** SHA-256(salt + password) → hex. Gate soft (i dati restano leggibili in DB da chi ha i permessi). */
+async function sha256Hex(s: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+const randSalt = () => Array.from(crypto.getRandomValues(new Uint8Array(12))).map((b) => b.toString(16).padStart(2, '0')).join('');
+
+const PasswordVault: React.FC<{ vault: Record<string, VaultEntry>; config: VaultConfig; canEdit: boolean; onSave?: (e: VaultEntry) => void; onDelete?: (id: string) => void; onSetConfig?: (cfg: VaultConfig) => Promise<any> }> = ({ vault, config, canEdit, onSave, onDelete, onSetConfig }) => {
+  const [unlocked, setUnlocked] = React.useState(false);
+  const hasPass = !!config.passHash;
+
+  if (!unlocked) return <VaultLock config={config} canEdit={canEdit} onUnlock={() => setUnlocked(true)} onSetConfig={onSetConfig} />;
+  return <VaultContents vault={vault} canEdit={canEdit} hasPass={hasPass} onSave={onSave} onDelete={onDelete} onSetConfig={onSetConfig} onLock={() => setUnlocked(true)} />;
+};
+
+const VaultLock: React.FC<{ config: VaultConfig; canEdit: boolean; onUnlock: () => void; onSetConfig?: (cfg: VaultConfig) => Promise<any> }> = ({ config, canEdit, onUnlock, onSetConfig }) => {
+  const [pass, setPass] = React.useState('');
+  const [err, setErr] = React.useState('');
+  const [busy, setBusy] = React.useState(false);
+  const [setup, setSetup] = React.useState(false); // schermata "imposta/reimposta password" (admin)
+  const [np1, setNp1] = React.useState('');
+  const [np2, setNp2] = React.useState('');
+  const hasPass = !!config.passHash;
+
+  const tryUnlock = async () => {
+    setErr(''); setBusy(true);
+    try {
+      const h = await sha256Hex((config.salt || '') + pass);
+      if (h === config.passHash) onUnlock();
+      else setErr('Password errata.');
+    } finally { setBusy(false); }
+  };
+  const saveNew = async () => {
+    if (np1.length < 4) { setErr('Minimo 4 caratteri.'); return; }
+    if (np1 !== np2) { setErr('Le due password non coincidono.'); return; }
+    setErr(''); setBusy(true);
+    try {
+      const salt = randSalt();
+      const passHash = await sha256Hex(salt + np1);
+      await onSetConfig?.({ salt, passHash });
+      onUnlock();
+    } catch { setErr('Errore salvataggio.'); } finally { setBusy(false); }
+  };
+
+  const inp = 'w-full px-3 py-2.5 rounded-xl border border-[#e2e2e2] text-[14px] outline-none focus:border-[#161616] bg-white';
+  return (
+    <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-8 shadow-sm max-w-md mx-auto flex flex-col items-center text-center gap-3">
+      <span className="w-14 h-14 rounded-2xl bg-[#161616] text-white flex items-center justify-center"><Lock className="w-6 h-6" /></span>
+      <h3 className="text-[18px] font-extrabold text-[#161616]">Cassaforte password</h3>
+      {!hasPass && !setup && (
+        <>
+          <p className="text-[12.5px] text-[#8a8a8a] leading-relaxed">Nessuna password di sezione impostata.{canEdit ? ' Impostane una per proteggere le credenziali.' : ' Chiedi a un amministratore di impostarla.'}</p>
+          {canEdit && <button onClick={() => { setSetup(true); setErr(''); }} className="mt-1 px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Imposta password</button>}
+        </>
+      )}
+      {hasPass && !setup && (
+        <>
+          <p className="text-[12.5px] text-[#8a8a8a]">Inserisci la password per accedere alle credenziali.</p>
+          <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') tryUnlock(); }} placeholder="Password sezione" className={inp} autoFocus />
+          {err && <p className="text-[12px] text-rose-600 font-semibold">{err}</p>}
+          <button onClick={tryUnlock} disabled={busy || !pass} className="w-full px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Sblocca</button>
+          {canEdit && <button onClick={() => { setSetup(true); setErr(''); setNp1(''); setNp2(''); }} className="text-[11.5px] font-semibold text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none">Reimposta password (amministratore)</button>}
+        </>
+      )}
+      {setup && canEdit && (
+        <>
+          <p className="text-[12.5px] text-[#8a8a8a]">{hasPass ? 'Reimposta la password di sezione.' : 'Imposta la password di sezione.'} Modificabile in seguito dal profilo amministratori.</p>
+          <input type="password" value={np1} onChange={(e) => setNp1(e.target.value)} placeholder="Nuova password" className={inp} autoFocus />
+          <input type="password" value={np2} onChange={(e) => setNp2(e.target.value)} placeholder="Ripeti password" className={inp} />
+          {err && <p className="text-[12px] text-rose-600 font-semibold">{err}</p>}
+          <div className="flex items-center gap-2 w-full">
+            <button onClick={() => { setSetup(false); setErr(''); }} className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[13px] font-bold cursor-pointer">Annulla</button>
+            <button onClick={saveNew} disabled={busy} className="flex-1 px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Salva</button>
+          </div>
+        </>
+      )}
+      <p className="text-[10.5px] text-[#b8b8b8] leading-relaxed mt-1">Protezione di livello UI: le credenziali sono condivise nel gruppo. Non inserire qui password personali/bancarie critiche.</p>
+    </div>
+  );
+};
+
+const VaultContents: React.FC<{ vault: Record<string, VaultEntry>; canEdit: boolean; hasPass: boolean; onSave?: (e: VaultEntry) => void; onDelete?: (id: string) => void; onSetConfig?: (cfg: VaultConfig) => Promise<any>; onLock: () => void }> = ({ vault, canEdit, hasPass, onSave, onDelete, onSetConfig, onLock }) => {
+  const [editing, setEditing] = React.useState<VaultEntry | null>(null);
+  const [reveal, setReveal] = React.useState<Record<string, boolean>>({});
+  const [query, setQuery] = React.useState('');
+  const [cat, setCat] = React.useState<'all' | VaultCategory>('all');
+  const [copied, setCopied] = React.useState<string>('');
+  const [chgPass, setChgPass] = React.useState(false);
+  const list = Object.values(vault)
+    .filter((e) => (cat === 'all' || (e.category || 'altro') === cat))
+    .filter((e) => { const q = query.trim().toLowerCase(); if (!q) return true; return [e.label, e.username, e.url, e.note].filter(Boolean).some((s) => (s as string).toLowerCase().includes(q)); })
+    .sort((a, b) => a.label.localeCompare(b.label));
+  const blank = (): VaultEntry => ({ id: `vault-${Date.now()}`, label: '', category: 'sito', url: null, username: null, password: null, note: null, createdAt: Date.now() });
+  const copy = (txt: string, key: string) => { navigator.clipboard?.writeText(txt).then(() => { setCopied(key); setTimeout(() => setCopied(''), 1200); }).catch(() => {}); };
+
   return (
     <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {cards.map((c) => {
-          const Icon = c.icon;
-          return (
-            <button key={c.label} onClick={() => onNav?.(c.hash)} className="text-left bg-white border border-[#e2e2e2] rounded-[20px] p-5 shadow-sm hover:shadow-md hover:border-[#cfcfcf] transition-all cursor-pointer flex flex-col gap-2.5">
-              <span className="w-10 h-10 rounded-xl bg-[#161616]/[0.06] flex items-center justify-center text-[#161616]"><Icon className="w-5 h-5" /></span>
-              <b className="text-[14px] text-[#161616]">{c.label}</b>
-              <p className="text-[12px] text-[#8a8a8a] leading-relaxed">{c.desc}</p>
-            </button>
-          );
-        })}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="relative flex-1 min-w-[180px] max-w-xs">
+          <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cerca credenziale…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white" />
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          {canEdit && <button onClick={() => setEditing(blank())} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuova credenziale</button>}
+          {canEdit && onSetConfig && <button onClick={() => setChgPass(true)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><KeyRound className="w-3.5 h-3.5" /> Password sezione</button>}
+          <button onClick={onLock} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Lock className="w-3.5 h-3.5" /> Blocca</button>
+        </div>
       </div>
-      <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[20px] p-5 text-[12.5px] text-[#8a8a8a]">
-        <b className="text-[#161616] inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> Credenziali protette di gruppo</b> — in arrivo: cassaforte con master password per codici e accessi dei sistemi/social del gruppo. (Le credenziali per-cliente sono già nel CRM → scheda contatto.)
+
+      <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] self-start flex-wrap">
+        {([['all', 'Tutte'] as const, ...VAULT_CATS.map((c) => [c.id, c.label] as const)]).map(([id, lbl]) => (
+          <button key={id} onClick={() => setCat(id as any)} className={`text-[11.5px] font-bold px-3 py-1.5 rounded-full cursor-pointer border-none transition-all ${cat === id ? 'bg-[#161616] text-white shadow-xs' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{lbl}</button>
+        ))}
+      </div>
+
+      {list.length === 0 ? (
+        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Nessuna credenziale{query || cat !== 'all' ? ' per il filtro attivo' : ''}.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {list.map((e) => {
+            const m = catMeta(e.category); const Icon = m.icon; const url = e.url ? safeUrl(e.url) : null; const shown = reveal[e.id];
+            return (
+              <div key={e.id} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm flex flex-col gap-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-8 h-8 rounded-lg bg-[#161616]/[0.06] text-[#161616] flex items-center justify-center shrink-0"><Icon className="w-4 h-4" /></span>
+                    <div className="min-w-0">
+                      <b className="text-[13.5px] text-[#161616] truncate block">{e.label || 'Senza nome'}</b>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">{m.label}</span>
+                    </div>
+                  </div>
+                  {canEdit && <div className="flex items-center gap-1 shrink-0"><button onClick={() => setEditing(e)} className="p-1.5 rounded-lg hover:bg-gray-100 text-[#666] cursor-pointer bg-transparent border-none"><Pencil className="w-3.5 h-3.5" /></button><button onClick={() => onDelete?.(e.id)} className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button></div>}
+                </div>
+                {url && <a href={url} target="_blank" rel="noreferrer" className="text-[12px] text-indigo-600 hover:underline inline-flex items-center gap-1 truncate"><ExternalLink className="w-3 h-3 shrink-0" /> {e.url}</a>}
+                {e.username && (
+                  <div className="flex items-center justify-between gap-2 bg-gray-50 border border-[#eee] rounded-lg px-2.5 py-1.5">
+                    <span className="text-[12px] text-[#333] truncate"><span className="text-[#a0a0a0]">Utente:</span> {e.username}</span>
+                    <button onClick={() => copy(e.username!, `u-${e.id}`)} className="text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none shrink-0" title="Copia utente">{copied === `u-${e.id}` ? <span className="text-[10px] font-bold text-emerald-600">✓</span> : <Copy className="w-3.5 h-3.5" />}</button>
+                  </div>
+                )}
+                {e.password && (
+                  <div className="flex items-center justify-between gap-2 bg-gray-50 border border-[#eee] rounded-lg px-2.5 py-1.5">
+                    <span className="text-[12px] text-[#333] font-mono truncate">{shown ? e.password : '•'.repeat(Math.min(12, e.password.length))}</span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button onClick={() => setReveal((r) => ({ ...r, [e.id]: !r[e.id] }))} className="text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none" title={shown ? 'Nascondi' : 'Mostra'}>{shown ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}</button>
+                      <button onClick={() => copy(e.password!, `p-${e.id}`)} className="text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none" title="Copia password">{copied === `p-${e.id}` ? <span className="text-[10px] font-bold text-emerald-600">✓</span> : <Copy className="w-3.5 h-3.5" />}</button>
+                    </div>
+                  </div>
+                )}
+                {e.note && <p className="text-[11.5px] text-[#8a8a8a] leading-relaxed">{e.note}</p>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {editing && onSave && <VaultEditor entry={editing} onClose={() => setEditing(null)} onSave={(e) => { onSave(e); setEditing(null); }} />}
+      {chgPass && onSetConfig && <VaultChangePass onClose={() => setChgPass(false)} onSetConfig={onSetConfig} />}
+    </div>
+  );
+};
+
+const VaultEditor: React.FC<{ entry: VaultEntry; onClose: () => void; onSave: (e: VaultEntry) => void }> = ({ entry, onClose, onSave }) => {
+  const [d, setD] = React.useState<VaultEntry>(entry);
+  const [show, setShow] = React.useState(false);
+  const set = (c: Partial<VaultEntry>) => setD((p) => ({ ...p, ...c }));
+  const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white';
+  return (
+    <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-[24px] w-full max-w-lg max-h-[88vh] overflow-y-auto p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3"><h3 className="text-[16px] font-extrabold text-[#161616]">{entry.label ? 'Modifica credenziale' : 'Nuova credenziale'}</h3><button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button></div>
+        <div className="flex flex-col gap-3">
+          <input value={d.label} onChange={(e) => set({ label: e.target.value })} placeholder="Nome (es. Google Workspace, Instagram, AutoCAD)" className={inp} />
+          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Categoria</span>
+            <select value={d.category || 'sito'} onChange={(e) => set({ category: e.target.value as VaultCategory })} className={inp}>{VAULT_CATS.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}</select>
+          </label>
+          <input value={d.url || ''} onChange={(e) => set({ url: e.target.value || null })} placeholder="URL / link (https://…)" className={inp} />
+          <input value={d.username || ''} onChange={(e) => set({ username: e.target.value || null })} placeholder="Utente / email" className={inp} />
+          <div className="relative">
+            <input type={show ? 'text' : 'password'} value={d.password || ''} onChange={(e) => set({ password: e.target.value || null })} placeholder="Password / chiave" className={`${inp} pr-10`} />
+            <button onClick={() => setShow((s) => !s)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none">{show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+          </div>
+          <textarea value={d.note || ''} onChange={(e) => set({ note: e.target.value || null })} placeholder="Note (2FA, recupero, riferimenti…)" rows={2} className={`${inp} resize-none`} />
+          <button onClick={() => onSave({ ...d, label: d.label.trim(), updatedAt: Date.now() })} disabled={!d.label.trim()} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Salva credenziale</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const VaultChangePass: React.FC<{ onClose: () => void; onSetConfig: (cfg: VaultConfig) => Promise<any> }> = ({ onClose, onSetConfig }) => {
+  const [np1, setNp1] = React.useState(''); const [np2, setNp2] = React.useState('');
+  const [err, setErr] = React.useState(''); const [busy, setBusy] = React.useState(false);
+  const inp = 'w-full px-3 py-2.5 rounded-xl border border-[#e2e2e2] text-[14px] outline-none focus:border-[#161616] bg-white';
+  const save = async () => {
+    if (np1.length < 4) { setErr('Minimo 4 caratteri.'); return; }
+    if (np1 !== np2) { setErr('Le due password non coincidono.'); return; }
+    setErr(''); setBusy(true);
+    try { const salt = randSalt(); const passHash = await sha256Hex(salt + np1); await onSetConfig({ salt, passHash }); onClose(); }
+    catch { setErr('Errore salvataggio.'); } finally { setBusy(false); }
+  };
+  return (
+    <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-[24px] w-full max-w-sm p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3"><h3 className="text-[16px] font-extrabold text-[#161616] inline-flex items-center gap-1.5"><KeyRound className="w-4 h-4" /> Password di sezione</h3><button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button></div>
+        <div className="flex flex-col gap-3">
+          <p className="text-[12px] text-[#8a8a8a]">Imposta la nuova password per accedere alla cassaforte.</p>
+          <input type="password" value={np1} onChange={(e) => setNp1(e.target.value)} placeholder="Nuova password" className={inp} autoFocus />
+          <input type="password" value={np2} onChange={(e) => setNp2(e.target.value)} placeholder="Ripeti password" className={inp} />
+          {err && <p className="text-[12px] text-rose-600 font-semibold">{err}</p>}
+          <button onClick={save} disabled={busy} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Salva password</button>
+        </div>
       </div>
     </div>
   );

@@ -94,6 +94,9 @@ import {
   OrgNode,
   OrgParentRef,
   GovernanceSop,
+  GovernanceMansionario,
+  VaultEntry,
+  VaultConfig,
 } from './types';
 
 import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, canAdmin, canAnywhere, canView, canOperate } from './access';
@@ -358,6 +361,9 @@ export default function App() {
   const [quotes, setQuotes] = useState<Record<string, Quote>>({});
   const [governanceOrg, setGovernanceOrg] = useState<Record<string, OrgNode>>({});
   const [governanceSop, setGovernanceSop] = useState<Record<string, GovernanceSop>>({});
+  const [governanceMansionari, setGovernanceMansionari] = useState<Record<string, GovernanceMansionario>>({});
+  const [governanceVault, setGovernanceVault] = useState<Record<string, VaultEntry>>({});
+  const [vaultConfig, setVaultConfig] = useState<VaultConfig>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1623,6 +1629,9 @@ export default function App() {
       subs.push(watchNode('priceList', (v) => setPriceList(toArr(v)), () => {}));
       add('governanceOrg', setGovernanceOrg);
       add('governanceSop', setGovernanceSop);
+      add('governanceMansionari', setGovernanceMansionari);
+      add('governanceVault', setGovernanceVault);
+      subs.push(watchNode('governanceVaultConfig', (v) => setVaultConfig(v || {}), () => {}));
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
@@ -3175,6 +3184,34 @@ export default function App() {
       removeNode(`governanceSop/${id}`).catch(() => {});
     });
   };
+  // ---- Mansionari (governanceMansionari) ----
+  const handleSaveMansionario = (m: GovernanceMansionario) => {
+    setGovernanceMansionari((prev) => ({ ...prev, [m.id]: m }));
+    writeNode(`governanceMansionari/${m.id}`, m).catch(() => showToast('Errore Governance (controlla regole).', 'err'));
+  };
+  const handleDeleteMansionario = (id: string) => {
+    askDelete('Eliminare il mansionario?', null, () => {
+      setGovernanceMansionari((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`governanceMansionari/${id}`).catch(() => {});
+    });
+  };
+  // ---- Cassaforte password (governanceVault + governanceVaultConfig) ----
+  const handleSaveVaultEntry = (e: VaultEntry) => {
+    const enriched: VaultEntry = { ...e, by: e.by || currentUser?.uid || null };
+    setGovernanceVault((prev) => ({ ...prev, [e.id]: enriched }));
+    writeNode(`governanceVault/${e.id}`, enriched).catch(() => showToast('Errore cassaforte (controlla regole).', 'err'));
+  };
+  const handleDeleteVaultEntry = (id: string) => {
+    askDelete('Eliminare la credenziale?', null, () => {
+      setGovernanceVault((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`governanceVault/${id}`).catch(() => {});
+    });
+  };
+  const handleSetVaultConfig = (cfg: VaultConfig) => {
+    const enriched: VaultConfig = { ...cfg, updatedAt: Date.now(), by: currentUser?.uid || null };
+    setVaultConfig(enriched);
+    return writeNode('governanceVaultConfig', enriched).catch(() => { showToast('Errore salvataggio password sezione.', 'err'); throw new Error('vault-config'); });
+  };
 
   // ---- Notifiche persistenti (notifications/<uid>) ----
   const pushNotification = (uid: string, payload: { type: string; title: string; body?: string | null; link?: string | null }) => {
@@ -4080,6 +4117,30 @@ export default function App() {
   };
 
   // Active view content router
+  // TeamView riusabile: montata sia dalla route legacy `team` sia dentro Governance → tab "Team & Permessi".
+  const renderTeamView = () => (
+    <TeamView
+      users={users}
+      projects={Object.values(projects)}
+      peopleTab={peopleTab}
+      onSetPeopleTab={setPeopleTab}
+      onManageAccess={canManageAccess ? () => setAccessOpen(true) : undefined}
+      pendingCount={pendingAccounts.length}
+      onNewUser={() => { setNuName(''); setNuEmail(''); setNuPass(''); setNuRole('staff'); setNuTitle(''); setNuFns([]); setNewUserOpen(true); }}
+      onNewClient={() => { setNuName(''); setNuEmail(''); setNuPass(''); setNuRole('cliente'); setNuTitle('studio'); setNewClientOpen(true); }}
+      onEditUser={(uid) => { const u = users[uid]; if (!u) return; setEditUserId(uid); setNuName(u.name); setNuEmail(u.email); setNuPhone(u.telefono || ''); setNuRole(u.role); setNuTitle(u.title || ''); setNuFns(u.functions || []); setNuActive(u.active !== false); setNuAccess(u.access || {}); setEditUserOpen(true); }}
+      onUserMenu={(uid) => { const u = users[uid]; if (!u) return; setEditUserId(uid); setNuName(u.name); setNuEmail(u.email); setNuPhone(u.telefono || ''); setNuRole(u.role); setNuTitle(u.title || ''); setNuFns(u.functions || []); setNuActive(u.active !== false); setNuAccess(u.access || {}); setEditUserOpen(true); }}
+      onNav={(r) => { window.location.hash = `#${r}`; }}
+      onPreviewClient={(uid) => { const u = users[uid]; if (u) { setCurrentUser(u); setIsPreview(true); } }}
+      myUid={currentUser.uid}
+      tasks={Object.values(tasks)}
+      pointEvents={pointEvents}
+      canAssignPoints={canManageAccess}
+      onAddPoints={handleAddPointEvent}
+      onDeletePoints={handleDeletePointEvent}
+    />
+  );
+
   const renderView = () => {
     switch (route) {
       case 'dashboard':
@@ -4510,78 +4571,7 @@ export default function App() {
         );
 
       case 'team':
-        return (
-          <TeamView
-            users={users}
-            projects={Object.values(projects)}
-            peopleTab={peopleTab}
-            onSetPeopleTab={setPeopleTab}
-            onManageAccess={canManageAccess ? () => setAccessOpen(true) : undefined}
-            pendingCount={pendingAccounts.length}
-            onNewUser={() => {
-              setNuName('');
-              setNuEmail('');
-              setNuPass('');
-              setNuRole('staff');
-              setNuTitle('');
-              setNuFns([]);
-              setNewUserOpen(true);
-            }}
-            onNewClient={() => {
-              setNuName('');
-              setNuEmail('');
-              setNuPass('');
-              setNuRole('cliente');
-              setNuTitle('studio');
-              setNewClientOpen(true);
-            }}
-            onEditUser={(uid) => {
-              const u = users[uid];
-              if (!u) return;
-              setEditUserId(uid);
-              setNuName(u.name);
-              setNuEmail(u.email);
-              setNuPhone(u.telefono || '');
-              setNuRole(u.role);
-              setNuTitle(u.title || '');
-              setNuFns(u.functions || []);
-              setNuActive(u.active !== false);
-              setNuAccess(u.access || {});
-              setEditUserOpen(true);
-            }}
-            onUserMenu={(uid, button) => {
-              // Custom immediate edit trigger from table row
-              const u = users[uid];
-              if (!u) return;
-              setEditUserId(uid);
-              setNuName(u.name);
-              setNuEmail(u.email);
-              setNuPhone(u.telefono || '');
-              setNuRole(u.role);
-              setNuTitle(u.title || '');
-              setNuFns(u.functions || []);
-              setNuActive(u.active !== false);
-              setNuAccess(u.access || {});
-              setEditUserOpen(true);
-            }}
-            onNav={(r) => {
-              window.location.hash = `#${r}`;
-            }}
-            onPreviewClient={(uid) => {
-              const u = users[uid];
-              if (u) {
-                setCurrentUser(u);
-                setIsPreview(true);
-              }
-            }}
-            myUid={currentUser.uid}
-            tasks={Object.values(tasks)}
-            pointEvents={pointEvents}
-            canAssignPoints={canManageAccess}
-            onAddPoints={handleAddPointEvent}
-            onDeletePoints={handleDeletePointEvent}
-          />
-        );
+        return renderTeamView();
 
       case 'persona':
         if (routeParam && users[routeParam]) {
@@ -4721,6 +4711,15 @@ export default function App() {
                 onSeed={handleSeedOrg}
                 onSaveSop={handleSaveSop}
                 onDeleteSop={handleDeleteSop}
+                mansionari={governanceMansionari}
+                onSaveMansionario={handleSaveMansionario}
+                onDeleteMansionario={handleDeleteMansionario}
+                vault={governanceVault}
+                vaultConfig={vaultConfig}
+                onSaveVaultEntry={handleSaveVaultEntry}
+                onDeleteVaultEntry={handleDeleteVaultEntry}
+                onSetVaultConfig={handleSetVaultConfig}
+                teamSlot={renderTeamView()}
                 onNav={(h) => { window.location.hash = h; }}
               />
             );
