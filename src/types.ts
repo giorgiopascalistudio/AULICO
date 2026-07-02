@@ -950,6 +950,33 @@ export interface VaultConfig {
 export type MatericoDealStage = 'nuovo' | 'valutazione' | 'preventivo' | 'contrattualizzazione' | 'vinta' | 'persa';
 /** Disciplina prevalente della commessa → responsabile (Raffaele=edile, Marco=impianti). */
 export type MatericoDiscipline = 'edile' | 'impianti' | 'misto';
+/** Voce del listino interno Materico (nodo `matericoListino/<id>`, §4).
+ * Prezzo applicato = (costoImprese + costoMateriali) × (1 + margineApplicatoPct/100). */
+export interface MatericoPriceItem {
+  id: string;
+  code?: string | null;
+  category: QuoteMacro;          // opere_edili / impiantistica / materiali / altro…
+  description: string;
+  unit?: string | null;         // mq, ml, cad, corpo…
+  costoImprese?: number | null; // costo praticato dalle imprese
+  costoMateriali?: number | null;
+  prezzoMercato?: number | null; // prezzo medio di mercato (riferimento)
+  margineMinPct?: number | null; // margine minimo consentito
+  margineApplicatoPct?: number | null; // margine applicato di default
+  createdAt: number;
+  updatedAt?: number;
+}
+/** Riga del computo metrico di una commessa Materico (§5). */
+export interface MatericoComputoRow {
+  id: string;
+  listinoId?: string | null;    // voce di listino di origine (se presente)
+  category?: QuoteMacro;
+  description: string;
+  unit?: string | null;
+  qty: number;
+  costoUnit: number;            // costo unitario (imprese + materiali)
+  prezzoUnit: number;           // prezzo unitario applicato (al cliente)
+}
 /** Commessa potenziale Materico (nodo `matericoDeals/<id>`). Ingresso del flusso realizzativo. */
 export interface MatericoDeal {
   id: string;
@@ -967,6 +994,8 @@ export interface MatericoDeal {
   costoStimato?: number | null;  // costo imprese+materiali previsto €
   probability?: number | null;   // 0–100 (probabilità di acquisizione)
   notes?: string | null;
+  computo?: MatericoComputoRow[]; // computo metrico (§5) → base di preventivo e margini
+  costiIndirettiPct?: number | null; // % costi indiretti sul costo diretto (§11)
   quoteId?: string | null;       // preventivo generato
   cantiereId?: string | null;    // cantiere avviato
   requestId?: string | null;     // richiesta Materico collegata

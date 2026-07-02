@@ -8,10 +8,11 @@
  */
 import React from 'react';
 import {
-  Target, Plus, X, Trash2, ChevronLeft, ChevronRight, MapPin, User, TrendingUp, Percent, Euro,
+  Target, Plus, X, Trash2, ChevronLeft, ChevronRight, MapPin, User, TrendingUp, Percent, Euro, FileText, Calculator,
 } from 'lucide-react';
-import type { MatericoDeal, MatericoDealStage, MatericoDiscipline } from '../types';
+import type { MatericoDeal, MatericoDealStage, MatericoDiscipline, MatericoPriceItem, MatericoComputoRow } from '../types';
 import { eur } from '../utils';
+import { listinoPrezzo } from './MatericoListinoView';
 
 interface Member { uid: string; name: string; }
 interface ClientOpt { id: string; name: string; }
@@ -19,10 +20,12 @@ interface Props {
   deals: Record<string, MatericoDeal>;
   members: Member[];
   clients?: ClientOpt[];
+  listino?: MatericoPriceItem[];
   color?: string;
   canEdit?: boolean;
   onSave?: (d: MatericoDeal) => void;
   onDelete?: (id: string) => void;
+  onGenerateQuote?: (d: MatericoDeal) => void;
 }
 
 const STAGES: { id: MatericoDealStage; label: string; color: string }[] = [
@@ -44,7 +47,7 @@ const margineOf = (d: MatericoDeal) => (d.valoreStimato || 0) - (d.costoStimato 
 const marginePct = (d: MatericoDeal) => ((d.valoreStimato || 0) > 0 ? (margineOf(d) / (d.valoreStimato as number)) * 100 : 0);
 const probOf = (d: MatericoDeal) => (d.probability != null ? d.probability : STAGE_PROB[d.stage]);
 
-export const MatericoDealsView: React.FC<Props> = ({ deals, members, clients = [], color = '#c2410c', canEdit = false, onSave, onDelete }) => {
+export const MatericoDealsView: React.FC<Props> = ({ deals, members, clients = [], listino = [], color = '#c2410c', canEdit = false, onSave, onDelete, onGenerateQuote }) => {
   const [editing, setEditing] = React.useState<MatericoDeal | null>(null);
   const [discF, setDiscF] = React.useState<'all' | MatericoDiscipline>('all');
   const list = Object.values(deals).filter((d) => discF === 'all' || (d.discipline || 'misto') === discF);
@@ -140,20 +143,45 @@ export const MatericoDealsView: React.FC<Props> = ({ deals, members, clients = [
         })}
       </div>
 
-      {editing && <DealEditor deal={editing} members={members} clients={clients} canEdit={canEdit} onClose={() => setEditing(null)} onSave={(d) => { onSave?.(d); setEditing(null); }} onDelete={onDelete ? (id) => { onDelete(id); setEditing(null); } : undefined} />}
+      {editing && <DealEditor deal={editing} members={members} clients={clients} listino={listino} canEdit={canEdit} onClose={() => setEditing(null)} onSave={(d) => { onSave?.(d); setEditing(null); }} onDelete={onDelete ? (id) => { onDelete(id); setEditing(null); } : undefined} onGenerateQuote={onGenerateQuote} />}
     </div>
   );
 };
 
-const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: ClientOpt[]; canEdit: boolean; onClose: () => void; onSave: (d: MatericoDeal) => void; onDelete?: (id: string) => void }> = ({ deal, members, clients, canEdit, onClose, onSave, onDelete }) => {
-  const [d, setD] = React.useState<MatericoDeal>(deal);
+const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: ClientOpt[]; listino: MatericoPriceItem[]; canEdit: boolean; onClose: () => void; onSave: (d: MatericoDeal) => void; onDelete?: (id: string) => void; onGenerateQuote?: (d: MatericoDeal) => void }> = ({ deal, members, clients, listino, canEdit, onClose, onSave, onDelete, onGenerateQuote }) => {
+  const [d, setD] = React.useState<MatericoDeal>({ ...deal, computo: deal.computo || [] });
+  const [tab, setTab] = React.useState<'dati' | 'computo'>('dati');
   const set = (c: Partial<MatericoDeal>) => setD((p) => ({ ...p, ...c }));
   const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white';
+
+  // Computo & controllo margini (§5, §11)
+  const rows = d.computo || [];
+  const costoDiretto = rows.reduce((s, r) => s + (r.costoUnit || 0) * (r.qty || 0), 0);
+  const indiretti = costoDiretto * ((d.costiIndirettiPct || 0) / 100);
+  const costoTotale = costoDiretto + indiretti;
+  const ricavo = rows.reduce((s, r) => s + (r.prezzoUnit || 0) * (r.qty || 0), 0);
+  const utile = ricavo - costoTotale;
+  const mpctComputo = ricavo > 0 ? (utile / ricavo) * 100 : 0;
+  const hasComputo = rows.length > 0;
+
+  const setRow = (id: string, c: Partial<MatericoComputoRow>) => setD((p) => ({ ...p, computo: (p.computo || []).map((r) => (r.id === id ? { ...r, ...c } : r)) }));
+  const rmRow = (id: string) => setD((p) => ({ ...p, computo: (p.computo || []).filter((r) => r.id !== id) }));
+  const addFree = () => setD((p) => ({ ...p, computo: [...(p.computo || []), { id: `cr-${Date.now()}`, description: '', unit: null, qty: 1, costoUnit: 0, prezzoUnit: 0, category: 'opere_edili' }] }));
+  const addFromListino = (lid: string) => { const li = listino.find((x) => x.id === lid); if (!li) return; setD((p) => ({ ...p, computo: [...(p.computo || []), { id: `cr-${Date.now()}-${Math.floor(Math.random() * 900)}`, listinoId: li.id, category: li.category, description: li.description, unit: li.unit || null, qty: 1, costoUnit: (li.costoImprese || 0) + (li.costoMateriali || 0), prezzoUnit: listinoPrezzo(li) }] })); };
+
+  // In salvataggio: se c'è un computo, allinea valore/costo della commessa
+  const doSave = () => onSave(hasComputo ? { ...d, title: d.title.trim() || 'Commessa', valoreStimato: Math.round(ricavo), costoStimato: Math.round(costoTotale), updatedAt: Date.now() } : { ...d, title: d.title.trim() || 'Commessa', updatedAt: Date.now() });
+  const genQuote = () => {
+    const synced: MatericoDeal = { ...d, title: d.title.trim() || 'Commessa', valoreStimato: Math.round(ricavo), costoStimato: Math.round(costoTotale), stage: d.stage === 'nuovo' || d.stage === 'valutazione' ? 'preventivo' : d.stage, updatedAt: Date.now() };
+    onGenerateQuote?.(synced);
+    onClose();
+  };
+
   const margine = (d.valoreStimato || 0) - (d.costoStimato || 0);
   const mpct = (d.valoreStimato || 0) > 0 ? (margine / (d.valoreStimato as number)) * 100 : 0;
   return (
     <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-[24px] w-full max-w-lg max-h-[90vh] overflow-y-auto p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-[24px] w-full max-w-2xl max-h-[90vh] overflow-y-auto p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-[16px] font-extrabold text-[#161616]">{deal.title ? 'Commessa potenziale' : 'Nuova commessa potenziale'}</h3>
           <div className="flex items-center gap-1">
@@ -161,6 +189,13 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
             <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button>
           </div>
         </div>
+        <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] mb-3">
+          {([['dati', 'Dati'], ['computo', 'Computo & margini']] as const).map(([id, lbl]) => (
+            <button key={id} onClick={() => setTab(id)} className={`text-[12px] font-bold px-3.5 py-1.5 rounded-full cursor-pointer border-none transition-all ${tab === id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{lbl}</button>
+          ))}
+        </div>
+
+        {tab === 'dati' ? (
         <div className="flex flex-col gap-3">
           <input disabled={!canEdit} value={d.title} onChange={(e) => set({ title: e.target.value })} placeholder="Nome commessa (es. Ristrutturazione Villa X)" className={inp} />
           <div className="grid grid-cols-2 gap-2">
@@ -196,8 +231,72 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
           </div>
           <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Probabilità % (opz., sovrascrive quella dello stato)</span><input disabled={!canEdit} type="number" min={0} max={100} value={d.probability ?? ''} onChange={(e) => set({ probability: e.target.value ? Number(e.target.value) : null })} className={inp} placeholder={`Default per stato: ${STAGE_PROB[d.stage]}%`} /></label>
           <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Note</span><textarea disabled={!canEdit} value={d.notes || ''} onChange={(e) => set({ notes: e.target.value || null })} rows={2} className={`${inp} resize-none`} /></label>
-          {canEdit && <button onClick={() => onSave({ ...d, title: d.title.trim() || 'Commessa', updatedAt: Date.now() })} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Salva commessa</button>}
+          {hasComputo && <p className="text-[11px] text-[#9a9a9a]">Valore e costo sono allineati automaticamente dal computo al salvataggio.</p>}
+          {canEdit && <button onClick={doSave} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Salva commessa</button>}
         </div>
+        ) : (
+        <div className="flex flex-col gap-3">
+          {/* Aggiungi voci */}
+          {canEdit && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="relative flex-1 min-w-[180px]">
+                <select value="" onChange={(e) => { if (e.target.value) addFromListino(e.target.value); }} className={inp}>
+                  <option value="">＋ Aggiungi da listino…</option>
+                  {listino.slice().sort((a, b) => a.description.localeCompare(b.description)).map((li) => <option key={li.id} value={li.id}>{li.description} · {eur(listinoPrezzo(li))}{li.unit ? `/${li.unit}` : ''}</option>)}
+                </select>
+              </div>
+              <button onClick={addFree} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Plus className="w-3.5 h-3.5" /> Riga libera</button>
+            </div>
+          )}
+          {rows.length === 0 ? <p className="text-[13px] text-[#9a9a9a] text-center py-6 bg-[#fafafa] rounded-xl border border-[#eee]">Nessuna voce nel computo. Aggiungi dal listino o una riga libera.</p> : (
+            <div className="overflow-x-auto border border-[#eee] rounded-xl">
+              <table className="w-full text-left border-collapse min-w-[620px]">
+                <thead><tr className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0] border-b border-[#f0f0f0]">
+                  <th className="py-2 px-2.5">Lavorazione</th><th className="py-2 px-1.5 w-14">Q.tà</th><th className="py-2 px-1.5 w-20 text-right">Costo u.</th><th className="py-2 px-1.5 w-20 text-right">Prezzo u.</th><th className="py-2 px-1.5 w-20 text-right">Ricavo</th><th className="py-2 px-1"></th>
+                </tr></thead>
+                <tbody>
+                  {rows.map((r) => (
+                    <tr key={r.id} className="border-b border-[#f6f6f6]">
+                      <td className="py-1.5 px-2.5"><input disabled={!canEdit} value={r.description} onChange={(e) => setRow(r.id, { description: e.target.value })} placeholder="Descrizione" className="w-full px-2 py-1 rounded border border-[#eee] text-[12px] outline-none focus:border-[#161616] bg-white" />{r.unit && <span className="text-[10px] text-[#b0b0b0]">{r.unit}</span>}</td>
+                      <td className="py-1.5 px-1.5"><input disabled={!canEdit} type="number" value={r.qty} onChange={(e) => setRow(r.id, { qty: Number(e.target.value) || 0 })} className="w-full px-1.5 py-1 rounded border border-[#eee] text-[12px] text-right outline-none focus:border-[#161616] bg-white" /></td>
+                      <td className="py-1.5 px-1.5"><input disabled={!canEdit} type="number" value={r.costoUnit} onChange={(e) => setRow(r.id, { costoUnit: Number(e.target.value) || 0 })} className="w-full px-1.5 py-1 rounded border border-[#eee] text-[12px] text-right outline-none focus:border-[#161616] bg-white" /></td>
+                      <td className="py-1.5 px-1.5"><input disabled={!canEdit} type="number" value={r.prezzoUnit} onChange={(e) => setRow(r.id, { prezzoUnit: Number(e.target.value) || 0 })} className="w-full px-1.5 py-1 rounded border border-[#eee] text-[12px] text-right outline-none focus:border-[#161616] bg-white" /></td>
+                      <td className="py-1.5 px-1.5 text-[12px] text-right font-bold text-[#161616]">{eur((r.prezzoUnit || 0) * (r.qty || 0))}</td>
+                      <td className="py-1.5 px-1 text-right">{canEdit && <button onClick={() => rmRow(r.id)} className="text-rose-400 hover:text-rose-600 cursor-pointer bg-transparent border-none"><X className="w-3.5 h-3.5" /></button>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <label className="flex items-center justify-between gap-2 bg-[#fafafa] border border-[#eee] rounded-xl px-3 py-2">
+            <span className="text-[12px] font-semibold text-[#444]">Costi indiretti (% sul costo diretto)</span>
+            <input disabled={!canEdit} type="number" value={d.costiIndirettiPct ?? ''} onChange={(e) => set({ costiIndirettiPct: e.target.value ? Number(e.target.value) : null })} placeholder="0" className="w-20 px-2 py-1.5 rounded-lg border border-[#e2e2e2] text-[12.5px] text-right outline-none focus:border-[#161616] bg-white" />
+          </label>
+
+          {/* Controllo margini (§11) */}
+          <div className="rounded-[16px] border border-[#e2e2e2] overflow-hidden">
+            <div className="bg-[#161616] text-white px-3 py-2 text-[11px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5 w-full"><Calculator className="w-3.5 h-3.5" /> Controllo margini</div>
+            <div className="p-3 grid grid-cols-2 gap-y-1.5 gap-x-4 text-[12.5px]">
+              <span className="text-[#8a8a8a]">Costo diretto (imprese+materiali)</span><span className="text-right font-semibold text-[#161616]">{eur(costoDiretto)}</span>
+              <span className="text-[#8a8a8a]">Costi indiretti</span><span className="text-right font-semibold text-[#161616]">{eur(indiretti)}</span>
+              <span className="text-[#8a8a8a]">Costo totale</span><span className="text-right font-bold text-[#161616]">{eur(costoTotale)}</span>
+              <span className="text-[#8a8a8a]">Ricavo (preventivo)</span><span className="text-right font-bold text-[#161616]">{eur(ricavo)}</span>
+              <span className="text-[#444] font-bold pt-1 border-t border-[#f0f0f0]">Utile previsto</span><span className={`text-right font-black pt-1 border-t border-[#f0f0f0] ${utile >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>{eur(utile)}</span>
+              <span className="text-[#444] font-bold">Margine %</span><span className={`text-right font-black ${mpctComputo >= 15 ? 'text-emerald-700' : mpctComputo > 0 ? 'text-amber-700' : 'text-rose-700'}`}>{mpctComputo.toFixed(1)}%</span>
+            </div>
+            {mpctComputo < 10 && ricavo > 0 && <div className="px-3 pb-2 -mt-1 text-[11.5px] font-bold text-rose-600">⚠ Margine basso: verifica prima di contrattualizzare.</div>}
+          </div>
+
+          {canEdit && (
+            <div className="flex items-center gap-2">
+              <button onClick={doSave} className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[13px] font-bold cursor-pointer">Salva computo</button>
+              <button onClick={genQuote} disabled={!hasComputo || !onGenerateQuote} className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40"><FileText className="w-4 h-4" /> Genera preventivo</button>
+            </div>
+          )}
+          {d.quoteId && <p className="text-[11.5px] text-emerald-600 font-semibold text-center">Preventivo già generato per questa commessa.</p>}
+        </div>
+        )}
       </div>
     </div>
   );

@@ -25,7 +25,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
-  Truck, UserPlus, BarChart3,
+  Truck, UserPlus, BarChart3, ListChecks,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest } from './types';
 import { SOCIETA_LABEL, canView } from './access';
@@ -306,6 +306,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
     id: 'materico', label: SOCIETA_LABEL.materico, color: SOCIETY_COLOR.materico,
     sections: [
       { id: 'potenziale', label: 'Potenziale Cantiere', icon: Target, module: 'produzione', view: 'materico-deals', note: 'Pipeline delle commesse potenziali: valutazione tecnico-economica prima del preventivo.' },
+      { id: 'listino', label: 'Listino prezzi', icon: ListChecks, module: 'produzione', view: 'materico-listino', note: 'Listino interno: costi imprese/materiali, prezzo mercato, margini.' },
       { id: 'produzione', label: 'Lavori & Richieste', icon: Layers, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'materico' } },
       { id: 'fornitori', label: 'Imprese & Fornitori', icon: Truck, module: 'crm', legacyRoute: 'crm' },
       { id: 'contabilita', label: 'Contabilità', icon: DollarSign, module: 'finance', legacyRoute: 'finanze' },

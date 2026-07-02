@@ -100,6 +100,7 @@ import {
   VaultConfig,
   HrEvent,
   MatericoDeal,
+  MatericoPriceItem,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -167,6 +168,7 @@ import { MarketingSection } from './components/sections/MarketingSection';
 const GovernanceView = React.lazy(() => import('./components/GovernanceView').then((m) => ({ default: m.GovernanceView })));
 const HrAgendaView = React.lazy(() => import('./components/HrAgendaView').then((m) => ({ default: m.HrAgendaView })));
 const MatericoDealsView = React.lazy(() => import('./components/MatericoDealsView').then((m) => ({ default: m.MatericoDealsView })));
+const MatericoListinoView = React.lazy(() => import('./components/MatericoListinoView').then((m) => ({ default: m.MatericoListinoView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -373,6 +375,7 @@ export default function App() {
   const [newsletterSubs, setNewsletterSubs] = useState<Record<string, any>>({});
   const [hrEvents, setHrEvents] = useState<Record<string, HrEvent>>({});
   const [matericoDeals, setMatericoDeals] = useState<Record<string, MatericoDeal>>({});
+  const [matericoListino, setMatericoListino] = useState<Record<string, MatericoPriceItem>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1647,6 +1650,7 @@ export default function App() {
       subs.push(watchNode('newsletter', (v) => setNewsletterSubs(v || {}), () => {}));
       add('hrEvents', setHrEvents);
       add('matericoDeals', setMatericoDeals);
+      add('matericoListino', setMatericoListino);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
@@ -3359,6 +3363,38 @@ export default function App() {
       removeNode(`matericoDeals/${id}`).catch(() => {});
     });
   };
+  // ---- Listino interno Materico (matericoListino, §4) ----
+  const handleSaveMatericoListino = (i: MatericoPriceItem) => {
+    setMatericoListino((prev) => ({ ...prev, [i.id]: i }));
+    writeNode(`matericoListino/${i.id}`, i).catch(() => showToast('Errore listino (controlla regole).', 'err'));
+  };
+  const handleDeleteMatericoListino = (id: string) => {
+    askDelete('Eliminare la voce di listino?', null, () => {
+      setMatericoListino((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`matericoListino/${id}`).catch(() => {});
+    });
+  };
+  // ---- Preventivo automatico dal computo di una commessa (§5) ----
+  const handleGenerateQuoteFromDeal = (deal: MatericoDeal) => {
+    const rows = deal.computo || [];
+    if (!rows.length) { showToast('Aggiungi voci al computo prima di generare il preventivo.', 'err'); return; }
+    const qId = deal.quoteId || `q-${Date.now()}`;
+    const num = Object.values(quotes).find((q) => q.id === qId)?.number || `PRV-MAT-${new Date().getFullYear()}-${String(Object.keys(quotes).length + 1).padStart(3, '0')}`;
+    const lines = rows.map((r, i) => ({ id: `ql-${i}`, macro: (r.category || 'opere_edili') as any, desc: r.description || 'Voce', qty: r.qty || 0, unitPrice: r.prezzoUnit || 0, amount: (r.prezzoUnit || 0) * (r.qty || 0) }));
+    const total = lines.reduce((s, l) => s + l.amount, 0);
+    const quote: Quote = {
+      id: qId, number: num, docKind: 'preventivo',
+      clientRecordId: deal.clientRecordId || null, clientName: deal.clientName || 'Cliente',
+      projectId: deal.projectId || null, division: 'materico', status: 'elaborato',
+      lines, total, vatEnabled: true, vatPct: 22, cassaEnabled: false, cassaPct: 4,
+      notes: `Generato dal computo della commessa "${deal.title}".`, createdAt: Date.now(), createdBy: currentUser?.uid,
+    };
+    handleSaveQuote(quote);
+    handleSaveMatericoDeal({ ...deal, quoteId: qId, updatedAt: Date.now() });
+    logAudit('create', 'preventivi', `Preventivo da computo · ${deal.title}`, 'Materico');
+    showToast('Preventivo generato dal computo.');
+    window.location.hash = '#preventivi';
+  };
 
   // ---- Notifiche persistenti (notifications/<uid>) ----
   const pushNotification = (uid: string, payload: { type: string; title: string; body?: string | null; link?: string | null }) => {
@@ -4870,10 +4906,24 @@ export default function App() {
                   deals={matericoDeals}
                   members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
                   clients={Object.values(clients).map((c) => ({ id: c.id, name: c.name }))}
+                  listino={Object.values(matericoListino)}
                   color={society.color}
                   canEdit={isStudioRole(currentUser.role)}
                   onSave={handleSaveMatericoDeal}
                   onDelete={handleDeleteMatericoDeal}
+                  onGenerateQuote={handleGenerateQuoteFromDeal}
+                />
+              </React.Suspense>
+            );
+          case 'materico-listino':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <MatericoListinoView
+                  items={matericoListino}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSave={handleSaveMatericoListino}
+                  onDelete={handleDeleteMatericoListino}
                 />
               </React.Suspense>
             );
