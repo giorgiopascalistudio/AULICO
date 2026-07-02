@@ -105,6 +105,7 @@ import {
   PianoFinanziario,
   FatturazionePlanItem,
   SocMktItem,
+  FiscaleItem,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -180,6 +181,9 @@ const PianoFinanziarioView = React.lazy(() => import('./components/PianoFinanzia
 const ProgFatturazioneView = React.lazy(() => import('./components/ProgFatturazioneView').then((m) => ({ default: m.ProgFatturazioneView })));
 const CommercialeView = React.lazy(() => import('./components/CommercialeView').then((m) => ({ default: m.CommercialeView })));
 const MarketingSocietaView = React.lazy(() => import('./components/MarketingSocietaView').then((m) => ({ default: m.MarketingSocietaView })));
+const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
+const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m) => ({ default: m.FiscaleView })));
+const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -392,6 +396,7 @@ export default function App() {
   const [pianoAnno, setPianoAnno] = useState(new Date().getFullYear());
   const [fatturazionePlan, setFatturazionePlan] = useState<Record<string, FatturazionePlanItem>>({});
   const [socMkt, setSocMkt] = useState<Record<string, SocMktItem>>({});
+  const [fiscalePlan, setFiscalePlan] = useState<Record<string, FiscaleItem>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1675,6 +1680,7 @@ export default function App() {
       add('pianoFinanziario', setPianoFinanziario);
       add('fatturazionePlan', setFatturazionePlan);
       add('socMkt', setSocMkt);
+      add('fiscalePlan', setFiscalePlan);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
@@ -3408,6 +3414,16 @@ export default function App() {
     setPianoFinanziario((prev) => ({ ...prev, [p.id]: enriched }));
     writeNode(`pianoFinanziario/${p.id}`, enriched).catch(() => showToast('Errore piano finanziario (controlla regole).', 'err'));
   };
+  // ---- Pianificazione fiscale (fiscalePlan) ----
+  const handleSaveFiscale = (i: FiscaleItem) => {
+    const enriched: FiscaleItem = { ...i, by: i.by || currentUser?.uid || null };
+    setFiscalePlan((prev) => ({ ...prev, [i.id]: enriched }));
+    writeNode(`fiscalePlan/${i.id}`, enriched).catch(() => showToast('Errore fiscale (controlla regole).', 'err'));
+  };
+  const handleDeleteFiscale = (id: string) => {
+    setFiscalePlan((prev) => { const n = { ...prev }; delete n[id]; return n; });
+    removeNode(`fiscalePlan/${id}`).catch(() => {});
+  };
   // ---- Marketing per società (socMkt) ----
   const handleSaveSocMkt = (i: SocMktItem) => {
     const enriched: SocMktItem = { ...i, by: i.by || currentUser?.uid || null };
@@ -5050,6 +5066,33 @@ export default function App() {
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
                 <PianoFinanziarioView piano={pianoFinanziario[pid] || null} soc={psoc} socLabel={society.label} year={pianoAnno} color={society.color} canEdit={isStudioRole(currentUser.role)} onChangeYear={setPianoAnno} onSave={handleSavePiano} kpi={kpi} />
+              </React.Suspense>
+            );
+          }
+          case 'piano-incentivante':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <PianoIncentivanteView
+                  members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
+                  pointEvents={pointEvents}
+                  socLabel={society.label}
+                  color={society.color}
+                />
+              </React.Suspense>
+            );
+          case 'pianificazione-fiscale': {
+            const psoc = activeSocieta as string;
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <FiscaleView items={Object.values(fiscalePlan).filter((i) => i.soc === psoc)} soc={psoc} socLabel={society.label} color={society.color} canEdit={isStudioRole(currentUser.role)} onSave={handleSaveFiscale} onDelete={handleDeleteFiscale} />
+              </React.Suspense>
+            );
+          }
+          case 'credenziali-soc': {
+            const psoc = activeSocieta as string;
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <CredenzialiView entries={Object.values(governanceVault)} config={vaultConfig} soc={psoc} socLabel={society.label} canEdit={currentUser.role === 'admin' || currentUser.role === 'manager'} onSave={handleSaveVaultEntry} onDelete={handleDeleteVaultEntry} onSetConfig={handleSetVaultConfig} />
               </React.Suspense>
             );
           }

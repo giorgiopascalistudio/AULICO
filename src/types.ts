@@ -938,6 +938,7 @@ export interface VaultEntry {
   id: string;
   label: string;                 // nome del servizio/strumento
   category?: VaultCategory;
+  soc?: string | null;           // società di appartenenza (per la cassaforte per-società)
   url?: string | null;
   username?: string | null;
   password?: string | null;
@@ -950,6 +951,21 @@ export interface VaultEntry {
 export interface VaultConfig {
   passHash?: string | null;
   salt?: string | null;
+  updatedAt?: number;
+  by?: string | null;
+}
+/** Voce della Pianificazione fiscale (nodo `fiscalePlan/<id>`): scadenze/adempimenti fiscali per società. */
+export interface FiscaleItem {
+  id: string;
+  soc: string;
+  category: string;          // IVA / F24 / Ritenute / IRES / INARCASSA / Diritti CCIAA / Altro
+  label: string;
+  amount?: number | null;
+  dueDate?: string | null;
+  status: 'pianificata' | 'pagata';
+  recurrence?: 'mensile' | 'trimestrale' | 'annuale' | null;
+  notes?: string | null;
+  createdAt: number;
   updatedAt?: number;
   by?: string | null;
 }

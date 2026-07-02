@@ -314,9 +314,9 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   s.push({ id: 'amm-contabilita', label: 'Contabilità', icon: DollarSign, parent: 'amm', module: 'finance', legacyRoute: 'finanze', preset: { financeLock: div } });
   s.push({ id: 'amm-piano', label: 'Piano finanziario', icon: BarChart3, parent: 'amm', module: 'finance', view: 'piano-finanziario', note: 'Piano finanziario (stile Excel) + KPI.' });
   s.push({ id: 'amm-fatturazione', label: 'Programmazione fatturazione', icon: FileText, parent: 'amm', module: 'finance', view: 'prog-fatturazione', note: 'Uso quotidiano: pianifica ed emetti le fatture.' });
-  s.push(ph('amm-incentivi', 'Piano incentivante', Award, 'amm', 'finance', 'Pagamenti del piano incentivante.'));
-  s.push(ph('amm-fiscale', 'Pianificazione fiscale', Scale, 'amm', 'finance', 'Controllo scadenze e adempimenti fiscali.'));
-  s.push(ph('amm-credenziali', 'Credenziali & password', Lock, 'amm', 'finance', 'Cassaforte credenziali della società.'));
+  s.push({ id: 'amm-incentivi', label: 'Piano incentivante', icon: Award, parent: 'amm', module: 'finance', view: 'piano-incentivante', note: 'Merito, fasce bonus, erogato: base della parte variabile.' });
+  s.push({ id: 'amm-fiscale', label: 'Pianificazione fiscale', icon: Scale, parent: 'amm', module: 'finance', view: 'pianificazione-fiscale', note: 'Scadenze e adempimenti fiscali (IVA/F24/ritenute/imposte).' });
+  s.push({ id: 'amm-credenziali', label: 'Credenziali & password', icon: Lock, parent: 'amm', module: 'finance', view: 'credenziali-soc', note: 'Cassaforte credenziali della società (master password).' });
   s.push({ id: 'amm-registro', label: 'Registro attività', icon: ScrollText, parent: 'amm', module: 'registro', legacyRoute: 'registro', shared: true });
 
   // ---- RISORSE UMANE ----
