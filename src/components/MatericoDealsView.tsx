@@ -10,7 +10,7 @@ import React from 'react';
 import {
   Target, Plus, X, Trash2, ChevronLeft, ChevronRight, MapPin, User, TrendingUp, Percent, Euro, FileText, Calculator,
 } from 'lucide-react';
-import type { MatericoDeal, MatericoDealStage, MatericoDiscipline, MatericoPriceItem, MatericoComputoRow } from '../types';
+import type { MatericoDeal, MatericoDealStage, MatericoDiscipline, MatericoPriceItem, MatericoComputoRow, MatericoCashRow } from '../types';
 import { eur } from '../utils';
 import { listinoPrezzo } from './MatericoListinoView';
 
@@ -149,8 +149,8 @@ export const MatericoDealsView: React.FC<Props> = ({ deals, members, clients = [
 };
 
 const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: ClientOpt[]; listino: MatericoPriceItem[]; canEdit: boolean; onClose: () => void; onSave: (d: MatericoDeal) => void; onDelete?: (id: string) => void; onGenerateQuote?: (d: MatericoDeal) => void }> = ({ deal, members, clients, listino, canEdit, onClose, onSave, onDelete, onGenerateQuote }) => {
-  const [d, setD] = React.useState<MatericoDeal>({ ...deal, computo: deal.computo || [] });
-  const [tab, setTab] = React.useState<'dati' | 'computo'>('dati');
+  const [d, setD] = React.useState<MatericoDeal>({ ...deal, computo: deal.computo || [], cash: deal.cash || [] });
+  const [tab, setTab] = React.useState<'dati' | 'computo' | 'economia'>('dati');
   const set = (c: Partial<MatericoDeal>) => setD((p) => ({ ...p, ...c }));
   const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white';
 
@@ -177,6 +177,16 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
     onClose();
   };
 
+  // Economia commessa (§10)
+  const cash = d.cash || [];
+  const entrate = cash.filter((r) => r.kind === 'entrata');
+  const uscite = cash.filter((r) => r.kind === 'uscita');
+  const sum = (arr: MatericoCashRow[], onlyDone = false) => arr.filter((r) => !onlyDone || r.done).reduce((s, r) => s + (r.amount || 0), 0);
+  const entTot = sum(entrate), entDone = sum(entrate, true), uscTot = sum(uscite), uscDone = sum(uscite, true);
+  const addCash = (kind: 'entrata' | 'uscita') => setD((p) => ({ ...p, cash: [...(p.cash || []), { id: `ch-${Date.now()}-${Math.floor(Math.random() * 900)}`, kind, label: '', category: null, amount: 0, date: null, done: false }] }));
+  const setCash = (id: string, c: Partial<MatericoCashRow>) => setD((p) => ({ ...p, cash: (p.cash || []).map((r) => (r.id === id ? { ...r, ...c } : r)) }));
+  const rmCash = (id: string) => setD((p) => ({ ...p, cash: (p.cash || []).filter((r) => r.id !== id) }));
+
   const margine = (d.valoreStimato || 0) - (d.costoStimato || 0);
   const mpct = (d.valoreStimato || 0) > 0 ? (margine / (d.valoreStimato as number)) * 100 : 0;
   return (
@@ -190,7 +200,7 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
           </div>
         </div>
         <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] mb-3">
-          {([['dati', 'Dati'], ['computo', 'Computo & margini']] as const).map(([id, lbl]) => (
+          {([['dati', 'Dati'], ['computo', 'Computo & margini'], ['economia', 'Economia']] as const).map(([id, lbl]) => (
             <button key={id} onClick={() => setTab(id)} className={`text-[12px] font-bold px-3.5 py-1.5 rounded-full cursor-pointer border-none transition-all ${tab === id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{lbl}</button>
           ))}
         </div>
@@ -234,7 +244,7 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
           {hasComputo && <p className="text-[11px] text-[#9a9a9a]">Valore e costo sono allineati automaticamente dal computo al salvataggio.</p>}
           {canEdit && <button onClick={doSave} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Salva commessa</button>}
         </div>
-        ) : (
+        ) : tab === 'computo' ? (
         <div className="flex flex-col gap-3">
           {/* Aggiungi voci */}
           {canEdit && (
@@ -295,6 +305,49 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
             </div>
           )}
           {d.quoteId && <p className="text-[11.5px] text-emerald-600 font-semibold text-center">Preventivo già generato per questa commessa.</p>}
+        </div>
+        ) : (
+        <div className="flex flex-col gap-3">
+          {/* ECONOMIA COMMESSA (§10): entrate/uscite programmate */}
+          {([['entrata', 'Entrate', entrate, ['Acconto', 'SAL', 'Pagamento', 'Finanziamento']], ['uscita', 'Uscite', uscite, ['Imprese', 'Materiali', 'Fornitori', 'Consulenti', 'Costi tecnici', 'Costi amministrativi']]] as const).map(([kind, label, arr, cats]) => (
+            <div key={kind}>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#9a9a9a]">{label}</span>
+                {canEdit && <button onClick={() => addCash(kind)} className="text-[11.5px] font-bold text-[#161616] inline-flex items-center gap-1 cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Riga</button>}
+              </div>
+              {arr.length === 0 ? <p className="text-[11.5px] text-[#b0b0b0] italic pb-1">Nessuna voce.</p> : (
+                <div className="flex flex-col gap-1.5">
+                  {arr.map((r) => (
+                    <div key={r.id} className="flex items-center gap-1.5">
+                      <input disabled={!canEdit} value={r.label} onChange={(e) => setCash(r.id, { label: e.target.value })} placeholder="Descrizione" className="flex-1 min-w-0 px-2 py-1.5 rounded-lg border border-[#eee] text-[12px] outline-none focus:border-[#161616] bg-white" />
+                      <select disabled={!canEdit} value={r.category || ''} onChange={(e) => setCash(r.id, { category: e.target.value || null })} className="w-28 px-1.5 py-1.5 rounded-lg border border-[#eee] text-[11px] outline-none focus:border-[#161616] bg-white">
+                        <option value="">—</option>{cats.map((c) => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                      <input disabled={!canEdit} type="number" value={r.amount || ''} onChange={(e) => setCash(r.id, { amount: Number(e.target.value) || 0 })} placeholder="€" className="w-24 px-2 py-1.5 rounded-lg border border-[#eee] text-[12px] text-right outline-none focus:border-[#161616] bg-white" />
+                      <input disabled={!canEdit} type="date" value={r.date || ''} onChange={(e) => setCash(r.id, { date: e.target.value || null })} className="w-32 px-1.5 py-1.5 rounded-lg border border-[#eee] text-[11px] outline-none focus:border-[#161616] bg-white" />
+                      <button disabled={!canEdit} onClick={() => setCash(r.id, { done: !r.done })} title={r.done ? (kind === 'entrata' ? 'Incassato' : 'Pagato') : 'Da fare'} className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 cursor-pointer border ${r.done ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-white text-[#c0c0c0] border-[#e2e2e2]'}`}><CheckCircle2 className="w-4 h-4" /></button>
+                      {canEdit && <button onClick={() => rmCash(r.id)} className="text-rose-400 hover:text-rose-600 cursor-pointer bg-transparent border-none shrink-0"><X className="w-3.5 h-3.5" /></button>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+          {/* Riepilogo liquidità */}
+          <div className="rounded-[16px] border border-[#e2e2e2] overflow-hidden">
+            <div className="bg-[#161616] text-white px-3 py-2 text-[11px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5 w-full"><Euro className="w-3.5 h-3.5" /> Liquidità commessa</div>
+            <div className="p-3 grid grid-cols-3 gap-y-1.5 gap-x-3 text-[12.5px]">
+              <span className="text-[#8a8a8a]" />
+              <span className="text-right font-bold text-[#a0a0a0] text-[10px] uppercase">Previsto</span>
+              <span className="text-right font-bold text-[#a0a0a0] text-[10px] uppercase">Realizzato</span>
+              <span className="text-[#8a8a8a]">Entrate</span><span className="text-right font-semibold text-emerald-700">{eur(entTot)}</span><span className="text-right font-semibold text-emerald-700">{eur(entDone)}</span>
+              <span className="text-[#8a8a8a]">Uscite</span><span className="text-right font-semibold text-rose-700">{eur(uscTot)}</span><span className="text-right font-semibold text-rose-700">{eur(uscDone)}</span>
+              <span className="text-[#444] font-bold pt-1 border-t border-[#f0f0f0]">Saldo</span>
+              <span className={`text-right font-black pt-1 border-t border-[#f0f0f0] ${entTot - uscTot >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>{eur(entTot - uscTot)}</span>
+              <span className={`text-right font-black pt-1 border-t border-[#f0f0f0] ${entDone - uscDone >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>{eur(entDone - uscDone)}</span>
+            </div>
+          </div>
+          {canEdit && <button onClick={doSave} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Salva economia</button>}
         </div>
         )}
       </div>

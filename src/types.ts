@@ -992,6 +992,16 @@ export interface MatericoPriceItem {
   createdAt: number;
   updatedAt?: number;
 }
+/** Riga di cassa (entrata/uscita) programmata di una commessa Materico (§10). */
+export interface MatericoCashRow {
+  id: string;
+  kind: 'entrata' | 'uscita';
+  label: string;
+  category?: string | null;     // acconto/SAL/pagamento | imprese/materiali/fornitori/consulenti/costi
+  amount: number;
+  date?: string | null;         // data prevista
+  done?: boolean;               // incassato/pagato
+}
 /** Riga del computo metrico di una commessa Materico (§5). */
 export interface MatericoComputoRow {
   id: string;
@@ -1022,6 +1032,7 @@ export interface MatericoDeal {
   notes?: string | null;
   computo?: MatericoComputoRow[]; // computo metrico (§5) → base di preventivo e margini
   costiIndirettiPct?: number | null; // % costi indiretti sul costo diretto (§11)
+  cash?: MatericoCashRow[];      // economia commessa: entrate/uscite programmate (§10)
   quoteId?: string | null;       // preventivo generato
   cantiereId?: string | null;    // cantiere avviato
   requestId?: string | null;     // richiesta Materico collegata
