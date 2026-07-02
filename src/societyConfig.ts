@@ -26,6 +26,7 @@ import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
   Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
+  Bell, Calculator, Award, Lock, Gift,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest } from './types';
 import { SOCIETA_LABEL, canView } from './access';
@@ -264,6 +265,70 @@ export const PERSONAL_DASHBOARD: DashboardSpec = {
 // ============================================================================
 // REGISTRY — seed iniziale (affinabile dall'utente)
 // ============================================================================
+/**
+ * Struttura STANDARD a 7 gruppi per le società operative (tutte tranne Strategico):
+ * Home · Produzione · Commerciale · Marketing · Contabilità & Amministrazione · Risorse umane · Cestino.
+ * Ogni gruppo è un portale con sotto-sezioni. Si collega a ciò che esiste; il resto è placeholder
+ * (fase "navigazione", i moduli nuovi si riempiono dopo). Vedi docs/V2/Aulico 00.pdf.
+ */
+function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): SectionConfig[] {
+  const isMat = soc === 'materico';
+  const isUni = soc === 'unico';
+  const div = soc as unknown as Division;
+  const ph = (id: string, label: string, icon: LucideIcon, parent: string, module: string, note?: string): SectionConfig =>
+    ({ id, label, icon, parent, module, kind: 'placeholder', note });
+  const s: SectionConfig[] = [];
+
+  // ---- HOME (Agenda · Cicli · Notifiche · Quadro generale) ----
+  s.push({ id: 'home', label: 'Home', icon: LayoutGrid, module: 'produzione', kind: 'group', dashLabel: 'Quadro generale' });
+  s.push({ id: 'home-agenda', label: 'Agenda', icon: Calendar, parent: 'home', module: 'produzione', legacyRoute: 'calendario', shared: true });
+  s.push({ id: 'home-cicli', label: 'Lista dei cicli', icon: Layers, parent: 'home', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
+  s.push(ph('home-notifiche', 'Notifiche', Bell, 'home', 'produzione', 'Notifiche e messaggi della società.'));
+
+  // ---- PRODUZIONE (Progetti · Computi · Mappa operativa) ----
+  s.push({ id: 'produzione', label: 'Produzione', icon: Layers, module: 'produzione', kind: 'group' });
+  if (isMat) s.push({ id: 'prod-potenziale', label: 'Potenziale Cantiere', icon: Target, parent: 'produzione', module: 'produzione', view: 'materico-deals' });
+  s.push({ id: 'prod-progetti', label: isUni ? 'Operazioni & Investitori' : 'Progetti', icon: isUni ? Building2 : Layers, parent: 'produzione', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
+  s.push(ph('prod-computi', 'Computi', Calculator, 'produzione', 'produzione', 'Computi metrici.'));
+  if (isMat) s.push({ id: 'prod-mappa', label: 'Mappa operativa', icon: MapPin, parent: 'produzione', module: 'produzione', view: 'materico-mappa' });
+  else s.push(ph('prod-mappa', 'Mappa operativa', MapPin, 'produzione', 'produzione', 'Cantieri/interventi su mappa.'));
+
+  // ---- COMMERCIALE (Preventivi · Contratti · Listino · Registro clienti) ----
+  s.push({ id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', kind: 'group' });
+  s.push({ id: 'comm-preventivi', label: 'Preventivi', icon: FileText, parent: 'commerciale', module: 'commerciale', legacyRoute: 'finanze', preset: { finStartTab: 'preventivi', financeLock: div } });
+  if (isMat) s.push({ id: 'comm-contratti', label: 'Contratti', icon: FileSignature, parent: 'commerciale', module: 'commerciale', view: 'materico-contracts' });
+  else s.push(ph('comm-contratti', 'Contratti', FileSignature, 'commerciale', 'commerciale', 'Contratti + firma OTP.'));
+  if (isMat) s.push({ id: 'comm-listino', label: 'Listino prezzi', icon: ListChecks, parent: 'commerciale', module: 'commerciale', view: 'materico-listino' });
+  else s.push(ph('comm-listino', 'Listino prezzi', ListChecks, 'commerciale', 'commerciale', 'Listino prezzi.'));
+  s.push({ id: 'comm-clienti', label: isMat ? 'Imprese & Fornitori' : 'Registro clienti', icon: isMat ? Truck : BookUser, parent: 'commerciale', module: 'crm', legacyRoute: 'crm', preset: { crmTab: isMat ? 'fornitori' : 'clienti' } });
+
+  // ---- MARKETING (Calendario editoriale · Eventi · Blog · Statistiche) ----
+  s.push({ id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' });
+  s.push({ id: 'mkt-calendario', label: 'Calendario editoriale', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing' });
+  s.push(ph('mkt-eventi', 'Eventi & gadget', Gift, 'marketing', 'marketing', 'Eventi, gadget e pensieri.'));
+  s.push(ph('mkt-blog', 'Articoli blog', FileText, 'marketing', 'marketing', 'Testi e grafiche del blog.'));
+  s.push(ph('mkt-stat', 'Statistiche', BarChart3, 'marketing', 'marketing', 'Statistiche marketing.'));
+
+  // ---- CONTABILITÀ & AMMINISTRAZIONE ----
+  s.push({ id: 'amm', label: 'Contabilità & Amministrazione', icon: DollarSign, module: 'finance', kind: 'group' });
+  s.push({ id: 'amm-contabilita', label: 'Contabilità', icon: DollarSign, parent: 'amm', module: 'finance', legacyRoute: 'finanze', preset: { financeLock: div } });
+  s.push(ph('amm-piano', 'Piano finanziario', BarChart3, 'amm', 'finance', 'Piano finanziario (stile Excel) + KPI: Preventivato/Venduto/Fatturato/Incassato/Erogato/Liquidità.'));
+  s.push(ph('amm-fatturazione', 'Programmazione fatturazione', FileText, 'amm', 'finance', 'Uso quotidiano: pianifica e invia le fatture.'));
+  s.push(ph('amm-incentivi', 'Piano incentivante', Award, 'amm', 'finance', 'Pagamenti del piano incentivante.'));
+  s.push(ph('amm-fiscale', 'Pianificazione fiscale', Scale, 'amm', 'finance', 'Controllo scadenze e adempimenti fiscali.'));
+  s.push(ph('amm-credenziali', 'Credenziali & password', Lock, 'amm', 'finance', 'Cassaforte credenziali della società.'));
+  s.push({ id: 'amm-registro', label: 'Registro attività', icon: ScrollText, parent: 'amm', module: 'registro', legacyRoute: 'registro', shared: true });
+
+  // ---- RISORSE UMANE ----
+  s.push({ id: 'hr', label: 'Risorse umane', icon: Users, module: 'hr', kind: 'group' });
+  s.push({ id: 'hr-team', label: 'Team & permessi', icon: Users, parent: 'hr', module: 'hr', legacyRoute: 'team' });
+  s.push({ id: 'hr-governance', label: 'Governance', icon: Network, parent: 'hr', module: 'governance', view: 'governance' });
+
+  // ---- CESTINO ----
+  s.push({ id: 'cestino', label: 'Cestino', icon: Trash2, module: 'cestino', legacyRoute: 'cestino', shared: true });
+  return s;
+}
+
 export const SOCIETY_REGISTRY: SocietyConfig[] = [
   // -------------------------------------------------------------- STRATEGICO
   {
@@ -292,46 +357,13 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
     ],
   },
   // ----------------------------------------------------------------- ONIRICO
-  {
-    id: 'studio', label: SOCIETA_LABEL.studio, color: SOCIETY_COLOR.studio,
-    sections: [
-      { id: 'cicli', label: 'Lista dei cicli', icon: Layers, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'studio' } },
-      { id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', legacyRoute: 'finanze', preset: { finStartTab: 'preventivi' } },
-      { id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'placeholder', note: 'Marketing della divisione Onirico.' },
-      { id: 'contabilita', label: 'Contabilità', icon: DollarSign, module: 'finance', legacyRoute: 'finanze' },
-      { id: 'documenti', label: 'Documenti', icon: FileText, module: 'documenti', legacyRoute: 'documenti' },
-      { id: 'richieste', label: 'Richieste clienti', icon: Inbox, module: 'richieste', legacyRoute: 'richieste-clienti' },
-    ],
-  },
+  { id: 'studio', label: SOCIETA_LABEL.studio, color: SOCIETY_COLOR.studio, sections: standardSections('studio') },
   // ---------------------------------------------------------------- MATERICO
-  {
-    id: 'materico', label: SOCIETA_LABEL.materico, color: SOCIETY_COLOR.materico,
-    sections: [
-      { id: 'home', label: 'Home', icon: LayoutGrid, module: 'produzione', view: 'materico-home', note: 'Cruscotto Materico: commesse, cantieri, contratti, scadenze.' },
-      { id: 'potenziale', label: 'Potenziale Cantiere', icon: Target, module: 'produzione', view: 'materico-deals', note: 'Pipeline delle commesse potenziali: valutazione tecnico-economica prima del preventivo.' },
-      { id: 'cicli', label: 'Cicli', icon: Layers, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'materico' }, note: 'Commesse/cantieri Materico in corso, con richieste e lavorazioni.' },
-      { id: 'mappa', label: 'Mappa operativa', icon: MapPin, module: 'produzione', view: 'materico-mappa', note: 'Cantieri e commesse geolocalizzati su mappa.' },
-      { id: 'listino', label: 'Listino prezzi', icon: ListChecks, module: 'produzione', view: 'materico-listino', note: 'Listino interno: costi imprese/materiali, prezzo mercato, margini.' },
-      { id: 'contratti', label: 'Contratti', icon: FileSignature, module: 'produzione', view: 'materico-contracts', note: 'Contratti imprese generati dai dati + firma OTP.' },
-      { id: 'fornitori', label: 'Imprese & Fornitori', icon: Truck, module: 'crm', legacyRoute: 'crm', preset: { crmTab: 'fornitori' }, note: 'Registro imprese/fornitori condiviso col CRM (lettura e scrittura).' },
-      { id: 'contabilita', label: 'Contabilità Materico', icon: DollarSign, module: 'finance', legacyRoute: 'finanze', preset: { financeLock: 'materico' }, note: 'Solo la contabilità di Materico. La contabilità generale è in Strategico.' },
-    ],
-  },
+  { id: 'materico', label: SOCIETA_LABEL.materico, color: SOCIETY_COLOR.materico, sections: standardSections('materico') },
   // ------------------------------------------------------------------- UNICO
-  {
-    id: 'unico', label: SOCIETA_LABEL.unico, color: SOCIETY_COLOR.unico,
-    sections: [
-      { id: 'operazioni', label: 'Operazioni & Investitori', icon: Building2, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'unico' } },
-      { id: 'contabilita', label: 'Contabilità', icon: DollarSign, module: 'finance', legacyRoute: 'finanze' },
-    ],
-  },
+  { id: 'unico', label: SOCIETA_LABEL.unico, color: SOCIETY_COLOR.unico, sections: standardSections('unico') },
   // -------------------------------------------------------------- FANTASTICO
-  {
-    id: 'fantastico', label: SOCIETA_LABEL.fantastico, color: SOCIETY_COLOR.fantastico,
-    sections: [
-      { id: 'produzione', label: 'Produzione', icon: Layers, module: 'produzione', kind: 'placeholder', note: 'Società in allestimento.' },
-    ],
-  },
+  { id: 'fantastico', label: SOCIETA_LABEL.fantastico, color: SOCIETY_COLOR.fantastico, sections: standardSections('fantastico') },
   // -------------------------------------------------- AULICO (gruppo/shared)
   {
     id: 'holding', label: 'Aulico', color: SOCIETY_COLOR.holding,

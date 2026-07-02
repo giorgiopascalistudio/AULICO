@@ -504,8 +504,8 @@ export default function App() {
     // Mappa retrocompat route legacy → (società, sezione) per evidenziare la sidebar.
     const LEGACY_SECTION: Record<string, { soc: Societa; sec: string }> = {
       calendario: { soc: 'holding', sec: 'agenda' },
-      progetti: { soc: 'studio', sec: 'cicli' },
-      progetto: { soc: 'studio', sec: 'cicli' },
+      progetti: { soc: 'studio', sec: 'home-cicli' },
+      progetto: { soc: 'studio', sec: 'home-cicli' },
       crm: { soc: 'strategico', sec: 'hr-crm' },
       'richieste-clienti': { soc: 'studio', sec: 'richieste' },
       documenti: { soc: 'studio', sec: 'documenti' },
@@ -553,7 +553,7 @@ export default function App() {
       }
       let secSoc: Societa = 'studio';
       let secId = 'dashboard';
-      if (r === 'materico') { r = 'progetti'; setActiveDivision('materico'); secSoc = 'materico'; secId = 'cicli'; }
+      if (r === 'materico') { r = 'progetti'; setActiveDivision('materico'); secSoc = 'materico'; secId = 'home-cicli'; }
       else if (r === 'strategico') { r = 'progetti'; setActiveDivision('strategico'); secSoc = 'strategico'; secId = 'mkt-strategico'; }
       else if (r === 'preventivi') { r = 'finanze'; setFinStartTab('preventivi'); secSoc = 'studio'; secId = 'commerciale'; }
       else if (r === 'statistiche') { r = 'finanze'; setFinStartTab('statistiche'); secSoc = 'strategico'; secId = 'amministrazione'; }
@@ -5029,12 +5029,27 @@ export default function App() {
         const sec = society?.sections.find((s) => s.id === activeSection);
         if (!society || !sec) return <p className="text-[13px] text-[#8a8a8a]">Sezione non trovata.</p>;
         if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
-        // Il portale "Risorse Umane" ha come dashboard l'agenda HR dedicata.
-        if (activeSection === 'hr') {
+        // Il portale "Risorse Umane" di Strategico ha come dashboard l'agenda HR dedicata.
+        if (activeSection === 'hr' && activeSocieta === 'strategico') {
           const hrMembers = Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }));
           return (
             <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico l'agenda…</div>}>
               <HrAgendaView events={hrEvents} members={hrMembers} canEdit={currentUser.role === 'admin' || currentUser.role === 'manager'} color={society.color} onSave={handleSaveHrEvent} onDelete={handleDeleteHrEvent} />
+            </React.Suspense>
+          );
+        }
+        // La Home di Materico mostra il cruscotto dedicato (§1 del processo Materico).
+        if (activeSection === 'home' && activeSocieta === 'materico') {
+          return (
+            <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <MatericoHomeView
+                deals={Object.values(matericoDeals)}
+                cantieriCount={Object.keys(cantieri).length}
+                contracts={Object.values(matericoContracts)}
+                members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
+                color={society.color}
+                onOpen={(h) => { window.location.hash = h; }}
+              />
             </React.Suspense>
           );
         }
