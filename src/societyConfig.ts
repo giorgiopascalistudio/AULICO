@@ -307,6 +307,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
   {
     id: 'materico', label: SOCIETA_LABEL.materico, color: SOCIETY_COLOR.materico,
     sections: [
+      { id: 'home', label: 'Home', icon: LayoutGrid, module: 'produzione', view: 'materico-home', note: 'Cruscotto Materico: commesse, cantieri, contratti, scadenze.' },
       { id: 'potenziale', label: 'Potenziale Cantiere', icon: Target, module: 'produzione', view: 'materico-deals', note: 'Pipeline delle commesse potenziali: valutazione tecnico-economica prima del preventivo.' },
       { id: 'cicli', label: 'Cicli', icon: Layers, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'materico' }, note: 'Commesse/cantieri Materico in corso, con richieste e lavorazioni.' },
       { id: 'mappa', label: 'Mappa operativa', icon: MapPin, module: 'produzione', view: 'materico-mappa', note: 'Cantieri e commesse geolocalizzati su mappa.' },

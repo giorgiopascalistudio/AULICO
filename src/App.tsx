@@ -172,6 +172,7 @@ const MatericoDealsView = React.lazy(() => import('./components/MatericoDealsVie
 const MatericoListinoView = React.lazy(() => import('./components/MatericoListinoView').then((m) => ({ default: m.MatericoListinoView })));
 const MatericoContractsView = React.lazy(() => import('./components/MatericoContractsView').then((m) => ({ default: m.MatericoContractsView })));
 const MatericoMappaView = React.lazy(() => import('./components/MatericoMappaView').then((m) => ({ default: m.MatericoMappaView })));
+const MatericoHomeView = React.lazy(() => import('./components/MatericoHomeView').then((m) => ({ default: m.MatericoHomeView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -4953,6 +4954,19 @@ export default function App() {
                   canEdit={isStudioRole(currentUser.role)}
                   onSave={handleSaveMatericoListino}
                   onDelete={handleDeleteMatericoListino}
+                />
+              </React.Suspense>
+            );
+          case 'materico-home':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <MatericoHomeView
+                  deals={Object.values(matericoDeals)}
+                  cantieriCount={Object.keys(cantieri).length}
+                  contracts={Object.values(matericoContracts)}
+                  members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
+                  color={society.color}
+                  onOpen={(h) => { window.location.hash = h; }}
                 />
               </React.Suspense>
             );
