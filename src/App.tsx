@@ -143,7 +143,9 @@ import {
   studioSummary,
   interventoById,
   interventoLabel,
-  DEFAULT_INTERVENTO
+  DEFAULT_INTERVENTO,
+  buildOniricoProcesso,
+  oniricoProcessoSummary,
 } from './studioConfig';
 
 // Subviews — code-splitting per route (React.lazy): ogni vista pesante vive in
@@ -2311,6 +2313,7 @@ export default function App() {
   const [pIntervento, setPIntervento] = useState<string>(DEFAULT_INTERVENTO);
   const [pTitolo, setPTitolo] = useState<string>('scia');
   const [pCategorie, setPCategorie] = useState<string[]>([]);
+  const [pProcessoOnirico, setPProcessoOnirico] = useState(false);
 
   // Project Editing
   const [editProjOpen, setEditProjOpen] = useState(false);
@@ -2614,6 +2617,7 @@ export default function App() {
     setPCatastali([{ foglio: '', particella: '', sub: '' }]);
     setPTipo('');
     setPNotes('');
+    setPProcessoOnirico(div === 'studio');
 
     setPMarketingBudget('');
     setPMarketingChannels('');
@@ -2657,12 +2661,16 @@ export default function App() {
     }
 
     const nId = `p-${Date.now()}`;
+    // Onirico: processo a 4 fasi (Pianificazione/Progettuale/Abilitativa/Esecutiva) se scelto.
+    const useProcesso = pDivision === 'studio' && pProcessoOnirico;
     // Studio: se sono state scelte delle categorie, le fasi/task nascono dalla libreria reale.
-    const isStudioConfig = pDivision === 'studio' && pCategorie.length > 0;
-    const tm = (!isStudioConfig && pTmplPicked !== '__blank__') ? (templates[pTmplPicked] as any) : null;
+    const isStudioConfig = !useProcesso && pDivision === 'studio' && pCategorie.length > 0;
+    const tm = (!useProcesso && !isStudioConfig && pTmplPicked !== '__blank__') ? (templates[pTmplPicked] as any) : null;
     let phases: Record<string, Phase> = {};
 
-    if (isStudioConfig) {
+    if (useProcesso) {
+      phases = buildOniricoProcesso();
+    } else if (isStudioConfig) {
       phases = buildStudioPhases(pCategorie, pTitolo);
     } else if (tm) {
       Object.entries(tm.phases || {}).forEach(([k, ph]: [string, any]) => {
@@ -5981,6 +5989,15 @@ export default function App() {
           <div className="flex flex-col gap-3">
             {pDivision === 'studio' ? (
               <>
+                {/* Processo Onirico a 4 fasi (Pianificazione/Progettuale/Abilitativa/Esecutiva) */}
+                <div className={`rounded-2xl border p-3 flex items-center gap-3 cursor-pointer ${pProcessoOnirico ? 'border-[#161616] bg-[#161616]/[0.04]' : 'border-[#ececec] bg-[#fafafa]/60'}`} onClick={() => setPProcessoOnirico((v) => !v)}>
+                  <input type="checkbox" checked={pProcessoOnirico} onChange={() => setPProcessoOnirico((v) => !v)} className="w-4 h-4 accent-[#161616]" />
+                  <div className="flex-1">
+                    <b className="text-[12.5px] text-[#161616]">Processo Onirico (4 fasi)</b>
+                    <p className="text-[11px] text-[#8a8a8a]">{(() => { const s = oniricoProcessoSummary(); return `Pianificazione · Progettuale · Abilitativa · Esecutiva — ${s.tasks} attività`; })()}</p>
+                  </div>
+                </div>
+                {!pProcessoOnirico && (<>
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[12px] font-bold text-[#8a8a8a] uppercase tracking-wider block">Categorie di lavorazione</span>
                   <span className="text-[10px] font-bold text-[#8a8a8a]">{pCategorie.length} sel.</span>
@@ -6012,6 +6029,7 @@ export default function App() {
                     );
                   })}
                 </div>
+                </>)}
               </>
             ) : (
               <>
@@ -6154,10 +6172,10 @@ export default function App() {
                   <label className="text-[11px] font-semibold text-gray-600">Identificativi catastali</label>
                   <CatastaliEditor rows={pCatastali} onChange={setPCatastali} />
                 </div>
-                {(() => { const s = studioSummary(pCategorie, pTitolo); return (
+                {(() => { const s = pProcessoOnirico ? oniricoProcessoSummary() : studioSummary(pCategorie, pTitolo); return (
                   <div className="flex items-center gap-2 mt-1 text-[11px] font-bold text-[#161616] bg-white border border-[#ececec] rounded-xl px-3 py-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Verranno generate <span className="text-emerald-700">{s.fasi} fasi</span> e <span className="text-emerald-700">{s.tasks} task</span> dalla libreria Onirico.
+                    Verranno generate <span className="text-emerald-700">{s.fasi} fasi</span> e <span className="text-emerald-700">{s.tasks} attività</span> {pProcessoOnirico ? 'dal processo Onirico (4 fasi).' : 'dalla libreria Onirico.'}
                   </div>
                 ); })()}
               </div>

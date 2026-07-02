@@ -141,3 +141,43 @@ export function studioSummary(categorie: string[], titolo: string) {
   const tasks = studioTasks(categorie, titolo);
   return { fasi: new Set(tasks.map(t => t.fase)).size, tasks: tasks.length };
 }
+
+/**
+ * Processo ONIRICO a 4 fasi (come da presentazione "Aulico 00"): Pianificazione ·
+ * Progettuale · Abilitativa · Esecutiva, con le sotto-attività del ciclo cliente.
+ * Ogni sotto-attività diventa un task della fase, con ruolo/mansione suggerito.
+ */
+export const ONIRICO_PROCESSO: { fase: string; attivita: [string, string | null][] }[] = [
+  { fase: 'Pianificazione', attivita: [
+    ['Inquadramento', 'Architetto'], ['Analisi', 'Architetto'], ['Considerazioni', 'Architetto'],
+    ['Questionario progetto (esigenze e stile)', 'Architetto'], ['Frazionamenti', 'Geometra'],
+    ['Stile', 'Architetto'], ['Riferimenti', 'Architetto'], ['Moodboard', 'Architetto'], ['Le scelte del cliente', 'Direzione Lavori'],
+  ] },
+  { fase: 'Progettuale', attivita: [
+    ['Rilievi architettonici', 'Sopralluoghi/Rilievi'], ['Rilievi topografici', 'Sopralluoghi/Rilievi'],
+    ['Progetto architettonico 2D', 'Architetto'], ['Progetto architettonico 3D', 'Architetto'],
+    ['Progetto strutturale', 'Ingegnere'], ['Progetto energetico', 'Impiantista'], ['Progetto impiantistico', 'Impiantista'],
+    ['Computi metrici', 'Computi'], ['Capitolato', 'Architetto'], ['Sicurezza CSP', 'Sicurezza'],
+  ] },
+  { fase: 'Abilitativa', attivita: [
+    ['Pratica edilizia', 'Pratiche'], ['Pratica paesaggistica', 'Pratiche'], ['Pratica strutturale', 'Ingegnere'],
+    ['Pratica energetica', 'Impiantista'], ['Pratica impiantistica', 'Impiantista'], ['Collaudi strutturali', 'Ingegnere'],
+    ['Accatastamenti', 'Geometra'], ['Pratica autorizzazione allo scarico', 'Pratiche'], ['Compilatore modulistica', 'Pratiche'],
+  ] },
+  { fase: 'Esecutiva', attivita: [
+    ['Direzione lavori architettonica', 'Direzione Lavori'], ['Direzione lavori strutturale', 'Direzione Lavori'], ['Sicurezza CSE', 'Sicurezza'],
+  ] },
+];
+
+/** Costruisce le fasi/task del progetto seguendo il processo Onirico a 4 fasi. */
+export function buildOniricoProcesso(): Record<string, Phase> {
+  const phases: Record<string, Phase> = {};
+  ONIRICO_PROCESSO.forEach((f, fi) => {
+    const tasksMap: Record<string, ProjectTask> = {};
+    f.attivita.forEach(([title, role], ti) => { const id = `t${ti}`; tasksMap[id] = { id, title, order: ti, done: false, role: role || null }; });
+    const pid = `p${fi}`;
+    phases[pid] = { id: pid, name: f.fase, order: fi, tasks: tasksMap };
+  });
+  return phases;
+}
+export const oniricoProcessoSummary = () => ({ fasi: ONIRICO_PROCESSO.length, tasks: ONIRICO_PROCESSO.reduce((s, f) => s + f.attivita.length, 0) });
