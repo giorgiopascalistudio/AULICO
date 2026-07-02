@@ -28,7 +28,7 @@ import {
   Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
   Bell, Calculator, Award, Lock, Gift,
 } from 'lucide-react';
-import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest } from './types';
+import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
 import { SOCIETA_LABEL, canView } from './access';
 
 /** Divisioni "operative" (società con progetti/finanza già esistenti). */
@@ -106,9 +106,19 @@ export interface SocietyConfig {
 }
 
 // ---- Dashboard engine (uniforme per tutti, popolata per società) ----------
+export interface WidgetListItem {
+  label: string;
+  meta?: string;
+  hash?: string;
+  progress?: number;   // 0..100 → barra di avanzamento sotto la label (es. cicli)
+  accent?: string;     // colore del pallino a sinistra (es. colore società)
+  sub?: string;        // seconda riga sotto la label (es. anteprima messaggio)
+  unread?: boolean;    // evidenzia la voce come non letta (pallino pieno)
+}
+
 export type WidgetData =
   | { kind: 'kpi'; value: string; sub?: string }
-  | { kind: 'list'; items: { label: string; meta?: string; hash?: string }[]; emptyText?: string };
+  | { kind: 'list'; items: WidgetListItem[]; emptyText?: string };
 
 export interface DashboardCtx {
   societa: Societa;
@@ -118,6 +128,8 @@ export interface DashboardCtx {
   appointments: Appointment[];
   clientRequests: ClientRequest[];
   notifications?: { id: string; title: string; body?: string | null; link?: string | null; read: boolean; at: number }[];
+  /** Messaggi di progetto per la preview "Chat recenti" (pid → msgId → messaggio). */
+  projectMessages?: Record<string, Record<string, ProjectMessage>>;
   go: (hash: string) => void;
 }
 
@@ -131,6 +143,17 @@ export interface WidgetSpec {
 export interface DashboardSpec { widgets: WidgetSpec[]; }
 
 const todayKey = () => new Date().toISOString().slice(0, 10);
+
+/** Tempo relativo compatto (es. "ora", "5 min", "2 h", "3 g", o data breve). */
+function relTime(at?: number | null): string {
+  if (!at) return '';
+  const diff = Date.now() - at;
+  if (diff < 60e3) return 'ora';
+  if (diff < 36e5) return `${Math.floor(diff / 60e3)} min`;
+  if (diff < 864e5) return `${Math.floor(diff / 36e5)} h`;
+  if (diff < 6048e5) return `${Math.floor(diff / 864e5)} g`;
+  return new Date(at).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
+}
 
 /**
  * Dashboard di DEFAULT: gli STESSI widget per ogni società, ma i dati si
@@ -199,50 +222,94 @@ export const DEFAULT_DASHBOARD: DashboardSpec = {
 /** Task "miei": assegnato, tra gli assegnatari, o owner. */
 const isMine = (t: Task, uid?: string) => !!uid && (t.assignee === uid || (t.assignees || []).includes(uid) || (t as any).owner === uid);
 
+/** Avanzamento di un ciclo/commessa (da task delle fasi). */
+function projProgress(p: Project): { done: number; tot: number; pc: number } {
+  let done = 0, tot = 0;
+  Object.values(p.phases || {}).forEach((ph) => {
+    Object.values(ph.tasks || {}).forEach((t) => { tot++; if (t.done) done++; });
+  });
+  return { done, tot, pc: tot ? Math.round((done / tot) * 100) : 0 };
+}
+
+/** Vero se il ciclo è "mio": ho un'attività di fase assegnata, un impegno collegato o l'ho creato. */
+function isMyProject(p: Project, uid: string | undefined, tasks: Task[]): boolean {
+  if (!uid) return false;
+  const emb = Object.values(p.phases || {}).some((ph) =>
+    Object.values(ph.tasks || {}).some((t) => t.assignee === uid),
+  );
+  if (emb) return true;
+  return tasks.some((t) => t.projectId === p.id && isMine(t, uid));
+}
+
 /**
- * Dashboard PERSONALE (home "Aulico"): le mie attività di oggi, stato delle attività
- * di cui faccio parte, notifiche/messaggi e prossimi appuntamenti. Vedi §DASHBOARD.
+ * Dashboard PERSONALE (home "Aulico"): quadro generale del mio account —
+ * vista d'insieme, agenda (attività di oggi + appuntamenti), notifiche/chat e
+ * anteprima dei cicli attivi che mi riguardano. Vedi §DASHBOARD.
  */
 export const PERSONAL_DASHBOARD: DashboardSpec = {
   widgets: [
     {
-      id: 'stato-attivita', title: 'Le mie attività — stato', size: 'md',
+      id: 'vista-generale', title: 'Vista generale', size: 'md',
       compute: (c) => {
         const uid = c.profile?.uid; const tk = todayKey();
         const mine = c.tasks.filter((t) => isMine(t, uid));
         const open = mine.filter((t) => !t.done).length;
         const urgent = mine.filter((t) => !t.done && t.priority === 'urgente').length;
         const overdue = mine.filter((t) => !t.done && (t.date || '') < tk).length;
-        const done = mine.filter((t) => t.done).length;
+        const activeCycles = c.projects.filter((p) => p.status === 'attivo' && !p.archived);
+        const mineCycles = activeCycles.filter((p) => isMyProject(p, uid, c.tasks));
+        // Coerente col widget "Cicli attivi": i miei, o tutti gli attivi se non ne ho di miei.
+        const myCycles = mineCycles.length || activeCycles.length;
+        const unread = (c.notifications || []).filter((n) => !n.read).length;
         return { kind: 'list', items: [
-          { label: 'Aperti', meta: String(open), hash: '#calendario' },
-          { label: 'Urgenti', meta: String(urgent), hash: '#calendario' },
-          { label: 'Scaduti', meta: String(overdue), hash: '#calendario' },
-          { label: 'Completati', meta: String(done), hash: '#calendario' },
+          { label: 'Cicli attivi', meta: String(myCycles), hash: '#progetti' },
+          { label: 'Attività aperte', meta: String(open), hash: '#calendario' },
+          { label: 'Urgenti', meta: String(urgent), accent: urgent ? '#dc2626' : undefined, hash: '#calendario' },
+          { label: 'Scadute', meta: String(overdue), accent: overdue ? '#dc2626' : undefined, hash: '#calendario' },
+          { label: 'Notifiche da leggere', meta: String(unread), unread: unread > 0 },
         ] };
       },
     },
     {
-      id: 'oggi', title: 'Le mie attività di oggi', size: 'lg',
+      id: 'oggi', title: 'Le mie attività di oggi', size: 'md',
       compute: (c) => {
         const uid = c.profile?.uid; const tk = todayKey();
         const items = c.tasks
           .filter((t) => isMine(t, uid) && !t.done && (t.date || '').slice(0, 10) === tk)
           .sort((a, b) => (a.time || '').localeCompare(b.time || ''))
           .slice(0, 8)
-          .map((t) => ({ label: t.title || 'Attività', meta: t.priority === 'urgente' ? 'URGENTE' : (t.time || ''), hash: '#calendario' }));
+          .map((t) => ({
+            label: t.title || 'Attività',
+            meta: t.priority === 'urgente' ? 'URGENTE' : (t.time || ''),
+            accent: t.priority === 'urgente' ? '#dc2626' : t.priority === 'alta' ? '#b45309' : undefined,
+            hash: '#calendario',
+          }));
         return { kind: 'list', items, emptyText: 'Nessuna attività per oggi 🎉' };
       },
     },
     {
-      id: 'notifiche', title: 'Notifiche & messaggi', size: 'md',
+      id: 'cicli-attivi', title: 'Cicli attivi', size: 'md',
       compute: (c) => {
-        const items = (c.notifications || [])
+        const uid = c.profile?.uid;
+        const active = c.projects.filter((p) => p.status === 'attivo' && !p.archived);
+        const mine = active.filter((p) => isMyProject(p, uid, c.tasks));
+        // Mostro i miei cicli; se non ne ho (es. direzione), l'insieme dei cicli attivi.
+        const list = (mine.length ? mine : active)
           .slice()
-          .sort((a, b) => (Number(a.read) - Number(b.read)) || (b.at - a.at))
+          .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
           .slice(0, 6)
-          .map((n) => ({ label: n.title, meta: n.read ? '' : '•', hash: n.link || '#' }));
-        return { kind: 'list', items, emptyText: 'Nessuna notifica' };
+          .map((p) => {
+            const { pc } = projProgress(p);
+            return {
+              label: p.name,
+              sub: p.client || undefined,
+              meta: `${pc}%`,
+              progress: pc,
+              accent: SOCIETY_COLOR[(p.division as Societa) || 'studio'],
+              hash: `#progetto/${p.id}`,
+            };
+          });
+        return { kind: 'list', items: list, emptyText: 'Nessun ciclo attivo' };
       },
     },
     {
@@ -253,10 +320,59 @@ export const PERSONAL_DASHBOARD: DashboardSpec = {
         const items = c.appointments
           .filter((a) => (a.participants ? !!a.participants[uid] : (a as any).ownerUid === uid))
           .filter((a) => new Date(`${a.date}T${(a as any).time || '00:00'}`).getTime() >= now - 36e5)
-          .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
-          .slice(0, 4)
-          .map((a) => ({ label: (a as any).title || 'Appuntamento', meta: new Date(a.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }), hash: '#calendario' }));
+          .sort((a, b) => (a.date || '').localeCompare(b.date || '') || (a.time || '').localeCompare((b as any).time || ''))
+          .slice(0, 5)
+          .map((a) => ({
+            label: (a as any).title || 'Appuntamento',
+            sub: (a as any).withName || undefined,
+            meta: `${new Date(a.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}${(a as any).time ? ` · ${(a as any).time}` : ''}`,
+            accent: a.status === 'pending' ? '#9a9a9a' : '#15803d',
+            hash: '#calendario',
+          }));
         return { kind: 'list', items, emptyText: 'Nessun appuntamento in arrivo' };
+      },
+    },
+    {
+      id: 'notifiche', title: 'Notifiche & messaggi', size: 'md',
+      compute: (c) => {
+        const items = (c.notifications || [])
+          .slice()
+          .sort((a, b) => (Number(a.read) - Number(b.read)) || (b.at - a.at))
+          .slice(0, 6)
+          .map((n) => ({
+            label: n.title,
+            sub: n.body || undefined,
+            meta: relTime(n.at),
+            unread: !n.read,
+            hash: n.link || undefined,
+          }));
+        return { kind: 'list', items, emptyText: 'Nessuna notifica' };
+      },
+    },
+    {
+      id: 'chat-recenti', title: 'Chat recenti', size: 'md',
+      compute: (c) => {
+        const uid = c.profile?.uid;
+        const byProject = c.projectMessages || {};
+        const nameOf = (pid: string) => c.projects.find((p) => p.id === pid)?.name || 'Progetto';
+        // Ultimo messaggio per progetto, poi i più recenti in cima.
+        const latest = Object.entries(byProject)
+          .map(([pid, msgs]) => {
+            const arr = Object.values(msgs || {});
+            if (!arr.length) return null;
+            const last = arr.reduce((a, b) => (a.at >= b.at ? a : b));
+            return { pid, last };
+          })
+          .filter((x): x is { pid: string; last: ProjectMessage } => !!x)
+          .sort((a, b) => b.last.at - a.last.at)
+          .slice(0, 5)
+          .map(({ pid, last }) => ({
+            label: nameOf(pid),
+            sub: `${last.from === uid ? 'Tu' : (last.name || 'Ospite')}: ${last.text}`,
+            meta: relTime(last.at),
+            hash: `#progetto/${pid}`,
+          }));
+        return { kind: 'list', items: latest, emptyText: 'Nessun messaggio recente' };
       },
     },
   ],

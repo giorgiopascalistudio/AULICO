@@ -15,7 +15,7 @@ interface Props {
 }
 
 const sizeClass = (s?: 'sm' | 'md' | 'lg') =>
-  s === 'lg' ? 'md:col-span-3' : s === 'md' ? 'md:col-span-2' : 'md:col-span-1';
+  s === 'lg' ? 'md:col-span-2' : 'md:col-span-1';
 
 const WidgetBody: React.FC<{ data: WidgetData; color: string; go: (h: string) => void }> = ({ data, color, go }) => {
   if (data.kind === 'kpi') {
@@ -31,20 +31,40 @@ const WidgetBody: React.FC<{ data: WidgetData; color: string; go: (h: string) =>
     return <div className="text-[13px] text-[#a8a8a8] py-2">{data.emptyText || 'Nessun elemento'}</div>;
   }
   return (
-    <div className="flex flex-col gap-1.5">
-      {data.items.map((it, i) => (
-        <button
-          key={i}
-          onClick={() => it.hash && go(it.hash)}
-          className="flex items-center justify-between gap-2 text-left rounded-xl px-2.5 py-2 hover:bg-[#f5f5f3] transition-colors cursor-pointer"
-        >
-          <span className="text-[13.5px] font-medium text-[#161616] truncate">{it.label}</span>
-          <span className="flex items-center gap-1 shrink-0 text-[11.5px] font-bold text-[#8a8a8a]">
-            {it.meta}
-            {it.hash && <ChevronRight className="w-3.5 h-3.5" />}
-          </span>
-        </button>
-      ))}
+    <div className="flex flex-col gap-0.5">
+      {data.items.map((it, i) => {
+        const dot = it.accent || (it.unread ? color : undefined);
+        return (
+          <button
+            key={i}
+            onClick={() => it.hash && go(it.hash)}
+            disabled={!it.hash}
+            className={`flex items-start gap-2.5 text-left rounded-xl px-2.5 py-2 transition-colors ${it.hash ? 'hover:bg-[#f5f5f3] cursor-pointer' : 'cursor-default'}`}
+          >
+            {dot !== undefined && (
+              <span className="mt-[7px] w-2 h-2 rounded-full shrink-0" style={{ background: dot, opacity: it.unread === false ? 0.35 : 1 }} />
+            )}
+            <span className="flex-1 min-w-0">
+              <span className="flex items-center justify-between gap-2">
+                <span className={`text-[13.5px] text-[#161616] truncate ${it.unread ? 'font-bold' : 'font-medium'}`}>{it.label}</span>
+                <span className="flex items-center gap-1 shrink-0 text-[11.5px] font-bold text-[#8a8a8a]">
+                  {it.meta}
+                  {it.hash && <ChevronRight className="w-3.5 h-3.5" />}
+                </span>
+              </span>
+              {it.sub && <span className="block text-[11.5px] text-[#8a8a8a] truncate mt-0.5">{it.sub}</span>}
+              {it.progress !== undefined && (
+                <span className="block w-full h-[5px] bg-[#ececec] rounded-full overflow-hidden mt-1.5">
+                  <span
+                    className="block h-full rounded-full"
+                    style={{ width: `${Math.max(0, Math.min(100, it.progress))}%`, background: it.progress >= 100 ? '#15803d' : (it.accent || color) }}
+                  />
+                </span>
+              )}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 };
@@ -58,7 +78,7 @@ export const SocietyDashboard: React.FC<Props> = ({ spec, ctx, societyLabel, col
         <h1 className="text-[22px] font-extrabold text-[#161616] tracking-tight">{societyLabel}</h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {spec.widgets.map((w) => {
           let data: WidgetData;
           try { data = w.compute(ctx); } catch { data = { kind: 'list', items: [], emptyText: '—' }; }

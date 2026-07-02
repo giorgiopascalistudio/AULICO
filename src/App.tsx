@@ -5005,6 +5005,7 @@ export default function App() {
           appointments: Object.values(appointments),
           clientRequests: Object.values(clientRequests),
           notifications: notifications as any,
+          projectMessages,
           go: (h) => { window.location.hash = h; },
         };
         return <SocietyDashboard spec={society.dashboard} ctx={ctx} societyLabel={society.label} color={society.color} />;
