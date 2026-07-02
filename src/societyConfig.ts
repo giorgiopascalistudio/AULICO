@@ -295,7 +295,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
 
   // ---- COMMERCIALE (Preventivi · Contratti · Listino · Registro clienti) ----
   s.push({ id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', kind: 'group' });
-  s.push({ id: 'comm-preventivi', label: 'Preventivi', icon: FileText, parent: 'commerciale', module: 'commerciale', legacyRoute: 'finanze', preset: { finStartTab: 'preventivi', financeLock: div } });
+  s.push({ id: 'comm-preventivi', label: 'Preventivi & Contratti', icon: FileText, parent: 'commerciale', module: 'commerciale', view: 'commerciale', note: 'Catalogo preventivi, firma OTP, auto-attività al tecnico.' });
   if (isMat) s.push({ id: 'comm-contratti', label: 'Contratti', icon: FileSignature, parent: 'commerciale', module: 'commerciale', view: 'materico-contracts' });
   else s.push(ph('comm-contratti', 'Contratti', FileSignature, 'commerciale', 'commerciale', 'Contratti + firma OTP.'));
   if (isMat) s.push({ id: 'comm-listino', label: 'Listino prezzi', icon: ListChecks, parent: 'commerciale', module: 'commerciale', view: 'materico-listino' });

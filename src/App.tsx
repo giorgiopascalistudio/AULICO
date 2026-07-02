@@ -177,6 +177,7 @@ const MatericoMappaView = React.lazy(() => import('./components/MatericoMappaVie
 const MatericoHomeView = React.lazy(() => import('./components/MatericoHomeView').then((m) => ({ default: m.MatericoHomeView })));
 const PianoFinanziarioView = React.lazy(() => import('./components/PianoFinanziarioView').then((m) => ({ default: m.PianoFinanziarioView })));
 const ProgFatturazioneView = React.lazy(() => import('./components/ProgFatturazioneView').then((m) => ({ default: m.ProgFatturazioneView })));
+const CommercialeView = React.lazy(() => import('./components/CommercialeView').then((m) => ({ default: m.CommercialeView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -4029,6 +4030,23 @@ export default function App() {
     return pid;
   };
 
+  // All'accettazione, le righe del preventivo diventano ATTIVITÀ ASSEGNATE al tecnico di riferimento.
+  const createTasksFromQuote = (q: Quote, pid: string | null) => {
+    const rec = q.clientRecordId ? clients[q.clientRecordId] : null;
+    const tecnico = q.tecnicoUid || (rec?.responsabili ? Object.keys(rec.responsabili).filter((u) => rec.responsabili![u])[0] : null) || null;
+    const lines = q.lines || [];
+    if (!lines.length) return;
+    setTasks((prev) => {
+      const next: any = { ...prev };
+      lines.forEach((l, i) => {
+        const tId = `task-q-${q.id}-${i}`;
+        next[tId] = { id: tId, title: l.desc || MACRO_PHASE[l.macro] || 'Attività', date: todayISO(), time: null, frequency: 'once', priority: 'media', tipo: MACRO_PHASE[l.macro] || null, assignee: tecnico, assignees: tecnico ? [tecnico] : null, projectId: pid || q.projectId || null, notes: `Da preventivo ${q.number}`, done: false, createdAt: Date.now(), updatedAt: Date.now(), createdBy: currentUser?.uid || '' };
+      });
+      syncState('tasks', next);
+      return next;
+    });
+    if (tecnico) pushNotification(tecnico, { type: 'task', title: `Nuove attività dal preventivo ${q.number}`, body: `${lines.length} attività · ${q.clientName}`, link: '#calendario' });
+  };
   const handleSetQuoteStatus = (id: string, status: Quote['status']) => {
     const q = quotes[id];
     if (!q) return;
@@ -4036,15 +4054,21 @@ export default function App() {
     if (status === 'accettato' && q.docKind !== 'parcella' && !q.projectId) {
       const pid = generateProjectFromQuote(q);
       handleSaveQuote({ ...q, status, projectId: pid });
+      createTasksFromQuote(q, pid);
       notifyStudio({ type: 'preventivo', title: `Preventivo accettato: ${q.number}`, body: `${q.clientName} · ${eur(q.total)} · commessa creata`, link: `#progetto/${pid}` });
-      showToast('Preventivo accettato: commessa creata con fasi e task. Emetti le rate dal piano pagamenti.', 'ok');
+      showToast('Preventivo accettato: commessa creata + attività assegnate al tecnico.', 'ok');
       return;
     }
     handleSaveQuote({ ...q, status });
     if (status === 'accettato') {
+      createTasksFromQuote(q, q.projectId || null);
       notifyStudio({ type: 'preventivo', title: `Preventivo accettato: ${q.number}`, body: `${q.clientName} · ${eur(q.total)}`, link: '#preventivi' });
-      showToast('Preventivo accettato. Emetti le rate dal piano pagamenti.', 'ok');
+      showToast('Preventivo accettato: attività assegnate al tecnico.', 'ok');
     }
+  };
+  const handleArchiveQuote = (id: string, archived: boolean) => {
+    const q = quotes[id];
+    if (q) handleSaveQuote({ ...q, archived, updatedAt: Date.now() });
   };
   // Genera fattura attiva + scadenza da una rata del piano pagamenti (collegamento a finanza)
   const handleEmitMilestone = (quoteId: string, milestoneId: string) => {
@@ -5010,6 +5034,25 @@ export default function App() {
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
                 <PianoFinanziarioView piano={pianoFinanziario[pid] || null} soc={psoc} socLabel={society.label} year={pianoAnno} color={society.color} canEdit={isStudioRole(currentUser.role)} onChangeYear={setPianoAnno} onSave={handleSavePiano} kpi={kpi} />
+              </React.Suspense>
+            );
+          }
+          case 'commerciale': {
+            const psoc = activeSocieta as string;
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <CommercialeView
+                  quotes={Object.values(quotes).filter((q: any) => q.division === psoc)}
+                  soc={psoc}
+                  socLabel={society.label}
+                  members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSetStatus={handleSetQuoteStatus}
+                  onArchive={handleArchiveQuote}
+                  onSaveQuote={handleSaveQuote}
+                  onOpenEditor={() => { window.location.hash = '#preventivi'; }}
+                />
               </React.Suspense>
             );
           }

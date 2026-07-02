@@ -231,6 +231,13 @@ export interface Quote {
   paymentPlan?: PaymentMilestone[];
   validUntil?: string | null;
   notes?: string | null;
+  // --- Commerciale unificato: preventivo+contratto, firma OTP, catalogazione ---
+  tecnicoUid?: string | null;    // tecnico di riferimento (a cui vanno le attività all'accettazione)
+  archived?: boolean;            // catalogazione Attivi/Archiviati
+  otp?: string | null;           // codice firma OTP corrente
+  otpAt?: number | null;
+  signedAt?: number | null;      // firmato dal cliente (OTP) → vale come contratto
+  signedByName?: string | null;
   createdAt: number;
   updatedAt?: number;
   createdBy?: string;
