@@ -57,6 +57,7 @@ export interface Supplier {
 }
 
 interface CrmViewProps {
+  initialTab?: 'dashboard' | 'pipeline' | 'fornitori' | 'clienti';
   leads: Lead[];
   suppliers: Supplier[];
   myName: string;
@@ -147,6 +148,7 @@ const suggestSector = (lead: Lead): 'studio' | 'strategico' | 'materico' => {
 };
 
 export const CrmView: React.FC<CrmViewProps> = ({
+  initialTab,
   leads,
   suppliers,
   myName,
@@ -171,7 +173,8 @@ export const CrmView: React.FC<CrmViewProps> = ({
   askDelete,
   onTrashItem
 }) => {
-  const [tab, setTab] = useState<'dashboard' | 'pipeline' | 'fornitori' | 'clienti'>('dashboard');
+  const [tab, setTab] = useState<'dashboard' | 'pipeline' | 'fornitori' | 'clienti'>(initialTab || 'dashboard');
+  React.useEffect(() => { if (initialTab) setTab(initialTab); }, [initialTab]);
   const [importOpen, setImportOpen] = useState(false);
   const [openLead, setOpenLead] = useState<string | null>(null);
   const [openSupplier, setOpenSupplier] = useState<string | null>(null);

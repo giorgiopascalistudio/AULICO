@@ -382,6 +382,8 @@ export default function App() {
   const [confirmDel, setConfirmDel] = useState<ConfirmDeleteRequest | null>(null);
   // Tab iniziale di Finanze (es. 'preventivi' arrivando da #preventivi)
   const [finStartTab, setFinStartTab] = useState<string | null>(null);
+  const [finLock, setFinLock] = useState<'studio' | 'strategico' | 'materico' | 'unico' | null>(null);
+  const [crmStartTab, setCrmStartTab] = useState<'dashboard' | 'pipeline' | 'fornitori' | 'clienti' | null>(null);
 
   // CRM (pipeline lead + fornitori)
   const [crmLeads, setCrmLeads] = useState<Lead[]>([]);
@@ -523,6 +525,8 @@ export default function App() {
         setActiveSection(sectionId);
         if (sec?.preset?.division) setActiveDivision(sec.preset.division);
         setFinStartTab(sec?.preset?.finStartTab ?? null);
+        setFinLock((sec?.preset?.financeLock as any) ?? null);
+        setCrmStartTab((sec?.preset?.crmTab as any) ?? null);
         if (!sec || sec.kind === 'dashboard') setRoute('sdash');
         else if (sec.kind === 'group') setRoute('sportal');
         else if (sec.kind === 'placeholder') setRoute('splaceholder');
@@ -544,7 +548,7 @@ export default function App() {
       }
       let secSoc: Societa = 'studio';
       let secId = 'dashboard';
-      if (r === 'materico') { r = 'progetti'; setActiveDivision('materico'); secSoc = 'materico'; secId = 'produzione'; }
+      if (r === 'materico') { r = 'progetti'; setActiveDivision('materico'); secSoc = 'materico'; secId = 'cicli'; }
       else if (r === 'strategico') { r = 'progetti'; setActiveDivision('strategico'); secSoc = 'strategico'; secId = 'mkt-strategico'; }
       else if (r === 'preventivi') { r = 'finanze'; setFinStartTab('preventivi'); secSoc = 'studio'; secId = 'commerciale'; }
       else if (r === 'statistiche') { r = 'finanze'; setFinStartTab('statistiche'); secSoc = 'strategico'; secId = 'amministrazione'; }
@@ -4693,7 +4697,7 @@ export default function App() {
             askDelete={askDelete}
             tasks={Object.values(tasks)}
             members={Object.values(users).filter((u) => u && u.active && u.role !== 'cliente' && u.role !== 'partner')}
-            financeSectors={(['studio', 'strategico', 'materico', 'unico'] as const).filter((s) => canView(currentUser, s, 'finance'))}
+            financeSectors={finLock && canView(currentUser, finLock, 'finance') ? [finLock] : (['studio', 'strategico', 'materico', 'unico'] as const).filter((s) => canView(currentUser, s, 'finance'))}
           />
         );
 
@@ -4744,6 +4748,7 @@ export default function App() {
       case 'crm':
         return (
           <CrmView
+            initialTab={crmStartTab || undefined}
             leads={crmLeads}
             suppliers={crmSuppliers}
             myName={currentUser.name}

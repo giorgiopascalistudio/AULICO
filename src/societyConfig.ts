@@ -76,6 +76,8 @@ export interface SectionPreset {
   division?: Division;
   finStartTab?: 'preventivi' | 'statistiche' | null;
   peopleTab?: 'team' | 'clienti' | 'partner';
+  financeLock?: Division;                 // limita la Contabilità a una sola società (no selettore/consolidato)
+  crmTab?: 'dashboard' | 'pipeline' | 'fornitori' | 'clienti'; // tab iniziale del CRM
 }
 
 export interface SectionConfig {
@@ -306,10 +308,10 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
     id: 'materico', label: SOCIETA_LABEL.materico, color: SOCIETY_COLOR.materico,
     sections: [
       { id: 'potenziale', label: 'Potenziale Cantiere', icon: Target, module: 'produzione', view: 'materico-deals', note: 'Pipeline delle commesse potenziali: valutazione tecnico-economica prima del preventivo.' },
+      { id: 'cicli', label: 'Cicli', icon: Layers, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'materico' }, note: 'Commesse/cantieri Materico in corso, con richieste e lavorazioni.' },
       { id: 'listino', label: 'Listino prezzi', icon: ListChecks, module: 'produzione', view: 'materico-listino', note: 'Listino interno: costi imprese/materiali, prezzo mercato, margini.' },
-      { id: 'produzione', label: 'Lavori & Richieste', icon: Layers, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'materico' } },
-      { id: 'fornitori', label: 'Imprese & Fornitori', icon: Truck, module: 'crm', legacyRoute: 'crm' },
-      { id: 'contabilita', label: 'Contabilità', icon: DollarSign, module: 'finance', legacyRoute: 'finanze' },
+      { id: 'fornitori', label: 'Imprese & Fornitori', icon: Truck, module: 'crm', legacyRoute: 'crm', preset: { crmTab: 'fornitori' }, note: 'Registro imprese/fornitori condiviso col CRM (lettura e scrittura).' },
+      { id: 'contabilita', label: 'Contabilità Materico', icon: DollarSign, module: 'finance', legacyRoute: 'finanze', preset: { financeLock: 'materico' }, note: 'Solo la contabilità di Materico. La contabilità generale è in Strategico.' },
     ],
   },
   // ------------------------------------------------------------------- UNICO
