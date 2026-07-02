@@ -25,7 +25,7 @@ import type { LucideIcon } from 'lucide-react';
 import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
-  Truck, UserPlus, BarChart3, ListChecks, FileSignature,
+  Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest } from './types';
 import { SOCIETA_LABEL, canView } from './access';
@@ -309,6 +309,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
     sections: [
       { id: 'potenziale', label: 'Potenziale Cantiere', icon: Target, module: 'produzione', view: 'materico-deals', note: 'Pipeline delle commesse potenziali: valutazione tecnico-economica prima del preventivo.' },
       { id: 'cicli', label: 'Cicli', icon: Layers, module: 'produzione', legacyRoute: 'progetti', preset: { division: 'materico' }, note: 'Commesse/cantieri Materico in corso, con richieste e lavorazioni.' },
+      { id: 'mappa', label: 'Mappa operativa', icon: MapPin, module: 'produzione', view: 'materico-mappa', note: 'Cantieri e commesse geolocalizzati su mappa.' },
       { id: 'listino', label: 'Listino prezzi', icon: ListChecks, module: 'produzione', view: 'materico-listino', note: 'Listino interno: costi imprese/materiali, prezzo mercato, margini.' },
       { id: 'contratti', label: 'Contratti', icon: FileSignature, module: 'produzione', view: 'materico-contracts', note: 'Contratti imprese generati dai dati + firma OTP.' },
       { id: 'fornitori', label: 'Imprese & Fornitori', icon: Truck, module: 'crm', legacyRoute: 'crm', preset: { crmTab: 'fornitori' }, note: 'Registro imprese/fornitori condiviso col CRM (lettura e scrittura).' },

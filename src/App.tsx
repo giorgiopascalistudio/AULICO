@@ -171,6 +171,7 @@ const HrAgendaView = React.lazy(() => import('./components/HrAgendaView').then((
 const MatericoDealsView = React.lazy(() => import('./components/MatericoDealsView').then((m) => ({ default: m.MatericoDealsView })));
 const MatericoListinoView = React.lazy(() => import('./components/MatericoListinoView').then((m) => ({ default: m.MatericoListinoView })));
 const MatericoContractsView = React.lazy(() => import('./components/MatericoContractsView').then((m) => ({ default: m.MatericoContractsView })));
+const MatericoMappaView = React.lazy(() => import('./components/MatericoMappaView').then((m) => ({ default: m.MatericoMappaView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -4955,6 +4956,15 @@ export default function App() {
                 />
               </React.Suspense>
             );
+          case 'materico-mappa': {
+            const dealSites = Object.values(matericoDeals).map((dl) => ({ id: `d-${dl.id}`, title: dl.title, subtitle: [dl.clientName, dl.stage].filter(Boolean).join(' · '), address: dl.address || null, lat: dl.lat ?? null, lng: dl.lng ?? null, kind: 'deal' as const, hash: '#materico/potenziale' }));
+            const cantSites = Object.values(cantieri).map((ct: any) => { const p: any = projects[ct.projectId]; return { id: `c-${ct.id}`, title: ct.name || 'Cantiere', subtitle: 'Cantiere', address: p?.indirizzoImmobile || null, lat: null, lng: null, kind: 'cantiere' as const, hash: ct.projectId ? `#progetto/${ct.projectId}` : null }; });
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <MatericoMappaView sites={[...cantSites, ...dealSites]} color={society.color} onOpen={(h) => { window.location.hash = h; }} />
+              </React.Suspense>
+            );
+          }
           case 'materico-contracts':
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
