@@ -946,6 +946,24 @@ export interface VaultConfig {
   updatedAt?: number;
   by?: string | null;
 }
+/** Piano Finanziario per società/anno (nodo `pianoFinanziario/<soc>-<anno>`, Contabilità & Amm.).
+ * Modello del foglio Excel: righe per sezione × 12 mesi, budget (preventivo) vs consuntivo. */
+export type PianoSection = 'ricavi' | 'costi_fissi' | 'costi_variabili';
+export interface PianoRow {
+  id: string;
+  section: PianoSection;
+  label: string;
+  values: number[];      // consuntivo per mese (len 12), IVA esclusa
+  budget?: number[];     // preventivo/budget per mese (len 12)
+}
+export interface PianoFinanziario {
+  id: string;            // `${soc}-${year}`
+  soc: string;
+  year: number;
+  rows: PianoRow[];
+  updatedAt?: number;
+  by?: string | null;
+}
 /** Contratto con impresa/subappaltatore (Materico §7, nodo `matericoContracts/<id>`).
  * Compilato dai dati a gestionale; firma tramite OTP; collegato al cantiere. */
 export interface MatericoContract {

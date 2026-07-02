@@ -102,6 +102,7 @@ import {
   MatericoDeal,
   MatericoPriceItem,
   MatericoContract,
+  PianoFinanziario,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -173,6 +174,7 @@ const MatericoListinoView = React.lazy(() => import('./components/MatericoListin
 const MatericoContractsView = React.lazy(() => import('./components/MatericoContractsView').then((m) => ({ default: m.MatericoContractsView })));
 const MatericoMappaView = React.lazy(() => import('./components/MatericoMappaView').then((m) => ({ default: m.MatericoMappaView })));
 const MatericoHomeView = React.lazy(() => import('./components/MatericoHomeView').then((m) => ({ default: m.MatericoHomeView })));
+const PianoFinanziarioView = React.lazy(() => import('./components/PianoFinanziarioView').then((m) => ({ default: m.PianoFinanziarioView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -381,6 +383,8 @@ export default function App() {
   const [matericoDeals, setMatericoDeals] = useState<Record<string, MatericoDeal>>({});
   const [matericoListino, setMatericoListino] = useState<Record<string, MatericoPriceItem>>({});
   const [matericoContracts, setMatericoContracts] = useState<Record<string, MatericoContract>>({});
+  const [pianoFinanziario, setPianoFinanziario] = useState<Record<string, PianoFinanziario>>({});
+  const [pianoAnno, setPianoAnno] = useState(new Date().getFullYear());
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1661,6 +1665,7 @@ export default function App() {
       add('matericoDeals', setMatericoDeals);
       add('matericoListino', setMatericoListino);
       add('matericoContracts', setMatericoContracts);
+      add('pianoFinanziario', setPianoFinanziario);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
@@ -3388,6 +3393,12 @@ export default function App() {
       removeNode(`matericoListino/${id}`).catch(() => {});
     });
   };
+  // ---- Piano finanziario per società/anno (pianoFinanziario) ----
+  const handleSavePiano = (p: PianoFinanziario) => {
+    const enriched: PianoFinanziario = { ...p, by: currentUser?.uid || null };
+    setPianoFinanziario((prev) => ({ ...prev, [p.id]: enriched }));
+    writeNode(`pianoFinanziario/${p.id}`, enriched).catch(() => showToast('Errore piano finanziario (controlla regole).', 'err'));
+  };
   // ---- Contratti imprese Materico (matericoContracts, §7) ----
   const handleSaveMatericoContract = (c: MatericoContract) => {
     const enriched: MatericoContract = { ...c, createdBy: c.createdBy || currentUser?.uid || null };
@@ -4957,6 +4968,26 @@ export default function App() {
                 />
               </React.Suspense>
             );
+          case 'piano-finanziario': {
+            const psoc = activeSocieta as string;
+            const pid = `${psoc}-${pianoAnno}`;
+            const secInv = (arr: any[]) => arr.filter((i: any) => i.sector === psoc);
+            const paid = (arr: any[]) => arr.filter((i: any) => i.status === 'pagata' || i.status === 'incassata');
+            const secQuotes = Object.values(quotes).filter((q: any) => q.division === psoc);
+            const kpi = {
+              preventivato: secQuotes.reduce((s: number, q: any) => s + (q.total || 0), 0),
+              venduto: secQuotes.filter((q: any) => q.status === 'accettato').reduce((s: number, q: any) => s + (q.total || 0), 0),
+              fatturato: secInv(finInvoicesActive).reduce((s: number, i: any) => s + (Number(i.amount) || 0), 0),
+              incassato: paid(secInv(finInvoicesActive)).reduce((s: number, i: any) => s + (Number(i.amount) || 0), 0),
+              erogato: pointEvents.reduce((s: number, e: any) => s + (e.value || 0), 0),
+              liquidita: paid(secInv(finInvoicesActive)).reduce((s: number, i: any) => s + (Number(i.amount) || 0), 0) - paid(secInv(finInvoicesPassive)).reduce((s: number, i: any) => s + (Number(i.amount) || 0), 0),
+            };
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <PianoFinanziarioView piano={pianoFinanziario[pid] || null} soc={psoc} socLabel={society.label} year={pianoAnno} color={society.color} canEdit={isStudioRole(currentUser.role)} onChangeYear={setPianoAnno} onSave={handleSavePiano} kpi={kpi} />
+              </React.Suspense>
+            );
+          }
           case 'materico-home':
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
