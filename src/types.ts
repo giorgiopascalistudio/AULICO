@@ -946,6 +946,25 @@ export interface VaultConfig {
   updatedAt?: number;
   by?: string | null;
 }
+/** Voce della Programmazione fatturazione (nodo `fatturazionePlan/<id>`): cosa va fatturato,
+ * con tasto "Emetti/INVIA" che genera la bozza fattura + scadenza in Finanza. Uso quotidiano. */
+export interface FatturazionePlanItem {
+  id: string;
+  soc: string;
+  clientName: string;
+  clientRecordId?: string | null;
+  projectId?: string | null;
+  description?: string | null;
+  amount: number;
+  taxRate?: number | null;   // IVA %
+  cassaPct?: number | null;
+  dueDate?: string | null;   // data prevista di fatturazione
+  status: 'pianificata' | 'emessa';
+  invoiceId?: string | null;
+  createdAt: number;
+  updatedAt?: number;
+  by?: string | null;
+}
 /** Piano Finanziario per società/anno (nodo `pianoFinanziario/<soc>-<anno>`, Contabilità & Amm.).
  * Modello del foglio Excel: righe per sezione × 12 mesi, budget (preventivo) vs consuntivo. */
 export type PianoSection = 'ricavi' | 'costi_fissi' | 'costi_variabili';

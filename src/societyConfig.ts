@@ -313,7 +313,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   s.push({ id: 'amm', label: 'Contabilità & Amministrazione', icon: DollarSign, module: 'finance', kind: 'group' });
   s.push({ id: 'amm-contabilita', label: 'Contabilità', icon: DollarSign, parent: 'amm', module: 'finance', legacyRoute: 'finanze', preset: { financeLock: div } });
   s.push({ id: 'amm-piano', label: 'Piano finanziario', icon: BarChart3, parent: 'amm', module: 'finance', view: 'piano-finanziario', note: 'Piano finanziario (stile Excel) + KPI.' });
-  s.push(ph('amm-fatturazione', 'Programmazione fatturazione', FileText, 'amm', 'finance', 'Uso quotidiano: pianifica e invia le fatture.'));
+  s.push({ id: 'amm-fatturazione', label: 'Programmazione fatturazione', icon: FileText, parent: 'amm', module: 'finance', view: 'prog-fatturazione', note: 'Uso quotidiano: pianifica ed emetti le fatture.' });
   s.push(ph('amm-incentivi', 'Piano incentivante', Award, 'amm', 'finance', 'Pagamenti del piano incentivante.'));
   s.push(ph('amm-fiscale', 'Pianificazione fiscale', Scale, 'amm', 'finance', 'Controllo scadenze e adempimenti fiscali.'));
   s.push(ph('amm-credenziali', 'Credenziali & password', Lock, 'amm', 'finance', 'Cassaforte credenziali della società.'));

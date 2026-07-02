@@ -103,6 +103,7 @@ import {
   MatericoPriceItem,
   MatericoContract,
   PianoFinanziario,
+  FatturazionePlanItem,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -175,6 +176,7 @@ const MatericoContractsView = React.lazy(() => import('./components/MatericoCont
 const MatericoMappaView = React.lazy(() => import('./components/MatericoMappaView').then((m) => ({ default: m.MatericoMappaView })));
 const MatericoHomeView = React.lazy(() => import('./components/MatericoHomeView').then((m) => ({ default: m.MatericoHomeView })));
 const PianoFinanziarioView = React.lazy(() => import('./components/PianoFinanziarioView').then((m) => ({ default: m.PianoFinanziarioView })));
+const ProgFatturazioneView = React.lazy(() => import('./components/ProgFatturazioneView').then((m) => ({ default: m.ProgFatturazioneView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -385,6 +387,7 @@ export default function App() {
   const [matericoContracts, setMatericoContracts] = useState<Record<string, MatericoContract>>({});
   const [pianoFinanziario, setPianoFinanziario] = useState<Record<string, PianoFinanziario>>({});
   const [pianoAnno, setPianoAnno] = useState(new Date().getFullYear());
+  const [fatturazionePlan, setFatturazionePlan] = useState<Record<string, FatturazionePlanItem>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1666,6 +1669,7 @@ export default function App() {
       add('matericoListino', setMatericoListino);
       add('matericoContracts', setMatericoContracts);
       add('pianoFinanziario', setPianoFinanziario);
+      add('fatturazionePlan', setFatturazionePlan);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
@@ -3399,6 +3403,27 @@ export default function App() {
     setPianoFinanziario((prev) => ({ ...prev, [p.id]: enriched }));
     writeNode(`pianoFinanziario/${p.id}`, enriched).catch(() => showToast('Errore piano finanziario (controlla regole).', 'err'));
   };
+  // ---- Programmazione fatturazione (fatturazionePlan) ----
+  const handleSaveFatturazione = (i: FatturazionePlanItem) => {
+    const enriched: FatturazionePlanItem = { ...i, by: i.by || currentUser?.uid || null };
+    setFatturazionePlan((prev) => ({ ...prev, [i.id]: enriched }));
+    writeNode(`fatturazionePlan/${i.id}`, enriched).catch(() => showToast('Errore programmazione (controlla regole).', 'err'));
+  };
+  const handleDeleteFatturazione = (id: string) => {
+    setFatturazionePlan((prev) => { const n = { ...prev }; delete n[id]; return n; });
+    removeNode(`fatturazionePlan/${id}`).catch(() => {});
+  };
+  const handleEmitFatturazione = (i: FatturazionePlanItem) => {
+    if (i.status === 'emessa') return;
+    const invId = `inv-${Date.now()}-${Math.floor(Math.random() * 900)}`;
+    const inv: any = { id: invId, clientName: i.clientName, projectId: i.projectId || '', projectName: i.projectId ? (projects[i.projectId]?.name || '') : '', amount: i.amount, taxRate: i.taxRate ?? 22, cassaPct: i.cassaPct ?? null, status: 'bozza', sdiCode: '', date: todayISO(), dueDate: i.dueDate || todayISO(), sector: i.soc };
+    handleSaveFinanceItem('finInvoicesActive', inv);
+    const sca: any = { id: `sca-${Date.now()}-${Math.floor(Math.random() * 900)}`, kind: 'entrata', desc: `Fatturazione · ${i.description || i.clientName}`, clientOrSupplier: i.clientName, amount: i.amount, dueDate: i.dueDate || todayISO(), status: 'pago_attesa', projectId: i.projectId || undefined, sector: i.soc };
+    handleSaveFinanceItem('finScadenze', sca);
+    handleSaveFatturazione({ ...i, status: 'emessa', invoiceId: invId, updatedAt: Date.now() });
+    logAudit('create', 'fatturazione', `Fattura emessa · ${i.clientName}`, eur(i.amount));
+    showToast('Fattura emessa (bozza) + scadenza create in Contabilità.', 'ok');
+  };
   // ---- Contratti imprese Materico (matericoContracts, §7) ----
   const handleSaveMatericoContract = (c: MatericoContract) => {
     const enriched: MatericoContract = { ...c, createdBy: c.createdBy || currentUser?.uid || null };
@@ -4985,6 +5010,24 @@ export default function App() {
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
                 <PianoFinanziarioView piano={pianoFinanziario[pid] || null} soc={psoc} socLabel={society.label} year={pianoAnno} color={society.color} canEdit={isStudioRole(currentUser.role)} onChangeYear={setPianoAnno} onSave={handleSavePiano} kpi={kpi} />
+              </React.Suspense>
+            );
+          }
+          case 'prog-fatturazione': {
+            const psoc = activeSocieta as string;
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <ProgFatturazioneView
+                  items={Object.values(fatturazionePlan).filter((i) => i.soc === psoc)}
+                  soc={psoc}
+                  socLabel={society.label}
+                  clients={Object.values(clients).map((c) => ({ id: c.id, name: c.name }))}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSave={handleSaveFatturazione}
+                  onDelete={handleDeleteFatturazione}
+                  onEmit={handleEmitFatturazione}
+                />
               </React.Suspense>
             );
           }
