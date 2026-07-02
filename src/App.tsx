@@ -5136,7 +5136,7 @@ export default function App() {
                   onSetStatus={handleSetQuoteStatus}
                   onArchive={handleArchiveQuote}
                   onSaveQuote={handleSaveQuote}
-                  onOpenEditor={() => { window.location.hash = '#preventivi'; }}
+                  onOpenEditor={() => { setFinLock(psoc as any); setFinStartTab('preventivi'); setActiveSection('amm-contabilita'); setActiveDivision(psoc as any); setRoute('finanze'); }}
                 />
               </React.Suspense>
             );

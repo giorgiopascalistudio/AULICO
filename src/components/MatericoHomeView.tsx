@@ -39,16 +39,17 @@ export const MatericoHomeView: React.FC<Props> = ({ deals, cantieriCount = 0, co
   const go = (h: string) => onOpen?.(h);
 
   const KPI = [
-    { l: 'Commesse aperte', v: String(open.length), s: eur(pipeline), i: Target, h: '#materico/potenziale' },
-    { l: 'Margine atteso', v: eur(marginTot), s: 'commesse aperte', i: TrendingUp, h: '#materico/potenziale' },
-    { l: 'Cantieri', v: String(cantieriCount), i: Building2, s: 'in gestione', h: '#materico/cicli' },
-    { l: 'Contratti in firma', v: String(inFirma), i: FileSignature, s: 'OTP in attesa', h: '#materico/contratti' },
+    { l: 'Commesse aperte', v: String(open.length), s: eur(pipeline), i: Target, h: '#materico/prod-potenziale' },
+    { l: 'Margine atteso', v: eur(marginTot), s: 'commesse aperte', i: TrendingUp, h: '#materico/prod-potenziale' },
+    { l: 'Cantieri', v: String(cantieriCount), i: Building2, s: 'in gestione', h: '#materico/home-cicli' },
+    { l: 'Contratti in firma', v: String(inFirma), i: FileSignature, s: 'OTP in attesa', h: '#materico/comm-contratti' },
   ];
+  // Aree della SOCIETÀ (nessun rimando ad altre società: ogni società è un gestionale a sé).
   const TRASV = [
-    { l: 'Amministrazione', d: 'Adempimenti, polizze, scadenze, sicurezza.', i: Briefcase, h: '#strategico/amm-contabilita' },
-    { l: 'Strategico', d: 'Obiettivi, KPI, report direzionali.', i: BarChart3, h: '#strategico/marketing' },
-    { l: 'Risorse Umane', d: 'Collaboratori, ruoli, ferie, formazione.', i: Users, h: '#strategico/hr-governance' },
-    { l: 'Marketing', d: 'Campagne, foto/video, materiale.', i: Megaphone, h: '#strategico/marketing' },
+    { l: 'Amministrazione', d: 'Contabilità, piano finanziario, fatturazione, fiscale.', i: Briefcase, h: '#materico/amm' },
+    { l: 'Commerciale', d: 'Preventivi, contratti, listino.', i: BarChart3, h: '#materico/commerciale' },
+    { l: 'Risorse Umane', d: 'Team, permessi, governance.', i: Users, h: '#materico/hr' },
+    { l: 'Marketing', d: 'Calendario editoriale, eventi, blog.', i: Megaphone, h: '#materico/marketing' },
   ];
 
   return (
@@ -80,7 +81,7 @@ export const MatericoHomeView: React.FC<Props> = ({ deals, cantieriCount = 0, co
       <div className="flex flex-col lg:flex-row gap-4 items-start">
         {/* Pipeline per stato */}
         <div className="lg:flex-1 w-full bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3"><b className="text-[14px] text-[#161616]">Pipeline commesse</b><button onClick={() => go('#materico/potenziale')} className="text-[11.5px] font-bold text-[#8a8a8a] hover:text-[#161616] inline-flex items-center gap-0.5 cursor-pointer bg-transparent border-none">Apri <ChevronRight className="w-3.5 h-3.5" /></button></div>
+          <div className="flex items-center justify-between mb-3"><b className="text-[14px] text-[#161616]">Pipeline commesse</b><button onClick={() => go('#materico/prod-potenziale')} className="text-[11.5px] font-bold text-[#8a8a8a] hover:text-[#161616] inline-flex items-center gap-0.5 cursor-pointer bg-transparent border-none">Apri <ChevronRight className="w-3.5 h-3.5" /></button></div>
           {(['nuovo', 'valutazione', 'preventivo', 'contrattualizzazione', 'vinta'] as MatericoDealStage[]).map((st) => {
             const items = scoped.filter((d) => d.stage === st);
             const val = items.reduce((s, d) => s + (d.valoreStimato || 0), 0);
@@ -101,7 +102,7 @@ export const MatericoHomeView: React.FC<Props> = ({ deals, cantieriCount = 0, co
         <div className="lg:w-[300px] w-full bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm">
           <b className="text-[14px] text-[#161616]">Accessi rapidi</b>
           <div className="flex flex-col gap-2 mt-3">
-            {[['Agenda', CalendarDays, '#calendario'], ['Cicli / cantieri', Building2, '#materico/cicli'], ['Mappa operativa', Target, '#materico/mappa']].map(([l, I, h]) => { const Icon = I as any; return (
+            {[['Agenda', CalendarDays, '#materico/home-agenda'], ['Cicli / cantieri', Building2, '#materico/home-cicli'], ['Mappa operativa', Target, '#materico/prod-mappa']].map(([l, I, h]) => { const Icon = I as any; return (
               <button key={l as string} onClick={() => go(h as string)} className="flex items-center gap-2.5 p-2.5 rounded-xl border border-[#f0f0f0] hover:border-[#cfcfcf] hover:bg-gray-50 cursor-pointer bg-transparent text-left"><span className="w-8 h-8 rounded-lg bg-[#161616]/[0.06] flex items-center justify-center text-[#161616]"><Icon className="w-4 h-4" /></span><span className="text-[13px] font-bold text-[#161616]">{l as string}</span></button>
             ); })}
           </div>
@@ -110,7 +111,7 @@ export const MatericoHomeView: React.FC<Props> = ({ deals, cantieriCount = 0, co
 
       {/* Moduli trasversali (§2) */}
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Moduli trasversali (consultabili)</p>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Aree della società</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {TRASV.map((c) => { const Icon = c.i; return (
             <button key={c.l} onClick={() => go(c.h)} className="text-left bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm hover:border-[#cfcfcf] cursor-pointer flex flex-col gap-2">
