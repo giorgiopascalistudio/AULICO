@@ -946,6 +946,32 @@ export interface VaultConfig {
   updatedAt?: number;
   by?: string | null;
 }
+/** Contratto con impresa/subappaltatore (Materico §7, nodo `matericoContracts/<id>`).
+ * Compilato dai dati a gestionale; firma tramite OTP; collegato al cantiere. */
+export interface MatericoContract {
+  id: string;
+  number: string;                // es. CTR-MAT-2026-001
+  dealId?: string | null;        // commessa potenziale collegata
+  cantiereId?: string | null;    // cantiere collegato
+  partnerRecordId?: string | null; // impresa dalla rubrica/CRM
+  partnerName: string;
+  lavorazioni?: string | null;   // lavorazioni affidate
+  importo?: number | null;
+  startDate?: string | null;     // cronoprogramma: inizio
+  endDate?: string | null;       // cronoprogramma: fine
+  modalitaPagamento?: string | null;
+  penali?: string | null;
+  responsabilita?: string | null;
+  body?: string | null;          // testo del contratto (generato, modificabile)
+  status: 'bozza' | 'inviato' | 'firmato' | 'annullato';
+  otp?: string | null;           // codice OTP corrente (svuotato dopo la firma)
+  otpAt?: number | null;         // quando è stato generato l'OTP
+  signedAt?: number | null;
+  signedByName?: string | null;
+  createdBy?: string | null;
+  createdAt: number;
+  updatedAt?: number;
+}
 /** Stato della pipeline "Potenziale Cantiere" (Materico, §3). */
 export type MatericoDealStage = 'nuovo' | 'valutazione' | 'preventivo' | 'contrattualizzazione' | 'vinta' | 'persa';
 /** Disciplina prevalente della commessa → responsabile (Raffaele=edile, Marco=impianti). */

@@ -101,6 +101,7 @@ import {
   HrEvent,
   MatericoDeal,
   MatericoPriceItem,
+  MatericoContract,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -169,6 +170,7 @@ const GovernanceView = React.lazy(() => import('./components/GovernanceView').th
 const HrAgendaView = React.lazy(() => import('./components/HrAgendaView').then((m) => ({ default: m.HrAgendaView })));
 const MatericoDealsView = React.lazy(() => import('./components/MatericoDealsView').then((m) => ({ default: m.MatericoDealsView })));
 const MatericoListinoView = React.lazy(() => import('./components/MatericoListinoView').then((m) => ({ default: m.MatericoListinoView })));
+const MatericoContractsView = React.lazy(() => import('./components/MatericoContractsView').then((m) => ({ default: m.MatericoContractsView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -376,6 +378,7 @@ export default function App() {
   const [hrEvents, setHrEvents] = useState<Record<string, HrEvent>>({});
   const [matericoDeals, setMatericoDeals] = useState<Record<string, MatericoDeal>>({});
   const [matericoListino, setMatericoListino] = useState<Record<string, MatericoPriceItem>>({});
+  const [matericoContracts, setMatericoContracts] = useState<Record<string, MatericoContract>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1655,6 +1658,7 @@ export default function App() {
       add('hrEvents', setHrEvents);
       add('matericoDeals', setMatericoDeals);
       add('matericoListino', setMatericoListino);
+      add('matericoContracts', setMatericoContracts);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
@@ -2010,6 +2014,10 @@ export default function App() {
         case 'materico-deal':
           setMatericoDeals((prev) => ({ ...prev, [id]: pl }));
           writeNode(`matericoDeals/${id}`, pl).catch(() => {});
+          break;
+        case 'materico-contract':
+          setMatericoContracts((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`matericoContracts/${id}`, pl).catch(() => {});
           break;
         case 'richiesta_cliente':
           setClientRequests((prev) => ({ ...prev, [id]: pl }));
@@ -3376,6 +3384,21 @@ export default function App() {
     askDelete('Eliminare la voce di listino?', null, () => {
       setMatericoListino((prev) => { const n = { ...prev }; delete n[id]; return n; });
       removeNode(`matericoListino/${id}`).catch(() => {});
+    });
+  };
+  // ---- Contratti imprese Materico (matericoContracts, §7) ----
+  const handleSaveMatericoContract = (c: MatericoContract) => {
+    const enriched: MatericoContract = { ...c, createdBy: c.createdBy || currentUser?.uid || null };
+    setMatericoContracts((prev) => ({ ...prev, [c.id]: enriched }));
+    writeNode(`matericoContracts/${c.id}`, enriched).catch(() => showToast('Errore contratti (controlla regole).', 'err'));
+    if (c.status === 'firmato' && matericoContracts[c.id]?.status !== 'firmato') logAudit('update', 'contratti', `Contratto firmato (OTP) · ${c.partnerName}`, c.number);
+  };
+  const handleDeleteMatericoContract = (id: string) => {
+    const c = matericoContracts[id];
+    askDelete('Eliminare il contratto?', c ? `"${c.number}"` : null, () => {
+      if (c) moveToTrash('materico-contract', c.number || 'Contratto', c, undefined, c.partnerName || undefined);
+      setMatericoContracts((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`matericoContracts/${id}`).catch(() => {});
     });
   };
   // ---- Preventivo automatico dal computo di una commessa (§5) ----
@@ -4929,6 +4952,20 @@ export default function App() {
                   canEdit={isStudioRole(currentUser.role)}
                   onSave={handleSaveMatericoListino}
                   onDelete={handleDeleteMatericoListino}
+                />
+              </React.Suspense>
+            );
+          case 'materico-contracts':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <MatericoContractsView
+                  contracts={matericoContracts}
+                  deals={Object.values(matericoDeals)}
+                  partners={Object.values(clients).filter((c) => c.roles?.impresa || c.roles?.fornitore).map((c) => ({ id: c.id, name: c.name }))}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSave={handleSaveMatericoContract}
+                  onDelete={handleDeleteMatericoContract}
                 />
               </React.Suspense>
             );
