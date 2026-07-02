@@ -104,6 +104,7 @@ import {
   MatericoContract,
   PianoFinanziario,
   FatturazionePlanItem,
+  SocMktItem,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -178,6 +179,7 @@ const MatericoHomeView = React.lazy(() => import('./components/MatericoHomeView'
 const PianoFinanziarioView = React.lazy(() => import('./components/PianoFinanziarioView').then((m) => ({ default: m.PianoFinanziarioView })));
 const ProgFatturazioneView = React.lazy(() => import('./components/ProgFatturazioneView').then((m) => ({ default: m.ProgFatturazioneView })));
 const CommercialeView = React.lazy(() => import('./components/CommercialeView').then((m) => ({ default: m.CommercialeView })));
+const MarketingSocietaView = React.lazy(() => import('./components/MarketingSocietaView').then((m) => ({ default: m.MarketingSocietaView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
@@ -389,6 +391,7 @@ export default function App() {
   const [pianoFinanziario, setPianoFinanziario] = useState<Record<string, PianoFinanziario>>({});
   const [pianoAnno, setPianoAnno] = useState(new Date().getFullYear());
   const [fatturazionePlan, setFatturazionePlan] = useState<Record<string, FatturazionePlanItem>>({});
+  const [socMkt, setSocMkt] = useState<Record<string, SocMktItem>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1671,6 +1674,7 @@ export default function App() {
       add('matericoContracts', setMatericoContracts);
       add('pianoFinanziario', setPianoFinanziario);
       add('fatturazionePlan', setFatturazionePlan);
+      add('socMkt', setSocMkt);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
         const arr = toArr(v) as UnicoDeal[];
@@ -3404,6 +3408,18 @@ export default function App() {
     setPianoFinanziario((prev) => ({ ...prev, [p.id]: enriched }));
     writeNode(`pianoFinanziario/${p.id}`, enriched).catch(() => showToast('Errore piano finanziario (controlla regole).', 'err'));
   };
+  // ---- Marketing per società (socMkt) ----
+  const handleSaveSocMkt = (i: SocMktItem) => {
+    const enriched: SocMktItem = { ...i, by: i.by || currentUser?.uid || null };
+    setSocMkt((prev) => ({ ...prev, [i.id]: enriched }));
+    writeNode(`socMkt/${i.id}`, enriched).catch(() => showToast('Errore marketing (controlla regole).', 'err'));
+  };
+  const handleDeleteSocMkt = (id: string) => {
+    askDelete('Eliminare l\'elemento marketing?', null, () => {
+      setSocMkt((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`socMkt/${id}`).catch(() => {});
+    });
+  };
   // ---- Programmazione fatturazione (fatturazionePlan) ----
   const handleSaveFatturazione = (i: FatturazionePlanItem) => {
     const enriched: FatturazionePlanItem = { ...i, by: i.by || currentUser?.uid || null };
@@ -5034,6 +5050,24 @@ export default function App() {
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
                 <PianoFinanziarioView piano={pianoFinanziario[pid] || null} soc={psoc} socLabel={society.label} year={pianoAnno} color={society.color} canEdit={isStudioRole(currentUser.role)} onChangeYear={setPianoAnno} onSave={handleSavePiano} kpi={kpi} />
+              </React.Suspense>
+            );
+          }
+          case 'marketing-soc': {
+            const psoc = activeSocieta as string;
+            const itab = activeSection === 'mkt-eventi' ? 'eventi' : activeSection === 'mkt-blog' ? 'blog' : activeSection === 'mkt-stat' ? 'stat' : 'calendario';
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <MarketingSocietaView
+                  items={Object.values(socMkt).filter((i) => i.soc === psoc)}
+                  soc={psoc}
+                  socLabel={society.label}
+                  initialTab={itab as any}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSave={handleSaveSocMkt}
+                  onDelete={handleDeleteSocMkt}
+                />
               </React.Suspense>
             );
           }

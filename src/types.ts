@@ -953,6 +953,25 @@ export interface VaultConfig {
   updatedAt?: number;
   by?: string | null;
 }
+/** Voce del Marketing per società (nodo `socMkt/<id>`): calendario editoriale, eventi, gadget, blog. */
+export type SocMktKind = 'social' | 'blog' | 'evento' | 'gadget';
+export type SocMktStatus = 'idea' | 'bozza' | 'programmato' | 'pubblicato';
+export interface SocMktItem {
+  id: string;
+  soc: string;
+  kind: SocMktKind;
+  title: string;
+  date?: string | null;         // data pubblicazione/evento
+  platform?: string | null;     // IG/FB/LinkedIn/TikTok/YouTube/blog…
+  status?: SocMktStatus;        // per social/blog
+  content?: string | null;      // caption/testo
+  link?: string | null;         // media/URL
+  cost?: number | null;         // gadget/evento
+  notes?: string | null;
+  createdAt: number;
+  updatedAt?: number;
+  by?: string | null;
+}
 /** Voce della Programmazione fatturazione (nodo `fatturazionePlan/<id>`): cosa va fatturato,
  * con tasto "Emetti/INVIA" che genera la bozza fattura + scadenza in Finanza. Uso quotidiano. */
 export interface FatturazionePlanItem {

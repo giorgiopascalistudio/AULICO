@@ -304,10 +304,10 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
 
   // ---- MARKETING (Calendario editoriale · Eventi · Blog · Statistiche) ----
   s.push({ id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' });
-  s.push({ id: 'mkt-calendario', label: 'Calendario editoriale', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing' });
-  s.push(ph('mkt-eventi', 'Eventi & gadget', Gift, 'marketing', 'marketing', 'Eventi, gadget e pensieri.'));
-  s.push(ph('mkt-blog', 'Articoli blog', FileText, 'marketing', 'marketing', 'Testi e grafiche del blog.'));
-  s.push(ph('mkt-stat', 'Statistiche', BarChart3, 'marketing', 'marketing', 'Statistiche marketing.'));
+  s.push({ id: 'mkt-calendario', label: 'Calendario editoriale', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing-soc' });
+  s.push({ id: 'mkt-eventi', label: 'Eventi & gadget', icon: Gift, parent: 'marketing', module: 'marketing', view: 'marketing-soc' });
+  s.push({ id: 'mkt-blog', label: 'Articoli blog', icon: FileText, parent: 'marketing', module: 'marketing', view: 'marketing-soc' });
+  s.push({ id: 'mkt-stat', label: 'Statistiche', icon: BarChart3, parent: 'marketing', module: 'marketing', view: 'marketing-soc' });
 
   // ---- CONTABILITÀ & AMMINISTRAZIONE ----
   s.push({ id: 'amm', label: 'Contabilità & Amministrazione', icon: DollarSign, module: 'finance', kind: 'group' });
