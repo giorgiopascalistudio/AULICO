@@ -1130,6 +1130,85 @@ export interface PianoFinanziario {
   updatedAt?: number;
   by?: string | null;
 }
+
+// ============================================================
+// Centro Direzione (Strategico → Amministrazione & Contabilità, §23).
+// Hub che amministra la contabilità di TUTTE le società del gruppo,
+// modellato sulla "Riunione Strategica Contabilità" (PDF): Statistiche KPI ·
+// Piano finanziario · IVA · Programmazione · BEP · Budget · Cicli · Obiettivi.
+// ============================================================
+/** Nodo `finTargets/<soc>-<anno>` — obiettivi annuali della riunione strategica. */
+export interface FinTargets {
+  id: string;              // `${soc}-${year}`
+  soc: string;
+  year: number;
+  fatturato?: number | null;
+  costi?: number | null;
+  utile?: number | null;
+  preventivato?: number | null;
+  venduto?: number | null;
+  erogato?: number | null;
+  punti?: number | null;
+  liquidita?: number | null;
+  updatedAt?: number;
+}
+/** Nodo `finLiquidity/<id>` — liquidità (saldo banca) mensile inserita a mano.
+ * id deterministico `<soc>__<yyyy-mm>`. Unico dato KPI manuale (il resto è calcolato). */
+export interface FinLiquidity {
+  id: string;
+  soc: string;
+  ym: string;
+  amount: number;
+  notes?: string | null;
+  updatedAt: number;
+}
+/** Nodo `finCostPlan/<id>` — programmazione costi del mese (modello Excel
+ * "Programmazione costi": un foglio per mese con voci per categoria). */
+export interface FinCostPlanItem {
+  id: string;
+  soc: string;
+  ym: string;              // mese pianificato
+  category: string;        // IMPOSTE E CONTRIBUTI / COLLABORATORI / LEASING / SOFTWARE / …
+  label: string;           // dettaglio (F24, nome collaboratore, TEAM SYSTEM…)
+  amount: number;
+  paid?: boolean;          // spuntata quando effettivamente sostenuta
+  notes?: string | null;
+  createdAt: number;
+  updatedAt?: number;
+}
+/** Nodo `finBudget/<id>` — budget annuale per AREA vs consuntivo (Excel "budget").
+ * id `<soc>__<year>__<n>`. Il consuntivo si aggiorna a mano; l'app affianca
+ * i costi registrati in contabilità per il confronto. */
+export interface FinBudgetArea {
+  id: string;
+  soc: string;
+  year: number;
+  area: string;            // AREA DIREZIONE / AMMINISTRATIVA / MARKETING / HR / PRODUZIONE / …
+  budget: number;
+  consuntivo?: number | null;
+  order?: number;
+  updatedAt?: number;
+}
+/** Nodo `finCicli/<id>` — cicli amministrativi APERTI (dossier della riunione:
+ * struttura societaria, immobili, ottimizzazioni, acquisti da fare…). */
+export interface FinCiclo {
+  id: string;
+  soc: string;
+  group?: string | null;
+  title: string;
+  notes?: string | null;
+  status: 'aperto' | 'chiuso';
+  createdAt: number;
+  updatedAt?: number;
+}
+/** Nodo `finReports/<id>` — conclusioni del report riunione (id `<soc>__<yyyy-mm>`). */
+export interface FinReport {
+  id: string;
+  soc: string;
+  ym: string;
+  conclusions?: string | null;
+  updatedAt: number;
+}
 /** Contratto con impresa/subappaltatore (Materico §7, nodo `matericoContracts/<id>`).
  * Compilato dai dati a gestionale; firma tramite OTP; collegato al cantiere. */
 export interface MatericoContract {

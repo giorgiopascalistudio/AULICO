@@ -434,19 +434,16 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   s.push({ id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' });
   s.push({ id: 'mkt-calendario', label: 'Calendario editoriale', icon: Calendar, parent: 'marketing', module: 'marketing', view: 'editorial', note: 'Piano editoriale della società in sola lettura — la gestione operativa è nel Centro Marketing di Strategico.' });
 
-  // ---- CONTABILITÀ & AMMINISTRAZIONE ----
+  // ---- CONTABILITÀ & AMMINISTRAZIONE (consultazione: gestione centralizzata nel Centro Direzione di Strategico) ----
   s.push({ id: 'amm', label: 'Contabilità & Amministrazione', icon: DollarSign, module: 'finance', kind: 'group' });
-  s.push({ id: 'amm-contabilita', label: 'Contabilità', icon: DollarSign, parent: 'amm', module: 'finance', legacyRoute: 'finanze', preset: { financeLock: div } });
-  s.push({ id: 'amm-piano', label: 'Piano finanziario', icon: BarChart3, parent: 'amm', module: 'finance', view: 'piano-finanziario', note: 'Piano finanziario (stile Excel) + KPI.' });
-  s.push({ id: 'amm-fatturazione', label: 'Programmazione fatturazione', icon: FileText, parent: 'amm', module: 'finance', view: 'prog-fatturazione', note: 'Uso quotidiano: pianifica ed emetti le fatture.' });
-  s.push({ id: 'amm-incentivi', label: 'Piano incentivante', icon: Award, parent: 'amm', module: 'finance', view: 'piano-incentivante', note: 'Merito, fasce bonus, erogato: base della parte variabile.' });
-  s.push({ id: 'amm-fiscale', label: 'Pianificazione fiscale', icon: Scale, parent: 'amm', module: 'finance', view: 'pianificazione-fiscale', note: 'Scadenze e adempimenti fiscali (IVA/F24/ritenute/imposte).' });
+  s.push({ id: 'amm-quadro', label: 'Quadro contabile', icon: DollarSign, parent: 'amm', module: 'finance', view: 'contabilita-read', note: 'Numeri della società in sola consultazione — la gestione è in Strategico → Centro Direzione.' });
   s.push({ id: 'amm-credenziali', label: 'Credenziali & password', icon: Lock, parent: 'amm', module: 'finance', view: 'credenziali-soc', note: 'Cassaforte credenziali della società (master password).' });
   s.push({ id: 'amm-registro', label: 'Registro attività', icon: ScrollText, parent: 'amm', module: 'registro', legacyRoute: 'registro', shared: true });
 
   // ---- RISORSE UMANE ----
   s.push({ id: 'hr', label: 'Risorse umane', icon: Users, module: 'hr', kind: 'group' });
   s.push({ id: 'hr-team', label: 'Team & permessi', icon: Users, parent: 'hr', module: 'hr', legacyRoute: 'team' });
+  s.push({ id: 'hr-incentivi', label: 'Piano incentivante', icon: Award, parent: 'hr', module: 'hr', view: 'piano-incentivante', note: 'Merito, fasce bonus, erogato: base della parte variabile.' });
   s.push({ id: 'hr-governance', label: 'Governance', icon: Network, parent: 'hr', module: 'governance', view: 'governance' });
 
   // ---- CESTINO ----
@@ -468,10 +465,10 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       // === SOTTO-CATEGORIA: Marketing (Centro Marketing: hub di TUTTI gli account gestiti) ===
       { id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' },
       { id: 'mkt-centro', label: 'Centro Marketing', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing-hub', note: 'Salute di tutti gli account gestiti (5 società + clienti terzi); ogni account ha il SUO workspace: scheda/liberatoria, calendario editoriale, workflow 9 fasi, KPI, spese & budget, report mensile, eventi & gadget, blog.' },
-      // === SOTTO-CATEGORIA: Amministrazione & Contabilità ===
+      // === SOTTO-CATEGORIA: Amministrazione & Contabilità (Centro Direzione: amministra TUTTE le società) ===
       { id: 'amm', label: 'Amministrazione & Contabilità', icon: Briefcase, module: 'finance', kind: 'group' },
-      { id: 'amm-contabilita', label: 'Contabilità', icon: DollarSign, parent: 'amm', shared: true, module: 'finance', legacyRoute: 'finanze', note: 'Preventivi, contratti, fatturazione, provvigioni.' },
-      { id: 'amm-commerciale', label: 'Commerciale', icon: Target, parent: 'amm', module: 'commerciale', legacyRoute: 'finanze', preset: { finStartTab: 'preventivi' }, note: 'Vendite + preventivi interattivi per nuovi servizi.' },
+      { id: 'amm-centro', label: 'Centro Direzione', icon: Briefcase, parent: 'amm', module: 'finance', view: 'direzione-hub', note: 'Salute economica di tutte le società + workspace per società con le sezioni della riunione strategica: KPI, Piano finanziario, IVA & Fiscale, Programmazione (fatturazione+costi), BEP, Budget per aree, Cicli aperti, Obiettivi, Report stampabile.' },
+      { id: 'amm-contabilita', label: 'Contabilità operativa', icon: DollarSign, parent: 'amm', shared: true, module: 'finance', legacyRoute: 'finanze', note: 'Registrazione fatture, scadenze, movimenti e preventivi di tutte le società (selettore Società).' },
       // === SOTTO-CATEGORIA: Sviluppo Software ===
       { id: 'software', label: 'Sviluppo Software', icon: Code2, module: 'software', kind: 'group' },
       { id: 'sw-gestionale', label: 'Gestionale & Automazioni', icon: Code2, parent: 'software', module: 'software', kind: 'placeholder', note: 'Software house interna: gestionale, automazioni, compilatore pratiche.' },

@@ -111,6 +111,12 @@ import {
   MktKpiEntry,
   MktExpense,
   MktMonthlyReport,
+  FinTargets,
+  FinLiquidity,
+  FinCostPlanItem,
+  FinBudgetArea,
+  FinCiclo,
+  FinReport,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -188,6 +194,8 @@ const ProgFatturazioneView = React.lazy(() => import('./components/ProgFatturazi
 const CommercialeView = React.lazy(() => import('./components/CommercialeView').then((m) => ({ default: m.CommercialeView })));
 const EditorialCalendar = React.lazy(() => import('./components/EditorialCalendar').then((m) => ({ default: m.EditorialCalendar })));
 const MarketingHub = React.lazy(() => import('./components/MarketingHub').then((m) => ({ default: m.MarketingHub })));
+const DirezioneHub = React.lazy(() => import('./components/DirezioneHub').then((m) => ({ default: m.DirezioneHub })));
+const ContabilitaConsult = React.lazy(() => import('./components/ContabilitaConsult').then((m) => ({ default: m.ContabilitaConsult })));
 const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
 const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m) => ({ default: m.FiscaleView })));
 const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
@@ -410,6 +418,13 @@ export default function App() {
   const [mktExpenses, setMktExpenses] = useState<Record<string, MktExpense>>({});
   const [mktReports, setMktReports] = useState<Record<string, MktMonthlyReport>>({});
   const [fiscalePlan, setFiscalePlan] = useState<Record<string, FiscaleItem>>({});
+  // Centro Direzione (Strategico → Amministrazione & Contabilità)
+  const [finTargets, setFinTargets] = useState<Record<string, FinTargets>>({});
+  const [finLiquidity, setFinLiquidity] = useState<Record<string, FinLiquidity>>({});
+  const [finCostPlan, setFinCostPlan] = useState<Record<string, FinCostPlanItem>>({});
+  const [finBudget, setFinBudget] = useState<Record<string, FinBudgetArea>>({});
+  const [finCicli, setFinCicli] = useState<Record<string, FinCiclo>>({});
+  const [finReports, setFinReports] = useState<Record<string, FinReport>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1676,6 +1691,13 @@ export default function App() {
         subs.push(watchNode('finInvoicesPassive', (v) => setFinInvoicesPassive(toArr(v)), () => {}));
         subs.push(watchNode('finScadenze', (v) => setFinScadenze(toArr(v)), () => {}));
         add('quotes', setQuotes);
+        // Centro Direzione (Strategico → Amministrazione & Contabilità)
+        add('finTargets', setFinTargets);
+        add('finLiquidity', setFinLiquidity);
+        add('finCostPlan', setFinCostPlan);
+        add('finBudget', setFinBudget);
+        add('finCicli', setFinCicli);
+        add('finReports', setFinReports);
       }
       subs.push(watchNode('crmLeads', (v) => setCrmLeads(toArr(v)), () => {}));
       subs.push(watchNode('crmSuppliers', (v) => setCrmSuppliers(toArr(v)), () => {}));
@@ -2070,6 +2092,18 @@ export default function App() {
         case 'mkt-spesa':
           setMktExpenses((prev) => ({ ...prev, [id]: pl }));
           writeNode(`mktExpenses/${id}`, pl).catch(() => {});
+          break;
+        case 'fin-costplan':
+          setFinCostPlan((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`finCostPlan/${id}`, pl).catch(() => {});
+          break;
+        case 'fin-budget':
+          setFinBudget((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`finBudget/${id}`, pl).catch(() => {});
+          break;
+        case 'fin-ciclo':
+          setFinCicli((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`finCicli/${id}`, pl).catch(() => {});
           break;
         case 'richiesta_cliente':
           setClientRequests((prev) => ({ ...prev, [id]: pl }));
@@ -3537,6 +3571,55 @@ export default function App() {
   const handleSaveMktReport = (r: MktMonthlyReport) => {
     setMktReports((prev) => ({ ...prev, [r.id]: r }));
     writeNode(`mktReports/${r.id}`, r).catch(() => showToast('Errore report marketing (controlla regole).', 'err'));
+  };
+  // ---- Centro Direzione (finTargets / finLiquidity / finCostPlan / finBudget / finCicli / finReports) ----
+  const handleSaveFinTargets = (t: FinTargets) => {
+    setFinTargets((prev) => ({ ...prev, [t.id]: t }));
+    writeNode(`finTargets/${t.id}`, t).catch(() => showToast('Errore obiettivi (controlla regole).', 'err'));
+  };
+  const handleSaveFinLiquidity = (l: FinLiquidity) => {
+    setFinLiquidity((prev) => ({ ...prev, [l.id]: l }));
+    writeNode(`finLiquidity/${l.id}`, l).catch(() => showToast('Errore liquidità (controlla regole).', 'err'));
+  };
+  const handleSaveFinCostPlan = (i: FinCostPlanItem) => {
+    setFinCostPlan((prev) => ({ ...prev, [i.id]: i }));
+    writeNode(`finCostPlan/${i.id}`, i).catch(() => showToast('Errore programmazione costi (controlla regole).', 'err'));
+  };
+  const handleDeleteFinCostPlan = (id: string) => {
+    const i = finCostPlan[id];
+    askDelete('Eliminare la voce di costo programmata?', i ? `${i.label} · ${eur(i.amount)}` : null, () => {
+      if (i) moveToTrash('fin-costplan', i.label || 'Voce costi', i, undefined, eur(i.amount));
+      setFinCostPlan((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`finCostPlan/${id}`).catch(() => {});
+    });
+  };
+  const handleSaveFinBudget = (b: FinBudgetArea) => {
+    setFinBudget((prev) => ({ ...prev, [b.id]: b }));
+    writeNode(`finBudget/${b.id}`, b).catch(() => showToast('Errore budget (controlla regole).', 'err'));
+  };
+  const handleDeleteFinBudget = (id: string) => {
+    const b = finBudget[id];
+    askDelete('Eliminare l\'area di budget?', b ? `${b.area} (${b.year})` : null, () => {
+      if (b) moveToTrash('fin-budget', b.area || 'Area budget', b, undefined, eur(b.budget));
+      setFinBudget((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`finBudget/${id}`).catch(() => {});
+    });
+  };
+  const handleSaveFinCiclo = (c: FinCiclo) => {
+    setFinCicli((prev) => ({ ...prev, [c.id]: c }));
+    writeNode(`finCicli/${c.id}`, c).catch(() => showToast('Errore cicli aperti (controlla regole).', 'err'));
+  };
+  const handleDeleteFinCiclo = (id: string) => {
+    const c = finCicli[id];
+    askDelete('Eliminare il ciclo/dossier?', c ? `"${c.title}"` : null, () => {
+      if (c) moveToTrash('fin-ciclo', c.title || 'Ciclo', c, undefined, c.group || undefined);
+      setFinCicli((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`finCicli/${id}`).catch(() => {});
+    });
+  };
+  const handleSaveFinReport = (r: FinReport) => {
+    setFinReports((prev) => ({ ...prev, [r.id]: r }));
+    writeNode(`finReports/${r.id}`, r).catch(() => showToast('Errore report riunione (controlla regole).', 'err'));
   };
   // ---- Programmazione fatturazione (fatturazionePlan) ----
   const handleSaveFatturazione = (i: FatturazionePlanItem) => {
@@ -5154,6 +5237,65 @@ export default function App() {
                   onSaveReport={handleSaveMktReport}
                   onSaveExtra={handleSaveSocMkt}
                   onDeleteExtra={handleDeleteSocMkt}
+                />
+              </React.Suspense>
+            );
+          }
+          case 'direzione-hub': {
+            const isBoss = currentUser.role === 'admin' || currentUser.role === 'manager';
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <DirezioneHub
+                  quotes={Object.values(quotes)}
+                  invA={finInvoicesActive}
+                  invP={finInvoicesPassive}
+                  scadenze={finScadenze}
+                  pointEvents={pointEvents}
+                  piani={pianoFinanziario}
+                  fattPlan={Object.values(fatturazionePlan)}
+                  fiscale={Object.values(fiscalePlan)}
+                  targets={Object.values(finTargets)}
+                  liquidity={Object.values(finLiquidity)}
+                  costPlan={Object.values(finCostPlan)}
+                  budget={Object.values(finBudget)}
+                  cicli={Object.values(finCicli)}
+                  reports={Object.values(finReports)}
+                  team={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
+                  clientTiers={Object.fromEntries(Object.values(clients).filter((c) => c.tier).map((c) => [c.id, c.tier as number]))}
+                  rubricaOpts={Object.values(clients).map((c) => ({ id: c.id, name: c.name }))}
+                  color={society.color}
+                  canEdit={isBoss}
+                  onSaveTargets={handleSaveFinTargets}
+                  onSaveLiquidity={handleSaveFinLiquidity}
+                  onSaveCostPlan={handleSaveFinCostPlan}
+                  onDeleteCostPlan={handleDeleteFinCostPlan}
+                  onSaveBudget={handleSaveFinBudget}
+                  onDeleteBudget={handleDeleteFinBudget}
+                  onSaveCiclo={handleSaveFinCiclo}
+                  onDeleteCiclo={handleDeleteFinCiclo}
+                  onSaveReport={handleSaveFinReport}
+                  onSavePiano={handleSavePiano}
+                  onSaveFatturazione={handleSaveFatturazione}
+                  onDeleteFatturazione={handleDeleteFatturazione}
+                  onEmitFatturazione={handleEmitFatturazione}
+                  onSaveFiscale={handleSaveFiscale}
+                  onDeleteFiscale={handleDeleteFiscale}
+                  onOpenContabilita={(soc) => { setFinLock((soc === 'fantastico' ? null : soc) as any); setFinStartTab(null); setActiveSocieta('strategico'); setActiveSection('amm-contabilita'); setRoute('finanze'); }}
+                />
+              </React.Suspense>
+            );
+          }
+          case 'contabilita-read': {
+            const psoc = activeSocieta as string;
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <ContabilitaConsult
+                  soc={psoc}
+                  socLabel={society.label}
+                  invA={finInvoicesActive}
+                  invP={finInvoicesPassive}
+                  scadenze={finScadenze}
+                  color={society.color}
                 />
               </React.Suspense>
             );

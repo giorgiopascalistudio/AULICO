@@ -517,6 +517,33 @@ reporting/redditività, integrazioni esterne
   `MarketingSocietaView` (board socMkt per società) e la voce `mkt-strategico` (vecchia StrategicoView
   V1); le società operative hanno SOLO `mkt-calendario` read-only. La rotta legacy `#strategico`
   ora apre il Centro Marketing.
+  ⚠️ **Centro Direzione (§23)** — Amministrazione & Contabilità di Strategico RISTRUTTURATA come il
+  marketing (Strategico amministra la contabilità di TUTTE le società; modello = PDF "RIUNIONE
+  STRATEGICA CONTABILITÀ"). Voce **Strategico → Amministrazione & Contabilità → "Centro Direzione"**
+  (`view:'direzione-hub'`, componente **`DirezioneHub`**, lazy) a 2 livelli: 1) **Centro** = card per
+  società (fatturato/incassato/costi/liquidità del mese, badge sopra/sotto BEP, avanzamento obiettivo
+  fatturato) + KPI di gruppo + alert (sotto BEP, liquidità mancante, scadenze oltre data); 2) **workspace
+  per società** con le sezioni della riunione: **KPI** (preventivato con analisi per fascia cliente ·
+  venduto · fatturato · incassato · erogato · liquidità · punti — serie mensili CALCOLATE dai dati
+  dell'app via `kpiSeries`; la sola liquidità è manuale, cella editabile), **Piano finanziario** (embed
+  `PianoFinanziarioView`), **IVA & Fiscale** (situazione IVA trimestrale dalle fatture attive + embed
+  `FiscaleView`), **Programmazione** (embed `ProgFatturazioneView` + **Programmazione costi** mensile
+  stile Excel con categorie/spunta sostenuta/copia dal mese precedente), **BEP** (CF/CV dal Piano
+  finanziario, fallback tutti-i-costi-fissi; `bepRows`), **Budget per aree** (budget vs consuntivo con
+  aree standard del PDF + confronto coi costi registrati), **Cicli aperti** (dossier per gruppo),
+  **Obiettivi** annuali (8 target con avanzamento) e **Report** riunione stampabile (8 sezioni
+  precompilate + conclusioni persistite). Nuovi nodi (tutti **admin/manager**): **`finTargets`**
+  (`<soc>-<anno>`), **`finLiquidity`** (`<soc>__<yyyy-mm>`), **`finCostPlan`**, **`finBudget`**,
+  **`finCicli`**, **`finReports`**: **ripubblicare le regole**. Tipi in types.ts; Cestino sezioni
+  `fin-costplan`/`fin-budget`/`fin-ciclo`. **SNELLITE le società operative**: il gruppo Contabilità &
+  Amministrazione di Onirico/Materico/Unico/Fantastico ora ha solo **"Quadro contabile"**
+  (`view:'contabilita-read'`, componente **`ContabilitaConsult`**, SOLA consultazione: KPI anno +
+  ricavi vs costi + ultime fatture/scadenze) + Credenziali + Registro; rimosse le voci operative
+  (Contabilità/Piano finanziario/Prog. fatturazione/Fiscale — vivono nel Centro Direzione);
+  **Piano incentivante spostato sotto Risorse umane** (`hr-incentivi`). In Strategico la voce
+  `amm-commerciale` è stata rimossa (doppione di Finanze→Preventivi); `amm-contabilita` resta come
+  "Contabilità operativa" (FinanzeView completa, con selettore Società — è lì che si registrano
+  fatture/scadenze/movimenti; il bottone "Contabilità" del hub ci salta con `financeLock`).
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;
