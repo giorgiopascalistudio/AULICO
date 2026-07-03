@@ -417,6 +417,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   // ---- PRODUZIONE (Progetti · Computi · Mappa operativa) ----
   s.push({ id: 'produzione', label: 'Produzione', icon: Layers, module: 'produzione', kind: 'group' });
   if (isUni) s.push({ id: 'prod-opportunita', label: 'Ricerca Opportunità', icon: Search, parent: 'produzione', module: 'produzione', view: 'unico-opportunita', note: 'Workflow a step obbligatori: contatto → sopralluogo → raccolta → analisi → due diligence → manifestazione → negoziazione → preliminare → atto → INVESTIMENTO.' });
+  if (soc === 'studio') s.push({ id: 'prod-stima', label: 'Stima Preliminare', icon: Calculator, parent: 'produzione', module: 'produzione', view: 'stima-preliminare', note: 'Simulatore della fase Pianificazione: quantità × livello Base/Medio/Alto → budget automatico.' });
   if (isMat) s.push({ id: 'prod-potenziale', label: 'Potenziale Cantiere', icon: Target, parent: 'produzione', module: 'produzione', view: 'materico-deals' });
   s.push({ id: 'prod-progetti', label: isUni ? 'Operazioni & Investitori' : 'Progetti', icon: isUni ? Building2 : Layers, parent: 'produzione', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
   s.push(ph('prod-computi', 'Computi', Calculator, 'produzione', 'produzione', 'Computi metrici.'));

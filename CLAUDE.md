@@ -619,6 +619,16 @@ reporting/redditività, integrazioni esterne
   `status:'acquisita'`+`dealId`); scheda con contatto dalla rubrica, link Google Earth/foto/docs,
   prezzo/valutazione; Cestino sezione `unico-opp`. ⚠️ Nodi **`battlePlan`** e **`unicoOpportunita`**
   (read/write studio attivo non-cliente/non-partner): **ripubblicare le regole**.
+  ⚠️ **Onirico consegna 3** — **Stima Preliminare a SIMULATORE** (componente
+  `StimaPreliminareView` con tipo `StimaPreliminare` e catalogo parametrico interno dal DOCX
+  "STIMA PRELIMINARE - Simulatore": abitazione 2000/3000/4000 €/mq, deposito 1000/1500/2000,
+  trulli/lamie 3000/4000/5000, pergolato/portico/tettoia/giardino/piazzali/camminamenti, muretti
+  €/ml, piscina forfait 50/60/70k, extras a corpo pozzo/imhoff/cisterna/cancello/colonne/
+  automazione/fotovoltaico/batteria): si inseriscono SOLO quantità + livello Base/Medio/Alto per
+  voce → budget live (`stimaTotal`), cliente dalla rubrica, note, Stampa. Sezione `prod-stima`
+  (solo Onirico), nodo **`stimePreliminari/<id>`** (read/write studio attivo non-cliente/partner):
+  **ripubblicare le regole**. Cestino sezione `stima`. Evoluzione futura (dal DOCX): valori
+  alimentati dai preventivi reali delle imprese partner (listino Materico) per area geografica.
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

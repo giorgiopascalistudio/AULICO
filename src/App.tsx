@@ -202,6 +202,7 @@ const ContabilitaConsult = React.lazy(() => import('./components/ContabilitaCons
 const CommercialeHub = React.lazy(() => import('./components/CommercialeHub').then((m) => ({ default: m.CommercialeHub })));
 const PianoBattaglia = React.lazy(() => import('./components/PianoBattaglia').then((m) => ({ default: m.PianoBattaglia })));
 const UnicoOpportunitaView = React.lazy(() => import('./components/UnicoOpportunitaView').then((m) => ({ default: m.UnicoOpportunitaView })));
+const StimaPreliminareView = React.lazy(() => import('./components/StimaPreliminareView').then((m) => ({ default: m.StimaPreliminareView })));
 const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
 const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m) => ({ default: m.FiscaleView })));
 const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
@@ -435,9 +436,10 @@ export default function App() {
   // Preventivo interattivo (portale): snapshot propri (cliente) + scelte per qid (studio)
   const [myClientQuotes, setMyClientQuotes] = useState<Record<string, any>>({});
   const [quoteChoices, setQuoteChoices] = useState<Record<string, QuoteClientChoice>>({});
-  // Piano di Battaglia (HOME società) + Ricerca Opportunità Unico
+  // Piano di Battaglia (HOME società) + Ricerca Opportunità Unico + Stime Preliminari Onirico
   const [battlePlan, setBattlePlan] = useState<Record<string, BattleItem>>({});
   const [unicoOpps, setUnicoOpps] = useState<Record<string, UnicoOpportunity>>({});
+  const [stimePreliminari, setStimePreliminari] = useState<Record<string, any>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1734,6 +1736,7 @@ export default function App() {
       add('hrEvents', setHrEvents);
       add('battlePlan', setBattlePlan);
       add('unicoOpportunita', setUnicoOpps);
+      add('stimePreliminari', setStimePreliminari);
       add('matericoDeals', setMatericoDeals);
       add('matericoListino', setMatericoListino);
       add('matericoContracts', setMatericoContracts);
@@ -2139,6 +2142,10 @@ export default function App() {
         case 'unico-opp':
           setUnicoOpps((prev) => ({ ...prev, [id]: pl }));
           writeNode(`unicoOpportunita/${id}`, pl).catch(() => {});
+          break;
+        case 'stima':
+          setStimePreliminari((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`stimePreliminari/${id}`, pl).catch(() => {});
           break;
         case 'richiesta_cliente':
           setClientRequests((prev) => ({ ...prev, [id]: pl }));
@@ -3682,6 +3689,21 @@ export default function App() {
       setUnicoOpps((prev) => { const n = { ...prev }; delete n[id]; return n; });
       removeNode(`unicoOpportunita/${id}`).catch(() => {});
       showToast('Opportunità spostata nel Cestino.', 'err');
+    });
+  };
+  // ---- Onirico · Stime Preliminari (stimePreliminari) ----
+  const handleSaveStima = (s: any) => {
+    const enriched = { ...s, createdBy: s.createdBy || currentUser?.uid || null, updatedAt: Date.now() };
+    setStimePreliminari((prev) => ({ ...prev, [s.id]: enriched }));
+    writeNode(`stimePreliminari/${s.id}`, clean(enriched)).catch(() => showToast('Errore stima preliminare (controlla regole).', 'err'));
+  };
+  const handleDeleteStima = (id: string) => {
+    const s = stimePreliminari[id];
+    askDelete('Eliminare questa stima preliminare?', s ? `"${s.title}"` : null, () => {
+      if (s) moveToTrash('stima', s.title || 'Stima preliminare', s, undefined, s.clientName || undefined);
+      setStimePreliminari((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`stimePreliminari/${id}`).catch(() => {});
+      showToast('Stima spostata nel Cestino.', 'err');
     });
   };
   // Atto concluso → l'opportunità diventa un INVESTIMENTO (UnicoDeal)
@@ -5430,6 +5452,19 @@ export default function App() {
               </React.Suspense>
             );
           }
+          case 'stima-preliminare':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <StimaPreliminareView
+                  stime={Object.values(stimePreliminari)}
+                  rubrica={Object.values(clients)}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSave={handleSaveStima}
+                  onDelete={handleDeleteStima}
+                />
+              </React.Suspense>
+            );
           case 'unico-opportunita':
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
