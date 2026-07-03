@@ -106,6 +106,7 @@ import {
   FatturazionePlanItem,
   SocMktItem,
   FiscaleItem,
+  EditorialPost,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -183,6 +184,7 @@ const PianoFinanziarioView = React.lazy(() => import('./components/PianoFinanzia
 const ProgFatturazioneView = React.lazy(() => import('./components/ProgFatturazioneView').then((m) => ({ default: m.ProgFatturazioneView })));
 const CommercialeView = React.lazy(() => import('./components/CommercialeView').then((m) => ({ default: m.CommercialeView })));
 const MarketingSocietaView = React.lazy(() => import('./components/MarketingSocietaView').then((m) => ({ default: m.MarketingSocietaView })));
+const EditorialCalendar = React.lazy(() => import('./components/EditorialCalendar').then((m) => ({ default: m.EditorialCalendar })));
 const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
 const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m) => ({ default: m.FiscaleView })));
 const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
@@ -398,6 +400,7 @@ export default function App() {
   const [pianoAnno, setPianoAnno] = useState(new Date().getFullYear());
   const [fatturazionePlan, setFatturazionePlan] = useState<Record<string, FatturazionePlanItem>>({});
   const [socMkt, setSocMkt] = useState<Record<string, SocMktItem>>({});
+  const [editorialPosts, setEditorialPosts] = useState<Record<string, EditorialPost>>({});
   const [fiscalePlan, setFiscalePlan] = useState<Record<string, FiscaleItem>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
@@ -1682,6 +1685,7 @@ export default function App() {
       add('pianoFinanziario', setPianoFinanziario);
       add('fatturazionePlan', setFatturazionePlan);
       add('socMkt', setSocMkt);
+      add('editorialPosts', setEditorialPosts);
       add('fiscalePlan', setFiscalePlan);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
@@ -2042,6 +2046,10 @@ export default function App() {
         case 'materico-contract':
           setMatericoContracts((prev) => ({ ...prev, [id]: pl }));
           writeNode(`matericoContracts/${id}`, pl).catch(() => {});
+          break;
+        case 'editorial':
+          setEditorialPosts((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`editorialPosts/${id}`, pl).catch(() => {});
           break;
         case 'richiesta_cliente':
           setClientRequests((prev) => ({ ...prev, [id]: pl }));
@@ -3442,6 +3450,21 @@ export default function App() {
     askDelete('Eliminare l\'elemento marketing?', null, () => {
       setSocMkt((prev) => { const n = { ...prev }; delete n[id]; return n; });
       removeNode(`socMkt/${id}`).catch(() => {});
+    });
+  };
+  // ---- Calendario editoriale (editorialPosts) ----
+  const handleSaveEditorialPost = (p: EditorialPost) => {
+    const enriched: EditorialPost = { ...p, createdBy: p.createdBy || currentUser?.uid || null };
+    setEditorialPosts((prev) => ({ ...prev, [p.id]: enriched }));
+    writeNode(`editorialPosts/${p.id}`, enriched).catch(() => showToast('Errore calendario editoriale (controlla regole).', 'err'));
+  };
+  const handleDeleteEditorialPost = (id: string) => {
+    askDelete('Eliminare il contenuto dal calendario?', null, () => {
+      const item = editorialPosts[id];
+      if (item) moveToTrash('editorial', item.topic || item.caption || 'Contenuto', item, undefined, item.channel);
+      setEditorialPosts((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`editorialPosts/${id}`).catch(() => {});
+      showToast('Contenuto spostato nel Cestino.', 'err');
     });
   };
   // ---- Programmazione fatturazione (fatturazionePlan) ----
@@ -5102,6 +5125,38 @@ export default function App() {
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
                 <CredenzialiView entries={Object.values(governanceVault)} config={vaultConfig} soc={psoc} socLabel={society.label} canEdit={currentUser.role === 'admin' || currentUser.role === 'manager'} onSave={handleSaveVaultEntry} onDelete={handleDeleteVaultEntry} onSetConfig={handleSetVaultConfig} />
+              </React.Suspense>
+            );
+          }
+          case 'editorial': {
+            // Canali = società del gruppo + clienti terzi (rubrica).
+            const societyChannels = (['studio', 'materico', 'unico', 'strategico', 'fantastico'] as const)
+              .map((s) => ({ key: s, label: (SOCIETA_LABEL as any)[s] || s }));
+            const clientChannels = Object.values(clients).map((c) => ({ key: `cli-${c.id}`, label: c.name }));
+            const edChannels = [...societyChannels, ...clientChannels];
+            // Import documenti pratica: SOLO pratiche il cui cliente collegato ha dato il consenso marketing.
+            const importProjects = Object.values(projects)
+              .filter((p) => p.clientUid && users[p.clientUid]?.consents?.marketing)
+              .map((p) => ({
+                id: p.id, name: p.name,
+                docs: Object.values(documents[p.id] || {}).map((dd: any) => ({ id: dd.id, name: dd.name, url: dd.url, type: dd.type })),
+              }))
+              .filter((p) => p.docs.length > 0);
+            // Hub (Strategico/Aulico) = tutti i canali; sezione di una società = filtro su quella società.
+            const initCh = activeSocieta === 'holding' || activeSocieta === 'strategico'
+              ? 'Tutti' : ((SOCIETA_LABEL as any)[activeSocieta] || 'Tutti');
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <EditorialCalendar
+                  posts={Object.values(editorialPosts)}
+                  channels={edChannels}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  initialChannel={initCh}
+                  importProjects={importProjects}
+                  onSave={handleSaveEditorialPost}
+                  onDelete={handleDeleteEditorialPost}
+                />
               </React.Suspense>
             );
           }

@@ -432,7 +432,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
 
   // ---- MARKETING (Calendario editoriale · Eventi · Blog · Statistiche) ----
   s.push({ id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' });
-  s.push({ id: 'mkt-calendario', label: 'Calendario editoriale', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing-soc' });
+  s.push({ id: 'mkt-calendario', label: 'Calendario editoriale', icon: Calendar, parent: 'marketing', module: 'marketing', view: 'editorial' });
   s.push({ id: 'mkt-eventi', label: 'Eventi & gadget', icon: Gift, parent: 'marketing', module: 'marketing', view: 'marketing-soc' });
   s.push({ id: 'mkt-blog', label: 'Articoli blog', icon: FileText, parent: 'marketing', module: 'marketing', view: 'marketing-soc' });
   s.push({ id: 'mkt-stat', label: 'Statistiche', icon: BarChart3, parent: 'marketing', module: 'marketing', view: 'marketing-soc' });
@@ -468,8 +468,9 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       { id: 'hr-recruiting', label: 'Recruiting', icon: UserPlus, parent: 'hr', module: 'hr', kind: 'placeholder', note: 'Job description, annunci, colloqui, piani di inserimento.' },
       { id: 'hr-governance', label: 'Governance', icon: Network, parent: 'hr', module: 'governance', view: 'governance', note: 'Organigramma, mansionari, procedure (SOP), team & permessi, cassaforte password.' },
       { id: 'hr-registro', label: 'Registro attività', icon: ScrollText, parent: 'hr', shared: true, module: 'registro', legacyRoute: 'registro' },
-      // === SOTTO-CATEGORIA: Marketing ===
+      // === SOTTO-CATEGORIA: Marketing (hub di gruppo: tutte le società + clienti terzi) ===
       { id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' },
+      { id: 'mkt-calendario', label: 'Calendario editoriale', icon: Calendar, parent: 'marketing', module: 'marketing', view: 'editorial', note: 'Anteprima di pubblicazione multi-canale (società + clienti terzi): immagini/video/caroselli, drag&drop, import dai documenti pratica col consenso.' },
       { id: 'mkt-operativo', label: 'Marketing operativo', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing', note: 'Produzione contenuti + calendario editoriale multi-canale.' },
       { id: 'mkt-strategico', label: 'Marketing strategico', icon: BarChart3, parent: 'marketing', module: 'marketing', legacyRoute: 'progetti', preset: { division: 'strategico' }, note: 'Analisi dati, KPI, budget.' },
       // === SOTTO-CATEGORIA: Amministrazione & Contabilità ===

@@ -113,6 +113,7 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
   const [residenza, setResidenza] = useState('');
   const [privacy, setPrivacy] = useState(false);
   const [newsletter, setNewsletter] = useState(false);
+  const [marketingC, setMarketingC] = useState(false);
   // Azienda
   const [companyName, setCompanyName] = useState('');
   const [partitaIva, setPartitaIva] = useState('');
@@ -139,6 +140,9 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
       accountType,
       privacyAccepted: true,
       privacyAcceptedAt: Date.now(),
+      // Consensi automatici spuntati in registrazione (marketing = uso materiali/documenti a fini marketing).
+      consents: { privacy: true, marketing: marketingC, newsletter },
+      consentsAt: Date.now(),
       profileComplete: true,
       createdAt: pendingProfile?.createdAt || Date.now(),
     };
@@ -570,6 +574,16 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
           <input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} className="hidden" />
           <span className="text-[12px] text-stone-600 leading-snug">
             Iscrivimi alla <b className="text-[#161616]">newsletter</b> per ricevere aggiornamenti e novità (facoltativo).
+          </span>
+        </label>
+        {/* Consenso uso materiali a fini marketing (facoltativo) — abilita l'uso dei documenti della pratica nel calendario editoriale */}
+        <label className="flex items-start gap-2.5 mt-3 cursor-pointer select-none">
+          <span className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition ${marketingC ? 'bg-[#1b1b1b] border-[#1b1b1b]' : 'border-stone-300 bg-white'}`}>
+            {marketingC && <Check className="w-3.5 h-3.5 text-white" />}
+          </span>
+          <input type="checkbox" checked={marketingC} onChange={(e) => setMarketingC(e.target.checked)} className="hidden" />
+          <span className="text-[12px] text-stone-600 leading-snug">
+            Acconsento all'uso di <b className="text-[#161616]">foto/video e materiali</b> del mio progetto per finalità di marketing e portfolio (facoltativo).
           </span>
         </label>
       </>

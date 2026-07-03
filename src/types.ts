@@ -55,6 +55,11 @@ export interface UserProfile {
   residenza?: string;            // indirizzo di residenza (privato)
   privacyAccepted?: boolean;
   privacyAcceptedAt?: number;
+  /** Consensi spuntati alla registrazione (automatici): privacy, marketing (uso materiali/documenti
+   * a fini marketing/portfolio), newsletter. Il consenso `marketing` abilita l'import dei documenti
+   * della pratica nel calendario editoriale. */
+  consents?: { privacy?: boolean; marketing?: boolean; newsletter?: boolean };
+  consentsAt?: number;
   // ---- Dati azienda (accountType === 'azienda') ----
   companyName?: string;
   partitaIva?: string;
@@ -988,6 +993,39 @@ export interface SocMktItem {
   updatedAt?: number;
   by?: string | null;
 }
+// ============================================================
+// Calendario editoriale — "anteprima di pubblicazione" (nodo `editorialPosts/<id>`).
+// Hub marketing di Aulico/Strategico: gestisce i canali di TUTTE le società
+// (Onirico/Materico/Unico/Strategico/Fantastico) + clienti terzi. Ogni post ha
+// media (immagine/video); >1 media = carosello. Media = inline (immagini piccole,
+// dataURL) o link (video/file grandi); upgrade a storage reale in seguito.
+// ============================================================
+export type EditorialStatus = 'idea' | 'bozza' | 'programmato' | 'pubblicato';
+export interface EditorialMedia {
+  id: string;
+  type: 'image' | 'video';
+  url: string;                 // dataURL (immagine piccola inline) oppure link esterno
+  name?: string | null;
+  source?: 'upload' | 'link' | 'project' | null;  // provenienza (project = da documenti pratica, con consenso)
+  projectId?: string | null;   // pratica di origine (se importato dai documenti)
+}
+export interface EditorialPost {
+  id: string;
+  channel: string;             // profilo/canale: società o cliente terzo (chiave di filtro + display)
+  dateISO: string;             // giorno di pubblicazione (yyyy-mm-dd)
+  time?: string | null;
+  topic?: string | null;       // argomento
+  platform?: string | null;    // IG/FB/LinkedIn/TikTok/YouTube
+  caption?: string | null;
+  hashtags?: string | null;
+  notes?: string | null;
+  status: EditorialStatus;
+  media?: EditorialMedia[];    // >1 = carosello
+  createdAt: number;
+  updatedAt?: number;
+  createdBy?: string | null;
+}
+
 /** Voce della Programmazione fatturazione (nodo `fatturazionePlan/<id>`): cosa va fatturato,
  * con tasto "Emetti/INVIA" che genera la bozza fattura + scadenza in Finanza. Uso quotidiano. */
 export interface FatturazionePlanItem {

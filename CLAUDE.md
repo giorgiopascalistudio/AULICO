@@ -477,6 +477,17 @@ reporting/redditività, integrazioni esterne
   scrive il trail (delete via `moveToTrash`, restore, create progetto da preventivo/lead/richiesta,
   cambio stato preventivo, smistamento lead…); vista **`AuditView`** (route `#registro`, voce sidebar
   admin/manager). Copertura **incrementale** (aggiungere `logAudit` ai nuovi handler significativi).
+  ⚠️ Aggiunto il nodo **`editorialPosts/<id>`** (Calendario editoriale / "anteprima di pubblicazione",
+  §22-bis-cal — read/write studio attivo non-cliente/partner): **ripubblicare le regole**, altrimenti il
+  calendario editoriale non salva (write silenziosa). Componente **`EditorialCalendar`** (`view:'editorial'`,
+  hub in Strategico → Marketing → "Calendario editoriale" **e** per-società `mkt-calendario`): mese con
+  anteprime media per giorno, **canali** = società del gruppo + clienti terzi (rubrica), drag&drop media dal
+  dispositivo (immagini **inline** dataURL ridotte via canvas; video/file grandi via **link**) + **import dai
+  documenti di una pratica SOLO se il cliente ha `consents.marketing`** (gating fatto in App: `importProjects`
+  filtra `projects` per `users[clientUid].consents.marketing`). `>1 media = carosello`. Handler
+  `handleSaveEditorialPost`/`handleDeleteEditorialPost` (+ Cestino sezione `editorial`). Tipi `EditorialPost`/
+  `EditorialMedia`/`EditorialStatus` in `types.ts`. Consensi cliente: **spunte in registrazione** (`AuthFlow`
+  `renderPrivacy`: privacy/newsletter/**marketing**) → `users/<uid>.consents` + `consentsAt`.
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;
