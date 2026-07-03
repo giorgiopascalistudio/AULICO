@@ -553,6 +553,15 @@ reporting/redditività, integrazioni esterne
   (nessun cambiamento a valle); 3) grafici stile PDF nel `DirezioneHub`: **Fatturato vs BEP** (barre +
   soglia tratteggiata, rosso sotto pareggio) nella tab BEP e **Fatturato vs Incassato** affiancati
   nella tab KPI.
+  **Generazione documenti da modello (visione Aulico)**: componente **`QuotePrintDoc`** + dati carta
+  intestata per società in **`src/companyInfo.ts`** (`COMPANY_DOC`: ragione sociale, P.IVA, IBAN/banca,
+  validità default, note importi, testo accettazione, N.B. — presi dai DOCX ESEMPIO di
+  `AULICO 2.0/docs/SEZIONI/<soc>/COMMERCIALE`; Unico/Fantastico ancora senza dati → campi vuoti nel
+  documento). Pulsante **"Documento"** su ogni card di `CommercialeView` (nuova prop `clients` per
+  compilare il committente dalla rubrica): overlay col documento nel formato del modello (committente,
+  servizi numerati, sconto/maggiorazione, totale ±IVA/cassa, condizioni di pagamento dal piano rate,
+  banca/IBAN, validità, accettazione con eventuale firma OTP, privacy, firme, footer intestato) +
+  **Stampa/PDF** (CSS print). Nessun nodo/regola nuovi.
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

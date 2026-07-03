@@ -11,8 +11,9 @@ import React from 'react';
 import {
   Target, Plus, FileText, ShieldCheck, Send, CheckCircle2, XCircle, Archive, ArchiveRestore, X, User,
 } from 'lucide-react';
-import type { Quote } from '../types';
+import type { Quote, ClientRecord } from '../types';
 import { eur } from '../utils';
+import QuotePrintDoc from './QuotePrintDoc';
 
 interface Member { uid: string; name: string; }
 interface Props {
@@ -20,6 +21,8 @@ interface Props {
   soc: string;
   socLabel?: string;
   members?: Member[];
+  /** Rubrica clienti (per compilare il documento stampabile). */
+  clients?: Record<string, ClientRecord>;
   color?: string;
   canEdit?: boolean;
   onSetStatus?: (id: string, status: Quote['status']) => void;
@@ -36,10 +39,11 @@ const ST: Record<Quote['status'], { label: string; color: string }> = {
   accettato: { label: 'Accettato', color: '#059669' }, rifiutato: { label: 'Rifiutato', color: '#dc2626' },
 };
 
-export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [], canEdit = false, onSetStatus, onArchive, onSaveQuote, onOpenEditor }) => {
+export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [], clients = {}, canEdit = false, onSetStatus, onArchive, onSaveQuote, onOpenEditor }) => {
   const [tab, setTab] = React.useState<'tutti' | 'elaborati' | 'accettati' | 'scaduti'>('tutti');
   const [view, setView] = React.useState<'attivi' | 'archiviati'>('attivi');
   const [signing, setSigning] = React.useState<Quote | null>(null);
+  const [printing, setPrinting] = React.useState<Quote | null>(null);
 
   const base = quotes.filter((q) => (view === 'archiviati' ? q.archived : !q.archived));
   const list = base.filter((q) => {
@@ -112,7 +116,10 @@ export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[16px] font-black text-[#161616]">{eur(q.total || 0)}</span>
-                  <span className="text-[11px] text-[#9a9a9a]">Valido fino: {fmt(q.validUntil)}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-[#9a9a9a]">Valido fino: {fmt(q.validUntil)}</span>
+                    <button onClick={() => setPrinting(q)} title="Genera documento da modello (carta intestata)" className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[10.5px] font-bold cursor-pointer"><FileText className="w-3 h-3" /> Documento</button>
+                  </div>
                 </div>
                 {/* Tecnico di riferimento */}
                 {members.length > 0 && (
@@ -140,6 +147,7 @@ export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [
       )}
 
       {signing && <SignModal quote={signing} onClose={() => setSigning(null)} onSaveQuote={onSaveQuote} onAccept={(id) => { onSetStatus?.(id, 'accettato'); setSigning(null); }} />}
+      {printing && <QuotePrintDoc quote={printing} client={printing.clientRecordId ? clients[printing.clientRecordId] : null} projectName={null} onClose={() => setPrinting(null)} />}
     </div>
   );
 };

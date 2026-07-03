@@ -5403,6 +5403,7 @@ export default function App() {
                   quotes={Object.values(quotes).filter((q: any) => q.division === psoc)}
                   soc={psoc}
                   socLabel={society.label}
+                  clients={clients}
                   members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
                   color={society.color}
                   canEdit={isStudioRole(currentUser.role)}
