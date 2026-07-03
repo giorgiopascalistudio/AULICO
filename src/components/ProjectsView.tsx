@@ -2298,40 +2298,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
       {/* Filtering and search */}
       <div className="flex items-center justify-between gap-4 flex-wrap w-full">
         <div className="flex items-center gap-2.5 flex-wrap w-full lg:w-auto">
-          {/* Brand Division Workspace Selector */}
-          <div className="flex items-center bg-[#161616] border border-neutral-800 p-[3px] rounded-full gap-[2px] w-full sm:w-auto relative z-10">
-            {([
-              { id: 'studio', label: 'ONIRICO' },
-              { id: 'strategico', label: 'STRATEGICO' },
-              { id: 'materico', label: 'MATERICO' },
-              { id: 'unico', label: 'UNICO' }
-            ] as const).map(div => {
-              const active = divisionFilter === div.id;
-              return (
-                <button
-                  key={div.id}
-                  onClick={() => setDivisionFilter(div.id)}
-                  className={`relative flex-1 sm:flex-initial text-center text-[11px] sm:text-[12px] font-extrabold px-3 sm:px-4 py-1.5 rounded-full uppercase cursor-pointer select-none transition-colors duration-300 border-none bg-transparent ${
-                    active ? 'text-black' : 'text-[#a3a3a3] hover:text-white'
-                  }`}
-                  style={{ touchAction: 'none' }}
-                >
-                  {/* Underlay Active Pill animation using layoutId */}
-                  {active && (
-                    <motion.div
-                      layoutId="indexDivisionActivePill"
-                      transition={{
-                        type: 'spring',
-                        stiffness: 420,
-                        damping: 32
-                      }}
-                      className="absolute inset-0 bg-white rounded-full z-0"
-                    />
-                  )}
-                  <span className="relative z-10 font-extrabold">{div.label}</span>
-                </button>
-              );
-            })}
+          {/* Società corrente (statica): nessun rimando cross-società nella nav
+              interna — si cambia società SOLO dalla sidebar (linee guida Aulico 2.0). */}
+          <div className="inline-flex items-center gap-2 bg-[#161616] px-4 py-2 rounded-full select-none">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: ({ studio: '#ffffff', strategico: '#f59e0b', materico: '#fb923c', unico: '#818cf8' } as Record<string, string>)[divisionFilter] || '#ffffff' }} />
+            <span className="text-[12px] font-extrabold uppercase tracking-wider text-white">
+              {({ studio: 'Onirico', strategico: 'Strategico', materico: 'Materico', unico: 'Unico' } as Record<string, string>)[divisionFilter] || divisionFilter}
+            </span>
           </div>
 
           {/* Materico sub-section: Progetti vs Richieste & Offerte (hub operatore) */}

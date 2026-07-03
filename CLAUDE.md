@@ -629,6 +629,17 @@ reporting/redditività, integrazioni esterne
   (solo Onirico), nodo **`stimePreliminari/<id>`** (read/write studio attivo non-cliente/partner):
   **ripubblicare le regole**. Cestino sezione `stima`. Evoluzione futura (dal DOCX): valori
   alimentati dai preventivi reali delle imprese partner (listino Materico) per area geografica.
+  ⚠️ **Pulizia cross-società + Recruiting**: 1) RIMOSSA la pillbar ONIRICO/STRATEGICO/MATERICO/UNICO
+  dentro `ProjectsView` (violava "nessun rimando cross-società nella nav interna"): al suo posto un
+  badge STATICO della società corrente — la divisione arriva solo dalla sidebar (preset.division);
+  2) **Recruiting Strategico** (sezione `hr-recruiting`, da placeholder a `view:'recruiting'`,
+  componente **`RecruitingView`**, nodo **`recruiting/<id>`** tipo `RecruitItem` con `kind`
+  annuncio|candidato|inserimento): ANNUNCI di lavoro (testo completo, stato bozza/pubblicato/chiuso,
+  stampa), CANDIDATI in pipeline a colonne (candidatura→colloquio→prova→inserito/scartato, CV link,
+  annuncio di riferimento), PIANI DI INSERIMENTO a 6 mesi (template GURU JOBS: accoglienza/starter
+  kit, ruolo-obiettivi-PFV, formazione/tutor, feedback, verifiche — sezioni compilabili + stampa).
+  Cestino sezione `recruiting`. ⚠️ Nodo **`recruiting`** (read/write studio attivo non-cliente/
+  partner): **ripubblicare le regole**.
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

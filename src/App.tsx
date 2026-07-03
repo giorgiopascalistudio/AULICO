@@ -203,6 +203,7 @@ const CommercialeHub = React.lazy(() => import('./components/CommercialeHub').th
 const PianoBattaglia = React.lazy(() => import('./components/PianoBattaglia').then((m) => ({ default: m.PianoBattaglia })));
 const UnicoOpportunitaView = React.lazy(() => import('./components/UnicoOpportunitaView').then((m) => ({ default: m.UnicoOpportunitaView })));
 const StimaPreliminareView = React.lazy(() => import('./components/StimaPreliminareView').then((m) => ({ default: m.StimaPreliminareView })));
+const RecruitingView = React.lazy(() => import('./components/RecruitingView').then((m) => ({ default: m.RecruitingView })));
 const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
 const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m) => ({ default: m.FiscaleView })));
 const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
@@ -440,6 +441,7 @@ export default function App() {
   const [battlePlan, setBattlePlan] = useState<Record<string, BattleItem>>({});
   const [unicoOpps, setUnicoOpps] = useState<Record<string, UnicoOpportunity>>({});
   const [stimePreliminari, setStimePreliminari] = useState<Record<string, any>>({});
+  const [recruiting, setRecruiting] = useState<Record<string, any>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1737,6 +1739,7 @@ export default function App() {
       add('battlePlan', setBattlePlan);
       add('unicoOpportunita', setUnicoOpps);
       add('stimePreliminari', setStimePreliminari);
+      add('recruiting', setRecruiting);
       add('matericoDeals', setMatericoDeals);
       add('matericoListino', setMatericoListino);
       add('matericoContracts', setMatericoContracts);
@@ -2146,6 +2149,10 @@ export default function App() {
         case 'stima':
           setStimePreliminari((prev) => ({ ...prev, [id]: pl }));
           writeNode(`stimePreliminari/${id}`, pl).catch(() => {});
+          break;
+        case 'recruiting':
+          setRecruiting((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`recruiting/${id}`, pl).catch(() => {});
           break;
         case 'richiesta_cliente':
           setClientRequests((prev) => ({ ...prev, [id]: pl }));
@@ -3704,6 +3711,21 @@ export default function App() {
       setStimePreliminari((prev) => { const n = { ...prev }; delete n[id]; return n; });
       removeNode(`stimePreliminari/${id}`).catch(() => {});
       showToast('Stima spostata nel Cestino.', 'err');
+    });
+  };
+  // ---- Recruiting Strategico (recruiting) ----
+  const handleSaveRecruit = (i: any) => {
+    const enriched = { ...i, updatedAt: Date.now() };
+    setRecruiting((prev) => ({ ...prev, [i.id]: enriched }));
+    writeNode(`recruiting/${i.id}`, clean(enriched)).catch(() => showToast('Errore recruiting (controlla regole).', 'err'));
+  };
+  const handleDeleteRecruit = (id: string) => {
+    const i = recruiting[id];
+    askDelete('Eliminare questo elemento del recruiting?', i ? `"${i.title}"` : null, () => {
+      if (i) moveToTrash('recruiting', i.title || 'Recruiting', i, undefined, i.kind);
+      setRecruiting((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`recruiting/${id}`).catch(() => {});
+      showToast('Elemento spostato nel Cestino.', 'err');
     });
   };
   // Atto concluso → l'opportunità diventa un INVESTIMENTO (UnicoDeal)
@@ -5452,6 +5474,18 @@ export default function App() {
               </React.Suspense>
             );
           }
+          case 'recruiting':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <RecruitingView
+                  items={Object.values(recruiting)}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSave={handleSaveRecruit}
+                  onDelete={handleDeleteRecruit}
+                />
+              </React.Suspense>
+            );
           case 'stima-preliminare':
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
