@@ -15,7 +15,7 @@ import {
   CalendarDays, ChevronLeft, ChevronRight, Plus, X, Trash2, Image as ImageIcon,
   Video, Layers, UploadCloud, Link2, FolderInput, Hash, ArrowLeft, ArrowRight,
 } from 'lucide-react';
-import type { EditorialPost, EditorialMedia, EditorialStatus } from '../types';
+import type { EditorialPost, EditorialMedia, EditorialStatus, EditorialPhase } from '../types';
 import { safeUrl } from '../utils';
 
 export interface EditorialChannel { key: string; label: string; color?: string }
@@ -30,18 +30,41 @@ interface Props {
   color?: string;
   canEdit?: boolean;
   initialChannel?: string;              // 'Tutti' oppure la key di un canale
+  lockChannel?: boolean;                // vista account: canale fisso, selettore nascosto
   importProjects?: EditorialImportProject[];
   onSave?: (p: EditorialPost) => void;
   onDelete?: (id: string) => void;
 }
 
-const STATUS: { id: EditorialStatus; label: string; color: string }[] = [
+export const ED_STATUS: { id: EditorialStatus; label: string; color: string }[] = [
   { id: 'idea', label: 'Idea', color: '#6b7280' },
   { id: 'bozza', label: 'Bozza', color: '#b45309' },
   { id: 'programmato', label: 'Programmato', color: '#4338ca' },
   { id: 'pubblicato', label: 'Pubblicato', color: '#059669' },
 ];
+const STATUS = ED_STATUS;
 const statusOf = (s?: EditorialStatus) => STATUS.find((x) => x.id === (s || 'idea')) || STATUS[0];
+
+/** Le 9 fasi del workflow contenuti (PDF: pulsanti con pallini rosso/verde). */
+export const ED_PHASES: { id: EditorialPhase; label: string; short: string }[] = [
+  { id: 'ideazione', label: 'Ideazione', short: 'Idea' },
+  { id: 'bozza', label: 'Stesura bozza', short: 'Bozza' },
+  { id: 'copy', label: 'Redazione copy', short: 'Copy' },
+  { id: 'grafica', label: 'Realizzazione grafica', short: 'Grafica' },
+  { id: 'revisione', label: 'Revisione interna', short: 'Revisione' },
+  { id: 'approvazione', label: 'Approvazione cliente', short: 'Approvaz.' },
+  { id: 'programmazione', label: 'Programmazione', short: 'Programm.' },
+  { id: 'pubblicazione', label: 'Pubblicazione', short: 'Pubblicaz.' },
+  { id: 'analisi', label: 'Analisi risultati', short: 'Analisi' },
+];
+/** Stato macro derivato dai pallini del workflow. */
+export const deriveStatus = (wf?: Partial<Record<EditorialPhase, boolean>> | null): EditorialStatus => {
+  if (!wf) return 'idea';
+  if (wf.pubblicazione) return 'pubblicato';
+  if (wf.programmazione) return 'programmato';
+  if (wf.bozza || wf.copy || wf.grafica || wf.revisione || wf.approvazione) return 'bozza';
+  return 'idea';
+};
 const PLATFORMS = ['Instagram', 'Facebook', 'LinkedIn', 'TikTok', 'YouTube'];
 const WEEKDAYS = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 
@@ -93,7 +116,7 @@ async function filesToMedia(files: File[]): Promise<{ media: EditorialMedia[]; s
 }
 
 export const EditorialCalendar: React.FC<Props> = ({
-  posts, channels, color = '#b45309', canEdit = false, initialChannel = 'Tutti', importProjects = [], onSave, onDelete,
+  posts, channels, color = '#b45309', canEdit = false, initialChannel = 'Tutti', lockChannel = false, importProjects = [], onSave, onDelete,
 }) => {
   const [channel, setChannel] = React.useState<string>(initialChannel);
   React.useEffect(() => setChannel(initialChannel), [initialChannel]);
@@ -101,9 +124,17 @@ export const EditorialCalendar: React.FC<Props> = ({
   const [editing, setEditing] = React.useState<EditorialPost | null>(null);
   const [dragId, setDragId] = React.useState<string | null>(null);
 
+  // Il post può avere channel = key (nuovo) o label (legacy): matcha entrambi.
+  const matchesChannel = React.useCallback((p: EditorialPost, ch: string) => {
+    if (ch === 'Tutti') return true;
+    if (p.channel === ch) return true;
+    const c = channels.find((x) => x.key === ch);
+    return !!c && p.channel === c.label;
+  }, [channels]);
+
   const visible = React.useMemo(
-    () => posts.filter((p) => channel === 'Tutti' || p.channel === channel),
-    [posts, channel],
+    () => posts.filter((p) => matchesChannel(p, channel)),
+    [posts, channel, matchesChannel],
   );
   const byDay = React.useMemo(() => {
     const m: Record<string, EditorialPost[]> = {};
@@ -122,9 +153,9 @@ export const EditorialCalendar: React.FC<Props> = ({
 
   const blank = (dateISO: string, media: EditorialMedia[] = []): EditorialPost => ({
     id: mkid(),
-    channel: channel !== 'Tutti' ? channel : (channels[0]?.label || 'Onirico'),
+    channel: channel !== 'Tutti' ? channel : (channels[0]?.key || 'studio'),
     dateISO, time: null, topic: '', platform: 'Instagram', caption: '', hashtags: '', notes: '',
-    status: 'idea', media, createdAt: Date.now(),
+    status: 'idea', workflow: { ideazione: true }, media, createdAt: Date.now(),
   });
 
   const monthLabel = cursor.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
@@ -159,14 +190,16 @@ export const EditorialCalendar: React.FC<Props> = ({
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <select
-            value={channel}
-            onChange={(e) => setChannel(e.target.value)}
-            className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none focus:border-[#161616] bg-white cursor-pointer"
-          >
-            <option value="Tutti">Tutti i canali</option>
-            {channels.map((c) => <option key={c.key} value={c.label}>{c.label}</option>)}
-          </select>
+          {!lockChannel && (
+            <select
+              value={channel}
+              onChange={(e) => setChannel(e.target.value)}
+              className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none focus:border-[#161616] bg-white cursor-pointer"
+            >
+              <option value="Tutti">Tutti i canali</option>
+              {channels.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
+            </select>
+          )}
           {canEdit && (
             <button onClick={() => setEditing(blank(tISO))} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none">
               <Plus className="w-4 h-4" /> Nuovo contenuto
@@ -232,6 +265,7 @@ export const EditorialCalendar: React.FC<Props> = ({
           post={editing}
           channels={channels}
           canEdit={canEdit}
+          lockChannel={lockChannel}
           importProjects={importProjects}
           onClose={() => setEditing(null)}
           onSave={(p) => { onSave?.(p); setEditing(null); }}
@@ -282,12 +316,21 @@ const PostEditor: React.FC<{
   post: EditorialPost;
   channels: EditorialChannel[];
   canEdit: boolean;
+  lockChannel?: boolean;
   importProjects: EditorialImportProject[];
   onClose: () => void;
   onSave: (p: EditorialPost) => void;
   onDelete?: (id: string) => void;
-}> = ({ post, channels, canEdit, importProjects, onClose, onSave, onDelete }) => {
-  const [d, setD] = React.useState<EditorialPost>({ ...post, media: post.media || [] });
+}> = ({ post, channels, canEdit, lockChannel = false, importProjects, onClose, onSave, onDelete }) => {
+  // Normalizza il canale legacy (label) alla key dell'account.
+  const normCh = channels.find((c) => c.key === post.channel)?.key
+    || channels.find((c) => c.label === post.channel)?.key
+    || post.channel;
+  const [d, setD] = React.useState<EditorialPost>({ ...post, channel: normCh, media: post.media || [] });
+  const togglePhase = (ph: EditorialPhase) => {
+    const wf = { ...(d.workflow || {}), [ph]: !(d.workflow || {})[ph] };
+    setD((p) => ({ ...p, workflow: wf, status: deriveStatus(wf) }));
+  };
   const [importing, setImporting] = React.useState(false);
   const [linkVal, setLinkVal] = React.useState('');
   const [dropActive, setDropActive] = React.useState(false);
@@ -409,9 +452,11 @@ const PostEditor: React.FC<{
 
         {/* CAMPI */}
         <div className="grid grid-cols-2 gap-2.5">
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Canale</span>
-            <input list="ed-channels" disabled={!canEdit} value={d.channel} onChange={(e) => set({ channel: e.target.value })} className={inp} placeholder="Società o cliente" />
-            <datalist id="ed-channels">{channels.map((c) => <option key={c.key} value={c.label} />)}</datalist>
+          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Canale / account</span>
+            <select disabled={!canEdit || lockChannel} value={d.channel} onChange={(e) => set({ channel: e.target.value })} className={inp}>
+              {!channels.some((c) => c.key === d.channel) && <option value={d.channel}>{d.channel}</option>}
+              {channels.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
+            </select>
           </label>
           <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Piattaforma</span>
             <select disabled={!canEdit} value={d.platform || ''} onChange={(e) => set({ platform: e.target.value || null })} className={inp}><option value="">—</option>{PLATFORMS.map((p) => <option key={p} value={p}>{p}</option>)}</select>
@@ -430,6 +475,29 @@ const PostEditor: React.FC<{
             <textarea disabled={!canEdit} value={d.caption || ''} onChange={(e) => set({ caption: e.target.value || null })} rows={3} className={`${inp} resize-none`} /></label>
           <label className="flex flex-col gap-1 col-span-2"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Note operative</span>
             <input disabled={!canEdit} value={d.notes || ''} onChange={(e) => set({ notes: e.target.value || null })} className={inp} /></label>
+        </div>
+
+        {/* WORKFLOW 9 FASI — pallini rosso/verde (lo stato macro si aggiorna da solo) */}
+        <div className="mt-3 rounded-[14px] border border-[#e6e6e6] bg-[#fafaf8] p-3">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a] mb-2">Workflow del contenuto</p>
+          <div className="flex flex-wrap gap-1.5">
+            {ED_PHASES.map((ph) => {
+              const done = !!(d.workflow || {})[ph.id];
+              return (
+                <button
+                  key={ph.id}
+                  type="button"
+                  disabled={!canEdit}
+                  onClick={() => togglePhase(ph.id)}
+                  title={ph.label}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[10.5px] font-bold border cursor-pointer transition-colors ${done ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-white border-[#e2e2e2] text-[#8a8a8a] hover:border-[#c0c0c0]'} disabled:cursor-default`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${done ? 'bg-emerald-500' : 'bg-rose-400'}`} />
+                  {ph.short}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {canEdit && (

@@ -479,15 +479,44 @@ reporting/redditività, integrazioni esterne
   admin/manager). Copertura **incrementale** (aggiungere `logAudit` ai nuovi handler significativi).
   ⚠️ Aggiunto il nodo **`editorialPosts/<id>`** (Calendario editoriale / "anteprima di pubblicazione",
   §22-bis-cal — read/write studio attivo non-cliente/partner): **ripubblicare le regole**, altrimenti il
-  calendario editoriale non salva (write silenziosa). Componente **`EditorialCalendar`** (`view:'editorial'`,
-  hub in Strategico → Marketing → "Calendario editoriale" **e** per-società `mkt-calendario`): mese con
-  anteprime media per giorno, **canali** = società del gruppo + clienti terzi (rubrica), drag&drop media dal
+  calendario editoriale non salva (write silenziosa). Componente **`EditorialCalendar`**: mese con
+  anteprime media per giorno, drag&drop media dal
   dispositivo (immagini **inline** dataURL ridotte via canvas; video/file grandi via **link**) + **import dai
   documenti di una pratica SOLO se il cliente ha `consents.marketing`** (gating fatto in App: `importProjects`
   filtra `projects` per `users[clientUid].consents.marketing`). `>1 media = carosello`. Handler
   `handleSaveEditorialPost`/`handleDeleteEditorialPost` (+ Cestino sezione `editorial`). Tipi `EditorialPost`/
   `EditorialMedia`/`EditorialStatus` in `types.ts`. Consensi cliente: **spunte in registrazione** (`AuthFlow`
   `renderPrivacy`: privacy/newsletter/**marketing**) → `users/<uid>.consents` + `consentsAt`.
+  **RISTRUTTURATO (Centro Marketing, §22-septies)**: `EditorialPost.channel` ora è l'**id dell'account
+  gestito** (slug società o `acc-…`; i post legacy con label matchano comunque), aggiunti
+  `EditorialPost.workflow` (9 fasi con pallini, tipo `EditorialPhase`; stato macro derivato da
+  `deriveStatus`) e la prop `lockChannel` (canale fisso, selettore nascosto) su `EditorialCalendar`.
+  Il calendario NON è più una voce a sé in Strategico: vive dentro il workspace account del Centro
+  Marketing; nelle società operative resta `mkt-calendario` ma in **sola lettura** (consultazione).
+  ⚠️ **Centro Marketing (§22-septies)** — la sezione Marketing di Strategico è stata RISTRUTTURATA
+  (richiesta esplicita: "non può stare tutto insieme, ogni cliente deve avere il suo calendario").
+  Un'unica voce **Strategico → Marketing → "Centro Marketing"** (`view:'marketing-hub'`, componente
+  **`MarketingHub`**, lazy) a 2 livelli: 1) **Centro** = salute di TUTTI gli account gestiti (5 società +
+  clienti terzi: Regolare/Attenzione/Critico, ultimo post, prossima pubblicazione, oggi in pubblicazione,
+  alert automatici, "Report riunione" stampabile con stato account + spese + preventivi Strategico
+  inviati/da inviare) + "Nuovo cliente" dalla rubrica; 2) **workspace per account** con tab: Panoramica/
+  scheda (obiettivi/target/tono di voce/canali social/budget/**liberatoria → banner "NON PUBBLICARE
+  NULLA"**), Calendario (EditorialCalendar bloccato sul canale), Workflow 9 fasi (tabella pallini
+  rosso/verde), KPI mensili manuali per piattaforma IG/FB/Google/Sito (delta vs mese precedente +
+  grafico, predisposti per API future), Spese & budget (ponte `handleRegisterMktExpense` → fattura
+  passiva `sector:'strategico'`), Report mensile stampabile (performance/programmazione/spese/
+  conclusioni persistite), Eventi & gadget e Blog (riuso nodo `socMkt` con `soc`=accountId), Altro
+  (newsletters/messaggi automatici/recensioni/foto cantieri/archivio idee = "in preparazione").
+  Nuovi nodi: **`mktAccounts`**, **`mktKpi`**, **`mktExpenses`**, **`mktReports`** (tutti read/write
+  studio attivo non-cliente/non-partner): **ripubblicare le regole**, altrimenti scheda account/KPI/
+  spese/report falliscono con write silenziosa. Tipi `MktAccount`/`MktKpiEntry`/`MktExpense`/
+  `MktMonthlyReport` in types.ts; Cestino sezioni `mkt-account`/`mkt-spesa`. Gli account delle 5
+  società sono **sempre presenti** (id = slug società, merge con `mktAccounts` se salvati); i clienti
+  terzi vivono solo in `mktAccounts` (`acc-…`, opzionale `clientRecordId` dalla rubrica).
+  **PULIZIA doppioni**: ritirate dalla UI `MarketingSection` (nodo mktSocial, "Marketing operativo"),
+  `MarketingSocietaView` (board socMkt per società) e la voce `mkt-strategico` (vecchia StrategicoView
+  V1); le società operative hanno SOLO `mkt-calendario` read-only. La rotta legacy `#strategico`
+  ora apre il Centro Marketing.
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

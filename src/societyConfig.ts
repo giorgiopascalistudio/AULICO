@@ -430,12 +430,9 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   else s.push(ph('comm-listino', 'Listino prezzi', ListChecks, 'commerciale', 'commerciale', 'Listino prezzi.'));
   s.push({ id: 'comm-clienti', label: isMat ? 'Imprese & Fornitori' : 'Registro clienti', icon: isMat ? Truck : BookUser, parent: 'commerciale', module: 'crm', legacyRoute: 'crm', preset: { crmTab: isMat ? 'fornitori' : 'clienti' } });
 
-  // ---- MARKETING (Calendario editoriale · Eventi · Blog · Statistiche) ----
+  // ---- MARKETING (consultazione: il piano editoriale è gestito dal Centro Marketing di Strategico) ----
   s.push({ id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' });
-  s.push({ id: 'mkt-calendario', label: 'Calendario editoriale', icon: Calendar, parent: 'marketing', module: 'marketing', view: 'editorial' });
-  s.push({ id: 'mkt-eventi', label: 'Eventi & gadget', icon: Gift, parent: 'marketing', module: 'marketing', view: 'marketing-soc' });
-  s.push({ id: 'mkt-blog', label: 'Articoli blog', icon: FileText, parent: 'marketing', module: 'marketing', view: 'marketing-soc' });
-  s.push({ id: 'mkt-stat', label: 'Statistiche', icon: BarChart3, parent: 'marketing', module: 'marketing', view: 'marketing-soc' });
+  s.push({ id: 'mkt-calendario', label: 'Calendario editoriale', icon: Calendar, parent: 'marketing', module: 'marketing', view: 'editorial', note: 'Piano editoriale della società in sola lettura — la gestione operativa è nel Centro Marketing di Strategico.' });
 
   // ---- CONTABILITÀ & AMMINISTRAZIONE ----
   s.push({ id: 'amm', label: 'Contabilità & Amministrazione', icon: DollarSign, module: 'finance', kind: 'group' });
@@ -468,11 +465,9 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       { id: 'hr-recruiting', label: 'Recruiting', icon: UserPlus, parent: 'hr', module: 'hr', kind: 'placeholder', note: 'Job description, annunci, colloqui, piani di inserimento.' },
       { id: 'hr-governance', label: 'Governance', icon: Network, parent: 'hr', module: 'governance', view: 'governance', note: 'Organigramma, mansionari, procedure (SOP), team & permessi, cassaforte password.' },
       { id: 'hr-registro', label: 'Registro attività', icon: ScrollText, parent: 'hr', shared: true, module: 'registro', legacyRoute: 'registro' },
-      // === SOTTO-CATEGORIA: Marketing (hub di gruppo: tutte le società + clienti terzi) ===
+      // === SOTTO-CATEGORIA: Marketing (Centro Marketing: hub di TUTTI gli account gestiti) ===
       { id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' },
-      { id: 'mkt-calendario', label: 'Calendario editoriale', icon: Calendar, parent: 'marketing', module: 'marketing', view: 'editorial', note: 'Anteprima di pubblicazione multi-canale (società + clienti terzi): immagini/video/caroselli, drag&drop, import dai documenti pratica col consenso.' },
-      { id: 'mkt-operativo', label: 'Marketing operativo', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing', note: 'Produzione contenuti + calendario editoriale multi-canale.' },
-      { id: 'mkt-strategico', label: 'Marketing strategico', icon: BarChart3, parent: 'marketing', module: 'marketing', legacyRoute: 'progetti', preset: { division: 'strategico' }, note: 'Analisi dati, KPI, budget.' },
+      { id: 'mkt-centro', label: 'Centro Marketing', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing-hub', note: 'Salute di tutti gli account gestiti (5 società + clienti terzi); ogni account ha il SUO workspace: scheda/liberatoria, calendario editoriale, workflow 9 fasi, KPI, spese & budget, report mensile, eventi & gadget, blog.' },
       // === SOTTO-CATEGORIA: Amministrazione & Contabilità ===
       { id: 'amm', label: 'Amministrazione & Contabilità', icon: Briefcase, module: 'finance', kind: 'group' },
       { id: 'amm-contabilita', label: 'Contabilità', icon: DollarSign, parent: 'amm', shared: true, module: 'finance', legacyRoute: 'finanze', note: 'Preventivi, contratti, fatturazione, provvigioni.' },

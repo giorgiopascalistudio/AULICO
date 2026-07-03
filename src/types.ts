@@ -1009,9 +1009,13 @@ export interface EditorialMedia {
   source?: 'upload' | 'link' | 'project' | null;  // provenienza (project = da documenti pratica, con consenso)
   projectId?: string | null;   // pratica di origine (se importato dai documenti)
 }
+/** Le 9 fasi del workflow contenuti (PDF marketing): pallini rosso/verde per fase. */
+export type EditorialPhase =
+  | 'ideazione' | 'bozza' | 'copy' | 'grafica' | 'revisione'
+  | 'approvazione' | 'programmazione' | 'pubblicazione' | 'analisi';
 export interface EditorialPost {
   id: string;
-  channel: string;             // profilo/canale: società o cliente terzo (chiave di filtro + display)
+  channel: string;             // account gestito: id MktAccount (società o cliente terzo); legacy = label
   dateISO: string;             // giorno di pubblicazione (yyyy-mm-dd)
   time?: string | null;
   topic?: string | null;       // argomento
@@ -1020,10 +1024,73 @@ export interface EditorialPost {
   hashtags?: string | null;
   notes?: string | null;
   status: EditorialStatus;
+  workflow?: Partial<Record<EditorialPhase, boolean>> | null; // pallini rosso/verde delle 9 fasi
   media?: EditorialMedia[];    // >1 = carosello
   createdAt: number;
   updatedAt?: number;
   createdBy?: string | null;
+}
+
+// ============================================================
+// Centro Marketing (Strategico) — account gestiti + KPI + spese + report.
+// Un "account" = un profilo di cui Strategico cura il marketing: le 5 società
+// del gruppo (id = slug società: 'studio'|'materico'|'unico'|'strategico'|
+// 'fantastico') oppure un cliente terzo ('acc-…', collegabile alla rubrica).
+// ============================================================
+/** Nodo `mktAccounts/<id>` — scheda dell'account gestito (PDF §2.2 "Vista Dedicata"). */
+export interface MktAccount {
+  id: string;                      // slug società oppure 'acc-<ts>'
+  kind: 'societa' | 'cliente';
+  name: string;
+  clientRecordId?: string | null;  // rubrica `clients` (per i clienti terzi)
+  color?: string | null;
+  active?: boolean;                // gestito attivamente (default true)
+  goals?: string | null;           // obiettivi
+  target?: string | null;          // target di riferimento
+  tone?: string | null;            // tono di voce
+  channels?: { platform: string; handle?: string | null; url?: string | null }[]; // canali social
+  liberatoria?: boolean;           // consenso pubblicazione: se manca → NON PUBBLICARE NULLA
+  budgetMonthly?: number | null;   // budget marketing mensile (€)
+  notes?: string | null;
+  createdAt: number;
+  updatedAt?: number;
+}
+/** Nodo `mktKpi/<id>` — statistiche mensili MANUALI per piattaforma (predisposte per API future).
+ * id deterministico `<accountId>__<platform>__<yyyy-mm>`; metriche per piattaforma (PDF Excel):
+ * instagram/facebook: followers, interazioni, sponsorizzata, lead, visualizzazioni, post, storie
+ * google: visualizzazioni, clickSito, indicazioni, chiamate
+ * sito: utentiAttivi, nuoviUtenti, sessioni, lead, stranieriPct, interazioni */
+export type MktKpiPlatform = 'instagram' | 'facebook' | 'google' | 'sito';
+export interface MktKpiEntry {
+  id: string;
+  accountId: string;
+  platform: MktKpiPlatform;
+  ym: string;                      // 'yyyy-mm'
+  metrics: Record<string, number | null>;
+  notes?: string | null;
+  updatedAt: number;
+}
+/** Nodo `mktExpenses/<id>` — spese marketing (piano finanziario di Rosa): registro
+ * per account con ponte in Contabilità (fattura passiva sector 'strategico'). */
+export interface MktExpense {
+  id: string;
+  accountId: string;               // account di riferimento (o 'generale')
+  date: string;                    // yyyy-mm-dd
+  category: 'sponsorizzata' | 'gadget' | 'evento' | 'stampa' | 'software' | 'altro';
+  description?: string | null;
+  amount: number;
+  invoiceId?: string | null;       // fattura passiva generata in Finanza (dedup)
+  createdAt: number;
+  updatedAt?: number;
+}
+/** Nodo `mktReports/<id>` — conclusioni/commento del report mensile per account
+ * (id deterministico `<accountId>__<yyyy-mm>`); il resto del report è calcolato. */
+export interface MktMonthlyReport {
+  id: string;
+  accountId: string;
+  ym: string;
+  conclusions?: string | null;
+  updatedAt: number;
 }
 
 /** Voce della Programmazione fatturazione (nodo `fatturazionePlan/<id>`): cosa va fatturato,

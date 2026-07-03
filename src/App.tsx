@@ -107,6 +107,10 @@ import {
   SocMktItem,
   FiscaleItem,
   EditorialPost,
+  MktAccount,
+  MktKpiEntry,
+  MktExpense,
+  MktMonthlyReport,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -172,7 +176,6 @@ import { AulicoSidebar } from './components/AulicoSidebar';
 import { SocietyDashboard } from './components/SocietyDashboard';
 import { SectionPlaceholder } from './components/SectionPlaceholder';
 import { GroupTabBar } from './components/GroupTabBar';
-import { MarketingSection } from './components/sections/MarketingSection';
 const GovernanceView = React.lazy(() => import('./components/GovernanceView').then((m) => ({ default: m.GovernanceView })));
 const HrAgendaView = React.lazy(() => import('./components/HrAgendaView').then((m) => ({ default: m.HrAgendaView })));
 const MatericoDealsView = React.lazy(() => import('./components/MatericoDealsView').then((m) => ({ default: m.MatericoDealsView })));
@@ -183,14 +186,14 @@ const MatericoHomeView = React.lazy(() => import('./components/MatericoHomeView'
 const PianoFinanziarioView = React.lazy(() => import('./components/PianoFinanziarioView').then((m) => ({ default: m.PianoFinanziarioView })));
 const ProgFatturazioneView = React.lazy(() => import('./components/ProgFatturazioneView').then((m) => ({ default: m.ProgFatturazioneView })));
 const CommercialeView = React.lazy(() => import('./components/CommercialeView').then((m) => ({ default: m.CommercialeView })));
-const MarketingSocietaView = React.lazy(() => import('./components/MarketingSocietaView').then((m) => ({ default: m.MarketingSocietaView })));
 const EditorialCalendar = React.lazy(() => import('./components/EditorialCalendar').then((m) => ({ default: m.EditorialCalendar })));
+const MarketingHub = React.lazy(() => import('./components/MarketingHub').then((m) => ({ default: m.MarketingHub })));
 const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
 const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m) => ({ default: m.FiscaleView })));
 const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
-  firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, type SectionConfig, type DashboardCtx,
+  firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, SOCIETY_COLOR, type SectionConfig, type DashboardCtx,
 } from './societyConfig';
 import type { Societa } from './types';
 import { TeamAssistant } from './components/TeamAssistant';
@@ -401,6 +404,11 @@ export default function App() {
   const [fatturazionePlan, setFatturazionePlan] = useState<Record<string, FatturazionePlanItem>>({});
   const [socMkt, setSocMkt] = useState<Record<string, SocMktItem>>({});
   const [editorialPosts, setEditorialPosts] = useState<Record<string, EditorialPost>>({});
+  // Centro Marketing (Strategico): account gestiti + KPI + spese + report mensili
+  const [mktAccounts, setMktAccounts] = useState<Record<string, MktAccount>>({});
+  const [mktKpi, setMktKpi] = useState<Record<string, MktKpiEntry>>({});
+  const [mktExpenses, setMktExpenses] = useState<Record<string, MktExpense>>({});
+  const [mktReports, setMktReports] = useState<Record<string, MktMonthlyReport>>({});
   const [fiscalePlan, setFiscalePlan] = useState<Record<string, FiscaleItem>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
@@ -575,7 +583,7 @@ export default function App() {
       let secSoc: Societa = 'studio';
       let secId = 'dashboard';
       if (r === 'materico') { r = 'progetti'; setActiveDivision('materico'); secSoc = 'materico'; secId = 'home-cicli'; }
-      else if (r === 'strategico') { r = 'progetti'; setActiveDivision('strategico'); secSoc = 'strategico'; secId = 'mkt-strategico'; }
+      else if (r === 'strategico') { r = 'sview'; secSoc = 'strategico'; secId = 'mkt-centro'; }
       else if (r === 'preventivi') { r = 'finanze'; setFinStartTab('preventivi'); secSoc = 'studio'; secId = 'commerciale'; }
       else if (r === 'statistiche') { r = 'finanze'; setFinStartTab('statistiche'); secSoc = 'strategico'; secId = 'amministrazione'; }
       else {
@@ -1686,6 +1694,10 @@ export default function App() {
       add('fatturazionePlan', setFatturazionePlan);
       add('socMkt', setSocMkt);
       add('editorialPosts', setEditorialPosts);
+      add('mktAccounts', setMktAccounts);
+      add('mktKpi', setMktKpi);
+      add('mktExpenses', setMktExpenses);
+      add('mktReports', setMktReports);
       add('fiscalePlan', setFiscalePlan);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
@@ -2050,6 +2062,14 @@ export default function App() {
         case 'editorial':
           setEditorialPosts((prev) => ({ ...prev, [id]: pl }));
           writeNode(`editorialPosts/${id}`, pl).catch(() => {});
+          break;
+        case 'mkt-account':
+          setMktAccounts((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`mktAccounts/${id}`, pl).catch(() => {});
+          break;
+        case 'mkt-spesa':
+          setMktExpenses((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`mktExpenses/${id}`, pl).catch(() => {});
           break;
         case 'richiesta_cliente':
           setClientRequests((prev) => ({ ...prev, [id]: pl }));
@@ -3466,6 +3486,57 @@ export default function App() {
       removeNode(`editorialPosts/${id}`).catch(() => {});
       showToast('Contenuto spostato nel Cestino.', 'err');
     });
+  };
+  // ---- Centro Marketing (mktAccounts / mktKpi / mktExpenses / mktReports) ----
+  const handleSaveMktAccount = (a: MktAccount) => {
+    const enriched: MktAccount = { ...a, updatedAt: Date.now(), createdAt: a.createdAt || Date.now() };
+    setMktAccounts((prev) => ({ ...prev, [a.id]: enriched }));
+    writeNode(`mktAccounts/${a.id}`, enriched).catch(() => showToast('Errore account marketing (controlla regole).', 'err'));
+  };
+  const handleDeleteMktAccount = (id: string) => {
+    const a = mktAccounts[id];
+    askDelete('Eliminare questo account marketing?', a ? `"${a.name}" — i contenuti del calendario restano.` : null, () => {
+      if (a) moveToTrash('mkt-account', a.name || 'Account marketing', a);
+      setMktAccounts((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`mktAccounts/${id}`).catch(() => {});
+      showToast('Account marketing spostato nel Cestino.', 'err');
+    });
+  };
+  const handleSaveMktKpi = (k: MktKpiEntry) => {
+    setMktKpi((prev) => ({ ...prev, [k.id]: k }));
+    writeNode(`mktKpi/${k.id}`, k).catch(() => showToast('Errore KPI marketing (controlla regole).', 'err'));
+  };
+  const handleSaveMktExpense = (e: MktExpense) => {
+    const enriched: MktExpense = { ...e, updatedAt: Date.now(), createdAt: e.createdAt || Date.now() };
+    setMktExpenses((prev) => ({ ...prev, [e.id]: enriched }));
+    writeNode(`mktExpenses/${e.id}`, enriched).catch(() => showToast('Errore spese marketing (controlla regole).', 'err'));
+  };
+  const handleDeleteMktExpense = (id: string) => {
+    const e = mktExpenses[id];
+    askDelete('Eliminare questa spesa marketing?', e ? `${e.description || e.category} · ${eur(e.amount)}` : null, () => {
+      if (e) moveToTrash('mkt-spesa', e.description || e.category || 'Spesa marketing', e, undefined, eur(e.amount));
+      setMktExpenses((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`mktExpenses/${id}`).catch(() => {});
+      showToast('Spesa spostata nel Cestino.', 'err');
+    });
+  };
+  // Spesa marketing → fattura passiva in Finanza (sector:'strategico'), come le ads
+  const handleRegisterMktExpense = (e: MktExpense) => {
+    if (e.invoiceId) return;
+    const accName = mktAccounts[e.accountId]?.name || (SOCIETA_LABEL as any)[e.accountId] || e.accountId;
+    const invId = `inp-${Date.now()}-${Math.floor(Math.random() * 900)}`;
+    const inv: InvoicePassive = {
+      id: invId, supplierName: `Marketing · ${e.category}`, projectId: '', projectName: '', amount: e.amount,
+      category: 'Marketing', status: 'ricevuta', date: e.date || todayISO(), dueDate: e.date || todayISO(),
+      sector: 'strategico', description: `${e.description || e.category} (${accName})`,
+    };
+    handleSaveFinanceItem('finInvoicesPassive', inv);
+    handleSaveMktExpense({ ...e, invoiceId: invId });
+    showToast('Spesa registrata in Contabilità (Strategico).', 'ok');
+  };
+  const handleSaveMktReport = (r: MktMonthlyReport) => {
+    setMktReports((prev) => ({ ...prev, [r.id]: r }));
+    writeNode(`mktReports/${r.id}`, r).catch(() => showToast('Errore report marketing (controlla regole).', 'err'));
   };
   // ---- Programmazione fatturazione (fatturazionePlan) ----
   const handleSaveFatturazione = (i: FatturazionePlanItem) => {
@@ -5042,17 +5113,51 @@ export default function App() {
         if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
         switch (sec.view) {
           // Le sezioni V2 costruite "separate" si registrano qui (un caso per `view`).
-          case 'marketing':
+          case 'marketing-hub': {
+            // Account gestiti: le 5 società (sempre presenti; scheda sovrascrivibile
+            // da mktAccounts con lo stesso id) + i clienti terzi (solo mktAccounts).
+            const socAccounts: MktAccount[] = (['strategico', 'studio', 'materico', 'unico', 'fantastico'] as const).map((s) => ({
+              id: s, kind: 'societa' as const, name: (SOCIETA_LABEL as any)[s] || s,
+              color: (SOCIETY_COLOR as any)[s] || '#8a8a8a', active: true, liberatoria: true, createdAt: 0,
+              ...(mktAccounts[s] ? { ...mktAccounts[s], id: s, kind: 'societa' as const, name: (SOCIETA_LABEL as any)[s] || s } : {}),
+            }));
+            const cliAccounts = Object.values(mktAccounts).filter((a) => a.kind === 'cliente');
+            const hubImport = Object.values(projects)
+              .filter((p) => p.clientUid && users[p.clientUid]?.consents?.marketing)
+              .map((p) => ({
+                id: p.id, name: p.name,
+                docs: Object.values(documents[p.id] || {}).map((dd: any) => ({ id: dd.id, name: dd.name, url: dd.url, type: dd.type })),
+              }))
+              .filter((p) => p.docs.length > 0);
             return (
-              <MarketingSection
-                posts={Object.values(mktSocial)}
-                projects={Object.values(mktProjects)}
-                color={society.color}
-                initialTab={activeSection === 'mkt-strategico' ? 'analisi' : 'calendario'}
-                onSavePost={handleSaveSocialPost}
-                onDeletePost={handleDeleteSocialPost}
-              />
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <MarketingHub
+                  accounts={[...socAccounts, ...cliAccounts]}
+                  posts={Object.values(editorialPosts)}
+                  kpi={Object.values(mktKpi)}
+                  expenses={Object.values(mktExpenses)}
+                  reports={Object.values(mktReports)}
+                  extras={Object.values(socMkt)}
+                  quotes={Object.values(quotes).filter((q: any) => q.division === 'strategico')}
+                  rubrica={Object.values(clients).map((c) => ({ id: c.id, name: c.name }))}
+                  importProjects={hubImport}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSaveAccount={handleSaveMktAccount}
+                  onDeleteAccount={handleDeleteMktAccount}
+                  onSavePost={handleSaveEditorialPost}
+                  onDeletePost={handleDeleteEditorialPost}
+                  onSaveKpi={handleSaveMktKpi}
+                  onSaveExpense={handleSaveMktExpense}
+                  onDeleteExpense={handleDeleteMktExpense}
+                  onRegisterExpense={handleRegisterMktExpense}
+                  onSaveReport={handleSaveMktReport}
+                  onSaveExtra={handleSaveSocMkt}
+                  onDeleteExtra={handleDeleteSocMkt}
+                />
+              </React.Suspense>
             );
+          }
           case 'materico-deals':
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
@@ -5129,51 +5234,21 @@ export default function App() {
             );
           }
           case 'editorial': {
-            // Canali = società del gruppo + clienti terzi (rubrica).
-            const societyChannels = (['studio', 'materico', 'unico', 'strategico', 'fantastico'] as const)
-              .map((s) => ({ key: s, label: (SOCIETA_LABEL as any)[s] || s }));
-            const clientChannels = Object.values(clients).map((c) => ({ key: `cli-${c.id}`, label: c.name }));
-            const edChannels = [...societyChannels, ...clientChannels];
-            // Import documenti pratica: SOLO pratiche il cui cliente collegato ha dato il consenso marketing.
-            const importProjects = Object.values(projects)
-              .filter((p) => p.clientUid && users[p.clientUid]?.consents?.marketing)
-              .map((p) => ({
-                id: p.id, name: p.name,
-                docs: Object.values(documents[p.id] || {}).map((dd: any) => ({ id: dd.id, name: dd.name, url: dd.url, type: dd.type })),
-              }))
-              .filter((p) => p.docs.length > 0);
-            // Hub (Strategico/Aulico) = tutti i canali; sezione di una società = filtro su quella società.
-            const initCh = activeSocieta === 'holding' || activeSocieta === 'strategico'
-              ? 'Tutti' : ((SOCIETA_LABEL as any)[activeSocieta] || 'Tutti');
+            // Sezione Marketing di una società operativa: il SUO calendario in sola
+            // lettura (la gestione è centralizzata nel Centro Marketing di Strategico).
+            const socKey = activeSocieta as string;
+            const edChannels = [{ key: socKey, label: (SOCIETA_LABEL as any)[socKey] || society.label }];
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
                 <EditorialCalendar
                   posts={Object.values(editorialPosts)}
                   channels={edChannels}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
-                  initialChannel={initCh}
-                  importProjects={importProjects}
+                  canEdit={false}
+                  initialChannel={socKey}
+                  lockChannel
                   onSave={handleSaveEditorialPost}
                   onDelete={handleDeleteEditorialPost}
-                />
-              </React.Suspense>
-            );
-          }
-          case 'marketing-soc': {
-            const psoc = activeSocieta as string;
-            const itab = activeSection === 'mkt-eventi' ? 'eventi' : activeSection === 'mkt-blog' ? 'blog' : activeSection === 'mkt-stat' ? 'stat' : 'calendario';
-            return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
-                <MarketingSocietaView
-                  items={Object.values(socMkt).filter((i) => i.soc === psoc)}
-                  soc={psoc}
-                  socLabel={society.label}
-                  initialTab={itab as any}
-                  color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
-                  onSave={handleSaveSocMkt}
-                  onDelete={handleDeleteSocMkt}
                 />
               </React.Suspense>
             );
