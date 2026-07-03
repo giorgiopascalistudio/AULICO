@@ -589,6 +589,21 @@ reporting/redditività, integrazioni esterne
   ⚠️ Nodo **`clientQuotes`** in `firebase-rules.json` (read collezione studio attivo; read `$uid`
   proprio; write `$qid` studio; write granulare `choice` del proprietario): **ripubblicare le regole**,
   altrimenti "Invia al portale" fallisce in silenzio e il cliente non vede i preventivi.
+  **MOBILE V2 + Cestino & Archivio nei hub**: la **`Navbar`** mobile è stata RISCRITTA sulla struttura
+  V2 (niente più voci legacy Dashboard/Progetti/CRM/Documenti): bottom bar **Home · Agenda · Società ·
+  Altro** — "Società" apre uno sheet a tutto schermo con l'accordion delle 5 società e le loro sezioni
+  a gruppi (STESSA fonte del desktop: `SOCIETY_REGISTRY` + `canViewSection`, nav a hash
+  `#<slug>/<sezione>`); "Altro" = sezioni condivise della holding (Registro, Cestino); nel topbar chip
+  della società attiva. Props cambiate: `activeSocieta/activeSection/onNav(hash)` (via `route`/`title`).
+  Ogni hub (Marketing/Direzione/Commerciale) ha ora il pulsante **"Cestino & Archivio"** nel Centro →
+  pannello **`HubCestino`** (riusabile): elementi eliminati dell'area (dal cestino condiviso, filtrati
+  per sezione, ripristino + elimina definitivo via `handleRestoreTrash`/`handleTrashDeleteForever`) +
+  ARCHIVIO dell'area (Commerciale: preventivi archiviati con "Riattiva"; Marketing: contenuti
+  pubblicati; Direzione: cicli chiusi con "Riapri"). Nessun nodo nuovo.
+  **Fantastico definito dall'utente** (mancava nei docs): gestione immobiliare — manutenzioni ed
+  erogazione servizi tramite partner ("dal tagliare il prato a trovare un van per gli ospiti").
+  Modulo da costruire DOPO Unico→Onirico→Materico (ordine scelto dall'utente per la ricostruzione
+  delle società operative secondo i 00-DESCRIZIONE.md di AULICO 2.0/docs/SEZIONI).
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

@@ -20,8 +20,9 @@ import {
 } from 'lucide-react';
 import type {
   MktAccount, MktKpiEntry, MktKpiPlatform, MktExpense, MktMonthlyReport,
-  EditorialPost, EditorialPhase, SocMktItem, Quote,
+  EditorialPost, EditorialPhase, SocMktItem, Quote, TrashItem,
 } from '../types';
+import HubCestino from './HubCestino';
 import { eur, safeUrl } from '../utils';
 import EditorialCalendar, { ED_PHASES, ED_STATUS, deriveStatus } from './EditorialCalendar';
 import type { EditorialImportProject } from './EditorialCalendar';
@@ -128,6 +129,10 @@ interface Props {
   onSaveReport?: (r: MktMonthlyReport) => void;
   onSaveExtra?: (i: SocMktItem) => void;
   onDeleteExtra?: (id: string) => void;
+  // Cestino & Archivio dell'area
+  trash?: TrashItem[];
+  onRestoreTrash?: (t: TrashItem) => void;
+  onTrashDeleteForever?: (t: TrashItem) => void;
 }
 
 type WsTab = 'panoramica' | 'calendario' | 'workflow' | 'kpi' | 'spese' | 'report' | 'eventi' | 'blog' | 'altro';
@@ -148,10 +153,38 @@ export const MarketingHub: React.FC<Props> = (props) => {
   const { accounts, posts, color = '#b45309', canEdit = false } = props;
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [tab, setTab] = React.useState<WsTab>('panoramica');
+  const [showCestino, setShowCestino] = React.useState(false);
   const active = accounts.find((a) => a.id === activeId) || null;
 
   const open = (id: string, t: WsTab = 'panoramica') => { setActiveId(id); setTab(t); };
 
+  if (showCestino) {
+    const accName = (ch: string) => accounts.find((a) => a.id === ch || a.name === ch)?.name || ch;
+    return (
+      <div className="flex flex-col gap-4 text-left">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setShowCestino(false)} className="w-9 h-9 rounded-xl border border-[#e2e2e2] bg-white hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer" title="Centro Marketing"><ArrowLeft className="w-4 h-4" /></button>
+          <h2 className="text-[20px] font-black tracking-tight text-[#161616]">Cestino & Archivio · Marketing</h2>
+        </div>
+        <HubCestino
+          sections={['editorial', 'mkt-account', 'mkt-spesa']}
+          trash={props.trash || []}
+          archived={posts
+            .filter((p) => p.status === 'pubblicato')
+            .sort((a, b) => b.dateISO.localeCompare(a.dateISO))
+            .map((p) => ({
+              id: p.id,
+              label: p.topic || p.caption || 'Contenuto',
+              meta: `${accName(p.channel)} · ${new Date(p.dateISO).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}${p.platform ? ` · ${p.platform}` : ''}`,
+            }))}
+          archiveHint="Contenuti già pubblicati (lo storico del piano editoriale)."
+          canEdit={canEdit}
+          onRestore={props.onRestoreTrash}
+          onDeleteForever={props.onTrashDeleteForever}
+        />
+      </div>
+    );
+  }
   if (active) {
     return (
       <Workspace
@@ -163,15 +196,15 @@ export const MarketingHub: React.FC<Props> = (props) => {
       />
     );
   }
-  return <Centro {...props} onOpen={open} color={color} canEdit={canEdit} />;
+  return <Centro {...props} onOpen={open} color={color} canEdit={canEdit} onOpenCestino={() => setShowCestino(true)} />;
 };
 
 // ============================================================================
 // LIVELLO 1 — CENTRO MARKETING
 // ============================================================================
-const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void }> = ({
+const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void; onOpenCestino?: () => void }> = ({
   accounts, posts, expenses, quotes, reports, rubrica, color = '#b45309', canEdit = false,
-  onSaveAccount, onSaveReport, onOpen,
+  onSaveAccount, onSaveReport, onOpen, onOpenCestino,
 }) => {
   const [adding, setAdding] = React.useState(false);
   const [showReport, setShowReport] = React.useState(false);
@@ -217,7 +250,12 @@ const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void }> = 
             Tutti gli account gestiti da Strategico: società del gruppo + clienti terzi. Ogni account ha il suo workspace.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {onOpenCestino && (
+            <button onClick={onOpenCestino} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12px] font-bold cursor-pointer">
+              <Trash2 className="w-3.5 h-3.5" /> Cestino & Archivio
+            </button>
+          )}
           <button onClick={() => setShowReport(true)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12.5px] font-bold cursor-pointer">
             <Printer className="w-4 h-4" /> Report riunione
           </button>

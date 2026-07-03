@@ -21,8 +21,9 @@ import {
 } from 'lucide-react';
 import type {
   Quote, PointEvent, PianoFinanziario, FatturazionePlanItem, FiscaleItem,
-  FinTargets, FinLiquidity, FinCostPlanItem, FinBudgetArea, FinCiclo, FinReport,
+  FinTargets, FinLiquidity, FinCostPlanItem, FinBudgetArea, FinCiclo, FinReport, TrashItem,
 } from '../types';
+import HubCestino from './HubCestino';
 import type { InvoiceActive, InvoicePassive, ScadenzaItem } from '../finance';
 import { eur } from '../utils';
 import { SOCIETA_LABEL } from '../access';
@@ -154,6 +155,10 @@ interface Props {
   onSaveFiscale?: (i: FiscaleItem) => void;
   onDeleteFiscale?: (id: string) => void;
   onOpenContabilita?: (soc: string) => void;    // salta alla contabilità operativa (Finanze)
+  // Cestino & Archivio dell'area
+  trash?: TrashItem[];
+  onRestoreTrash?: (t: TrashItem) => void;
+  onTrashDeleteForever?: (t: TrashItem) => void;
 }
 
 type WsTab = 'kpi' | 'piano' | 'iva' | 'prog' | 'bep' | 'budget' | 'cicli' | 'obiettivi' | 'report';
@@ -194,16 +199,45 @@ const TARGET_FIELDS: { key: keyof FinTargets; label: string }[] = [
 export const DirezioneHub: React.FC<Props> = (props) => {
   const [activeSoc, setActiveSoc] = React.useState<string | null>(null);
   const [tab, setTab] = React.useState<WsTab>('kpi');
+  const [showCestino, setShowCestino] = React.useState(false);
   const open = (s: string, t: WsTab = 'kpi') => { setActiveSoc(s); setTab(t); };
+  if (showCestino) {
+    return (
+      <div className="flex flex-col gap-4 text-left">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setShowCestino(false)} className="w-9 h-9 rounded-xl border border-[#e2e2e2] bg-white hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer" title="Centro Direzione"><ArrowLeft className="w-4 h-4" /></button>
+          <h2 className="text-[20px] font-black tracking-tight text-[#161616]">Cestino & Archivio · Amministrazione</h2>
+        </div>
+        <HubCestino
+          sections={['fin-costplan', 'fin-budget', 'fin-ciclo', 'fatture_attive', 'fatture_passive', 'scadenze', 'movimenti']}
+          trash={props.trash || []}
+          archived={props.cicli
+            .filter((c) => c.status === 'chiuso')
+            .sort((a, b) => (b.updatedAt || b.createdAt) - (a.updatedAt || a.createdAt))
+            .map((c) => ({
+              id: c.id,
+              label: c.title,
+              meta: `${socLabel(c.soc)}${c.group ? ` · ${c.group}` : ''}`,
+              onUnarchive: props.onSaveCiclo ? () => props.onSaveCiclo!({ ...c, status: 'aperto', updatedAt: Date.now() }) : undefined,
+              unarchiveLabel: 'Riapri',
+            }))}
+          archiveHint="Cicli/dossier chiusi (l'archivio della riunione strategica)."
+          canEdit={props.canEdit}
+          onRestore={props.onRestoreTrash}
+          onDeleteForever={props.onTrashDeleteForever}
+        />
+      </div>
+    );
+  }
   if (activeSoc) return <Workspace {...props} soc={activeSoc} tab={tab} onTab={setTab} onBack={() => setActiveSoc(null)} />;
-  return <Centro {...props} onOpen={open} />;
+  return <Centro {...props} onOpen={open} onOpenCestino={() => setShowCestino(true)} />;
 };
 
 // ============================================================================
 // LIVELLO 1 — CENTRO DIREZIONE
 // ============================================================================
-const Centro: React.FC<Props & { onOpen: (s: string, t?: WsTab) => void }> = (p) => {
-  const { color = '#b45309', onOpen } = p;
+const Centro: React.FC<Props & { onOpen: (s: string, t?: WsTab) => void; onOpenCestino?: () => void }> = (p) => {
+  const { color = '#b45309', onOpen, onOpenCestino } = p;
   const year = new Date().getFullYear();
   const ym = ymNow();
   const mIdx = Number(ym.slice(5)) - 1;
@@ -246,11 +280,18 @@ const Centro: React.FC<Props & { onOpen: (s: string, t?: WsTab) => void }> = (p)
             Amministrazione & contabilità di tutte le società del gruppo — le sezioni della riunione strategica, per società.
           </p>
         </div>
-        {p.onOpenContabilita && (
-          <button onClick={() => p.onOpenContabilita!('studio')} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12.5px] font-bold cursor-pointer">
-            <ExternalLink className="w-4 h-4" /> Contabilità operativa
-          </button>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          {onOpenCestino && (
+            <button onClick={onOpenCestino} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12px] font-bold cursor-pointer">
+              <Trash2 className="w-3.5 h-3.5" /> Cestino & Archivio
+            </button>
+          )}
+          {p.onOpenContabilita && (
+            <button onClick={() => p.onOpenContabilita!('studio')} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12.5px] font-bold cursor-pointer">
+              <ExternalLink className="w-4 h-4" /> Contabilità operativa
+            </button>
+          )}
+        </div>
       </div>
 
       {/* KPI di gruppo del mese */}

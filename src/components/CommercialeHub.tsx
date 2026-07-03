@@ -12,8 +12,9 @@
  *      d'interesse, stampa preventivo), Listino (+ Contratti imprese per Materico).
  */
 import React from 'react';
-import { Target, ArrowLeft, FileText, FileSignature, ListChecks, AlertTriangle } from 'lucide-react';
-import type { Quote, ClientRecord, QuoteClientChoice, MatericoContract, MatericoDeal, MatericoPriceItem, PriceItem } from '../types';
+import { Target, ArrowLeft, FileText, FileSignature, ListChecks, AlertTriangle, Trash2 } from 'lucide-react';
+import type { Quote, ClientRecord, QuoteClientChoice, MatericoContract, MatericoDeal, MatericoPriceItem, PriceItem, TrashItem } from '../types';
+import HubCestino from './HubCestino';
 import { eur } from '../utils';
 import { SOCIETA_LABEL } from '../access';
 import { SOCIETY_COLOR } from '../societyConfig';
@@ -48,6 +49,10 @@ interface Props {
   onDeleteMatContract?: (id: string) => void;
   onSaveMatListino?: (i: MatericoPriceItem) => void;
   onDeleteMatListino?: (id: string) => void;
+  // Cestino & Archivio dell'area
+  trash?: TrashItem[];
+  onRestoreTrash?: (t: TrashItem) => void;
+  onTrashDeleteForever?: (t: TrashItem) => void;
 }
 
 type WsTab = 'preventivi' | 'documenti' | 'listino' | 'imprese';
@@ -55,12 +60,38 @@ type WsTab = 'preventivi' | 'documenti' | 'listino' | 'imprese';
 export const CommercialeHub: React.FC<Props> = (p) => {
   const [activeSoc, setActiveSoc] = React.useState<string | null>(null);
   const [tab, setTab] = React.useState<WsTab>('preventivi');
+  const [showCestino, setShowCestino] = React.useState(false);
+  if (showCestino) {
+    return (
+      <div className="flex flex-col gap-4 text-left">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setShowCestino(false)} className="w-9 h-9 rounded-xl border border-[#e2e2e2] bg-white hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer" title="Centro Commerciale"><ArrowLeft className="w-4 h-4" /></button>
+          <h2 className="text-[20px] font-black tracking-tight text-[#161616]">Cestino & Archivio · Commerciale</h2>
+        </div>
+        <HubCestino
+          sections={['preventivi']}
+          trash={p.trash || []}
+          archived={p.quotes.filter((q) => q.archived).map((q) => ({
+            id: q.id,
+            label: `${q.number} · ${q.clientName || 'Cliente'}`,
+            meta: `${socLabel(q.division)} · ${eur(q.total || 0)}`,
+            onUnarchive: p.onArchive ? () => p.onArchive!(q.id, false) : undefined,
+            unarchiveLabel: 'Riattiva',
+          }))}
+          archiveHint="Preventivi archiviati (si riattivano da qui o dalla pagina della società)."
+          canEdit={p.canEdit}
+          onRestore={p.onRestoreTrash}
+          onDeleteForever={p.onTrashDeleteForever}
+        />
+      </div>
+    );
+  }
   if (activeSoc) return <Workspace {...p} soc={activeSoc} tab={tab} onTab={setTab} onBack={() => setActiveSoc(null)} />;
-  return <Centro {...p} onOpen={(s) => { setActiveSoc(s); setTab('preventivi'); }} />;
+  return <Centro {...p} onOpen={(s) => { setActiveSoc(s); setTab('preventivi'); }} onOpenCestino={() => setShowCestino(true)} />;
 };
 
 // ---------------------------------------------------------------- Centro
-const Centro: React.FC<Props & { onOpen: (s: string) => void }> = ({ quotes, choices, color = '#b45309', onOpen }) => {
+const Centro: React.FC<Props & { onOpen: (s: string) => void; onOpenCestino?: () => void }> = ({ quotes, choices, color = '#b45309', onOpen, onOpenCestino }) => {
   const t = todayISO();
   const in7 = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
   const per = SOCS.map((soc) => {
@@ -91,9 +122,14 @@ const Centro: React.FC<Props & { onOpen: (s: string) => void }> = ({ quotes, cho
 
   return (
     <div className="flex flex-col gap-5 text-left">
-      <div>
-        <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Target className="w-5.5 h-5.5" style={{ color }} /> Centro Commerciale</h2>
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">La parte commerciale di tutte le società: preventivi interattivi, contratti e documenti da modello, per società.</p>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Target className="w-5.5 h-5.5" style={{ color }} /> Centro Commerciale</h2>
+          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">La parte commerciale di tutte le società: preventivi interattivi, contratti e documenti da modello, per società.</p>
+        </div>
+        {onOpenCestino && (
+          <button onClick={onOpenCestino} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12.5px] font-bold cursor-pointer"><Trash2 className="w-4 h-4" /> Cestino & Archivio</button>
+        )}
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[

@@ -5295,6 +5295,9 @@ export default function App() {
                   onSaveReport={handleSaveMktReport}
                   onSaveExtra={handleSaveSocMkt}
                   onDeleteExtra={handleDeleteSocMkt}
+                  trash={Object.values(trash)}
+                  onRestoreTrash={handleRestoreTrash}
+                  onTrashDeleteForever={handleTrashDeleteForever}
                 />
               </React.Suspense>
             );
@@ -5339,6 +5342,9 @@ export default function App() {
                   onSaveFiscale={handleSaveFiscale}
                   onDeleteFiscale={handleDeleteFiscale}
                   onOpenContabilita={(soc) => { setFinLock((soc === 'fantastico' ? null : soc) as any); setFinStartTab(null); setActiveSocieta('strategico'); setActiveSection('amm-contabilita'); setRoute('finanze'); }}
+                  trash={Object.values(trash)}
+                  onRestoreTrash={handleRestoreTrash}
+                  onTrashDeleteForever={handleTrashDeleteForever}
                 />
               </React.Suspense>
             );
@@ -5496,6 +5502,9 @@ export default function App() {
                   onDeleteMatContract={handleDeleteMatericoContract}
                   onSaveMatListino={handleSaveMatericoListino}
                   onDeleteMatListino={handleDeleteMatericoListino}
+                  trash={Object.values(trash)}
+                  onRestoreTrash={handleRestoreTrash}
+                  onTrashDeleteForever={handleTrashDeleteForever}
                 />
               </React.Suspense>
             );
@@ -5737,14 +5746,11 @@ export default function App() {
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden relative">
         {/* Responsive Mobile Nav Bar */}
         <Navbar
-          route={route}
           profile={currentUser}
-          onNav={(r) => {
-            setRoute(r);
-            window.location.hash = `#${r}`;
-          }}
+          activeSocieta={activeSocieta}
+          activeSection={activeSection}
+          onNav={(h) => { window.location.hash = h; }}
           onOpenProfile={openProfile}
-          title={formattedMobileTitle()}
           notificationsCount={liveNotifications.filter(n => !n.read).length}
           onNotificationsClick={() => setNotificationsOpen(!notificationsOpen)}
           pendingCount={0}
