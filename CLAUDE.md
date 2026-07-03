@@ -562,6 +562,33 @@ reporting/redditività, integrazioni esterne
   servizi numerati, sconto/maggiorazione, totale ±IVA/cassa, condizioni di pagamento dal piano rate,
   banca/IBAN, validità, accettazione con eventuale firma OTP, privacy, firme, footer intestato) +
   **Stampa/PDF** (CSS print). Nessun nodo/regola nuovi.
+  ⚠️ **Centro Commerciale (§24)** — anche il Commerciale di Strategico gestisce TUTTE le società.
+  Voce **Strategico → Commerciale → "Centro Commerciale"** (`view:'commerciale-hub'`, componente
+  **`CommercialeHub`**, lazy) a 2 livelli: 1) **Centro** = pipeline per società (in corso/accettati,
+  valore, % conversione, in scadenza ≤7gg, risposte dal portale) + alert; 2) **workspace per società**:
+  Preventivi & Contratti (`CommercialeView` con firma OTP, stampa Documento e **"Invia al portale"**),
+  **Documenti** (generatore contratti da modello, componente **`ContractPrintDoc`**: Arredi Fissi e
+  FF&E per Onirico, Accordo imprese per Materico — intestato a Materico —, Manifestazione d'interesse
+  per Unico; campi auto-compilati dalla rubrica + OGNI sezione modificabile prima della Stampa/PDF),
+  **Contratti imprese** (Materico, embed `MatericoContractsView`) e **Listino** (Materico: embed
+  `MatericoListinoView`; altre: tabella `priceList` filtrata). Nelle società operative il gruppo
+  Commerciale è **SOLO consultazione** (`CommercialeView` canEdit=false) + rubrica; rimosse le voci
+  contratti/listino per-società (vivono nel hub).
+  **PREVENTIVO INTERATTIVO nel portale cliente** (definizione utente di "dinamico"): lo studio preme
+  "Invia al portale" (`handleShareQuote`: richiede rubrica→`accountUid`) → snapshot divulgabile su
+  **`clientQuotes/<uid>/<qid>`** (write-through in `handleSaveQuote` via `updateNode`, così la scelta
+  del cliente non viene sovrascritta; helper `quoteToShared`). Il cliente (portale → tile **"I tuoi
+  preventivi"** → `ClientQuotesPanel`) **spunta/toglie le voci** non bloccate e vede il **totale
+  aggiornarsi in tempo reale** (quoteTotals su voci incluse); togliendo una voce esce il **banner coi
+  vantaggi che perde** (`QuoteLine.benefits` oppure catalogo **`src/serviceBenefits.ts`** costruito
+  dal DOCX "Modalità operative" di Onirico, match per parole-chiave); "Invia selezione"/"Accetta"
+  scrivono `choice` (`QuoteClientChoice`, regola granulare `auth.uid==$uid`) + `notifyStudio`. Lo
+  studio vede le risposte in tempo reale (sub `clientQuotes` intera → mappa `quoteChoices` qid→choice,
+  badge sulla card + alert nel Centro). Campi `Quote.clientUid/sharedWithClient/sharedAt` e
+  `QuoteLine.locked` (checkbox "voce obbligatoria" nel QuoteEditor: il cliente non può escluderla).
+  ⚠️ Nodo **`clientQuotes`** in `firebase-rules.json` (read collezione studio attivo; read `$uid`
+  proprio; write `$qid` studio; write granulare `choice` del proprietario): **ripubblicare le regole**,
+  altrimenti "Invia al portale" fallisce in silenzio e il cliente non vede i preventivi.
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

@@ -117,6 +117,7 @@ import {
   FinBudgetArea,
   FinCiclo,
   FinReport,
+  QuoteClientChoice,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -196,6 +197,7 @@ const EditorialCalendar = React.lazy(() => import('./components/EditorialCalenda
 const MarketingHub = React.lazy(() => import('./components/MarketingHub').then((m) => ({ default: m.MarketingHub })));
 const DirezioneHub = React.lazy(() => import('./components/DirezioneHub').then((m) => ({ default: m.DirezioneHub })));
 const ContabilitaConsult = React.lazy(() => import('./components/ContabilitaConsult').then((m) => ({ default: m.ContabilitaConsult })));
+const CommercialeHub = React.lazy(() => import('./components/CommercialeHub').then((m) => ({ default: m.CommercialeHub })));
 const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
 const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m) => ({ default: m.FiscaleView })));
 const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
@@ -228,6 +230,7 @@ import {
   writeNode,
   updateNode,
   removeNode,
+  clean,
   type User as GUser
 } from './firebase';
 
@@ -425,6 +428,9 @@ export default function App() {
   const [finBudget, setFinBudget] = useState<Record<string, FinBudgetArea>>({});
   const [finCicli, setFinCicli] = useState<Record<string, FinCiclo>>({});
   const [finReports, setFinReports] = useState<Record<string, FinReport>>({});
+  // Preventivo interattivo (portale): snapshot propri (cliente) + scelte per qid (studio)
+  const [myClientQuotes, setMyClientQuotes] = useState<Record<string, any>>({});
+  const [quoteChoices, setQuoteChoices] = useState<Record<string, QuoteClientChoice>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1691,6 +1697,16 @@ export default function App() {
         subs.push(watchNode('finInvoicesPassive', (v) => setFinInvoicesPassive(toArr(v)), () => {}));
         subs.push(watchNode('finScadenze', (v) => setFinScadenze(toArr(v)), () => {}));
         add('quotes', setQuotes);
+        // Risposte del preventivo interattivo (portale): clientQuotes/<uid>/<qid>/choice
+        subs.push(watchNode('clientQuotes', (v) => {
+          const flat: Record<string, QuoteClientChoice> = {};
+          Object.values((v || {}) as Record<string, any>).forEach((byUid: any) => {
+            Object.entries(byUid || {}).forEach(([qid, snap]: [string, any]) => {
+              if (snap?.choice) flat[qid] = snap.choice as QuoteClientChoice;
+            });
+          });
+          setQuoteChoices(flat);
+        }, () => {}));
         // Centro Direzione (Strategico → Amministrazione & Contabilità)
         add('finTargets', setFinTargets);
         add('finLiquidity', setFinLiquidity);
@@ -1835,6 +1851,8 @@ export default function App() {
       }
       // Le proprie richieste (clientRequests/<uid>/<id> → keyed per id)
       subs.push(watchNode(`clientRequests/${currentUser.uid}`, (v) => setClientRequests(v || {}), () => {}));
+      // Preventivi condivisi dallo studio (preventivo interattivo)
+      subs.push(watchNode(`clientQuotes/${currentUser.uid}`, (v) => setMyClientQuotes(v || {}), () => {}));
       // Vetrina Unico pubblicata (snapshot pubblici, leggibili da ogni autenticato)
       subs.push(watchNode('unicoShowcase', (v) => setUnicoShowcase(v || {}), () => {}));
       // Le mie posizioni da investitore (sola lettura, scritte dallo studio)
@@ -4167,10 +4185,48 @@ export default function App() {
   // ----------------------------------------------------
   // Preventivi studio (quotes/<id>)
   // ----------------------------------------------------
+  // Snapshot divulgabile del preventivo per il portale (preventivo interattivo).
+  // updateNode (merge) così la `choice` del cliente non viene sovrascritta.
+  const quoteToShared = (q: Quote) => ({
+    id: q.id, number: q.number, docKind: q.docKind || 'preventivo', division: q.division,
+    clientName: q.clientName || null, lines: q.lines || [],
+    vatEnabled: q.vatEnabled ?? true, vatPct: q.vatPct ?? 22,
+    cassaEnabled: !!q.cassaEnabled, cassaPct: q.cassaPct ?? 4,
+    discountPct: q.discountPct ?? null, surchargePct: q.surchargePct ?? null,
+    validUntil: q.validUntil ?? null, notes: q.notes ?? null,
+    status: q.status, sharedAt: q.sharedAt || Date.now(),
+  });
   const handleSaveQuote = (q: Quote) => {
     const enriched: Quote = { ...q, createdBy: q.createdBy || currentUser?.uid, updatedAt: Date.now() };
     setQuotes((prev) => ({ ...prev, [q.id]: enriched }));
     writeNode(`quotes/${q.id}`, enriched).catch(() => showToast('Errore preventivi (controlla regole).', 'err'));
+    // Write-through: tiene aggiornato lo snapshot sul portale del cliente
+    if (enriched.sharedWithClient && enriched.clientUid) {
+      updateNode(`clientQuotes/${enriched.clientUid}/${enriched.id}`, clean(quoteToShared(enriched))).catch(() => {});
+    }
+  };
+  // "Invia al portale": pubblica il preventivo interattivo sul portale del cliente collegato.
+  const handleShareQuote = (q: Quote) => {
+    const uid = q.clientUid || (q.clientRecordId ? clients[q.clientRecordId]?.accountUid : null) || null;
+    if (!uid) { showToast('Nessun account portale collegato: in rubrica collega il cliente a un account registrato.', 'err'); return; }
+    handleSaveQuote({ ...q, clientUid: uid, sharedWithClient: true, sharedAt: q.sharedAt || Date.now() });
+    pushNotification(uid, { type: 'preventivo', title: `Preventivo ${q.number} da rivedere`, body: 'Aprilo dal portale: scegli le voci e vedi il totale aggiornarsi in tempo reale.', link: '#portale' });
+    logAudit('update', 'preventivi', `Preventivo ${q.number} pubblicato sul portale`, q.clientName || undefined);
+    showToast('Preventivo pubblicato sul portale del cliente.', 'ok');
+  };
+  // Scelta del cliente dal portale (scrittura granulare choice, regola auth.uid==$uid)
+  const handleClientQuoteChoice = (qid: string, choice: QuoteClientChoice) => {
+    if (!currentUser) return;
+    writeNode(`clientQuotes/${currentUser.uid}/${qid}/choice`, clean(choice)).catch(() => showToast('Errore invio scelta (controlla regole).', 'err'));
+    setMyClientQuotes((prev) => ({ ...prev, [qid]: { ...(prev[qid] || {}), choice } }));
+    const excl = Object.values(choice.excluded || {}).filter(Boolean).length;
+    notifyStudio({
+      type: 'preventivo',
+      title: choice.accepted ? 'Preventivo ACCETTATO dal portale' : 'Risposta preventivo dal portale',
+      body: `${currentUser.name}: ${choice.accepted ? 'accettato' : 'selezione inviata'}${excl ? ` (${excl} voci escluse)` : ''}${choice.comment ? ` — "${choice.comment}"` : ''}`,
+      link: '#strategico',
+    }, currentUser.uid);
+    showToast(choice.accepted ? 'Preventivo accettato! Lo studio ti ricontatterà.' : 'Selezione inviata allo studio.', 'ok');
   };
   const handleDeleteQuote = (id: string) => {
     const q = quotes[id];
@@ -4538,6 +4594,8 @@ export default function App() {
         onSubmitMatericoOffer={handleSubmitMatericoOffer}
         clientRequests={Object.values(clientRequests)}
         onCreateClientRequest={handleCreateClientRequest}
+        clientQuotes={Object.values(myClientQuotes).sort((a: any, b: any) => (b.sharedAt || 0) - (a.sharedAt || 0))}
+        onQuoteChoice={handleClientQuoteChoice}
         unicoShowcase={Object.values(unicoShowcase)}
         unicoPositions={Object.values(unicoPositions)}
         mktEvents={Object.values(mktEvents)}
@@ -5396,6 +5454,8 @@ export default function App() {
             );
           }
           case 'commerciale': {
+            // Sezione Commerciale di una società operativa: SOLA CONSULTAZIONE
+            // (la gestione è centralizzata nel Centro Commerciale di Strategico).
             const psoc = activeSocieta as string;
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
@@ -5404,13 +5464,38 @@ export default function App() {
                   soc={psoc}
                   socLabel={society.label}
                   clients={clients}
-                  members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
+                  choices={quoteChoices}
+                  members={[]}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
+                  canEdit={false}
+                />
+              </React.Suspense>
+            );
+          }
+          case 'commerciale-hub': {
+            const isBoss = isStudioRole(currentUser.role);
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <CommercialeHub
+                  quotes={Object.values(quotes)}
+                  clients={clients}
+                  choices={quoteChoices}
+                  members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
+                  priceList={priceList}
+                  matericoContracts={matericoContracts}
+                  matericoDeals={Object.values(matericoDeals)}
+                  matericoListino={matericoListino}
+                  color={society.color}
+                  canEdit={isBoss}
                   onSetStatus={handleSetQuoteStatus}
                   onArchive={handleArchiveQuote}
                   onSaveQuote={handleSaveQuote}
-                  onOpenEditor={() => { setFinLock(psoc as any); setFinStartTab('preventivi'); setActiveSection('amm-contabilita'); setActiveDivision(psoc as any); setRoute('finanze'); }}
+                  onShare={handleShareQuote}
+                  onOpenEditor={(soc) => { setFinLock((soc === 'fantastico' ? null : soc) as any); setFinStartTab('preventivi'); setActiveSection('amm-contabilita'); setRoute('finanze'); }}
+                  onSaveMatContract={handleSaveMatericoContract}
+                  onDeleteMatContract={handleDeleteMatericoContract}
+                  onSaveMatListino={handleSaveMatericoListino}
+                  onDeleteMatListino={handleDeleteMatericoListino}
                 />
               </React.Suspense>
             );

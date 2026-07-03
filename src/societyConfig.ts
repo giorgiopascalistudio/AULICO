@@ -421,13 +421,9 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   if (isMat) s.push({ id: 'prod-mappa', label: 'Mappa operativa', icon: MapPin, parent: 'produzione', module: 'produzione', view: 'materico-mappa' });
   else s.push(ph('prod-mappa', 'Mappa operativa', MapPin, 'produzione', 'produzione', 'Cantieri/interventi su mappa.'));
 
-  // ---- COMMERCIALE (Preventivi · Contratti · Listino · Registro clienti) ----
+  // ---- COMMERCIALE (consultazione: gestione centralizzata nel Centro Commerciale di Strategico) ----
   s.push({ id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', kind: 'group' });
-  s.push({ id: 'comm-preventivi', label: 'Preventivi & Contratti', icon: FileText, parent: 'commerciale', module: 'commerciale', view: 'commerciale', note: 'Catalogo preventivi, firma OTP, auto-attività al tecnico.' });
-  if (isMat) s.push({ id: 'comm-contratti', label: 'Contratti', icon: FileSignature, parent: 'commerciale', module: 'commerciale', view: 'materico-contracts' });
-  else s.push(ph('comm-contratti', 'Contratti', FileSignature, 'commerciale', 'commerciale', 'Contratti + firma OTP.'));
-  if (isMat) s.push({ id: 'comm-listino', label: 'Listino prezzi', icon: ListChecks, parent: 'commerciale', module: 'commerciale', view: 'materico-listino' });
-  else s.push(ph('comm-listino', 'Listino prezzi', ListChecks, 'commerciale', 'commerciale', 'Listino prezzi.'));
+  s.push({ id: 'comm-preventivi', label: 'Preventivi & Contratti', icon: FileText, parent: 'commerciale', module: 'commerciale', view: 'commerciale', note: 'Consultazione dei preventivi della società — la gestione (nuovi preventivi, firma, portale, documenti) è in Strategico → Centro Commerciale.' });
   s.push({ id: 'comm-clienti', label: isMat ? 'Imprese & Fornitori' : 'Registro clienti', icon: isMat ? Truck : BookUser, parent: 'commerciale', module: 'crm', legacyRoute: 'crm', preset: { crmTab: isMat ? 'fornitori' : 'clienti' } });
 
   // ---- MARKETING (consultazione: il piano editoriale è gestito dal Centro Marketing di Strategico) ----
@@ -465,9 +461,9 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       // === SOTTO-CATEGORIA: Marketing (Centro Marketing: hub di TUTTI gli account gestiti) ===
       { id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' },
       { id: 'mkt-centro', label: 'Centro Marketing', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing-hub', note: 'Salute di tutti gli account gestiti (5 società + clienti terzi); ogni account ha il SUO workspace: scheda/liberatoria, calendario editoriale, workflow 9 fasi, KPI, spese & budget, report mensile, eventi & gadget, blog.' },
-      // === SOTTO-CATEGORIA: Commerciale (preventivi/contratti Strategico, con sconti/maggiorazioni) ===
+      // === SOTTO-CATEGORIA: Commerciale (Centro Commerciale: la parte commerciale di TUTTE le società) ===
       { id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', kind: 'group' },
-      { id: 'comm-preventivi', label: 'Preventivi & Contratti', icon: FileText, parent: 'commerciale', module: 'commerciale', view: 'commerciale', note: 'Preventivi Strategico (sconti/maggiorazioni rapidi), firma OTP = contratto, catalogo per stato e Attivi/Archiviati.' },
+      { id: 'comm-centro', label: 'Centro Commerciale', icon: Target, parent: 'commerciale', module: 'commerciale', view: 'commerciale-hub', note: 'Pipeline di tutte le società → workspace per società: preventivi interattivi (il cliente sceglie le voci dal portale col totale live), firma OTP, sconti/maggiorazioni, documenti da modello (contratti Arredi Fissi/FF&E, accordo imprese, manifestazione d\'interesse), listino.' },
       { id: 'comm-clienti', label: 'Registro clienti', icon: BookUser, parent: 'commerciale', module: 'crm', legacyRoute: 'crm', preset: { crmTab: 'clienti' } },
       // === SOTTO-CATEGORIA: Amministrazione & Contabilità (Centro Direzione: amministra TUTTE le società) ===
       { id: 'amm', label: 'Amministrazione & Contabilità', icon: Briefcase, module: 'finance', kind: 'group' },

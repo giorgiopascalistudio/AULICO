@@ -203,6 +203,17 @@ export interface QuoteLine {
   qty: number;
   unitPrice: number;
   amount: number;            // qty * unitPrice
+  locked?: boolean;          // voce obbligatoria: il cliente NON può escluderla dal portale
+  benefits?: string | null;  // vantaggi mostrati al cliente se esclude la voce (fallback: catalogo serviceBenefits)
+}
+
+/** Scelta del cliente sul preventivo interattivo (scritta dal cliente su
+ * `clientQuotes/<uid>/<qid>/choice`; lo studio la legge in tempo reale). */
+export interface QuoteClientChoice {
+  excluded?: Record<string, boolean>;  // id riga → esclusa
+  comment?: string | null;
+  accepted?: boolean;                  // il cliente conferma la selezione
+  at: number;
 }
 
 export interface PaymentMilestone {
@@ -236,6 +247,10 @@ export interface Quote {
   // Sconto/maggiorazione rapidi % sull'imponibile (PDF MKT Richieste: preventivi Strategico)
   discountPct?: number | null;
   surchargePct?: number | null;
+  // --- Preventivo interattivo nel portale cliente (Centro Commerciale) ---
+  clientUid?: string | null;        // account portale del cliente (per la condivisione)
+  sharedWithClient?: boolean;       // pubblicato sul portale (snapshot clientQuotes/<uid>/<qid>)
+  sharedAt?: number | null;
   paymentPlan?: PaymentMilestone[];
   validUntil?: string | null;
   notes?: string | null;

@@ -11,7 +11,7 @@ import React from 'react';
 import {
   Target, Plus, FileText, ShieldCheck, Send, CheckCircle2, XCircle, Archive, ArchiveRestore, X, User,
 } from 'lucide-react';
-import type { Quote, ClientRecord } from '../types';
+import type { Quote, ClientRecord, QuoteClientChoice } from '../types';
 import { eur } from '../utils';
 import QuotePrintDoc from './QuotePrintDoc';
 
@@ -23,11 +23,15 @@ interface Props {
   members?: Member[];
   /** Rubrica clienti (per compilare il documento stampabile). */
   clients?: Record<string, ClientRecord>;
+  /** Risposte del preventivo interattivo (portale): qid → scelta cliente. */
+  choices?: Record<string, QuoteClientChoice>;
   color?: string;
   canEdit?: boolean;
   onSetStatus?: (id: string, status: Quote['status']) => void;
   onArchive?: (id: string, archived: boolean) => void;
   onSaveQuote?: (q: Quote) => void;
+  /** Condivide/aggiorna il preventivo sul portale del cliente collegato. */
+  onShare?: (q: Quote) => void;
   onOpenEditor?: () => void;
 }
 
@@ -39,7 +43,7 @@ const ST: Record<Quote['status'], { label: string; color: string }> = {
   accettato: { label: 'Accettato', color: '#059669' }, rifiutato: { label: 'Rifiutato', color: '#dc2626' },
 };
 
-export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [], clients = {}, canEdit = false, onSetStatus, onArchive, onSaveQuote, onOpenEditor }) => {
+export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [], clients = {}, choices = {}, canEdit = false, onSetStatus, onArchive, onSaveQuote, onShare, onOpenEditor }) => {
   const [tab, setTab] = React.useState<'tutti' | 'elaborati' | 'accettati' | 'scaduti'>('tutti');
   const [view, setView] = React.useState<'attivi' | 'archiviati'>('attivi');
   const [signing, setSigning] = React.useState<Quote | null>(null);
@@ -102,6 +106,8 @@ export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {list.map((q) => {
             const s = ST[q.status]; const scad = isScaduto(q); const signed = !!q.signedAt;
+            const choice = choices[q.id];
+            const excludedCount = choice ? Object.values(choice.excluded || {}).filter(Boolean).length : 0;
             return (
               <div key={q.id} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-2">
@@ -109,11 +115,18 @@ export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [
                     <b className="text-[14px] text-[#161616]">{q.clientName || 'Cliente'}</b>
                     <p className="text-[11px] text-[#8a8a8a] font-mono mt-0.5">{q.number} · {q.docKind === 'parcella' ? 'Parcella' : 'Preventivo'}</p>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
+                  <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+                    {q.sharedWithClient && <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-50 text-teal-700">Nel portale</span>}
                     {signed && <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Firmato</span>}
                     <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white" style={{ background: scad && q.status !== 'accettato' ? '#dc2626' : s.color }}>{scad && q.status !== 'accettato' ? 'Scaduto' : s.label}</span>
                   </div>
                 </div>
+                {choice && (
+                  <p className={`text-[11px] font-bold rounded-lg px-2.5 py-1.5 ${choice.accepted ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
+                    Risposta cliente: {choice.accepted ? 'ACCETTATO' : 'selezione inviata'}{excludedCount ? ` · ${excludedCount} voc${excludedCount === 1 ? 'e esclusa' : 'i escluse'}` : ' · tutte le voci'}
+                    {choice.comment ? ` — "${choice.comment}"` : ''}
+                  </p>
+                )}
                 <div className="flex items-center justify-between">
                   <span className="text-[16px] font-black text-[#161616]">{eur(q.total || 0)}</span>
                   <div className="flex items-center gap-2">
@@ -134,6 +147,9 @@ export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [
                 {/* Azioni */}
                 {canEdit && (
                   <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-[#f2f2f2]">
+                    {onShare && q.status !== 'accettato' && (
+                      <button onClick={() => onShare(q)} title="Il cliente lo vede nel suo portale: spunta le voci e il totale si aggiorna in tempo reale" className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-teal-300 text-teal-700 hover:bg-teal-50 text-[11.5px] font-bold cursor-pointer"><Send className="w-3.5 h-3.5" /> {q.sharedWithClient ? 'Aggiorna portale' : 'Invia al portale'}</button>
+                    )}
                     {q.status !== 'accettato' && <button onClick={() => setSigning(q)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[11.5px] font-bold cursor-pointer border-none"><ShieldCheck className="w-3.5 h-3.5" /> Firma OTP</button>}
                     {q.status !== 'accettato' && <button onClick={() => onSetStatus?.(q.id, 'accettato')} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-emerald-400 text-emerald-700 text-[11.5px] font-bold cursor-pointer"><CheckCircle2 className="w-3.5 h-3.5" /> Accetta</button>}
                     {q.status !== 'rifiutato' && q.status !== 'accettato' && <button onClick={() => onSetStatus?.(q.id, 'rifiutato')} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-rose-400 text-rose-600 text-[11.5px] font-bold cursor-pointer"><XCircle className="w-3.5 h-3.5" /> Rifiuta</button>}

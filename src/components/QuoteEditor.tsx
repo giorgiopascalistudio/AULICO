@@ -167,6 +167,10 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
                   <label className="flex flex-col gap-0.5"><span className="qlbl">Prezzo unit. €</span><input value={l.unitPrice} onChange={(e) => updLine(l.id, { unitPrice: num(e.target.value) })} inputMode="decimal" className="qi" /></label>
                   <div className="flex flex-col gap-0.5"><span className="qlbl">Importo</span><div className="h-9 flex items-center font-black text-[13px] text-[#161616]">{eur(l.amount)}</div></div>
                 </div>
+                <label className="inline-flex items-center gap-1.5 cursor-pointer" title="Nel preventivo interattivo del portale il cliente NON potrà escludere questa voce">
+                  <input type="checkbox" checked={!!l.locked} onChange={(e) => updLine(l.id, { locked: e.target.checked })} className="w-3.5 h-3.5 accent-[#161616]" />
+                  <span className="text-[11px] font-bold text-[#8a8a8a]">Voce obbligatoria (il cliente non può toglierla dal portale)</span>
+                </label>
               </div>
             ))}
             {(draft.lines || []).length === 0 && <p className="text-[12px] italic text-[#9a9a9a]">Nessuna voce. Aggiungi una riga.</p>}
