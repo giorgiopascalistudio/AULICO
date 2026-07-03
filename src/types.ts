@@ -1227,6 +1227,59 @@ export interface FinReport {
   conclusions?: string | null;
   updatedAt: number;
 }
+
+// ============================================================
+// Piano di Battaglia (HOME di ogni società, PDF Aulico/Unico/Onirico/Materico):
+// pianificazione operativa della settimana — ci si "trascina" il ciclo quando
+// va lavorato. Nodo `battlePlan/<id>`, voce per settimana/società.
+// ============================================================
+export interface BattleItem {
+  id: string;
+  soc: string;
+  weekISO: string;             // lunedì della settimana (yyyy-mm-dd)
+  day?: number | null;         // 0=lun … 6=dom (null = "in settimana")
+  label: string;               // titolo (ciclo o attività libera)
+  projectId?: string | null;   // ciclo/pratica collegata
+  oppId?: string | null;       // opportunità Unico collegata
+  priority?: 'alta' | 'media' | 'bassa' | null;
+  done?: boolean;
+  note?: string | null;
+  order: number;
+  createdAt: number;
+  updatedAt?: number;
+}
+
+// ============================================================
+// UNICO — Ricerca Opportunità (PRODUZIONE, PDF "UNICO il processo"):
+// workflow a step OBBLIGATORI dall'individuazione all'atto; la due diligence
+// è uno step-checklist; la manifestazione d'interesse si genera da modello;
+// all'atto concluso nasce l'INVESTIMENTO (UnicoDeal). Nodo `unicoOpportunita/<id>`.
+// ============================================================
+export type UnicoOppStepId =
+  | 'contatto' | 'sopralluogo' | 'raccolta' | 'analisi' | 'duediligence'
+  | 'manifestazione' | 'negoziazione' | 'preliminare' | 'atto';
+export interface UnicoOpportunity {
+  id: string;
+  title: string;                    // es. "Trullo C.da Sessana"
+  address?: string | null;
+  comune?: string | null;
+  contactName?: string | null;      // agenzia / proprietario
+  clientRecordId?: string | null;   // contatto dal Registro Utenti unico
+  earthUrl?: string | null;         // link Google Earth
+  photosUrl?: string | null;        // link cartella foto
+  docsUrl?: string | null;          // link documentazione
+  prezzoRichiesto?: number | null;
+  valutazione?: number | null;      // nostra valutazione economica
+  note?: string | null;
+  steps?: Partial<Record<UnicoOppStepId, { done?: boolean; at?: number | null; note?: string | null }>>;
+  dueDiligence?: Record<string, boolean>;  // checklist (chiavi in UnicoOpportunitaView)
+  ddPdfUrl?: string | null;                // PDF due diligence allegato (link)
+  status: 'attiva' | 'acquisita' | 'scartata';
+  dealId?: string | null;           // investimento generato (unicoDeals)
+  createdAt: number;
+  updatedAt?: number;
+  createdBy?: string | null;
+}
 /** Contratto con impresa/subappaltatore (Materico §7, nodo `matericoContracts/<id>`).
  * Compilato dai dati a gestionale; firma tramite OTP; collegato al cantiere. */
 export interface MatericoContract {

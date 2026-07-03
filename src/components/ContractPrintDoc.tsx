@@ -114,14 +114,15 @@ interface Props {
   template: ContractTemplateId;
   soc: string;                          // società intestataria (carta intestata)
   rubrica?: ClientRecord[];             // per auto-compilare il committente
+  initialFields?: Fields;               // precompilazione (es. dalla pratica/opportunità)
   onClose: () => void;
 }
 
-export const ContractPrintDoc: React.FC<Props> = ({ template, soc, rubrica = [], onClose }) => {
+export const ContractPrintDoc: React.FC<Props> = ({ template, soc, rubrica = [], initialFields, onClose }) => {
   const def = DEFS[template];
   const co = companyDoc(soc);
   const color = (SOCIETY_COLOR as any)[soc] || '#161616';
-  const [fields, setFields] = React.useState<Fields>({});
+  const [fields, setFields] = React.useState<Fields>(initialFields || {});
   const [editing, setEditing] = React.useState(false);
   const built = def.build(fields, co);
   const [sections, setSections] = React.useState(built.sections);

@@ -118,6 +118,8 @@ import {
   FinCiclo,
   FinReport,
   QuoteClientChoice,
+  BattleItem,
+  UnicoOpportunity,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -198,6 +200,8 @@ const MarketingHub = React.lazy(() => import('./components/MarketingHub').then((
 const DirezioneHub = React.lazy(() => import('./components/DirezioneHub').then((m) => ({ default: m.DirezioneHub })));
 const ContabilitaConsult = React.lazy(() => import('./components/ContabilitaConsult').then((m) => ({ default: m.ContabilitaConsult })));
 const CommercialeHub = React.lazy(() => import('./components/CommercialeHub').then((m) => ({ default: m.CommercialeHub })));
+const PianoBattaglia = React.lazy(() => import('./components/PianoBattaglia').then((m) => ({ default: m.PianoBattaglia })));
+const UnicoOpportunitaView = React.lazy(() => import('./components/UnicoOpportunitaView').then((m) => ({ default: m.UnicoOpportunitaView })));
 const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
 const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m) => ({ default: m.FiscaleView })));
 const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
@@ -431,6 +435,9 @@ export default function App() {
   // Preventivo interattivo (portale): snapshot propri (cliente) + scelte per qid (studio)
   const [myClientQuotes, setMyClientQuotes] = useState<Record<string, any>>({});
   const [quoteChoices, setQuoteChoices] = useState<Record<string, QuoteClientChoice>>({});
+  // Piano di Battaglia (HOME società) + Ricerca Opportunità Unico
+  const [battlePlan, setBattlePlan] = useState<Record<string, BattleItem>>({});
+  const [unicoOpps, setUnicoOpps] = useState<Record<string, UnicoOpportunity>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1725,6 +1732,8 @@ export default function App() {
       subs.push(watchNode('governanceVaultConfig', (v) => setVaultConfig(v || {}), () => {}));
       subs.push(watchNode('newsletter', (v) => setNewsletterSubs(v || {}), () => {}));
       add('hrEvents', setHrEvents);
+      add('battlePlan', setBattlePlan);
+      add('unicoOpportunita', setUnicoOpps);
       add('matericoDeals', setMatericoDeals);
       add('matericoListino', setMatericoListino);
       add('matericoContracts', setMatericoContracts);
@@ -2122,6 +2131,14 @@ export default function App() {
         case 'fin-ciclo':
           setFinCicli((prev) => ({ ...prev, [id]: pl }));
           writeNode(`finCicli/${id}`, pl).catch(() => {});
+          break;
+        case 'battle':
+          setBattlePlan((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`battlePlan/${id}`, pl).catch(() => {});
+          break;
+        case 'unico-opp':
+          setUnicoOpps((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`unicoOpportunita/${id}`, pl).catch(() => {});
           break;
         case 'richiesta_cliente':
           setClientRequests((prev) => ({ ...prev, [id]: pl }));
@@ -3638,6 +3655,49 @@ export default function App() {
   const handleSaveFinReport = (r: FinReport) => {
     setFinReports((prev) => ({ ...prev, [r.id]: r }));
     writeNode(`finReports/${r.id}`, r).catch(() => showToast('Errore report riunione (controlla regole).', 'err'));
+  };
+  // ---- Piano di Battaglia (battlePlan) ----
+  const handleSaveBattleItem = (i: BattleItem) => {
+    setBattlePlan((prev) => ({ ...prev, [i.id]: i }));
+    writeNode(`battlePlan/${i.id}`, clean(i)).catch(() => showToast('Errore Piano di Battaglia (controlla regole).', 'err'));
+  };
+  const handleDeleteBattleItem = (id: string) => {
+    const i = battlePlan[id];
+    askDelete('Togliere la voce dal Piano di Battaglia?', i ? `"${i.label}"` : null, () => {
+      if (i) moveToTrash('battle', i.label || 'Voce piano', i);
+      setBattlePlan((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`battlePlan/${id}`).catch(() => {});
+    });
+  };
+  // ---- Unico · Ricerca Opportunità (unicoOpportunita) ----
+  const handleSaveUnicoOpp = (o: UnicoOpportunity) => {
+    const enriched: UnicoOpportunity = { ...o, createdBy: o.createdBy || currentUser?.uid || null, updatedAt: Date.now() };
+    setUnicoOpps((prev) => ({ ...prev, [o.id]: enriched }));
+    writeNode(`unicoOpportunita/${o.id}`, clean(enriched)).catch(() => showToast('Errore opportunità (controlla regole).', 'err'));
+  };
+  const handleDeleteUnicoOpp = (id: string) => {
+    const o = unicoOpps[id];
+    askDelete('Eliminare questa opportunità?', o ? `"${o.title}"` : null, () => {
+      if (o) moveToTrash('unico-opp', o.title || 'Opportunità', o, undefined, o.comune || undefined);
+      setUnicoOpps((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`unicoOpportunita/${id}`).catch(() => {});
+      showToast('Opportunità spostata nel Cestino.', 'err');
+    });
+  };
+  // Atto concluso → l'opportunità diventa un INVESTIMENTO (UnicoDeal)
+  const handleCreateDealFromOpp = (o: UnicoOpportunity) => {
+    if (o.dealId) { showToast('Investimento già creato per questa opportunità.', 'err'); return; }
+    const dealId = `ud-${Date.now().toString(36)}`;
+    const price = o.valutazione ?? o.prezzoRichiesto ?? 0;
+    const deal: UnicoDeal = {
+      id: dealId, title: o.title, type: 'Immobile', location: [o.address, o.comune].filter(Boolean).join(', ') || '—',
+      status: 'acquisizione', acquisitionCost: price, renovationBudget: 0, targetSalePrice: 0, capitalGoal: 0,
+      investors: [], notes: o.note || null, createdAt: Date.now(),
+    };
+    saveUnicoDeals([...unicoDeals, deal]);
+    handleSaveUnicoOpp({ ...o, status: 'acquisita', dealId });
+    logAudit('create', 'unico', `Investimento creato da opportunità "${o.title}"`);
+    showToast('Investimento creato in "Investimenti Immobiliari".', 'ok');
   };
   // ---- Programmazione fatturazione (fatturazionePlan) ----
   const handleSaveFatturazione = (i: FatturazionePlanItem) => {
@@ -5349,6 +5409,42 @@ export default function App() {
               </React.Suspense>
             );
           }
+          case 'piano-battaglia': {
+            const psoc = activeSocieta as string;
+            const cicli = Object.values(projects)
+              .filter((p: any) => p.division === psoc && !p.archived && p.status !== 'completato' && p.status !== 'annullato')
+              .map((p: any) => ({ id: p.id, name: p.name }));
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <PianoBattaglia
+                  soc={psoc}
+                  socLabel={society.label}
+                  items={Object.values(battlePlan)}
+                  cicli={cicli}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSave={handleSaveBattleItem}
+                  onDelete={handleDeleteBattleItem}
+                  onOpenCiclo={(pid) => { window.location.hash = `#progetto/${pid}`; }}
+                />
+              </React.Suspense>
+            );
+          }
+          case 'unico-opportunita':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <UnicoOpportunitaView
+                  opps={Object.values(unicoOpps)}
+                  rubrica={Object.values(clients)}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSave={handleSaveUnicoOpp}
+                  onDelete={handleDeleteUnicoOpp}
+                  onCreateDeal={handleCreateDealFromOpp}
+                  onOpenInvestimenti={() => { window.location.hash = '#unico/prod-progetti'; }}
+                />
+              </React.Suspense>
+            );
           case 'contabilita-read': {
             const psoc = activeSocieta as string;
             return (

@@ -26,7 +26,7 @@ import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
   Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
-  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare,
+  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
 import { SOCIETA_LABEL, canView } from './access';
@@ -411,10 +411,12 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   s.push({ id: 'home', label: 'Home', icon: LayoutGrid, module: 'produzione', kind: 'group', dashLabel: 'Quadro generale' });
   s.push({ id: 'home-agenda', label: 'Agenda', icon: Calendar, parent: 'home', module: 'produzione', legacyRoute: 'calendario', shared: true });
   s.push({ id: 'home-cicli', label: 'Lista dei cicli', icon: Layers, parent: 'home', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
+  s.push({ id: 'home-piano', label: 'Piano di Battaglia', icon: Swords, parent: 'home', module: 'produzione', view: 'piano-battaglia', note: 'La settimana operativa: porta qui i cicli quando vanno lavorati (PDF: Agenda ↔ Cicli ↔ Piano di Battaglia dialogano).' });
   s.push(ph('home-notifiche', 'Notifiche', Bell, 'home', 'produzione', 'Notifiche e messaggi della società.'));
 
   // ---- PRODUZIONE (Progetti · Computi · Mappa operativa) ----
   s.push({ id: 'produzione', label: 'Produzione', icon: Layers, module: 'produzione', kind: 'group' });
+  if (isUni) s.push({ id: 'prod-opportunita', label: 'Ricerca Opportunità', icon: Search, parent: 'produzione', module: 'produzione', view: 'unico-opportunita', note: 'Workflow a step obbligatori: contatto → sopralluogo → raccolta → analisi → due diligence → manifestazione → negoziazione → preliminare → atto → INVESTIMENTO.' });
   if (isMat) s.push({ id: 'prod-potenziale', label: 'Potenziale Cantiere', icon: Target, parent: 'produzione', module: 'produzione', view: 'materico-deals' });
   s.push({ id: 'prod-progetti', label: isUni ? 'Operazioni & Investitori' : 'Progetti', icon: isUni ? Building2 : Layers, parent: 'produzione', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
   s.push(ph('prod-computi', 'Computi', Calculator, 'produzione', 'produzione', 'Computi metrici.'));

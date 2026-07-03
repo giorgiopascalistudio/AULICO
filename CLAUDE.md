@@ -604,6 +604,21 @@ reporting/redditività, integrazioni esterne
   erogazione servizi tramite partner ("dal tagliare il prato a trovare un van per gli ospiti").
   Modulo da costruire DOPO Unico→Onirico→Materico (ordine scelto dall'utente per la ricostruzione
   delle società operative secondo i 00-DESCRIZIONE.md di AULICO 2.0/docs/SEZIONI).
+  ⚠️ **Unico consegna 2 (§25)** — dai 00-DESCRIZIONE: 1) **Piano di Battaglia** (componente
+  `PianoBattaglia`, sezione `home-piano` in TUTTE le società operative, nodo **`battlePlan/<id>`**
+  tipo `BattleItem`): settimana operativa Lun–Dom + corsia "in settimana", si aggiungono i CICLI
+  aperti o attività libere (priorità alta/media/bassa), drag&drop tra i giorni, frecce per spostare
+  di settimana, spunta fatto; Cestino sezione `battle`. 2) **Ricerca Opportunità Unico** (componente
+  `UnicoOpportunitaView`, sezione `prod-opportunita`, nodo **`unicoOpportunita/<id>`** tipo
+  `UnicoOpportunity`): workflow a 9 STEP OBBLIGATORI in ordine (contatto→sopralluogo→raccolta→analisi→
+  due diligence→manifestazione→negoziazione→preliminare→atto); la **due diligence è una checklist
+  inline** (9 verifiche `DD_ITEMS` + PDF link) che fa da GATE allo step; la **manifestazione
+  d'interesse si genera dal modello** (`ContractPrintDoc` template 'manifestazione', nuova prop
+  `initialFields` per la precompilazione); a tutti gli step fatti → **"crea l'INVESTIMENTO"**
+  (`handleCreateDealFromOpp`: nuovo `UnicoDeal` in `unicoDeals` status 'acquisizione' + opp
+  `status:'acquisita'`+`dealId`); scheda con contatto dalla rubrica, link Google Earth/foto/docs,
+  prezzo/valutazione; Cestino sezione `unico-opp`. ⚠️ Nodi **`battlePlan`** e **`unicoOpportunita`**
+  (read/write studio attivo non-cliente/non-partner): **ripubblicare le regole**.
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;
