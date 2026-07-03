@@ -544,6 +544,15 @@ reporting/redditività, integrazioni esterne
   `amm-commerciale` è stata rimossa (doppione di Finanze→Preventivi); `amm-contabilita` resta come
   "Contabilità operativa" (FinanzeView completa, con selettore Società — è lì che si registrano
   fatture/scadenze/movimenti; il bottone "Contabilità" del hub ci salta con `financeLock`).
+  **Aggiunte post-verifica docs SEZIONI**: 1) Strategico ha ora il gruppo **Commerciale**
+  (`comm-preventivi` → `CommercialeView` division strategico + `comm-clienti` → rubrica), come da
+  modello a 7 sezioni; 2) i preventivi supportano **sconto/maggiorazione rapidi %**
+  (`Quote.discountPct`/`surchargePct`, PDF MKT Richieste): `quoteTotals` in finance.ts li applica
+  sull'imponibile PRIMA di cassa/IVA e ritorna anche `righe/sconto/maggiorazione`; UI in `QuoteEditor`
+  (pannello "Sconto / maggiorazione"); `Quote.total` resta l'imponibile GIÀ scontato/maggiorato
+  (nessun cambiamento a valle); 3) grafici stile PDF nel `DirezioneHub`: **Fatturato vs BEP** (barre +
+  soglia tratteggiata, rosso sotto pareggio) nella tab BEP e **Fatturato vs Incassato** affiancati
+  nella tab KPI.
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

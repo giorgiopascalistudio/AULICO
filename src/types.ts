@@ -233,6 +233,9 @@ export interface Quote {
   vatPct?: number;           // default 22
   cassaEnabled?: boolean;    // default false (Inarcassa/cassa previdenziale)
   cassaPct?: number;         // default 4
+  // Sconto/maggiorazione rapidi % sull'imponibile (PDF MKT Richieste: preventivi Strategico)
+  discountPct?: number | null;
+  surchargePct?: number | null;
   paymentPlan?: PaymentMilestone[];
   validUntil?: string | null;
   notes?: string | null;

@@ -173,6 +173,38 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
           </div>
         </div>
 
+        {/* Sconto / maggiorazione rapidi (% sull'imponibile delle righe) */}
+        <div className="border border-[#eee] rounded-2xl p-3 bg-[#fafafa]">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] block mb-2">Sconto / maggiorazione</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <label className="flex items-center gap-2.5 rounded-xl border border-[#e2e2e2] bg-white px-3 py-2.5">
+              <span className="text-[12.5px] font-bold text-[#161616] flex-1">Sconto</span>
+              <input
+                value={draft.discountPct ?? ''}
+                onChange={(e) => setDraft((d) => ({ ...d, discountPct: e.target.value === '' ? null : num(e.target.value) }))}
+                inputMode="decimal" placeholder="0"
+                className="qi w-[64px] text-right"
+              />
+              <span className="text-[12px] font-bold text-[#8a8a8a]">%</span>
+              {totals.sconto > 0 && <span className="text-[11.5px] font-bold text-rose-600">−{eur(totals.sconto)}</span>}
+            </label>
+            <label className="flex items-center gap-2.5 rounded-xl border border-[#e2e2e2] bg-white px-3 py-2.5">
+              <span className="text-[12.5px] font-bold text-[#161616] flex-1">Maggiorazione</span>
+              <input
+                value={draft.surchargePct ?? ''}
+                onChange={(e) => setDraft((d) => ({ ...d, surchargePct: e.target.value === '' ? null : num(e.target.value) }))}
+                inputMode="decimal" placeholder="0"
+                className="qi w-[64px] text-right"
+              />
+              <span className="text-[12px] font-bold text-[#8a8a8a]">%</span>
+              {totals.maggiorazione > 0 && <span className="text-[11.5px] font-bold text-emerald-700">+{eur(totals.maggiorazione)}</span>}
+            </label>
+          </div>
+          {(totals.sconto > 0 || totals.maggiorazione > 0) && (
+            <p className="text-[11px] text-[#9a9a9a] font-semibold mt-2">Righe {eur(totals.righe)} → imponibile {eur(totals.imponibile)} (lo sconto/maggiorazione si applica prima di cassa e IVA).</p>
+          )}
+        </div>
+
         {/* IVA & Cassa previdenziale spuntabili + riepilogo totali */}
         <div className="border border-[#eee] rounded-2xl p-3 bg-[#fafafa]">
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] block mb-2">IVA &amp; Cassa previdenziale</span>

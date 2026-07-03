@@ -453,14 +453,39 @@ const KpiTab: React.FC<{
 
       {/* Grafico + tabella mensile */}
       <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-        <div className="flex items-end gap-1.5 h-[110px] mb-3">
-          {vals.map((v, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0">
-              <div className="w-full rounded-t-md" style={{ height: `${Math.max(3, (v / maxV) * 90)}px`, background: v ? '#161616' : '#f0f0f0', opacity: 0.85 }} title={fmtV(v)} />
-              <span className="text-[9px] font-bold text-[#b0b0b0]">{MESI[i].slice(0, 3)}</span>
-            </div>
-          ))}
-        </div>
+        {(metric === 'fatturato' || metric === 'incassato') ? (() => {
+          // Fatturato vs incassato affiancati (come nel PDF della riunione)
+          const f = s.fatturato; const inc = s.incassato;
+          const mx = Math.max(1, ...f, ...inc);
+          return (
+            <>
+              <div className="flex items-end gap-1.5 h-[110px] mb-2">
+                {MESI.map((_, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0">
+                    <div className="w-full flex items-end justify-center gap-[2px] h-[90px]">
+                      <div className="w-1/2 rounded-t-sm" style={{ height: `${Math.max(2, (f[i] / mx) * 90)}px`, background: '#161616' }} title={`Fatturato ${eur(f[i])}`} />
+                      <div className="w-1/2 rounded-t-sm" style={{ height: `${Math.max(2, (inc[i] / mx) * 90)}px`, background: '#b45309' }} title={`Incassato ${eur(inc[i])}`} />
+                    </div>
+                    <span className="text-[9px] font-bold text-[#b0b0b0]">{MESI[i].slice(0, 3)}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-4 mb-3">
+                <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-sm bg-[#161616]" /> Fatturato</span>
+                <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-sm bg-[#b45309]" /> Incassato</span>
+              </div>
+            </>
+          );
+        })() : (
+          <div className="flex items-end gap-1.5 h-[110px] mb-3">
+            {vals.map((v, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0">
+                <div className="w-full rounded-t-md" style={{ height: `${Math.max(3, (v / maxV) * 90)}px`, background: v ? '#161616' : '#f0f0f0', opacity: 0.85 }} title={fmtV(v)} />
+                <span className="text-[9px] font-bold text-[#b0b0b0]">{MESI[i].slice(0, 3)}</span>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[560px]">
             <thead><tr className="border-b border-[#eee] bg-[#f7f6f4]">
@@ -714,11 +739,35 @@ const CostPlanPanel: React.FC<{
 // ---------------------------------------------------------------- BEP
 const BepTab: React.FC<{ year: number; rows: ReturnType<typeof bepRows> }> = ({ year, rows }) => {
   const fromPiano = rows[0]?.fromPiano;
+  const maxV = Math.max(1, ...rows.flatMap((r) => [r.F, r.bep === Infinity ? 0 : r.bep]));
   return (
     <div className="flex flex-col gap-3">
       <p className="text-[12.5px] text-[#8a8a8a] font-semibold">
         Break Even Point {year}: sotto la soglia sei in perdita, sopra sei in utile. {fromPiano ? 'Costi fissi/variabili dal Piano finanziario (consuntivo).' : 'Piano finanziario non compilato: tutti i costi registrati sono trattati come fissi.'}
       </p>
+
+      {/* Grafico FATTURATO vs BEP (come nel PDF della riunione) */}
+      <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
+        <div className="flex items-end gap-1.5 h-[130px]">
+          {rows.map((r) => {
+            const bepPct = r.bep === Infinity || r.bep <= 0 ? null : Math.min(100, (r.bep / maxV) * 100);
+            return (
+              <div key={r.m} className="flex-1 flex flex-col items-center gap-1 min-w-0">
+                <div className="relative w-full h-[105px] flex items-end">
+                  <div className="w-full rounded-t-md" style={{ height: `${Math.max(2, (r.F / maxV) * 100)}%`, background: r.F === 0 ? '#f0f0f0' : r.sopra ? '#161616' : '#e11d48', opacity: 0.85 }} title={`Fatturato ${eur(r.F)}`} />
+                  {bepPct != null && <div className="absolute left-[-2px] right-[-2px] border-t-2 border-dashed border-[#b45309]" style={{ bottom: `${bepPct}%` }} title={`BEP ${eur(r.bep)}`} />}
+                </div>
+                <span className="text-[9px] font-bold text-[#b0b0b0]">{MESI[r.m].slice(0, 3)}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex items-center gap-4 mt-2 flex-wrap">
+          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-sm bg-[#161616]" /> Fatturato (sopra BEP)</span>
+          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-sm bg-[#e11d48]" /> Fatturato (sotto BEP)</span>
+          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-[#8a8a8a]"><span className="w-4 border-t-2 border-dashed border-[#b45309]" /> Soglia BEP</span>
+        </div>
+      </div>
       <div className="bg-white border border-[#e2e2e2] rounded-[20px] overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[820px]">
           <thead><tr className="border-b border-[#eee] bg-[#f7f6f4]">

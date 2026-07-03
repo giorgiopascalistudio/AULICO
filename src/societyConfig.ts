@@ -465,6 +465,10 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       // === SOTTO-CATEGORIA: Marketing (Centro Marketing: hub di TUTTI gli account gestiti) ===
       { id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' },
       { id: 'mkt-centro', label: 'Centro Marketing', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing-hub', note: 'Salute di tutti gli account gestiti (5 società + clienti terzi); ogni account ha il SUO workspace: scheda/liberatoria, calendario editoriale, workflow 9 fasi, KPI, spese & budget, report mensile, eventi & gadget, blog.' },
+      // === SOTTO-CATEGORIA: Commerciale (preventivi/contratti Strategico, con sconti/maggiorazioni) ===
+      { id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', kind: 'group' },
+      { id: 'comm-preventivi', label: 'Preventivi & Contratti', icon: FileText, parent: 'commerciale', module: 'commerciale', view: 'commerciale', note: 'Preventivi Strategico (sconti/maggiorazioni rapidi), firma OTP = contratto, catalogo per stato e Attivi/Archiviati.' },
+      { id: 'comm-clienti', label: 'Registro clienti', icon: BookUser, parent: 'commerciale', module: 'crm', legacyRoute: 'crm', preset: { crmTab: 'clienti' } },
       // === SOTTO-CATEGORIA: Amministrazione & Contabilità (Centro Direzione: amministra TUTTE le società) ===
       { id: 'amm', label: 'Amministrazione & Contabilità', icon: Briefcase, module: 'finance', kind: 'group' },
       { id: 'amm-centro', label: 'Centro Direzione', icon: Briefcase, parent: 'amm', module: 'finance', view: 'direzione-hub', note: 'Salute economica di tutte le società + workspace per società con le sezioni della riunione strategica: KPI, Piano finanziario, IVA & Fiscale, Programmazione (fatturazione+costi), BEP, Budget per aree, Cicli aperti, Obiettivi, Report stampabile.' },

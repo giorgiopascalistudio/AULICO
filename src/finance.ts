@@ -167,16 +167,22 @@ export function docTotals(imponibile: number, vatPct: number, cassaPct: number):
   return { imponibile: base, cassa, iva, totale: base + cassa + iva };
 }
 
-/** Totali documento di un preventivo/parcella (nodo quotes). */
+/** Totali documento di un preventivo/parcella (nodo quotes).
+ * Sconto/maggiorazione % (PDF MKT Richieste) applicati sull'imponibile delle righe,
+ * PRIMA di cassa/IVA: imponibile = Σ righe × (1 + maggiorazione% − sconto%). */
 export function quoteTotals(q: {
   lines?: { amount: number }[];
   vatEnabled?: boolean; vatPct?: number;
   cassaEnabled?: boolean; cassaPct?: number;
-}): DocTotals {
-  const imponibile = (q.lines || []).reduce((s, l) => s + (Number(l.amount) || 0), 0);
+  discountPct?: number | null; surchargePct?: number | null;
+}): DocTotals & { righe: number; sconto: number; maggiorazione: number } {
+  const righe = (q.lines || []).reduce((s, l) => s + (Number(l.amount) || 0), 0);
+  const sconto = righe * ((Number(q.discountPct) || 0) / 100);
+  const maggiorazione = righe * ((Number(q.surchargePct) || 0) / 100);
+  const imponibile = righe - sconto + maggiorazione;
   const vat = (q.vatEnabled ?? true) ? (q.vatPct ?? VAT_PCT_DEFAULT) : 0;
   const cassa = q.cassaEnabled ? (q.cassaPct ?? CASSA_PCT_DEFAULT) : 0;
-  return docTotals(imponibile, vat, cassa);
+  return { ...docTotals(imponibile, vat, cassa), righe, sconto, maggiorazione };
 }
 
 /** Totali documento di una fattura attiva (amount = imponibile). */
