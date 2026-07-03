@@ -26,7 +26,7 @@ import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
   Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
-  Bell, Calculator, Award, Lock, Gift,
+  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
 import { SOCIETA_LABEL, canView } from './access';
@@ -116,8 +116,17 @@ export interface WidgetListItem {
   unread?: boolean;    // evidenzia la voce come non letta (pallino pieno)
 }
 
+/** Riquadro statistico compatto (griglia di tessere numero+etichetta). */
+export interface WidgetStat {
+  label: string;
+  value: string;
+  accent?: string;   // colore del numero (default nero)
+  hash?: string;     // tessera cliccabile
+}
+
 export type WidgetData =
   | { kind: 'kpi'; value: string; sub?: string }
+  | { kind: 'stats'; items: WidgetStat[] }
   | { kind: 'list'; items: WidgetListItem[]; emptyText?: string };
 
 export interface DashboardCtx {
@@ -137,6 +146,7 @@ export interface WidgetSpec {
   id: string;
   title: string;
   size?: 'sm' | 'md' | 'lg';
+  icon?: LucideIcon;    // icona nell'header del riquadro
   compute: (ctx: DashboardCtx) => WidgetData;
 }
 
@@ -163,21 +173,21 @@ function relTime(at?: number | null): string {
 export const DEFAULT_DASHBOARD: DashboardSpec = {
   widgets: [
     {
-      id: 'progetti-attivi', title: 'Progetti attivi', size: 'sm',
+      id: 'progetti-attivi', title: 'Progetti attivi', size: 'sm', icon: Layers,
       compute: (c) => {
         const n = c.projects.filter((p) => p.status === 'attivo' && !p.archived).length;
         return { kind: 'kpi', value: String(n), sub: 'in corso' };
       },
     },
     {
-      id: 'cicli-totali', title: 'Cicli / commesse', size: 'sm',
+      id: 'cicli-totali', title: 'Cicli / commesse', size: 'sm', icon: Briefcase,
       compute: (c) => {
         const n = c.projects.filter((p) => !p.archived).length;
         return { kind: 'kpi', value: String(n), sub: 'totali' };
       },
     },
     {
-      id: 'task-oggi', title: 'Attività di oggi', size: 'sm',
+      id: 'task-oggi', title: 'Attività di oggi', size: 'sm', icon: CheckSquare,
       compute: (c) => {
         const uid = c.profile?.uid;
         const tk = todayKey();
@@ -189,7 +199,7 @@ export const DEFAULT_DASHBOARD: DashboardSpec = {
       },
     },
     {
-      id: 'prossimi-appuntamenti', title: 'Prossimi appuntamenti', size: 'md',
+      id: 'prossimi-appuntamenti', title: 'Prossimi appuntamenti', size: 'md', icon: Calendar,
       compute: (c) => {
         const uid = c.profile?.uid as string;
         const now = Date.now();
@@ -207,7 +217,7 @@ export const DEFAULT_DASHBOARD: DashboardSpec = {
       },
     },
     {
-      id: 'richieste-clienti', title: 'Richieste clienti', size: 'md',
+      id: 'richieste-clienti', title: 'Richieste clienti', size: 'md', icon: Inbox,
       compute: (c) => {
         const items = c.clientRequests
           .filter((r) => r.status === 'inviata')
@@ -249,11 +259,12 @@ function isMyProject(p: Project, uid: string | undefined, tasks: Task[]): boolea
 export const PERSONAL_DASHBOARD: DashboardSpec = {
   widgets: [
     {
-      id: 'vista-generale', title: 'Vista generale', size: 'md',
+      id: 'vista-generale', title: 'Vista generale', size: 'md', icon: LayoutGrid,
       compute: (c) => {
         const uid = c.profile?.uid; const tk = todayKey();
         const mine = c.tasks.filter((t) => isMine(t, uid));
         const open = mine.filter((t) => !t.done).length;
+        const todo = mine.filter((t) => !t.done && (t.date || '').slice(0, 10) === tk).length;
         const urgent = mine.filter((t) => !t.done && t.priority === 'urgente').length;
         const overdue = mine.filter((t) => !t.done && (t.date || '') < tk).length;
         const activeCycles = c.projects.filter((p) => p.status === 'attivo' && !p.archived);
@@ -261,17 +272,18 @@ export const PERSONAL_DASHBOARD: DashboardSpec = {
         // Coerente col widget "Cicli attivi": i miei, o tutti gli attivi se non ne ho di miei.
         const myCycles = mineCycles.length || activeCycles.length;
         const unread = (c.notifications || []).filter((n) => !n.read).length;
-        return { kind: 'list', items: [
-          { label: 'Cicli attivi', meta: String(myCycles), hash: '#progetti' },
-          { label: 'Attività aperte', meta: String(open), hash: '#calendario' },
-          { label: 'Urgenti', meta: String(urgent), accent: urgent ? '#dc2626' : undefined, hash: '#calendario' },
-          { label: 'Scadute', meta: String(overdue), accent: overdue ? '#dc2626' : undefined, hash: '#calendario' },
-          { label: 'Notifiche da leggere', meta: String(unread), unread: unread > 0 },
+        return { kind: 'stats', items: [
+          { label: 'Cicli attivi', value: String(myCycles), hash: '#progetti' },
+          { label: 'Oggi', value: String(todo), hash: '#calendario' },
+          { label: 'Aperte', value: String(open), hash: '#calendario' },
+          { label: 'Urgenti', value: String(urgent), accent: urgent ? '#dc2626' : undefined, hash: '#calendario' },
+          { label: 'Scadute', value: String(overdue), accent: overdue ? '#dc2626' : undefined, hash: '#calendario' },
+          { label: 'Non lette', value: String(unread), accent: unread ? '#b45309' : undefined },
         ] };
       },
     },
     {
-      id: 'oggi', title: 'Le mie attività di oggi', size: 'md',
+      id: 'oggi', title: 'Le mie attività di oggi', size: 'md', icon: CheckSquare,
       compute: (c) => {
         const uid = c.profile?.uid; const tk = todayKey();
         const items = c.tasks
@@ -288,7 +300,7 @@ export const PERSONAL_DASHBOARD: DashboardSpec = {
       },
     },
     {
-      id: 'cicli-attivi', title: 'Cicli attivi', size: 'md',
+      id: 'cicli-attivi', title: 'Cicli attivi', size: 'md', icon: Layers,
       compute: (c) => {
         const uid = c.profile?.uid;
         const active = c.projects.filter((p) => p.status === 'attivo' && !p.archived);
@@ -313,7 +325,7 @@ export const PERSONAL_DASHBOARD: DashboardSpec = {
       },
     },
     {
-      id: 'prossimi-appuntamenti', title: 'Prossimi appuntamenti', size: 'md',
+      id: 'prossimi-appuntamenti', title: 'Prossimi appuntamenti', size: 'md', icon: Calendar,
       compute: (c) => {
         const uid = c.profile?.uid as string;
         const now = Date.now();
@@ -333,7 +345,7 @@ export const PERSONAL_DASHBOARD: DashboardSpec = {
       },
     },
     {
-      id: 'notifiche', title: 'Notifiche & messaggi', size: 'md',
+      id: 'notifiche', title: 'Notifiche & messaggi', size: 'md', icon: Bell,
       compute: (c) => {
         const items = (c.notifications || [])
           .slice()
@@ -350,7 +362,7 @@ export const PERSONAL_DASHBOARD: DashboardSpec = {
       },
     },
     {
-      id: 'chat-recenti', title: 'Chat recenti', size: 'md',
+      id: 'chat-recenti', title: 'Chat recenti', size: 'md', icon: MessageSquare,
       compute: (c) => {
         const uid = c.profile?.uid;
         const byProject = c.projectMessages || {};
