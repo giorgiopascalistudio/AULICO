@@ -252,8 +252,8 @@ const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void; onOp
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {onOpenCestino && (
-            <button onClick={onOpenCestino} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12px] font-bold cursor-pointer">
-              <Trash2 className="w-3.5 h-3.5" /> Cestino & Archivio
+            <button onClick={onOpenCestino} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12px] font-bold cursor-pointer">
+              <Trash2 className="w-4 h-4" /> Cestino & Archivio
             </button>
           )}
           <button onClick={() => setShowReport(true)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12.5px] font-bold cursor-pointer">
@@ -277,7 +277,7 @@ const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void; onOp
         ].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
             <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
-            <p className="text-[22px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
+            <p className="text-[20px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
           </div>
         ))}
       </div>
@@ -806,7 +806,7 @@ const SpeseTab: React.FC<{
         ].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
             <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
-            <p className="text-[18px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
+            <p className="text-[20px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
           </div>
         ))}
       </div>
@@ -1071,7 +1071,7 @@ const ExtrasTab: React.FC<{
       {canEdit && (
         <div className="flex items-center gap-2">
           <button onClick={() => setEditing(blank(isEvents ? 'evento' : 'blog'))} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> {isEvents ? 'Nuovo evento' : 'Nuovo articolo'}</button>
-          {isEvents && <button onClick={() => setEditing(blank('gadget'))} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Gift className="w-3.5 h-3.5" /> Nuovo gadget</button>}
+          {isEvents && <button onClick={() => setEditing(blank('gadget'))} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Gift className="w-3.5 h-3.5" /> Nuovo gadget</button>}
         </div>
       )}
       {list.length === 0 ? (

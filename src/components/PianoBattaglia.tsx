@@ -112,7 +112,7 @@ export const PianoBattaglia: React.FC<Props> = ({ soc, socLabel, items, cicli, c
       <p className="text-[13px] font-extrabold text-[#161616] capitalize -mt-2">Settimana {weekLabel}</p>
 
       {lane(null)}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2">
         {GIORNI.map((_, d) => lane(d))}
       </div>
 

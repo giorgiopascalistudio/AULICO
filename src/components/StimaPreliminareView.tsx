@@ -125,7 +125,7 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; color
       <div className="flex items-center justify-between gap-3 flex-wrap no-print">
         <div className="flex items-center gap-3 min-w-0">
           <button onClick={onBack} className="w-9 h-9 rounded-xl border border-[#e2e2e2] bg-white hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer shrink-0"><ArrowLeft className="w-4 h-4" /></button>
-          <input disabled={!canEdit} value={s.title} onChange={(e) => set({ title: e.target.value })} className="text-[19px] font-black tracking-tight text-[#161616] bg-transparent border-none outline-none min-w-0 p-0" />
+          <input disabled={!canEdit} value={s.title} onChange={(e) => set({ title: e.target.value })} className="text-[20px] font-black tracking-tight text-[#161616] bg-transparent border-none outline-none min-w-0 p-0" />
         </div>
         <div className="flex items-center gap-2">
           <select disabled={!canEdit} value={s.clientRecordId || ''} onChange={(e) => { const c = rubrica.find((x) => x.id === e.target.value); set({ clientRecordId: e.target.value || null, clientName: c?.name || null }); }} className={inp}>

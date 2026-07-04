@@ -144,7 +144,7 @@ const OppDetail: React.FC<{
               disabled={!canEdit}
               value={o.title}
               onChange={(e) => set({ title: e.target.value })}
-              className="text-[19px] font-black tracking-tight text-[#161616] bg-transparent border-none outline-none w-full min-w-0 p-0"
+              className="text-[20px] font-black tracking-tight text-[#161616] bg-transparent border-none outline-none w-full min-w-0 p-0"
             />
             <p className="text-[11.5px] text-[#8a8a8a] font-semibold">{doneCount(o)}/{OPP_STEPS.length} step · {o.status}</p>
           </div>

@@ -282,8 +282,8 @@ const Centro: React.FC<Props & { onOpen: (s: string, t?: WsTab) => void; onOpenC
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {onOpenCestino && (
-            <button onClick={onOpenCestino} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12px] font-bold cursor-pointer">
-              <Trash2 className="w-3.5 h-3.5" /> Cestino & Archivio
+            <button onClick={onOpenCestino} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12px] font-bold cursor-pointer">
+              <Trash2 className="w-4 h-4" /> Cestino & Archivio
             </button>
           )}
           {p.onOpenContabilita && (
@@ -387,7 +387,7 @@ const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) =
             {[year - 2, year - 1, year, year + 1].filter((y, i, a) => a.indexOf(y) === i).map((y) => <option key={y} value={y}>{y}</option>)}
           </select>
           {p.onOpenContabilita && (
-            <button onClick={() => p.onOpenContabilita!(soc)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[11.5px] font-bold cursor-pointer"><ExternalLink className="w-3.5 h-3.5" /> Contabilità</button>
+            <button onClick={() => p.onOpenContabilita!(soc)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[11.5px] font-bold cursor-pointer"><ExternalLink className="w-3.5 h-3.5" /> Contabilità</button>
           )}
         </div>
       </div>
@@ -722,7 +722,7 @@ const CostPlanPanel: React.FC<{
         <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Uscite previste del mese (modello Excel): spunta le voci quando vengono sostenute.</p>
         <div className="flex items-center gap-2">
           <input type="month" value={ym} onChange={(e) => setYm(e.target.value || ymNow())} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white" />
-          {canEdit && rows.length === 0 && <button onClick={copyPrev} className="px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[11.5px] font-bold cursor-pointer">Copia dal mese precedente</button>}
+          {canEdit && rows.length === 0 && <button onClick={copyPrev} className="px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[11.5px] font-bold cursor-pointer">Copia dal mese precedente</button>}
         </div>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -859,7 +859,7 @@ const BudgetTab: React.FC<{
         {[{ l: `Budget ${year}`, v: eur(totB) }, { l: 'Consuntivo', v: eur(totC), c: totB && totC > totB ? '#e11d48' : undefined }, { l: 'Costi registrati in app', v: eur(costiAnno) }].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
             <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
-            <p className="text-[18px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
+            <p className="text-[20px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
           </div>
         ))}
       </div>
