@@ -663,6 +663,13 @@ reporting/redditività, integrazioni esterne
   con clientUid → notifica con avanzamento % dalle fasi + nuove foto cantiere della settimana
   (richiede i secrets GitHub Actions di automation/README). Mancante dei 4 del PDF: solo il
   **Render AI preliminare** (foto lotto + questionario → render; serve generazione immagini).
+  **Point of Entry (docs 01-STRATEGICO)** — nuova PRIMA voce di Strategico (`point-of-entry`,
+  componente **`PointOfEntryView`**, admin/manager): inbox unificata con i **lead da smistare**
+  (crmLeads non `routed`: bottoni Onirico/Strategico/Materico → `saveLeads`+`handleRouteLead`,
+  notifica+audit) e le **richieste clienti** dal portale (inviate/prese in carico: prendi in
+  carico / converti in progetto / chiudi — riusa gli handler di ClientRequestsView); KPI (da
+  smistare, nuove, in carico, smistati 7gg) + link a pipeline completa e a tutte le richieste.
+  Nessun nodo nuovo.
   ⚠️ **Fantastico consegna 5 (§26)** — PRODUZIONE di Fantastico costruita sulla definizione utente
   (gestione immobiliare: manutenzioni + servizi via partner): componente **`FantasticoView`**
   (sezione `prod-gestione` "Immobili & Servizi"), nodi **`fantImmobili/<id>`** (`FantImmobile`:

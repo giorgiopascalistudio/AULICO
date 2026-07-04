@@ -455,6 +455,8 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
   {
     id: 'strategico', label: SOCIETA_LABEL.strategico, color: SOCIETY_COLOR.strategico,
     sections: [
+      // === POINT OF ENTRY (docs: tutti i lead e le richieste transitano da qui) ===
+      { id: 'point-of-entry', label: 'Point of Entry', icon: Inbox, module: 'crm', view: 'point-of-entry', note: 'Inbox unificata: lead da smistare alla società competente + richieste dei clienti dal portale (prendi in carico / converti in progetto).' },
       // === SOTTO-CATEGORIA: Risorse Umane ===
       { id: 'hr', label: 'Risorse Umane', icon: Users, module: 'hr', kind: 'group', dashLabel: 'Agenda HR' },
       { id: 'hr-crm', label: 'CRM', icon: BookUser, parent: 'hr', shared: true, module: 'crm', legacyRoute: 'crm' },

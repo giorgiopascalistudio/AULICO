@@ -205,6 +205,7 @@ const UnicoOpportunitaView = React.lazy(() => import('./components/UnicoOpportun
 const StimaPreliminareView = React.lazy(() => import('./components/StimaPreliminareView').then((m) => ({ default: m.StimaPreliminareView })));
 const RecruitingView = React.lazy(() => import('./components/RecruitingView').then((m) => ({ default: m.RecruitingView })));
 const FantasticoView = React.lazy(() => import('./components/FantasticoView').then((m) => ({ default: m.FantasticoView })));
+const PointOfEntryView = React.lazy(() => import('./components/PointOfEntryView').then((m) => ({ default: m.PointOfEntryView })));
 const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
 const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m) => ({ default: m.FiscaleView })));
 const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
@@ -5561,6 +5562,26 @@ export default function App() {
               </React.Suspense>
             );
           }
+          case 'point-of-entry':
+            if (currentUser.role !== 'admin' && currentUser.role !== 'manager') return renderUnauthorized();
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <PointOfEntryView
+                  leads={crmLeads}
+                  requests={Object.values(clientRequests)}
+                  myName={currentUser.name}
+                  color={society.color}
+                  canEdit
+                  onSaveLeads={saveLeads}
+                  onRouteLead={handleRouteLead}
+                  onTakeCharge={handleTakeChargeClientRequest}
+                  onConvert={handleConvertClientRequest}
+                  onCloseRequest={handleCloseClientRequest}
+                  onOpenCrm={() => { window.location.hash = '#strategico/hr-crm'; }}
+                  onOpenRichieste={() => { window.location.hash = '#richieste-clienti'; }}
+                />
+              </React.Suspense>
+            );
           case 'fantastico-gestione':
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
