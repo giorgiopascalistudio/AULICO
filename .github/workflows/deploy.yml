@@ -39,5 +39,27 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # Il backend di GitHub Pages fallisce spesso con "Deployment failed, try
+      # again later": 3 tentativi con pausa, il run è verde se UNO riesce.
       - id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - if: steps.deployment.outcome == 'failure'
+        run: sleep 90
+      - id: deployment2
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - if: steps.deployment.outcome == 'failure' && steps.deployment2.outcome == 'failure'
+        run: sleep 180
+      - id: deployment3
+        if: steps.deployment.outcome == 'failure' && steps.deployment2.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+      - name: Esito
+        if: always()
+        run: |
+          if [ "${{ steps.deployment.outcome }}" = "success" ] || [ "${{ steps.deployment2.outcome }}" = "success" ] || [ "${{ steps.deployment3.outcome }}" = "success" ]; then
+            echo "Deploy riuscito"; exit 0
+          else
+            echo "Tutti i tentativi falliti"; exit 1
+          fi
