@@ -2010,7 +2010,35 @@ export default function App() {
         }
       });
     }
-  }, [currentUser?.uid, currentUser?.role, teamLeave, finScadenze]);
+    // Proactive Alert scelte estetiche (PDF Onirico): remind GIORNALIERO al cliente
+    // per gli arredi FISSI non confermati con scadenza ≤15gg; allo scadere,
+    // segnalazione di BLOCCO FORMALE del cantiere anche allo studio (dedup per giorno).
+    const pushTo = (uid: string, id: string, payload: { type: string; title: string; body?: string | null; link?: string | null }) => {
+      if (softRemRef.current.has(`${uid}:${id}`)) return;
+      softRemRef.current.add(`${uid}:${id}`);
+      getNode(`notifications/${uid}/${id}`)
+        .then((existing) => {
+          if (existing) return;
+          const ntf: Notification = { id, type: payload.type, title: payload.title, body: payload.body || null, link: payload.link || null, read: false, at: Date.now(), by: 'system', byName: 'Promemoria' };
+          writeNode(`notifications/${uid}/${id}`, ntf).catch(() => {});
+        })
+        .catch(() => {});
+    };
+    Object.entries(furnishings).forEach(([pid, byId]) => {
+      const proj: any = projects[pid];
+      if (!proj) return;
+      const fissi = Object.values(byId || {}).filter((f: any) => f.kind === 'fisso' && f.status !== 'confermato' && f.deadline);
+      if (!fissi.length) return;
+      const overdue = fissi.filter((f: any) => f.deadline < today);
+      const soon = fissi.filter((f: any) => { const days = Math.round((new Date(f.deadline).getTime() - new Date(today).getTime()) / 86400000); return days >= 0 && days <= 15; });
+      if (overdue.length) {
+        if (proj.clientUid) pushTo(proj.clientUid, `rem-blocco-${pid}-${today}`, { type: 'progetto', title: 'Scelte estetiche SCADUTE — cantiere in blocco', body: `${proj.name}: ${overdue.length} scelte da confermare subito (${overdue.slice(0, 3).map((f: any) => f.title).join(', ')}${overdue.length > 3 ? '…' : ''}).`, link: '#portale' });
+        push(`rem-blocco-studio-${pid}-${today}`, { type: 'progetto', title: `Blocco formale cantiere: ${proj.name}`, body: `${overdue.length} scelte estetiche scadute non confermate dal cliente.`, link: `#progetto/${pid}` });
+      } else if (soon.length && proj.clientUid) {
+        pushTo(proj.clientUid, `rem-scelte-${pid}-${today}`, { type: 'progetto', title: 'Scelte estetiche in scadenza', body: `${proj.name}: ${soon.length} scelte (sanitari/rivestimenti/infissi…) da confermare per non bloccare il cantiere.`, link: '#portale' });
+      }
+    });
+  }, [currentUser?.uid, currentUser?.role, teamLeave, finScadenze, furnishings, projects]);
 
   // ----------------------------------------------------
   // CESTINO (nodo trash) + DOPPIA CONFERMA ELIMINAZIONE

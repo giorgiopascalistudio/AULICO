@@ -651,6 +651,18 @@ reporting/redditività, integrazioni esterne
   problemi, specializzazione, qualità/prezzo): campo **`ClientRecord.valutazioni`** + tab
   "Valutazione imprese" nel workspace Materico del `CommercialeHub` (componente `ImpreseRating`,
   stelle + media, classifica "a colpo d'occhio", salva via `handleSaveClient` — riusa nodo `clients`).
+  **Automazioni Onirico (PDF §Automazioni)** — 1) blocco **Date importanti** nel fascicolo
+  (`ProjectsView`, sopra la pillbar): Firma preventivo (max `signedAt` dei quotes del progetto) ·
+  Inizio attività (`startDate`) · Fine attività (`dueDate`); 2) **Proactive Alert scelte estetiche**:
+  il banner countdown ≤60gg + "cantiere bloccato" ESISTEVA già in `FurnishingsBoard`; aggiunti i
+  **remind giornalieri** nell'effetto softRem di App (helper `pushTo`): arredi FISSI non confermati
+  con deadline ≤15gg → notifica giornaliera al CLIENTE (`rem-scelte-<pid>-<giorno>`); scaduti →
+  notifica cliente "cantiere in blocco" + notifica studio "Blocco formale cantiere"
+  (`rem-blocco[-studio]-<pid>-<giorno>`, dedup per giorno via getNode); 3) **Report settimanale al
+  cliente** in `automation/cron.mjs` (`weeklyClientReport`, il VENERDÌ): per ogni progetto attivo
+  con clientUid → notifica con avanzamento % dalle fasi + nuove foto cantiere della settimana
+  (richiede i secrets GitHub Actions di automation/README). Mancante dei 4 del PDF: solo il
+  **Render AI preliminare** (foto lotto + questionario → render; serve generazione immagini).
   ⚠️ **Fantastico consegna 5 (§26)** — PRODUZIONE di Fantastico costruita sulla definizione utente
   (gestione immobiliare: manutenzioni + servizi via partner): componente **`FantasticoView`**
   (sezione `prod-gestione` "Immobili & Servizi"), nodi **`fantImmobili/<id>`** (`FantImmobile`:

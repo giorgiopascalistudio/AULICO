@@ -130,6 +130,35 @@ async function activityReport(members, sinceMs, label) {
   }
 }
 
+// ---- report settimanale AL CLIENTE (PDF Onirico: foto, avanzamento, cronoprogramma) ----
+async function weeklyClientReport() {
+  const projects = arr((await db.ref('projects').get()).val());
+  const fotoAll = (await db.ref('cantiereFoto').get()).val() || {};
+  const cantieri = arr((await db.ref('cantieri').get()).val());
+  const weekAgo = Date.now() - 7 * 86400000;
+  for (const p of projects) {
+    if (!p.clientUid || p.archived || p.status === 'completato' || p.status === 'annullato') continue;
+    // Avanzamento dalle fasi
+    let tot = 0, done = 0;
+    for (const ph of Object.values(p.phases || {})) {
+      for (const t of Object.values(ph.tasks || {})) { tot++; if (t.done) done++; }
+    }
+    const pct = tot ? Math.round((done / tot) * 100) : 0;
+    // Foto cantiere della settimana (cantieri del progetto)
+    const cids = cantieri.filter((c) => c.projectId === p.id).map((c) => c.id);
+    let nuoveFoto = 0;
+    for (const cid of cids) {
+      nuoveFoto += arr(fotoAll[cid]).filter((f) => (f.takenAt || f.createdAt || 0) >= weekAgo).length;
+    }
+    await pushNotification(p.clientUid, {
+      type: 'report',
+      title: `Aggiornamento settimanale: ${p.name}`,
+      body: `Avanzamento ${pct}% (${done}/${tot} attività)${nuoveFoto ? ` · ${nuoveFoto} nuove foto dal cantiere` : ''}. Apri il portale per foto e cronoprogramma.`,
+      link: '#portale',
+    });
+  }
+}
+
 async function main() {
   const members = await studioMembers();
   if (!members.length) { console.log('Nessun membro studio attivo.'); return; }
@@ -138,6 +167,7 @@ async function main() {
   await expiryAlerts(members);
   await matericoDelayCheck(members);
   if (now.getDay() === 1) await activityReport(members, Date.now() - 7 * 86400000, 'settimanale');
+  if (now.getDay() === 5) await weeklyClientReport(); // venerdì: aggiornamento ai clienti
   if (now.getDate() === 1) await activityReport(members, Date.now() - 30 * 86400000, 'mensile');
   console.log('Automazioni completate.');
 }

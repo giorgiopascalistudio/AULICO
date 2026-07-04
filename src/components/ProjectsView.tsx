@@ -660,6 +660,30 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           </div>
         </div>
 
+        {/* Date importanti (wireframe PDF: Firma preventivo · Inizio attività · Fine attività) */}
+        {(() => {
+          const signed = Object.values(quotes).filter((q: any) => q.projectId === p.id && q.signedAt).map((q: any) => q.signedAt as number).sort((a, b) => b - a)[0] || null;
+          const fmtDi = (v?: string | number | null) => {
+            if (!v) return null;
+            const dt = typeof v === 'number' ? new Date(v) : new Date(v);
+            return Number.isNaN(dt.getTime()) ? null : dt.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
+          };
+          const dates = [
+            { l: 'Firma preventivo', v: fmtDi(signed) },
+            { l: 'Inizio attività', v: fmtDi((p as any).startDate) },
+            { l: 'Fine attività', v: fmtDi((p as any).dueDate) },
+          ];
+          if (!dates.some((d) => d.v)) return null;
+          return (
+            <div className="flex items-center gap-x-5 gap-y-1 flex-wrap mt-1 px-1">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#a0a0a0]">Date importanti</span>
+              {dates.map((d) => (
+                <span key={d.l} className="text-[11.5px] text-[#8a8a8a] font-semibold">{d.l}: <b className={d.v ? 'text-[#161616]' : 'text-[#c0c0c0]'}>{d.v || '—'}</b></span>
+              ))}
+            </div>
+          );
+        })()}
+
         {/* Premium Pills Navigation Bar */}
         <div className="w-full mt-1">
           <div className="flex w-full items-center bg-[#161616] rounded-full p-1.5 shadow-[0_12px_34px_-10px_rgba(0,0,0,0.5)] overflow-x-auto gap-1">
