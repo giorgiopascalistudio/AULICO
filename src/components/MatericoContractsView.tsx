@@ -153,6 +153,37 @@ const ContractEditor: React.FC<{ contract: MatericoContract; deals: MatericoDeal
               </select>
             </label>
           )}
+
+          {/* CONTROLLO MARGINI PRE-FIRMA (PDF Materico: "prima di sottoscrivere qualsiasi
+              contratto il sistema verifica la redditività della commessa") */}
+          {d.dealId && (() => {
+            const dl = deals.find((x) => x.id === d.dealId);
+            if (!dl) return null;
+            const rows = dl.computo || [];
+            const ricavo = rows.length ? rows.reduce((s, r) => s + (r.qty || 0) * (r.prezzoUnit || 0), 0) : (dl.valoreStimato || 0);
+            const costoDir = rows.length ? rows.reduce((s, r) => s + (r.qty || 0) * (r.costoUnit || 0), 0) : (dl.costoStimato || 0);
+            const indiretti = costoDir * ((dl.costiIndirettiPct || 0) / 100);
+            const utile = ricavo - costoDir - indiretti;
+            const mpct = ricavo > 0 ? (utile / ricavo) * 100 : 0;
+            const ok = mpct >= 15;
+            return (
+              <div className={`rounded-[14px] border-2 p-3 ${ok ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-300 bg-rose-50/60'}`}>
+                <p className="text-[10.5px] font-extrabold uppercase tracking-wider mb-1.5" style={{ color: ok ? '#047857' : '#be123c' }}>
+                  Controllo margini pre-firma · {ok ? 'redditività OK' : 'ATTENZIONE: margine sotto il 15%'}
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-x-3 gap-y-1 text-[11.5px] text-[#555]">
+                  <span>Ricavo previsto<br /><b className="text-[#161616] text-[12.5px]">{eur(ricavo)}</b></span>
+                  <span>Costo diretto<br /><b className="text-[#161616] text-[12.5px]">{eur(costoDir)}</b></span>
+                  <span>Indiretti {dl.costiIndirettiPct ? `(${dl.costiIndirettiPct}%)` : ''}<br /><b className="text-[#161616] text-[12.5px]">{eur(indiretti)}</b></span>
+                  <span>Utile previsto<br /><b className={`text-[12.5px] ${utile >= 0 ? 'text-emerald-700' : 'text-rose-600'}`}>{eur(utile)}</b></span>
+                  <span>Margine<br /><b className={`text-[12.5px] ${ok ? 'text-emerald-700' : 'text-rose-600'}`}>{Math.round(mpct * 10) / 10}%</b></span>
+                </div>
+                {d.importo != null && costoDir > 0 && d.importo > costoDir && (
+                  <p className="text-[10.5px] font-bold text-rose-600 mt-1.5">⚠ L'importo del contratto ({eur(d.importo)}) supera il costo diretto previsto ({eur(costoDir)}): il margine reale sarà più basso.</p>
+                )}
+              </div>
+            );
+          })()}
           <div className="grid grid-cols-2 gap-2">
             <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Impresa</span>
               <input disabled={locked} list="ctr-partners" value={d.partnerName} onChange={(e) => { const p = partners.find((x) => x.name === e.target.value); set({ partnerName: e.target.value, partnerRecordId: p?.id || d.partnerRecordId }); }} className={inp} />

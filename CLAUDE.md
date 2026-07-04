@@ -640,6 +640,17 @@ reporting/redditività, integrazioni esterne
   kit, ruolo-obiettivi-PFV, formazione/tutor, feedback, verifiche — sezioni compilabili + stampa).
   Cestino sezione `recruiting`. ⚠️ Nodo **`recruiting`** (read/write studio attivo non-cliente/
   partner): **ripubblicare le regole**.
+  **Materico consegna 4 (dai 00-DESCRIZIONE)** — 3 upgrade, NESSUN nodo nuovo: 1) **Controllo
+  margini PRE-FIRMA** in `MatericoContractsView` (pannello redditività quando il contratto è
+  collegato a una commessa: ricavo/costo diretto dal computo, indiretti %, utile, margine % con
+  semaforo <15% + warning se l'importo contratto supera il costo diretto); 2) **Azioni dalla Mappa
+  operativa** (`MatericoMappaView`, prop `onQuickTask`+`canEdit`): "Segnala problematica" (input
+  inline) e "Programma sopralluogo" → creano un'ATTIVITÀ in agenda (`handleQuickTask` in App,
+  priorità alta, tipo Cantiere, assegnata a chi la crea); 3) **Valutazione imprese** (PDF: 7 criteri
+  1–5 — qualità lavorazioni, affidabilità, rispetto tempistiche, capacità organizzativa, risoluzione
+  problemi, specializzazione, qualità/prezzo): campo **`ClientRecord.valutazioni`** + tab
+  "Valutazione imprese" nel workspace Materico del `CommercialeHub` (componente `ImpreseRating`,
+  stelle + media, classifica "a colpo d'occhio", salva via `handleSaveClient` — riusa nodo `clients`).
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

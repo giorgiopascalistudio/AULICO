@@ -872,6 +872,10 @@ export interface ClientRecord {
   pec?: string | null;         // (azienda)
   sdi?: string | null;         // (azienda) codice destinatario FE
   tier?: 1 | 2 | 3 | null;     // fascia/classificazione cliente (1/2/3 Fascia)
+  /** Valutazione impresa (PDF Materico, 7 criteri 1–5: qualità lavorazioni, affidabilità,
+   * rispetto tempistiche, capacità organizzativa, risoluzione problemi, specializzazione,
+   * rapporto qualità/prezzo) — "per scegliere le migliori a colpo d'occhio". */
+  valutazioni?: Record<string, number> | null;
   responsabili?: Record<string, boolean>; // uid dei membri studio responsabili
   responsabileNome?: string | null;   // nome responsabile (testo, es. da import registro)
   accountUid?: string | null;  // opz.: account portale collegato (users/<uid>)

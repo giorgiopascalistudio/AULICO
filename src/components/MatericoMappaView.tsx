@@ -19,14 +19,23 @@ export interface MapSite {
   kind: 'deal' | 'cantiere';
   hash?: string | null;
 }
-interface Props { sites: MapSite[]; color?: string; onOpen?: (hash: string) => void; }
+interface Props {
+  sites: MapSite[];
+  color?: string;
+  onOpen?: (hash: string) => void;
+  canEdit?: boolean;
+  /** Azioni operative dalla mappa (PDF): segnala problematica / programma sopralluogo → attività in agenda. */
+  onQuickTask?: (title: string) => void;
+}
 
 const query = (s: MapSite) => (s.lat != null && s.lng != null ? `${s.lat},${s.lng}` : s.address || s.title);
 const embedUrl = (s: MapSite) => `https://www.google.com/maps?q=${encodeURIComponent(query(s))}&z=${s.lat != null ? 15 : 13}&output=embed`;
 const extUrl = (s: MapSite) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query(s))}`;
 
-export const MatericoMappaView: React.FC<Props> = ({ sites, onOpen }) => {
+export const MatericoMappaView: React.FC<Props> = ({ sites, onOpen, canEdit = false, onQuickTask }) => {
   const [q, setQ] = React.useState('');
+  const [report, setReport] = React.useState('');
+  const [reporting, setReporting] = React.useState(false);
   const [kind, setKind] = React.useState<'all' | 'deal' | 'cantiere'>('all');
   const list = sites
     .filter((s) => kind === 'all' || s.kind === kind)
@@ -83,11 +92,34 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, onOpen }) => {
                   <b className="text-[15px] text-[#161616]">{sel.title}</b>
                   <p className="text-[12px] text-[#8a8a8a]">{[sel.subtitle, sel.address].filter(Boolean).join(' · ') || 'Posizione stimata dal nome'}</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {canEdit && onQuickTask && (
+                    <>
+                      <button onClick={() => setReporting((v) => !v)} className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[12px] font-bold cursor-pointer ${reporting ? 'bg-rose-600 text-white border-rose-600' : 'bg-white border-rose-200 text-rose-600 hover:bg-rose-50'}`}>⚠ Segnala problematica</button>
+                      <button onClick={() => onQuickTask(`Sopralluogo — ${sel.title}${sel.address ? ` (${sel.address})` : ''}`)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer">Programma sopralluogo</button>
+                    </>
+                  )}
                   <a href={extUrl(sel)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold"><ExternalLink className="w-3.5 h-3.5" /> Apri in Google Maps</a>
                   {sel.hash && onOpen && <button onClick={() => onOpen(sel.hash!)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none">Apri scheda</button>}
                 </div>
               </div>
+              {reporting && canEdit && onQuickTask && (
+                <div className="px-4 py-3 border-b border-[#f0f0f0] bg-rose-50/40 flex items-center gap-2">
+                  <input
+                    value={report}
+                    onChange={(e) => setReport(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && report.trim()) { onQuickTask(`Problematica ${sel.title}: ${report.trim()}`); setReport(''); setReporting(false); } }}
+                    placeholder="Descrivi la problematica (diventa un'attività in agenda)…"
+                    className="flex-1 px-3 py-2 rounded-xl border border-rose-200 text-[13px] outline-none focus:border-rose-400 bg-white"
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => { if (report.trim()) { onQuickTask(`Problematica ${sel.title}: ${report.trim()}`); setReport(''); setReporting(false); } }}
+                    disabled={!report.trim()}
+                    className="px-3.5 py-2 rounded-xl bg-rose-600 text-white text-[12px] font-bold cursor-pointer border-none disabled:opacity-40"
+                  >Apri attività</button>
+                </div>
+              )}
               <iframe key={sel.id} title="mappa" src={embedUrl(sel)} className="w-full h-[58vh] border-0" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
             </>
           )}

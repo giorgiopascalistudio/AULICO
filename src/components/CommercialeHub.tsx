@@ -12,7 +12,7 @@
  *      d'interesse, stampa preventivo), Listino (+ Contratti imprese per Materico).
  */
 import React from 'react';
-import { Target, ArrowLeft, FileText, FileSignature, ListChecks, AlertTriangle, Trash2 } from 'lucide-react';
+import { Target, ArrowLeft, FileText, FileSignature, ListChecks, AlertTriangle, Trash2, Star } from 'lucide-react';
 import type { Quote, ClientRecord, QuoteClientChoice, MatericoContract, MatericoDeal, MatericoPriceItem, PriceItem, TrashItem } from '../types';
 import HubCestino from './HubCestino';
 import { eur } from '../utils';
@@ -53,9 +53,11 @@ interface Props {
   trash?: TrashItem[];
   onRestoreTrash?: (t: TrashItem) => void;
   onTrashDeleteForever?: (t: TrashItem) => void;
+  /** Valutazione imprese (PDF Materico): salva `valutazioni` sul record rubrica. */
+  onSaveClient?: (c: ClientRecord) => void;
 }
 
-type WsTab = 'preventivi' | 'documenti' | 'listino' | 'imprese';
+type WsTab = 'preventivi' | 'documenti' | 'listino' | 'imprese' | 'valutazioni';
 
 export const CommercialeHub: React.FC<Props> = (p) => {
   const [activeSoc, setActiveSoc] = React.useState<string | null>(null);
@@ -188,7 +190,10 @@ const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) =
   const tabs: { id: WsTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'preventivi', label: 'Preventivi & Contratti', icon: Target },
     { id: 'documenti', label: 'Documenti', icon: FileText },
-    ...(soc === 'materico' ? [{ id: 'imprese' as WsTab, label: 'Contratti imprese', icon: FileSignature }] : []),
+    ...(soc === 'materico' ? [
+      { id: 'imprese' as WsTab, label: 'Contratti imprese', icon: FileSignature },
+      { id: 'valutazioni' as WsTab, label: 'Valutazione imprese', icon: Star },
+    ] : []),
     { id: 'listino', label: 'Listino', icon: ListChecks },
   ];
   const templates = CONTRACT_TEMPLATES.filter((tp) => tp.soc === soc);
@@ -247,6 +252,10 @@ const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) =
         </div>
       )}
 
+      {tab === 'valutazioni' && soc === 'materico' && (
+        <ImpreseRating rubrica={rubricaList} canEdit={canEdit} color={socColor(soc)} onSaveClient={p.onSaveClient} />
+      )}
+
       {tab === 'imprese' && soc === 'materico' && (
         <MatericoContractsView
           contracts={p.matericoContracts}
@@ -294,6 +303,73 @@ const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) =
       )}
 
       {openTpl && <ContractPrintDoc template={openTpl} soc={soc} rubrica={rubricaList} onClose={() => setOpenTpl(null)} />}
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------- Valutazione imprese
+// PDF Materico: "Valutazione impresa (per scegliere le migliori a colpo d'occhio)".
+const CRITERI = [
+  'Qualità lavorazioni', 'Affidabilità', 'Rispetto tempistiche', 'Capacità organizzativa',
+  'Risoluzione problemi', 'Specializzazione', 'Rapporto qualità/prezzo',
+];
+const mediaOf = (v?: Record<string, number> | null) => {
+  const vals = CRITERI.map((c) => v?.[c]).filter((x): x is number => typeof x === 'number' && x > 0);
+  return vals.length ? Math.round((vals.reduce((s, x) => s + x, 0) / vals.length) * 10) / 10 : null;
+};
+const ImpreseRating: React.FC<{ rubrica: ClientRecord[]; canEdit: boolean; color: string; onSaveClient?: (c: ClientRecord) => void }> = ({ rubrica, canEdit, color, onSaveClient }) => {
+  const [openId, setOpenId] = React.useState<string | null>(null);
+  const imprese = rubrica
+    .filter((c: any) => c.category === 'partner' || c.roles?.impresa || c.roles?.fornitore)
+    .sort((a, b) => (mediaOf(b.valutazioni) || 0) - (mediaOf(a.valutazioni) || 0));
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Valuta le imprese sui 7 criteri (1–5): la classifica ti fa scegliere le migliori a colpo d'occhio. La valutazione si salva sulla scheda del Registro Utenti.</p>
+      {imprese.length === 0 ? (
+        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna impresa/fornitore in rubrica (categoria "partner").</p>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {imprese.map((c) => {
+            const m = mediaOf(c.valutazioni);
+            const open = openId === c.id;
+            return (
+              <div key={c.id} className="bg-white border border-[#e2e2e2] rounded-[20px] overflow-hidden">
+                <button onClick={() => setOpenId(open ? null : c.id)} className="w-full flex items-center gap-3 px-4 py-3 cursor-pointer bg-transparent border-none text-left">
+                  <b className="text-[13.5px] text-[#161616] flex-1 truncate">{c.name}</b>
+                  {m != null ? (
+                    <span className="inline-flex items-center gap-1.5 shrink-0">
+                      <span className="inline-flex">{[1, 2, 3, 4, 5].map((i) => <Star key={i} className="w-3.5 h-3.5" style={{ color: i <= Math.round(m) ? '#f59e0b' : '#e2e2e2', fill: i <= Math.round(m) ? '#f59e0b' : 'none' }} />)}</span>
+                      <b className="text-[13px] text-[#161616]">{m}</b>
+                    </span>
+                  ) : <span className="text-[11px] font-bold text-[#b0b0b0] shrink-0">da valutare</span>}
+                </button>
+                {open && (
+                  <div className="px-4 pb-3 flex flex-col gap-1.5 border-t border-[#f3f3f3] pt-2.5">
+                    {CRITERI.map((cr) => {
+                      const val = c.valutazioni?.[cr] || 0;
+                      return (
+                        <div key={cr} className="flex items-center gap-2">
+                          <span className="w-[190px] text-[12px] font-semibold text-[#555]">{cr}</span>
+                          <span className="inline-flex gap-1">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                              <button
+                                key={i}
+                                disabled={!canEdit}
+                                onClick={() => onSaveClient?.({ ...c, valutazioni: { ...(c.valutazioni || {}), [cr]: i === val ? 0 : i } })}
+                                className="p-0.5 cursor-pointer bg-transparent border-none"
+                              ><Star className="w-4 h-4" style={{ color: i <= val ? color : '#d9d9d5', fill: i <= val ? color : 'none' }} /></button>
+                            ))}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

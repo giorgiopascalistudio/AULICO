@@ -3713,6 +3713,17 @@ export default function App() {
       showToast('Stima spostata nel Cestino.', 'err');
     });
   };
+  // Attività rapida dalla Mappa operativa (segnala problematica / sopralluogo)
+  const handleQuickTask = (title: string) => {
+    const tId = `task-map-${Date.now()}`;
+    setTasks((prev) => {
+      const next: any = { ...prev };
+      next[tId] = { id: tId, title, date: todayISO(), time: null, frequency: 'once', priority: 'alta', tipo: 'Cantiere', assignee: currentUser?.uid || null, assignees: currentUser ? [currentUser.uid] : null, projectId: null, notes: 'Creata dalla Mappa operativa', done: false, createdAt: Date.now(), updatedAt: Date.now(), createdBy: currentUser?.uid || '' };
+      syncState('tasks', next);
+      return next;
+    });
+    showToast('Attività creata in agenda.', 'ok');
+  };
   // ---- Recruiting Strategico (recruiting) ----
   const handleSaveRecruit = (i: any) => {
     const enriched = { ...i, updatedAt: Date.now() };
@@ -5670,6 +5681,7 @@ export default function App() {
                   trash={Object.values(trash)}
                   onRestoreTrash={handleRestoreTrash}
                   onTrashDeleteForever={handleTrashDeleteForever}
+                  onSaveClient={handleSaveClient}
                 />
               </React.Suspense>
             );
@@ -5710,7 +5722,7 @@ export default function App() {
             const cantSites = Object.values(cantieri).map((ct: any) => { const p: any = projects[ct.projectId]; return { id: `c-${ct.id}`, title: ct.name || 'Cantiere', subtitle: 'Cantiere', address: p?.indirizzoImmobile || null, lat: null, lng: null, kind: 'cantiere' as const, hash: ct.projectId ? `#progetto/${ct.projectId}` : null }; });
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
-                <MatericoMappaView sites={[...cantSites, ...dealSites]} color={society.color} onOpen={(h) => { window.location.hash = h; }} />
+                <MatericoMappaView sites={[...cantSites, ...dealSites]} color={society.color} canEdit={isStudioRole(currentUser.role)} onQuickTask={handleQuickTask} onOpen={(h) => { window.location.hash = h; }} />
               </React.Suspense>
             );
           }
