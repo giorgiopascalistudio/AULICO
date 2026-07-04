@@ -5781,12 +5781,29 @@ export default function App() {
                 />
               </React.Suspense>
             );
-          case 'materico-mappa': {
-            const dealSites = Object.values(matericoDeals).map((dl) => ({ id: `d-${dl.id}`, title: dl.title, subtitle: [dl.clientName, dl.stage].filter(Boolean).join(' · '), address: dl.address || null, lat: dl.lat ?? null, lng: dl.lng ?? null, kind: 'deal' as const, hash: '#materico/potenziale' }));
-            const cantSites = Object.values(cantieri).map((ct: any) => { const p: any = projects[ct.projectId]; return { id: `c-${ct.id}`, title: ct.name || 'Cantiere', subtitle: 'Cantiere', address: p?.indirizzoImmobile || null, lat: null, lng: null, kind: 'cantiere' as const, hash: ct.projectId ? `#progetto/${ct.projectId}` : null }; });
+          case 'mappa-operativa': {
+            // Mappa operativa per OGNI società: ognuna coi suoi siti.
+            const psoc = activeSocieta as string;
+            let sites: any[] = [];
+            if (psoc === 'materico') {
+              const dealSites = Object.values(matericoDeals).map((dl) => ({ id: `d-${dl.id}`, title: dl.title, subtitle: [dl.clientName, dl.stage].filter(Boolean).join(' · '), address: dl.address || null, lat: dl.lat ?? null, lng: dl.lng ?? null, kind: 'deal' as const, hash: '#materico/prod-potenziale' }));
+              const cantSites = Object.values(cantieri).map((ct: any) => { const p: any = projects[ct.projectId]; return { id: `c-${ct.id}`, title: ct.name || 'Cantiere', subtitle: 'Cantiere', address: p?.indirizzoImmobile || null, lat: null, lng: null, kind: 'cantiere' as const, hash: ct.projectId ? `#progetto/${ct.projectId}` : null }; });
+              sites = [...cantSites, ...dealSites];
+            } else if (psoc === 'unico') {
+              const oppSites = Object.values(unicoOpps).filter((o) => o.status !== 'scartata').map((o) => ({ id: `o-${o.id}`, title: o.title, subtitle: [o.status, o.contactName].filter(Boolean).join(' · '), address: [o.address, o.comune].filter(Boolean).join(', ') || null, lat: null, lng: null, kind: 'opportunita' as const, hash: '#unico/prod-opportunita' }));
+              const dealSites = unicoDeals.map((dl) => ({ id: `i-${dl.id}`, title: dl.title, subtitle: dl.status, address: dl.location || null, lat: null, lng: null, kind: 'investimento' as const, hash: '#unico/prod-progetti' }));
+              sites = [...oppSites, ...dealSites];
+            } else if (psoc === 'fantastico') {
+              sites = Object.values(fantImmobili).map((i: any) => ({ id: `f-${i.id}`, title: i.name, subtitle: i.ownerName ? `Proprietario: ${i.ownerName}` : null, address: [i.address, i.comune].filter(Boolean).join(', ') || null, lat: null, lng: null, kind: 'immobile' as const, hash: '#fantastico/prod-gestione' }));
+            } else {
+              // Onirico: le pratiche con indirizzo
+              sites = Object.values(projects)
+                .filter((p: any) => (p.division || 'studio') === 'studio' && !p.archived)
+                .map((p: any) => ({ id: `p-${p.id}`, title: p.name, subtitle: p.client || null, address: p.indirizzoImmobile || null, lat: null, lng: null, kind: 'pratica' as const, hash: `#progetto/${p.id}` }));
+            }
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
-                <MatericoMappaView sites={[...cantSites, ...dealSites]} color={society.color} canEdit={isStudioRole(currentUser.role)} onQuickTask={handleQuickTask} onOpen={(h) => { window.location.hash = h; }} />
+                <MatericoMappaView sites={sites} color={society.color} canEdit={isStudioRole(currentUser.role)} onQuickTask={handleQuickTask} onOpen={(h) => { window.location.hash = h; }} />
               </React.Suspense>
             );
           }

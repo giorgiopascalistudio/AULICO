@@ -422,8 +422,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   if (isMat) s.push({ id: 'prod-potenziale', label: 'Potenziale Cantiere', icon: Target, parent: 'produzione', module: 'produzione', view: 'materico-deals' });
   s.push({ id: 'prod-progetti', label: isUni ? 'Operazioni & Investitori' : 'Progetti', icon: isUni ? Building2 : Layers, parent: 'produzione', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
   s.push(ph('prod-computi', 'Computi', Calculator, 'produzione', 'produzione', 'Computi metrici.'));
-  if (isMat) s.push({ id: 'prod-mappa', label: 'Mappa operativa', icon: MapPin, parent: 'produzione', module: 'produzione', view: 'materico-mappa' });
-  else s.push(ph('prod-mappa', 'Mappa operativa', MapPin, 'produzione', 'produzione', 'Cantieri/interventi su mappa.'));
+  s.push({ id: 'prod-mappa', label: 'Mappa operativa', icon: MapPin, parent: 'produzione', module: 'produzione', view: 'mappa-operativa', note: 'I siti della società geolocalizzati: pratiche/cantieri/opportunità/immobili, con azioni rapide (problematica, sopralluogo).' });
 
   // ---- COMMERCIALE (consultazione: gestione centralizzata nel Centro Commerciale di Strategico) ----
   s.push({ id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', kind: 'group' });

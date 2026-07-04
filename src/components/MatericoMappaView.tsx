@@ -9,6 +9,7 @@
 import React from 'react';
 import { MapPin, ExternalLink, Building2, Target, Search } from 'lucide-react';
 
+export type MapSiteKind = 'deal' | 'cantiere' | 'pratica' | 'opportunita' | 'investimento' | 'immobile';
 export interface MapSite {
   id: string;
   title: string;
@@ -16,9 +17,14 @@ export interface MapSite {
   address?: string | null;
   lat?: number | null;
   lng?: number | null;
-  kind: 'deal' | 'cantiere';
+  kind: MapSiteKind;
   hash?: string | null;
 }
+/** Etichette dei tipi di sito (la mappa è per TUTTE le società: ogni società i suoi siti). */
+const KIND_LABEL: Record<MapSiteKind, string> = {
+  deal: 'Commesse', cantiere: 'Cantieri', pratica: 'Pratiche',
+  opportunita: 'Opportunità', investimento: 'Investimenti', immobile: 'Immobili',
+};
 interface Props {
   sites: MapSite[];
   color?: string;
@@ -36,7 +42,8 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, onOpen, canEdit = fa
   const [q, setQ] = React.useState('');
   const [report, setReport] = React.useState('');
   const [reporting, setReporting] = React.useState(false);
-  const [kind, setKind] = React.useState<'all' | 'deal' | 'cantiere'>('all');
+  const [kind, setKind] = React.useState<'all' | MapSiteKind>('all');
+  const kindsPresent = [...new Set(sites.map((s) => s.kind))];
   const list = sites
     .filter((s) => kind === 'all' || s.kind === kind)
     .filter((s) => { const t = q.trim().toLowerCase(); return !t || `${s.title} ${s.subtitle || ''} ${s.address || ''}`.toLowerCase().includes(t); });
@@ -48,7 +55,7 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, onOpen, canEdit = fa
     <div className="flex flex-col gap-5 text-left">
       <div>
         <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><MapPin className="w-5.5 h-5.5" /> Mappa operativa</h2>
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Cantieri e commesse geolocalizzati: individua, apri la scheda, naviga.</p>
+        <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">I siti della società sulla mappa: individua, apri la scheda, segnala, naviga.</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 items-start">
@@ -58,14 +65,16 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, onOpen, canEdit = fa
             <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cerca sito…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white" />
           </div>
-          <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] self-start">
-            {([['all', 'Tutti'], ['cantiere', 'Cantieri'], ['deal', 'Commesse']] as const).map(([id, lbl]) => (
-              <button key={id} onClick={() => setKind(id)} className={`text-[11.5px] font-bold px-3 py-1.5 rounded-full cursor-pointer border-none ${kind === id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{lbl}</button>
-            ))}
-          </div>
+          {kindsPresent.length > 1 && (
+            <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] self-start flex-wrap">
+              {(['all', ...kindsPresent] as const).map((id) => (
+                <button key={id} onClick={() => setKind(id as any)} className={`text-[11.5px] font-bold px-3 py-1.5 rounded-full cursor-pointer border-none ${kind === id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{id === 'all' ? 'Tutti' : KIND_LABEL[id as MapSiteKind]}</button>
+              ))}
+            </div>
+          )}
           <div className="flex flex-col gap-1.5 max-h-[62vh] overflow-y-auto">
             {list.length === 0 ? <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-2xl p-6 text-center">Nessun sito con indirizzo.</p> : list.map((s) => {
-              const Icon = s.kind === 'cantiere' ? Building2 : Target;
+              const Icon = s.kind === 'cantiere' || s.kind === 'immobile' || s.kind === 'investimento' ? Building2 : Target;
               const isSel = selId === s.id;
               return (
                 <button key={s.id} onClick={() => setSelId(s.id)} className={`text-left flex items-start gap-2.5 p-3 rounded-2xl border cursor-pointer transition-all ${isSel ? 'bg-[#fafafa] border-[#161616]' : 'bg-white border-[#e2e2e2] hover:border-[#cfcfcf]'}`}>
