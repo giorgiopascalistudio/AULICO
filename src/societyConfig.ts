@@ -26,7 +26,7 @@ import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
   Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
-  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search,
+  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
 import { SOCIETA_LABEL, canView } from './access';
@@ -418,6 +418,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   s.push({ id: 'produzione', label: 'Produzione', icon: Layers, module: 'produzione', kind: 'group' });
   if (isUni) s.push({ id: 'prod-opportunita', label: 'Ricerca Opportunità', icon: Search, parent: 'produzione', module: 'produzione', view: 'unico-opportunita', note: 'Workflow a step obbligatori: contatto → sopralluogo → raccolta → analisi → due diligence → manifestazione → negoziazione → preliminare → atto → INVESTIMENTO.' });
   if (soc === 'studio') s.push({ id: 'prod-stima', label: 'Stima Preliminare', icon: Calculator, parent: 'produzione', module: 'produzione', view: 'stima-preliminare', note: 'Simulatore della fase Pianificazione: quantità × livello Base/Medio/Alto → budget automatico.' });
+  if (soc === 'fantastico') s.push({ id: 'prod-gestione', label: 'Immobili & Servizi', icon: Home, parent: 'produzione', module: 'produzione', view: 'fantastico-gestione', note: 'Gestione immobiliare: immobili in gestione + richieste di servizio/manutenzione smistate ai partner (con margine).' });
   if (isMat) s.push({ id: 'prod-potenziale', label: 'Potenziale Cantiere', icon: Target, parent: 'produzione', module: 'produzione', view: 'materico-deals' });
   s.push({ id: 'prod-progetti', label: isUni ? 'Operazioni & Investitori' : 'Progetti', icon: isUni ? Building2 : Layers, parent: 'produzione', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
   s.push(ph('prod-computi', 'Computi', Calculator, 'produzione', 'produzione', 'Computi metrici.'));

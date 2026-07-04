@@ -651,6 +651,18 @@ reporting/redditività, integrazioni esterne
   problemi, specializzazione, qualità/prezzo): campo **`ClientRecord.valutazioni`** + tab
   "Valutazione imprese" nel workspace Materico del `CommercialeHub` (componente `ImpreseRating`,
   stelle + media, classifica "a colpo d'occhio", salva via `handleSaveClient` — riusa nodo `clients`).
+  ⚠️ **Fantastico consegna 5 (§26)** — PRODUZIONE di Fantastico costruita sulla definizione utente
+  (gestione immobiliare: manutenzioni + servizi via partner): componente **`FantasticoView`**
+  (sezione `prod-gestione` "Immobili & Servizi"), nodi **`fantImmobili/<id>`** (`FantImmobile`:
+  immobile in gestione, proprietario dalla rubrica, canone mensile, foto/doc link, attivo) e
+  **`fantTickets/<id>`** (`FantTicket`: richiesta di servizio con categoria manutenzione/
+  giardinaggio/pulizie/trasporti/ospiti, priorità, board stati richiesta→assegnato→in_corso→
+  completato, PARTNER esecutore dal Registro Utenti con **costo partner vs prezzo cliente →
+  margine**; se il partner ha `accountUid` riceve notifica all'assegnazione). KPI: immobili gestiti,
+  richieste aperte, completate nel mese, margine del mese. Cestino sezioni `fant-immobile`/
+  `fant-ticket`. ⚠️ Nodi **`fantImmobili`+`fantTickets`** (read/write studio attivo non-cliente/
+  partner): **ripubblicare le regole**. CI: `deploy.yml` ora fa **3 tentativi automatici** dello
+  step deploy-pages (pausa 90s/180s) — niente più commit vuoti di rilancio.
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

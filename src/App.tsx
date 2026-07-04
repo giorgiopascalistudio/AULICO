@@ -204,6 +204,7 @@ const PianoBattaglia = React.lazy(() => import('./components/PianoBattaglia').th
 const UnicoOpportunitaView = React.lazy(() => import('./components/UnicoOpportunitaView').then((m) => ({ default: m.UnicoOpportunitaView })));
 const StimaPreliminareView = React.lazy(() => import('./components/StimaPreliminareView').then((m) => ({ default: m.StimaPreliminareView })));
 const RecruitingView = React.lazy(() => import('./components/RecruitingView').then((m) => ({ default: m.RecruitingView })));
+const FantasticoView = React.lazy(() => import('./components/FantasticoView').then((m) => ({ default: m.FantasticoView })));
 const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
 const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m) => ({ default: m.FiscaleView })));
 const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
@@ -442,6 +443,8 @@ export default function App() {
   const [unicoOpps, setUnicoOpps] = useState<Record<string, UnicoOpportunity>>({});
   const [stimePreliminari, setStimePreliminari] = useState<Record<string, any>>({});
   const [recruiting, setRecruiting] = useState<Record<string, any>>({});
+  const [fantImmobili, setFantImmobili] = useState<Record<string, any>>({});
+  const [fantTickets, setFantTickets] = useState<Record<string, any>>({});
   // Cestino condiviso (elementi eliminati, conservati 60 giorni)
   const [trash, setTrash] = useState<Record<string, TrashItem>>({});
   // Doppia conferma eliminazione (modale condivisa)
@@ -1740,6 +1743,8 @@ export default function App() {
       add('unicoOpportunita', setUnicoOpps);
       add('stimePreliminari', setStimePreliminari);
       add('recruiting', setRecruiting);
+      add('fantImmobili', setFantImmobili);
+      add('fantTickets', setFantTickets);
       add('matericoDeals', setMatericoDeals);
       add('matericoListino', setMatericoListino);
       add('matericoContracts', setMatericoContracts);
@@ -2153,6 +2158,14 @@ export default function App() {
         case 'recruiting':
           setRecruiting((prev) => ({ ...prev, [id]: pl }));
           writeNode(`recruiting/${id}`, pl).catch(() => {});
+          break;
+        case 'fant-immobile':
+          setFantImmobili((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`fantImmobili/${id}`, pl).catch(() => {});
+          break;
+        case 'fant-ticket':
+          setFantTickets((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`fantTickets/${id}`, pl).catch(() => {});
           break;
         case 'richiesta_cliente':
           setClientRequests((prev) => ({ ...prev, [id]: pl }));
@@ -3711,6 +3724,41 @@ export default function App() {
       setStimePreliminari((prev) => { const n = { ...prev }; delete n[id]; return n; });
       removeNode(`stimePreliminari/${id}`).catch(() => {});
       showToast('Stima spostata nel Cestino.', 'err');
+    });
+  };
+  // ---- Fantastico · Immobili & Servizi (fantImmobili / fantTickets) ----
+  const handleSaveFantImmobile = (i: any) => {
+    const enriched = { ...i, updatedAt: Date.now() };
+    setFantImmobili((prev) => ({ ...prev, [i.id]: enriched }));
+    writeNode(`fantImmobili/${i.id}`, clean(enriched)).catch(() => showToast('Errore immobili (controlla regole).', 'err'));
+  };
+  const handleDeleteFantImmobile = (id: string) => {
+    const i = fantImmobili[id];
+    askDelete('Eliminare questo immobile dalla gestione?', i ? `"${i.name}" — le richieste collegate restano.` : null, () => {
+      if (i) moveToTrash('fant-immobile', i.name || 'Immobile', i);
+      setFantImmobili((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`fantImmobili/${id}`).catch(() => {});
+      showToast('Immobile spostato nel Cestino.', 'err');
+    });
+  };
+  const handleSaveFantTicket = (t: any) => {
+    const prev = fantTickets[t.id];
+    const enriched = { ...t, createdBy: t.createdBy || currentUser?.uid || null, updatedAt: Date.now() };
+    setFantTickets((p) => ({ ...p, [t.id]: enriched }));
+    writeNode(`fantTickets/${t.id}`, clean(enriched)).catch(() => showToast('Errore richieste (controlla regole).', 'err'));
+    // Partner con account portale collegato → notifica all'assegnazione
+    if (t.partnerRecordId && t.status === 'assegnato' && prev?.status !== 'assegnato') {
+      const uid = clients[t.partnerRecordId]?.accountUid;
+      if (uid) pushNotification(uid, { type: 'task', title: `Nuovo incarico: ${t.title}`, body: fantImmobili[t.immobileId]?.name || null, link: '#portale' });
+    }
+  };
+  const handleDeleteFantTicket = (id: string) => {
+    const t = fantTickets[id];
+    askDelete('Eliminare questa richiesta di servizio?', t ? `"${t.title}"` : null, () => {
+      if (t) moveToTrash('fant-ticket', t.title || 'Richiesta', t, undefined, t.category);
+      setFantTickets((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`fantTickets/${id}`).catch(() => {});
+      showToast('Richiesta spostata nel Cestino.', 'err');
     });
   };
   // Attività rapida dalla Mappa operativa (segnala problematica / sopralluogo)
@@ -5485,6 +5533,22 @@ export default function App() {
               </React.Suspense>
             );
           }
+          case 'fantastico-gestione':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <FantasticoView
+                  immobili={Object.values(fantImmobili)}
+                  tickets={Object.values(fantTickets)}
+                  rubrica={Object.values(clients)}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role)}
+                  onSaveImmobile={handleSaveFantImmobile}
+                  onDeleteImmobile={handleDeleteFantImmobile}
+                  onSaveTicket={handleSaveFantTicket}
+                  onDeleteTicket={handleDeleteFantTicket}
+                />
+              </React.Suspense>
+            );
           case 'recruiting':
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>

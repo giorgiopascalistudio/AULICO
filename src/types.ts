@@ -1259,6 +1259,48 @@ export interface BattleItem {
 // è uno step-checklist; la manifestazione d'interesse si genera da modello;
 // all'atto concluso nasce l'INVESTIMENTO (UnicoDeal). Nodo `unicoOpportunita/<id>`.
 // ============================================================
+// ============================================================
+// FANTASTICO — gestione immobiliare (definizione utente): manutenzioni ed
+// erogazione servizi tramite partner, "dal tagliare il prato a trovare un van
+// per gli ospiti". Immobili gestiti + ticket di servizio smistati ai partner.
+// ============================================================
+/** Nodo `fantImmobili/<id>` — immobile in gestione. */
+export interface FantImmobile {
+  id: string;
+  name: string;                    // es. "Trullo Iris", "Villa Sessana"
+  address?: string | null;
+  comune?: string | null;
+  ownerRecordId?: string | null;   // proprietario (Registro Utenti)
+  ownerName?: string | null;
+  photosUrl?: string | null;
+  docsUrl?: string | null;
+  canoneMensile?: number | null;   // eventuale canone di gestione €/mese
+  active?: boolean;
+  notes?: string | null;
+  createdAt: number;
+  updatedAt?: number;
+}
+export type FantTicketStatus = 'richiesta' | 'assegnato' | 'in_corso' | 'completato' | 'annullato';
+/** Nodo `fantTickets/<id>` — richiesta di servizio/manutenzione smistata a un partner. */
+export interface FantTicket {
+  id: string;
+  immobileId: string;
+  title: string;                   // es. "Taglio prato", "Van per gli ospiti sabato"
+  category: 'manutenzione' | 'giardinaggio' | 'pulizie' | 'trasporti' | 'ospiti' | 'altro';
+  description?: string | null;
+  priority?: 'urgente' | 'alta' | 'media' | 'bassa' | null;
+  status: FantTicketStatus;
+  partnerRecordId?: string | null; // partner esecutore (Registro Utenti)
+  partnerName?: string | null;
+  costoPartner?: number | null;    // costo del partner €
+  prezzoCliente?: number | null;   // prezzo al proprietario/ospite € (margine = differenza)
+  dueDate?: string | null;
+  notes?: string | null;
+  createdAt: number;
+  updatedAt?: number;
+  createdBy?: string | null;
+}
+
 export type UnicoOppStepId =
   | 'contatto' | 'sopralluogo' | 'raccolta' | 'analisi' | 'duediligence'
   | 'manifestazione' | 'negoziazione' | 'preliminare' | 'atto';
