@@ -420,7 +420,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   if (soc === 'fantastico') s.push({ id: 'prod-gestione', label: 'Immobili & Servizi', icon: Home, parent: 'produzione', module: 'produzione', view: 'fantastico-gestione', note: 'Gestione immobiliare: immobili in gestione + richieste di servizio/manutenzione smistate ai partner (con margine).' });
   if (isMat) s.push({ id: 'prod-potenziale', label: 'Potenziale Cantiere', icon: Target, parent: 'produzione', module: 'produzione', view: 'materico-deals' });
   s.push({ id: 'prod-progetti', label: isUni ? 'Operazioni & Investitori' : 'Progetti', icon: isUni ? Building2 : Layers, parent: 'produzione', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
-  s.push(ph('prod-computi', 'Computi', Calculator, 'produzione', 'produzione', 'Computi metrici.'));
+  s.push({ id: 'prod-computi', label: 'Computi', icon: Calculator, parent: 'produzione', module: 'produzione', view: 'computi', note: 'Computi metrici dei progetti della società: voci a mano o da CSV, valore opera per parcelle e contabilità di commessa (dati riservati ad admin/manager).' });
   s.push({ id: 'prod-mappa', label: 'Mappa operativa', icon: MapPin, parent: 'produzione', module: 'produzione', view: 'mappa-operativa', note: 'I siti della società geolocalizzati: pratiche/cantieri/opportunità/immobili, con azioni rapide (problematica, sopralluogo).' });
 
   // ---- COMMERCIALE (consultazione: gestione centralizzata nel Centro Commerciale di Strategico) ----

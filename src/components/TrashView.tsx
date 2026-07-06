@@ -25,6 +25,7 @@ const SECTION_LABEL: Record<string, string> = {
   fatture_passive: 'Fatture passive',
   scadenze: 'Scadenziario',
   movimenti: 'Movimenti',
+  computo: 'Computi metrici',
   documenti: 'Documenti',
   arredi: 'Arredi & Moodboard',
   appuntamenti: 'Appuntamenti',

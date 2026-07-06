@@ -203,6 +203,7 @@ const CommercialeHub = React.lazy(() => import('./components/CommercialeHub').th
 const PianoBattaglia = React.lazy(() => import('./components/PianoBattaglia').then((m) => ({ default: m.PianoBattaglia })));
 const UnicoOpportunitaView = React.lazy(() => import('./components/UnicoOpportunitaView').then((m) => ({ default: m.UnicoOpportunitaView })));
 const StimaPreliminareView = React.lazy(() => import('./components/StimaPreliminareView').then((m) => ({ default: m.StimaPreliminareView })));
+const ComputiView = React.lazy(() => import('./components/ComputiView').then((m) => ({ default: m.ComputiView })));
 const RecruitingView = React.lazy(() => import('./components/RecruitingView').then((m) => ({ default: m.RecruitingView })));
 const FantasticoView = React.lazy(() => import('./components/FantasticoView').then((m) => ({ default: m.FantasticoView })));
 const PointOfEntryView = React.lazy(() => import('./components/PointOfEntryView').then((m) => ({ default: m.PointOfEntryView })));
@@ -2119,6 +2120,14 @@ export default function App() {
           break;
         case 'movimenti':
           setFinances((prev) => { const n = { ...prev, [id]: pl }; syncState('finance', n); return n; });
+          break;
+        case 'computo':
+          // finComputi non vive nello stato di App (FinanzeView/ComputiView si sottoscrivono da sole):
+          // riappendi sul nodo leggendo l'array corrente.
+          getNode('finComputi').then((v: any) => {
+            const arr = (Array.isArray(v) ? v.filter(Boolean) : v ? Object.values(v) : []).filter((c: any) => c && c.id !== id);
+            writeNode('finComputi', [...arr, pl]).catch(() => {});
+          }).catch(() => {});
           break;
         case 'documenti':
           if (item.meta?.pid) {
@@ -5613,6 +5622,25 @@ export default function App() {
                 />
               </React.Suspense>
             );
+          case 'computi': {
+            // Nodo finComputi: leggibile solo admin/manager (regole finanza).
+            if (!(currentUser.role === 'admin' || currentUser.role === 'manager')) {
+              return <p className="text-[13px] text-[#8a8a8a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">I computi metrici contengono dati contabili: sezione riservata ad amministrazione (admin/manager).</p>;
+            }
+            const compSoc = activeSocieta as string;
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <ComputiView
+                  projects={Object.values(projects).filter((p) => p.division === compSoc && !p.archived)}
+                  socLabel={society.label}
+                  color={society.color}
+                  canEdit
+                  askDelete={askDelete}
+                  onTrashItem={moveToTrash}
+                />
+              </React.Suspense>
+            );
+          }
           case 'stima-preliminare': {
             // Ogni società vede le PROPRIE stime (legacy senza `soc` = Onirico, dov'era la sezione).
             const stimaSoc = activeSocieta as string;

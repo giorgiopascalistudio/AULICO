@@ -687,6 +687,16 @@ reporting/redditività, integrazioni esterne
   `fant-ticket`. ⚠️ Nodi **`fantImmobili`+`fantTickets`** (read/write studio attivo non-cliente/
   partner): **ripubblicare le regole**. CI: `deploy.yml` ora fa **3 tentativi automatici** dello
   step deploy-pages (pausa 90s/180s) — niente più commit vuoti di rilancio.
+  **Sezione Computi per-società (NESSUN nodo/regola nuovi)**: `prod-computi` (Produzione di tutte
+  le società operative) da placeholder a `view:'computi'` → componente **`ComputiView`** (lazy):
+  STESSO nodo `finComputi` di FinanzeView (array intero, un computo per progetto, si sottoscrive
+  da solo con watchNode come fa FinanzeView), filtrato sui progetti della società attiva
+  (`p.division===soc`, non archiviati). KPI (computi/valore opere/voci/progetti senza computo),
+  card per computo → editor con voci raggruppate per categoria, nuova voce inline, **import CSV**
+  con modale mappatura colonne (riusa `parseCsv`/`guessMapping`/`rowsToComputoItems` di finance.ts;
+  Excel/PDF solo allegato come in FinanzeView), totale live, Stampa (print-area). Il case App gate
+  ad admin/manager (regole `finComputi`); delete → Cestino sezione **`computo`** (restore in
+  `handleRestoreTrash` via getNode/writeNode perché finComputi non vive nello stato di App).
   **Listini per-società + VALORE IMMOBILE nel preventivo interattivo (spec utente, NESSUN nodo/regola
   nuovi — riusa `priceList` e `clientQuotes`)**: 1) `PriceItem.division` esteso a `fantastico` +
   nuovo **`PriceItem.valuePct`** (= incremento % del valore dell'immobile); il **`PriceListModal`**
