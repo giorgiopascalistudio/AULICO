@@ -204,6 +204,7 @@ const PianoBattaglia = React.lazy(() => import('./components/PianoBattaglia').th
 const UnicoOpportunitaView = React.lazy(() => import('./components/UnicoOpportunitaView').then((m) => ({ default: m.UnicoOpportunitaView })));
 const StimaPreliminareView = React.lazy(() => import('./components/StimaPreliminareView').then((m) => ({ default: m.StimaPreliminareView })));
 const ComputiView = React.lazy(() => import('./components/ComputiView').then((m) => ({ default: m.ComputiView })));
+const LegaleView = React.lazy(() => import('./components/LegaleView').then((m) => ({ default: m.LegaleView })));
 const RecruitingView = React.lazy(() => import('./components/RecruitingView').then((m) => ({ default: m.RecruitingView })));
 const FantasticoView = React.lazy(() => import('./components/FantasticoView').then((m) => ({ default: m.FantasticoView })));
 const PointOfEntryView = React.lazy(() => import('./components/PointOfEntryView').then((m) => ({ default: m.PointOfEntryView })));
@@ -2120,6 +2121,9 @@ export default function App() {
           break;
         case 'movimenti':
           setFinances((prev) => { const n = { ...prev, [id]: pl }; syncState('finance', n); return n; });
+          break;
+        case 'legale-doc':
+          writeNode(`legalDocs/${id}`, pl).catch(() => {});
           break;
         case 'computo':
           // finComputi non vive nello stato di App (FinanzeView/ComputiView si sottoscrivono da sole):
@@ -5622,6 +5626,26 @@ export default function App() {
                 />
               </React.Suspense>
             );
+          case 'legale': {
+            // Nodo legalDocs: admin/manager (dati legali sensibili).
+            if (!(currentUser.role === 'admin' || currentUser.role === 'manager')) {
+              return <p className="text-[13px] text-[#8a8a8a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">L'Area Legale contiene dati riservati: sezione per admin/manager.</p>;
+            }
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <LegaleView
+                  rubrica={Object.values(clients)}
+                  users={users}
+                  mktAccounts={Object.values(mktAccounts)}
+                  mktConsents={Object.values(mktConsents)}
+                  color={society.color}
+                  canEdit
+                  askDelete={askDelete}
+                  onTrashItem={moveToTrash}
+                />
+              </React.Suspense>
+            );
+          }
           case 'computi': {
             // Nodo finComputi: leggibile solo admin/manager (regole finanza).
             if (!(currentUser.role === 'admin' || currentUser.role === 'manager')) {

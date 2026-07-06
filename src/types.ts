@@ -271,6 +271,27 @@ export interface Quote {
   createdBy?: string;
 }
 
+/** Documento dell'AREA LEGALE di Strategico (nodo `legalDocs/<id>`, admin/manager):
+ *  contratti, liberatorie, informative privacy, incarichi, polizze di TUTTE le società. */
+export type LegalDocKind = 'contratto' | 'liberatoria' | 'informativa' | 'incarico' | 'polizza' | 'altro';
+export type LegalDocStatus = 'bozza' | 'attivo' | 'scaduto' | 'disdetto';
+export interface LegalDoc {
+  id: string;
+  title: string;
+  kind: LegalDocKind;
+  soc?: string | null;             // società (slug config: studio/strategico/…) o null = gruppo Aulico
+  counterparty?: string | null;    // controparte (libera o dalla rubrica)
+  clientRecordId?: string | null;
+  signedAt?: string | null;        // data firma (ISO)
+  expiry?: string | null;          // data scadenza/rinnovo (ISO)
+  status: LegalDocStatus;
+  link?: string | null;            // file: URL Drive o link (render via safeUrl)
+  note?: string | null;
+  createdAt: number;
+  updatedAt?: number;
+  createdBy?: string | null;
+}
+
 /** Voce del registro attività / audit log (nodo `auditLog/<id>`): trail delle azioni dello studio. */
 export interface AuditEntry {
   id: string;

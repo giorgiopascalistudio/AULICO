@@ -687,6 +687,16 @@ reporting/redditività, integrazioni esterne
   `fant-ticket`. ⚠️ Nodi **`fantImmobili`+`fantTickets`** (read/write studio attivo non-cliente/
   partner): **ripubblicare le regole**. CI: `deploy.yml` ora fa **3 tentativi automatici** dello
   step deploy-pages (pausa 90s/180s) — niente più commit vuoti di rilancio.
+  ⚠️ **Area Legale (Strategico)**: `legale-contratti` da placeholder a `view:'legale'` → componente
+  **`LegaleView`** (lazy, admin/manager) con 3 tab: **Registro legale** (nodo NUOVO
+  **`legalDocs/<id>`**, tipo `LegalDoc` in types.ts: contratti/liberatorie/informative/incarichi/
+  polizze di TUTTE le società con controparte dalla rubrica, firma/scadenza, alert ≤60gg e badge
+  scaduto; self-subscribe watchNode + scritture per-elemento; Cestino sezione **`legale-doc`**),
+  **Modelli** (griglia `CONTRACT_TEMPLATES` → `ContractPrintDoc`, gli stessi del Centro
+  Commerciale) e **Privacy & liberatorie** (cruscotto READ-ONLY: liberatorie clienti terzi da
+  `mktAccounts`, registro consensi GDPR da `mktConsents`, tabella consensi registrazione da
+  `users.consents`). ⚠️ Nodo **`legalDocs`** (read/write admin/manager): **ripubblicare le
+  regole**, altrimenti il registro legale resta vuoto e i salvataggi falliscono in silenzio.
   **Sezione Computi per-società (NESSUN nodo/regola nuovi)**: `prod-computi` (Produzione di tutte
   le società operative) da placeholder a `view:'computi'` → componente **`ComputiView`** (lazy):
   STESSO nodo `finComputi` di FinanzeView (array intero, un computo per progetto, si sottoscrive

@@ -479,7 +479,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       { id: 'sw-gestionale', label: 'Gestionale & Automazioni', icon: Code2, parent: 'software', module: 'software', kind: 'placeholder', note: 'Software house interna: gestionale, automazioni, compilatore pratiche.' },
       // === SOTTO-CATEGORIA: Area Legale ===
       { id: 'legale', label: 'Area Legale', icon: Scale, module: 'legale', kind: 'group' },
-      { id: 'legale-contratti', label: 'Contrattualistica', icon: FileText, parent: 'legale', module: 'legale', kind: 'placeholder', note: 'Contrattualistica, sicurezza dati, liberatorie privacy.' },
+      { id: 'legale-contratti', label: 'Contrattualistica', icon: FileText, parent: 'legale', module: 'legale', view: 'legale', note: 'Registro legale di tutte le società (contratti, liberatorie, informative, polizze con scadenze), modelli da stampare e cruscotto privacy/consensi.' },
     ],
   },
   // ----------------------------------------------------------------- ONIRICO

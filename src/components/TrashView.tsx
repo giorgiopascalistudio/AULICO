@@ -26,6 +26,7 @@ const SECTION_LABEL: Record<string, string> = {
   scadenze: 'Scadenziario',
   movimenti: 'Movimenti',
   computo: 'Computi metrici',
+  'legale-doc': 'Area Legale',
   documenti: 'Documenti',
   arredi: 'Arredi & Moodboard',
   appuntamenti: 'Appuntamenti',
