@@ -4385,6 +4385,7 @@ export default function App() {
     vatEnabled: q.vatEnabled ?? true, vatPct: q.vatPct ?? 22,
     cassaEnabled: !!q.cassaEnabled, cassaPct: q.cassaPct ?? 4,
     discountPct: q.discountPct ?? null, surchargePct: q.surchargePct ?? null,
+    baseValue: q.baseValue ?? null,
     validUntil: q.validUntil ?? null, notes: q.notes ?? null,
     status: q.status, sharedAt: q.sharedAt || Date.now(),
   });
@@ -5620,6 +5621,7 @@ export default function App() {
                 <StimaPreliminareView
                   stime={Object.values(stimePreliminari).filter((s: any) => (s.soc || 'studio') === stimaSoc)}
                   rubrica={Object.values(clients)}
+                  priceList={priceList.filter((i) => !i.division || i.division === stimaSoc)}
                   color={society.color}
                   canEdit={isStudioRole(currentUser.role)}
                   onSave={(s) => handleSaveStima({ ...s, soc: (s as any).soc || stimaSoc })}
@@ -5796,6 +5798,7 @@ export default function App() {
                   onDeleteMatContract={handleDeleteMatericoContract}
                   onSaveMatListino={handleSaveMatericoListino}
                   onDeleteMatListino={handleDeleteMatericoListino}
+                  onSavePriceList={canAnywhere(currentUser, 'operate', 'finance') ? savePriceList : undefined}
                   trash={Object.values(trash)}
                   onRestoreTrash={handleRestoreTrash}
                   onTrashDeleteForever={handleTrashDeleteForever}

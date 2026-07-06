@@ -185,6 +185,17 @@ export function quoteTotals(q: {
   return { ...docTotals(imponibile, vat, cassa), righe, sconto, maggiorazione };
 }
 
+/**
+ * Valore stimato dell'immobile a fine opera (preventivo interattivo, spec utente):
+ * base "stato dei luoghi" (Quote.baseValue) + ogni voce inclusa aumenta il valore
+ * della propria % (QuoteLine.valuePct, dal listino). Es. base 100k, Σ% = 500 → 600k.
+ */
+export function quoteValue(q: { baseValue?: number | null; lines?: { valuePct?: number | null }[] }): { base: number; upliftPct: number; value: number } {
+  const base = Number(q.baseValue) || 0;
+  const upliftPct = (q.lines || []).reduce((s, l) => s + (Number(l.valuePct) || 0), 0);
+  return { base, upliftPct, value: Math.round(base * (1 + upliftPct / 100)) };
+}
+
 /** Totali documento di una fattura attiva (amount = imponibile). */
 export function invoiceTotals(inv: { amount: number; taxRate?: number; cassaPct?: number | null }): DocTotals {
   return docTotals(inv.amount, inv.taxRate ?? 0, inv.cassaPct ?? 0);

@@ -12,7 +12,7 @@ import React, { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { Quote, QuoteLine, QuoteMacro, PaymentMilestone, ClientRecord, Project, PriceItem } from '../types';
 import { eur } from '../utils';
-import { quoteTotals, VAT_PCT_DEFAULT, CASSA_PCT_DEFAULT } from '../finance';
+import { quoteTotals, quoteValue, VAT_PCT_DEFAULT, CASSA_PCT_DEFAULT } from '../finance';
 import { Modal } from './Modal';
 
 export const MACRO_LABEL: Record<QuoteMacro, string> = {
@@ -64,11 +64,13 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
 
   // -- line ops --
   const addLine = () => setDraft((d) => ({ ...d, lines: [...(d.lines || []), { id: newId('ln'), macro: 'progettazione', desc: '', qty: 1, unitPrice: 0, amount: 0 }] }));
-  // Aggiunge una riga pre-compilata da una voce di listino.
+  // Listino della società del preventivo (voci senza division = condivise).
+  const myPriceList = priceList.filter((it) => !it.division || it.division === draft.division);
+  // Aggiunge una riga pre-compilata da una voce di listino (porta anche la % valore immobile).
   const addFromPrice = (itemId: string) => {
     const it = priceList.find((p) => p.id === itemId);
     if (!it) return;
-    setDraft((d) => ({ ...d, lines: [...(d.lines || []), { id: newId('ln'), macro: it.macro, desc: it.label + (it.unit ? ` (${it.unit})` : ''), qty: 1, unitPrice: it.unitPrice, amount: it.unitPrice }] }));
+    setDraft((d) => ({ ...d, lines: [...(d.lines || []), { id: newId('ln'), macro: it.macro, desc: it.label + (it.unit ? ` (${it.unit})` : ''), qty: 1, unitPrice: it.unitPrice, amount: it.unitPrice, valuePct: it.valuePct ?? null }] }));
   };
   const updLine = (id: string, patch: Partial<QuoteLine>) => setDraft((d) => ({
     ...d, lines: (d.lines || []).map((l) => {
@@ -143,10 +145,10 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Voci per macro-categoria (importi imponibili)</span>
             <div className="flex items-center gap-2">
-              {priceList.length > 0 && (
-                <select value="" onChange={(e) => { if (e.target.value) addFromPrice(e.target.value); e.target.value = ''; }} className="qi text-[12px] h-8 w-[160px]" title="Aggiungi dal listino">
+              {myPriceList.length > 0 && (
+                <select value="" onChange={(e) => { if (e.target.value) addFromPrice(e.target.value); e.target.value = ''; }} className="qi text-[12px] h-8 w-[160px]" title="Aggiungi dal listino della società">
                   <option value="">+ da listino…</option>
-                  {priceList.map((it) => <option key={it.id} value={it.id}>{MACRO_LABEL[it.macro]} · {it.label}</option>)}
+                  {myPriceList.map((it) => <option key={it.id} value={it.id}>{MACRO_LABEL[it.macro]} · {it.label}</option>)}
                 </select>
               )}
               <button onClick={addLine} className="inline-flex items-center gap-1 text-[12px] font-bold text-[#161616] cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Riga</button>
@@ -162,9 +164,10 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
                   <input value={l.desc} onChange={(e) => updLine(l.id, { desc: e.target.value })} placeholder="Descrizione voce" className="qi flex-1 min-w-0" />
                   <button onClick={() => delLine(l.id)} className="text-rose-600 shrink-0 cursor-pointer bg-transparent border-none"><Trash2 className="w-4 h-4" /></button>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-4 gap-2">
                   <label className="flex flex-col gap-0.5"><span className="qlbl">Qtà</span><input value={l.qty} onChange={(e) => updLine(l.id, { qty: num(e.target.value) })} inputMode="decimal" className="qi" /></label>
                   <label className="flex flex-col gap-0.5"><span className="qlbl">Prezzo unit. €</span><input value={l.unitPrice} onChange={(e) => updLine(l.id, { unitPrice: num(e.target.value) })} inputMode="decimal" className="qi" /></label>
+                  <label className="flex flex-col gap-0.5" title="Quanto questa voce aumenta il valore dell'immobile (simulazione nel portale)"><span className="qlbl">% valore</span><input value={l.valuePct ?? ''} onChange={(e) => updLine(l.id, { valuePct: e.target.value === '' ? null : num(e.target.value) })} inputMode="decimal" placeholder="—" className="qi" /></label>
                   <div className="flex flex-col gap-0.5"><span className="qlbl">Importo</span><div className="h-9 flex items-center font-black text-[13px] text-[#161616]">{eur(l.amount)}</div></div>
                 </div>
                 <label className="inline-flex items-center gap-1.5 cursor-pointer" title="Nel preventivo interattivo del portale il cliente NON potrà escludere questa voce">
@@ -208,6 +211,39 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
             <p className="text-[11px] text-[#9a9a9a] font-semibold mt-2">Righe {eur(totals.righe)} → imponibile {eur(totals.imponibile)} (lo sconto/maggiorazione si applica prima di cassa e IVA).</p>
           )}
         </div>
+
+        {/* Valore immobile — simulazione nel preventivo interattivo del portale:
+            base "stato dei luoghi" + Σ % valore delle voci incluse = valore a fine opera */}
+        {!isParcella && (() => {
+          const vv = quoteValue(draft);
+          return (
+            <div className="border border-[#eee] rounded-2xl p-3 bg-[#fafafa]">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] block mb-2">Valore immobile (preventivo interattivo)</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label className="flex items-center gap-2.5 rounded-xl border border-[#e2e2e2] bg-white px-3 py-2.5">
+                  <span className="text-[12.5px] font-bold text-[#161616] flex-1">Valore stato dei luoghi</span>
+                  <input
+                    value={draft.baseValue ?? ''}
+                    onChange={(e) => setDraft((d) => ({ ...d, baseValue: e.target.value === '' ? null : num(e.target.value) }))}
+                    inputMode="decimal" placeholder="es. 100000"
+                    className="qi w-[110px] text-right font-mono"
+                  />
+                  <span className="text-[12px] font-bold text-[#8a8a8a]">€</span>
+                </label>
+                <div className="flex items-center gap-2.5 rounded-xl border border-[#e2e2e2] bg-white px-3 py-2.5">
+                  <span className="text-[12.5px] font-bold text-[#161616] flex-1">Valore a fine opera</span>
+                  {vv.base > 0
+                    ? <b className="text-[14px] text-emerald-700">{eur(vv.value)} <span className="text-[11px] text-[#8a8a8a] font-bold">(+{vv.upliftPct}%)</span></b>
+                    : <span className="text-[11.5px] text-[#9a9a9a] font-semibold">inserisci il valore base</span>}
+                </div>
+              </div>
+              <p className="text-[11px] text-[#9a9a9a] font-semibold mt-2">
+                Nel portale il cliente vede il valore stimato dell'immobile salire/scendere spuntando le voci:
+                ogni voce contribuisce con la sua <b>% valore</b> (impostala qui sulle righe o nel Listino).
+              </p>
+            </div>
+          );
+        })()}
 
         {/* IVA & Cassa previdenziale spuntabili + riepilogo totali */}
         <div className="border border-[#eee] rounded-2xl p-3 bg-[#fafafa]">

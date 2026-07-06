@@ -11,9 +11,9 @@
  * proprio uid) e avvisano lo studio.
  */
 import React from 'react';
-import { FileText, Lock, AlertTriangle, CheckCircle2, ChevronLeft, Send } from 'lucide-react';
+import { FileText, Lock, AlertTriangle, CheckCircle2, ChevronLeft, Send, TrendingUp } from 'lucide-react';
 import type { QuoteClientChoice, QuoteLine } from '../types';
-import { quoteTotals } from '../finance';
+import { quoteTotals, quoteValue } from '../finance';
 import { eur } from '../utils';
 import { benefitFor } from '../serviceBenefits';
 import { companyDoc } from '../companyInfo';
@@ -29,6 +29,8 @@ export interface SharedQuote {
   vatEnabled?: boolean; vatPct?: number;
   cassaEnabled?: boolean; cassaPct?: number;
   discountPct?: number | null; surchargePct?: number | null;
+  /** Valore immobile "stato dei luoghi" €: le voci incluse lo aumentano della loro valuePct. */
+  baseValue?: number | null;
   validUntil?: string | null;
   notes?: string | null;
   status?: string;
@@ -67,7 +69,11 @@ export const ClientQuotesPanel: React.FC<Props> = ({ quotes, onChoice }) => {
                   ? <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">Selezione inviata</span>
                   : <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700">Da rivedere</span>}
             </div>
-            <p className="text-[11.5px] text-[#8a8a8a] mt-1">{co.brand} · totale <b className="text-[#161616]">{eur(t.totale)}</b>{q.validUntil ? ` · valido fino al ${fmtD(q.validUntil)}` : ''}</p>
+            <p className="text-[11.5px] text-[#8a8a8a] mt-1">
+              {co.brand} · totale <b className="text-[#161616]">{eur(t.totale)}</b>
+              {(Number(q.baseValue) || 0) > 0 && <> · valore stimato <b className="text-emerald-700">{eur(quoteValue({ baseValue: q.baseValue, lines: (q.lines || []).filter((l) => !q.choice?.excluded?.[l.id]) }).value)}</b></>}
+              {q.validUntil ? ` · valido fino al ${fmtD(q.validUntil)}` : ''}
+            </p>
           </button>
         );
       })}
@@ -88,6 +94,11 @@ const QuoteDetail: React.FC<{ quote: SharedQuote; onBack: () => void; onChoice?:
   const t = quoteTotals({ ...q, lines: included });
   const tFull = quoteTotals(q);
   const removedTotal = tFull.totale - t.totale;
+  // Simulazione VALORE IMMOBILE: base "stato dei luoghi" + % delle voci incluse.
+  const v = quoteValue({ baseValue: q.baseValue, lines: included });
+  const vFull = quoteValue({ baseValue: q.baseValue, lines });
+  const hasValue = v.base > 0;
+  const valueLost = vFull.value - v.value;
   const dirty = JSON.stringify(excluded) !== JSON.stringify(q.choice?.excluded || {}) || comment !== (q.choice?.comment || '');
 
   const toggle = (l: QuoteLine) => {
@@ -133,15 +144,25 @@ const QuoteDetail: React.FC<{ quote: SharedQuote; onBack: () => void; onChoice?:
                       {!off && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                     </span>
                   )}
-                  <span className={`flex-1 text-[12.5px] font-semibold ${off ? 'text-[#9a9a9a] line-through' : 'text-[#161616]'}`}>{l.desc || 'Voce'}</span>
+                  <span className="flex-1 min-w-0">
+                    <span className={`text-[12.5px] font-semibold ${off ? 'text-[#9a9a9a] line-through' : 'text-[#161616]'}`}>{l.desc || 'Voce'}</span>
+                    {hasValue && (Number(l.valuePct) || 0) > 0 && (
+                      <span className={`ml-1.5 text-[9.5px] font-extrabold whitespace-nowrap ${off ? 'text-[#c0c0c0]' : 'text-emerald-700'}`}>+{l.valuePct}% valore</span>
+                    )}
+                  </span>
                   <b className={`text-[13px] shrink-0 ${off ? 'text-[#b0b0b0] line-through' : 'text-[#161616]'}`}>{eur(l.amount || 0)}</b>
                 </div>
-                {/* Banner vantaggi persi */}
+                {/* Banner vantaggi persi (+ perdita di VALORE dell'immobile se la voce ha una %) */}
                 {off && lastRemoved === l.id && !accepted && (
                   <div className="mt-1.5 mx-1 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 flex gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div>
                       <p className="text-[11.5px] text-amber-900 leading-snug">{benefitFor(l.desc, l.benefits)}</p>
+                      {hasValue && (Number(l.valuePct) || 0) > 0 && (
+                        <p className="text-[11.5px] font-bold text-amber-900 mt-1">
+                          Senza questa voce il valore stimato dell'immobile scende di {eur(Math.round(v.base * ((Number(l.valuePct) || 0) / 100)))} (−{l.valuePct}%).
+                        </p>
+                      )}
                       <button onClick={() => toggle(l)} className="mt-1 text-[11px] font-extrabold text-amber-800 underline cursor-pointer bg-transparent border-none p-0">Reincludi questa voce</button>
                     </div>
                   </div>
@@ -167,6 +188,24 @@ const QuoteDetail: React.FC<{ quote: SharedQuote; onBack: () => void; onChoice?:
           </div>
           {removedTotal > 0.005 && <p className="text-right text-[10.5px] text-[#9a9a9a] font-semibold mt-0.5">−{eur(removedTotal)} rispetto alla proposta completa</p>}
         </div>
+
+        {/* VALORE DELL'IMMOBILE — sale/scende in tempo reale con le voci selezionate */}
+        {hasValue && (
+          <div className="border-t border-[#ececec] bg-emerald-50/50 px-4 py-3">
+            <p className="text-[10.5px] font-extrabold uppercase tracking-wider text-emerald-800 inline-flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5" /> Valore dell'immobile</p>
+            <div className="flex justify-between text-[11.5px] text-emerald-900/70 font-semibold mt-1.5"><span>Stato dei luoghi (oggi)</span><span>{eur(v.base)}</span></div>
+            <div className="flex justify-between text-[11.5px] text-emerald-900/70 font-semibold"><span>Incremento con le voci scelte</span><span>+{v.upliftPct}%</span></div>
+            <div className="flex justify-between items-baseline mt-1 pt-1.5 border-t border-emerald-200/70">
+              <span className="text-[12px] font-extrabold uppercase tracking-wider text-emerald-900">Valore a fine opera</span>
+              <span className="text-[20px] font-black text-emerald-700">{eur(v.value)}</span>
+            </div>
+            {valueLost > 0.5 && (
+              <p className="text-right text-[10.5px] font-bold text-amber-700 mt-0.5">
+                −{eur(valueLost)} di valore rispetto alla proposta completa ({eur(vFull.value)})
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       {q.notes && <p className="text-[11.5px] text-[#8a8a8a] px-1">{q.notes}</p>}

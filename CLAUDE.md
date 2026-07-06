@@ -687,6 +687,20 @@ reporting/redditività, integrazioni esterne
   `fant-ticket`. ⚠️ Nodi **`fantImmobili`+`fantTickets`** (read/write studio attivo non-cliente/
   partner): **ripubblicare le regole**. CI: `deploy.yml` ora fa **3 tentativi automatici** dello
   step deploy-pages (pausa 90s/180s) — niente più commit vuoti di rilancio.
+  **Listini per-società + VALORE IMMOBILE nel preventivo interattivo (spec utente, NESSUN nodo/regola
+  nuovi — riusa `priceList` e `clientQuotes`)**: 1) `PriceItem.division` esteso a `fantastico` +
+  nuovo **`PriceItem.valuePct`** (= incremento % del valore dell'immobile); il **`PriceListModal`**
+  (QuotesView, ora ESPORTATO) è per-società: con `company` mostra/timbra solo le voci di quella
+  società e al salvataggio riunisce le altre (il nodo resta un array unico); editabile anche dal
+  **Centro Commerciale** (tab Listino → "Modifica listino", prop `onSavePriceList`); 2) **Quote**:
+  nuovo **`baseValue`** (valore "stato dei luoghi") e **`QuoteLine.valuePct`** (copiata dal listino,
+  editabile per riga in `QuoteEditor`, pannello "Valore immobile" con valore a fine opera live);
+  helper **`quoteValue`** in finance.ts (base × (1+Σ%/100)); 3) **portale** (`ClientQuotesPanel`):
+  snapshot con `baseValue` (via `quoteToShared`), badge "+X% valore" sulle voci, blocco **"Valore
+  dell'immobile"** (stato dei luoghi → valore a fine opera) che sale/scende in tempo reale con le
+  spunte + perdita di valore nel banner vantaggi e nella riga "−€ rispetto alla proposta completa";
+  4) **stime**: `StimaPreliminare.voci[]` = voci aggiunte **dal listino della società** (select
+  "+ dal listino…", qty × prezzo nel totale `stimaTotal`; App passa `priceList` filtrato per soc).
   **Consegna "richieste luglio" (NESSUN nodo/regola nuovi)**: 1) **Calendario editoriale aggregato**
   nella dashboard del Centro Marketing (`MarketingHub` → `Centro`): `EditorialCalendar` con TUTTI i
   canali (canale = account, badge colore account sui chip in vista "Tutti"), `canEdit=false`;

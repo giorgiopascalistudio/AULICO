@@ -205,6 +205,8 @@ export interface QuoteLine {
   amount: number;            // qty * unitPrice
   locked?: boolean;          // voce obbligatoria: il cliente NON può escluderla dal portale
   benefits?: string | null;  // vantaggi mostrati al cliente se esclude la voce (fallback: catalogo serviceBenefits)
+  /** Incremento % del valore dell'immobile portato da questa voce (dal listino, editabile). */
+  valuePct?: number | null;
 }
 
 /** Scelta del cliente sul preventivo interattivo (scritta dal cliente su
@@ -251,6 +253,9 @@ export interface Quote {
   clientUid?: string | null;        // account portale del cliente (per la condivisione)
   sharedWithClient?: boolean;       // pubblicato sul portale (snapshot clientQuotes/<uid>/<qid>)
   sharedAt?: number | null;
+  /** Valore immobile "stato dei luoghi" €: base della simulazione valore nel portale
+   *  (ogni voce inclusa lo aumenta della propria valuePct → valore a fine opera). */
+  baseValue?: number | null;
   paymentPlan?: PaymentMilestone[];
   validUntil?: string | null;
   notes?: string | null;
@@ -285,7 +290,11 @@ export interface PriceItem {
   macro: QuoteMacro;         // macro-categoria del preventivo
   unit?: string | null;      // unità di misura (es. mq, cad, h)
   unitPrice: number;         // prezzo unitario di default (imponibile)
-  division?: 'studio' | 'strategico' | 'materico' | 'unico' | null; // filtro/origine opzionale
+  /** Società proprietaria della voce (null = condivisa da tutte, legacy). */
+  division?: 'studio' | 'strategico' | 'materico' | 'unico' | 'fantastico' | null;
+  /** Incremento % del VALORE dell'immobile se la voce viene realizzata (preventivo
+   *  interattivo: base "stato dei luoghi" + Σ % voci incluse = valore a fine opera). */
+  valuePct?: number | null;
   createdAt: number;
 }
 

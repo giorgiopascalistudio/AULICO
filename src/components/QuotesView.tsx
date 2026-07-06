@@ -249,36 +249,72 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
 
       {/* LISTINO voci di costo riusabili */}
       {listinoOpen && onSavePriceList && (
-        <PriceListModal items={priceList} onSave={onSavePriceList} onClose={() => setListinoOpen(false)} />
+        <PriceListModal items={priceList} company={company} onSave={onSavePriceList} onClose={() => setListinoOpen(false)} />
       )}
     </div>
   );
 };
 
-/** Gestione del listino voci di costo (admin/manager): usato per comporre rapidamente i preventivi. */
-const PriceListModal: React.FC<{ items: PriceItem[]; onSave: (arr: PriceItem[]) => void; onClose: () => void }> = ({ items, onSave, onClose }) => {
-  const [rows, setRows] = useState<PriceItem[]>(items.map((i) => ({ ...i })));
-  const add = () => setRows((r) => [...r, { id: `pi-${Date.now()}-${Math.floor(Math.random() * 900)}`, label: '', macro: 'progettazione', unit: '', unitPrice: 0, division: null, createdAt: Date.now() }]);
+/** Etichette società per il listino (division di PriceItem; '' = condivisa). */
+const PL_SOC: { id: string; label: string }[] = [
+  { id: '', label: 'Tutte' }, { id: 'studio', label: 'Onirico' }, { id: 'strategico', label: 'Strategico' },
+  { id: 'materico', label: 'Materico' }, { id: 'unico', label: 'Unico' }, { id: 'fantastico', label: 'Fantastico' },
+];
+
+/**
+ * Gestione del listino voci di costo (admin/manager): usato per comporre preventivi e stime.
+ * OGNI SOCIETÀ ha le proprie voci (`division`; vuoto = condivisa): con `company` impostata il
+ * modale mostra/timbra solo le voci di quella società e al salvataggio RIUNISCE le altre.
+ * `valuePct` = incremento % del valore dell'immobile (simulazione valore nel portale cliente).
+ * Esportato: riusato dal Centro Commerciale (workspace per società → tab Listino).
+ */
+export const PriceListModal: React.FC<{ items: PriceItem[]; company?: string; onSave: (arr: PriceItem[]) => void; onClose: () => void }> = ({ items, company = 'all', onSave, onClose }) => {
+  const scoped = company !== 'all';
+  const visible = scoped ? items.filter((i) => !i.division || i.division === company) : items;
+  const hidden = scoped ? items.filter((i) => i.division && i.division !== company) : [];
+  const [rows, setRows] = useState<PriceItem[]>(visible.map((i) => ({ ...i })));
+  const add = () => setRows((r) => [...r, { id: `pi-${Date.now()}-${Math.floor(Math.random() * 900)}`, label: '', macro: 'progettazione', unit: '', unitPrice: 0, division: scoped ? (company as PriceItem['division']) : null, valuePct: null, createdAt: Date.now() }]);
   const upd = (id: string, patch: Partial<PriceItem>) => setRows((r) => r.map((x) => (x.id === id ? { ...x, ...patch } : x)));
   const del = (id: string) => setRows((r) => r.filter((x) => x.id !== id));
   const numv = (v: any) => Number(String(v).replace(',', '.')) || 0;
+  const socLabel = PL_SOC.find((s) => s.id === company)?.label || company;
   return (
-    <Modal title="Listino voci di costo" isOpen onClose={onClose} wide
-      footer={<button onClick={() => { onSave(rows.filter((x) => x.label.trim())); onClose(); }} className="btn bg-[#1b1b1b] text-white hover:bg-black font-semibold cursor-pointer justify-center">Salva listino</button>}>
+    <Modal title={scoped ? `Listino voci — ${socLabel}` : 'Listino voci di costo'} isOpen onClose={onClose} wide
+      footer={<button onClick={() => { onSave([...hidden, ...rows.filter((x) => x.label.trim())]); onClose(); }} className="btn bg-[#1b1b1b] text-white hover:bg-black font-semibold cursor-pointer justify-center">Salva listino</button>}>
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <span className="text-[12px] text-[#8a8a8a] font-semibold">Voci riusabili per comporre i preventivi (descrizione, macro, unità, prezzo unitario).</span>
-          <button onClick={add} className="inline-flex items-center gap-1 text-[12px] font-bold text-[#161616] cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Voce</button>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[12px] text-[#8a8a8a] font-semibold">
+            Voci riusabili in preventivi e stime{scoped ? ` di ${socLabel}` : ''}. <b>% valore</b> = quanto la voce
+            aumenta il valore dell'immobile nel preventivo interattivo del portale.
+          </span>
+          <button onClick={add} className="inline-flex items-center gap-1 text-[12px] font-bold text-[#161616] cursor-pointer bg-transparent border-none shrink-0"><Plus className="w-3.5 h-3.5" /> Voce</button>
         </div>
         {rows.length === 0 && <p className="text-[13px] text-[#8a8a8a] py-6 text-center">Nessuna voce. Aggiungine una con "Voce".</p>}
+        {rows.length > 0 && (
+          <div className="flex items-center gap-2 text-[9.5px] font-extrabold uppercase tracking-wider text-[#9a9a9a] px-1">
+            <span className="flex-1">Descrizione</span>
+            <span className="w-[130px] shrink-0">Macro</span>
+            {!scoped && <span className="w-[110px] shrink-0">Società</span>}
+            <span className="w-[60px] shrink-0 text-center">U.M.</span>
+            <span className="w-[84px] shrink-0 text-right">€/u</span>
+            <span className="w-[70px] shrink-0 text-right" title="Incremento % del valore dell'immobile">% valore</span>
+            <span className="w-8 shrink-0" />
+          </div>
+        )}
         {rows.map((it) => (
           <div key={it.id} className="flex items-center gap-2">
             <input value={it.label} onChange={(e) => upd(it.id, { label: e.target.value })} placeholder="Descrizione voce" className="qi flex-1" />
-            <select value={it.macro} onChange={(e) => upd(it.id, { macro: e.target.value as QuoteMacro })} className="qi w-[140px] shrink-0">
+            <select value={it.macro} onChange={(e) => upd(it.id, { macro: e.target.value as QuoteMacro })} className="qi w-[130px] shrink-0">
               {(Object.keys(MACRO_LABEL) as QuoteMacro[]).map((m) => <option key={m} value={m}>{MACRO_LABEL[m]}</option>)}
             </select>
-            <input value={it.unit || ''} onChange={(e) => upd(it.id, { unit: e.target.value || null })} placeholder="u.m." className="qi w-[70px] shrink-0 text-center" />
-            <input value={it.unitPrice} onChange={(e) => upd(it.id, { unitPrice: numv(e.target.value) })} placeholder="€/u" className="qi w-[90px] shrink-0 text-right font-mono" />
+            {!scoped && (
+              <select value={it.division || ''} onChange={(e) => upd(it.id, { division: (e.target.value || null) as PriceItem['division'] })} className="qi w-[110px] shrink-0">
+                {PL_SOC.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+              </select>
+            )}
+            <input value={it.unit || ''} onChange={(e) => upd(it.id, { unit: e.target.value || null })} placeholder="u.m." className="qi w-[60px] shrink-0 text-center" />
+            <input value={it.unitPrice} onChange={(e) => upd(it.id, { unitPrice: numv(e.target.value) })} placeholder="€/u" className="qi w-[84px] shrink-0 text-right font-mono" />
+            <input value={it.valuePct ?? ''} onChange={(e) => upd(it.id, { valuePct: e.target.value === '' ? null : numv(e.target.value) })} placeholder="%" title="Incremento % del valore dell'immobile" className="qi w-[70px] shrink-0 text-right font-mono" />
             <button onClick={() => del(it.id)} className="w-8 h-8 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-rose-600 cursor-pointer shrink-0"><Trash2 className="w-4 h-4" /></button>
           </div>
         ))}

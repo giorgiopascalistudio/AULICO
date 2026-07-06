@@ -19,6 +19,7 @@ import { eur } from '../utils';
 import { SOCIETA_LABEL } from '../access';
 import { SOCIETY_COLOR } from '../societyConfig';
 import { CommercialeView } from './CommercialeView';
+import { PriceListModal } from './QuotesView';
 import ContractPrintDoc, { CONTRACT_TEMPLATES, type ContractTemplateId } from './ContractPrintDoc';
 import MatericoContractsView from './MatericoContractsView';
 import MatericoListinoView from './MatericoListinoView';
@@ -49,6 +50,8 @@ interface Props {
   onDeleteMatContract?: (id: string) => void;
   onSaveMatListino?: (i: MatericoPriceItem) => void;
   onDeleteMatListino?: (id: string) => void;
+  /** Salva il listino voci (nodo priceList, array intero): abilita "Modifica listino" nel workspace. */
+  onSavePriceList?: (arr: PriceItem[]) => void;
   // Cestino & Archivio dell'area
   trash?: TrashItem[];
   onRestoreTrash?: (t: TrashItem) => void;
@@ -187,6 +190,7 @@ const Centro: React.FC<Props & { onOpen: (s: string) => void; onOpenCestino?: ()
 const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) => void; onBack: () => void }> = (p) => {
   const { soc, tab, onTab, onBack, canEdit = false } = p;
   const [openTpl, setOpenTpl] = React.useState<ContractTemplateId | null>(null);
+  const [listinoOpen, setListinoOpen] = React.useState(false);
   const tabs: { id: WsTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'preventivi', label: 'Preventivi & Contratti', icon: Target },
     { id: 'documenti', label: 'Documenti', icon: FileText },
@@ -275,14 +279,24 @@ const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) =
           const items = p.priceList.filter((i) => !i.division || i.division === soc);
           return (
             <div className="flex flex-col gap-3">
-              <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Voci di listino riusabili nei preventivi (si gestiscono da Contabilità operativa → Preventivi → Listino).</p>
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <p className="text-[12.5px] text-[#8a8a8a] font-semibold">
+                  Le voci di {socLabel(soc)}, riusabili in preventivi e stime. <b>% valore</b> = quanto la voce
+                  aumenta il valore dell'immobile nel preventivo interattivo del portale.
+                </p>
+                {canEdit && p.onSavePriceList && (
+                  <button onClick={() => setListinoOpen(true)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none shrink-0">
+                    <ListChecks className="w-4 h-4" /> Modifica listino
+                  </button>
+                )}
+              </div>
               {items.length === 0 ? (
-                <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna voce di listino per {socLabel(soc)}.</p>
+                <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna voce di listino per {socLabel(soc)}.{canEdit && p.onSavePriceList ? ' Aggiungile con "Modifica listino".' : ''}</p>
               ) : (
                 <div className="bg-white border border-[#e2e2e2] rounded-[20px] overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[520px]">
+                  <table className="w-full text-left border-collapse min-w-[560px]">
                     <thead><tr className="border-b border-[#eee] bg-[#f7f6f4]">
-                      {['Voce', 'Categoria', 'U.M.', 'Prezzo'].map((h, i) => <th key={h} className={`px-3 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i >= 3 ? 'text-right' : ''}`}>{h}</th>)}
+                      {['Voce', 'Categoria', 'U.M.', 'Prezzo', '% valore'].map((h, i) => <th key={h} className={`px-3 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i >= 3 ? 'text-right' : ''}`}>{h}</th>)}
                     </tr></thead>
                     <tbody>
                       {items.map((i) => (
@@ -291,11 +305,15 @@ const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) =
                           <td className="px-3 py-2 text-[11.5px] text-[#8a8a8a] capitalize">{String(i.macro).replace('_', ' ')}</td>
                           <td className="px-3 py-2 text-[11.5px] text-[#8a8a8a]">{i.unit || '—'}</td>
                           <td className="px-3 py-2 text-right text-[12.5px] font-extrabold text-[#161616]">{eur(i.unitPrice)}</td>
+                          <td className="px-3 py-2 text-right text-[12.5px] font-extrabold text-emerald-700">{i.valuePct != null ? `+${i.valuePct}%` : '—'}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
+              )}
+              {listinoOpen && p.onSavePriceList && (
+                <PriceListModal items={p.priceList} company={soc} onSave={p.onSavePriceList} onClose={() => setListinoOpen(false)} />
               )}
             </div>
           );

@@ -11,7 +11,7 @@
  */
 import React from 'react';
 import { Calculator, Plus, ArrowLeft, Trash2, Printer } from 'lucide-react';
-import type { ClientRecord } from '../types';
+import type { ClientRecord, PriceItem } from '../types';
 import { eur } from '../utils';
 
 export type StimaLevel = 'base' | 'medio' | 'alto';
@@ -26,6 +26,8 @@ export interface StimaPreliminare {
   lvl?: Record<string, StimaLevel>;          // livello per voce
   piscina?: boolean; piscinaLvl?: StimaLevel;
   extras?: Record<string, boolean>;          // impianti/servizi a corpo
+  /** Voci aggiunte dal LISTINO della società (qty × prezzo, entrano nel totale). */
+  voci?: { id: string; label: string; unit?: string | null; unitPrice: number; qty: number }[];
   notes?: string | null;
   createdAt: number; updatedAt?: number; createdBy?: string | null;
 }
@@ -63,12 +65,15 @@ export function stimaTotal(s: StimaPreliminare): number {
   }
   if (s.piscina) t += PISCINA[LVL_IDX[s.piscinaLvl || 'medio']];
   for (const e of EXTRAS) if (s.extras?.[e.key]) t += e.cost;
+  for (const v of s.voci || []) t += (Number(v.qty) || 0) * (Number(v.unitPrice) || 0);
   return t;
 }
 
 interface Props {
   stime: StimaPreliminare[];
   rubrica: ClientRecord[];
+  /** Listino della società (già filtrato da App): voci aggiungibili alla stima. */
+  priceList?: PriceItem[];
   color?: string;
   canEdit?: boolean;
   onSave?: (s: StimaPreliminare) => void;
@@ -76,10 +81,10 @@ interface Props {
 }
 const inp = 'px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white disabled:bg-[#f7f7f5]';
 
-export const StimaPreliminareView: React.FC<Props> = ({ stime, rubrica, color = '#161616', canEdit = false, onSave, onDelete }) => {
+export const StimaPreliminareView: React.FC<Props> = ({ stime, rubrica, priceList = [], color = '#161616', canEdit = false, onSave, onDelete }) => {
   const [openId, setOpenId] = React.useState<string | null>(null);
   const open = stime.find((s) => s.id === openId) || null;
-  if (open) return <Editor stima={open} rubrica={rubrica} color={color} canEdit={canEdit} onSave={onSave} onDelete={onDelete} onBack={() => setOpenId(null)} />;
+  if (open) return <Editor stima={open} rubrica={rubrica} priceList={priceList} color={color} canEdit={canEdit} onSave={onSave} onDelete={onDelete} onBack={() => setOpenId(null)} />;
   const nuova = () => {
     const s: StimaPreliminare = { id: `st-${Date.now().toString(36)}`, title: 'Nuova stima', createdAt: Date.now() };
     onSave?.(s); setOpenId(s.id);
@@ -118,10 +123,20 @@ const LevelPills: React.FC<{ value: StimaLevel; disabled?: boolean; onChange: (l
   </span>
 );
 
-const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; color: string; canEdit: boolean; onSave?: (s: StimaPreliminare) => void; onDelete?: (id: string) => void; onBack: () => void }> = ({ stima: s, rubrica, color, canEdit, onSave, onDelete, onBack }) => {
+const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; priceList?: PriceItem[]; color: string; canEdit: boolean; onSave?: (s: StimaPreliminare) => void; onDelete?: (id: string) => void; onBack: () => void }> = ({ stima: s, rubrica, priceList = [], color, canEdit, onSave, onDelete, onBack }) => {
   const set = (c: Partial<StimaPreliminare>) => onSave?.({ ...s, ...c, updatedAt: Date.now() });
   const groups = [...new Set(PARAM.map((p) => p.group))];
   const total = stimaTotal(s);
+  // Voci dal listino della società (qty × prezzo unitario, entrano nel budget).
+  const voci = s.voci || [];
+  const addVoce = (itemId: string) => {
+    const it = priceList.find((p) => p.id === itemId);
+    if (!it) return;
+    set({ voci: [...voci, { id: `vc-${Date.now().toString(36)}`, label: it.label, unit: it.unit || null, unitPrice: it.unitPrice, qty: 1 }] });
+  };
+  const updVoce = (id: string, patch: Partial<{ qty: number; unitPrice: number }>) =>
+    set({ voci: voci.map((v) => (v.id === id ? { ...v, ...patch } : v)) });
+  const delVoce = (id: string) => set({ voci: voci.filter((v) => v.id !== id) });
   return (
     <div className="flex flex-col gap-4 text-left">
       <div className="flex items-center justify-between gap-3 flex-wrap no-print">
@@ -182,6 +197,36 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; color
               ))}
             </div>
           </div>
+
+          {/* Voci dal LISTINO della società (spec utente: le liste si usano anche nelle stime) */}
+          {(priceList.length > 0 || voci.length > 0) && (
+            <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Voci dal listino</p>
+                {canEdit && priceList.length > 0 && (
+                  <select value="" onChange={(e) => { if (e.target.value) addVoce(e.target.value); e.currentTarget.value = ''; }} className={`${inp} no-print w-[220px]`} title="Aggiungi una voce dal listino della società">
+                    <option value="">+ dal listino…</option>
+                    {priceList.map((it) => <option key={it.id} value={it.id}>{it.label}{it.unit ? ` (${it.unit})` : ''} · {eur(it.unitPrice)}</option>)}
+                  </select>
+                )}
+              </div>
+              {voci.length === 0 ? (
+                <p className="text-[12px] italic text-[#9a9a9a]">Nessuna voce aggiunta. Le voci si gestiscono nel Listino della società (Commerciale → Listino).</p>
+              ) : (
+                <div className="flex flex-col gap-1.5">
+                  {voci.map((v) => (
+                    <div key={v.id} className="flex items-center gap-2 flex-wrap">
+                      <span className="w-[210px] text-[12.5px] font-semibold text-[#161616]">{v.label} {v.unit && <span className="text-[10px] text-[#9a9a9a]">({v.unit})</span>}</span>
+                      <input disabled={!canEdit} type="number" value={v.qty || ''} placeholder="1" onChange={(e) => updVoce(v.id, { qty: Number(e.target.value) || 0 })} className={`${inp} w-[90px] text-right`} />
+                      <span className="text-[11.5px] text-[#8a8a8a] font-semibold">× {eur(v.unitPrice)}</span>
+                      {canEdit && <button onClick={() => delVoce(v.id)} className="no-print w-7 h-7 rounded-lg hover:bg-rose-50 text-rose-500 flex items-center justify-center cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button>}
+                      <span className="ml-auto text-[12.5px] font-extrabold text-[#161616] min-w-[92px] text-right">{eur((Number(v.qty) || 0) * (Number(v.unitPrice) || 0))}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Totale live */}
