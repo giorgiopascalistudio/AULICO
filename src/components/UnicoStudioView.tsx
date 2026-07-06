@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Plus, X, MapPin, TrendingUp, Users, Coins, Trash2, Pencil, Building2,
   Tag, PiggyBank, Percent, Wallet, ArrowUpRight, Gem, Clapperboard,
-  Landmark, Megaphone, HandCoins, Link2,
+  Landmark, Megaphone, HandCoins, Link2, ListChecks,
 } from 'lucide-react';
 import type {
   UnicoDeal, UnicoInvestor, UnicoDealStatus, UnicoShowcaseConfig, Project,
@@ -23,6 +23,7 @@ import type {
 } from '../types';
 import { eur } from '../utils';
 import { unicoRoe } from '../finance';
+import { UNICO_FASI, unicoFasiAvg } from '../showcaseData';
 import { UnicoShowcaseEditor } from './UnicoShowcaseEditor';
 
 const IN = 'w-full h-10 px-3 text-[14px] border border-[#e2e2e2] rounded-lg bg-white outline-none focus:border-[#161616]';
@@ -598,6 +599,29 @@ const DealModal: React.FC<{
               <input type="checkbox" checked={!!d.published} onChange={(e) => set({ published: e.target.checked })} disabled={!canEdit} className="w-4 h-4 accent-[#4338ca]" />
               <span className="text-[12.5px] text-stone-600">Pubblica nella vetrina Unico (visibile ai clienti)</span>
             </label>
+          </div>
+
+          {/* Fasi dell'operazione — monitoraggio del portale investitore (doc "UNICO il processo") */}
+          <div className="border-t border-[#ececec] pt-4">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" /> Fasi dell'operazione</span>
+              <span className="text-[12px] font-bold text-[#4338ca]">{unicoFasiAvg(d.fasi)}% complessivo</span>
+            </div>
+            <p className="text-[11.5px] text-stone-400 mt-1.5">Le % di completamento sono visibili agli investitori collegati nel portale ("I miei investimenti").</p>
+            <div className="flex flex-col gap-2 mt-3">
+              {UNICO_FASI.map((f) => {
+                const v = Number((d.fasi || {})[f.id]) || 0;
+                return (
+                  <div key={f.id} className="flex items-center gap-3">
+                    <span className="w-40 sm:w-48 shrink-0 text-[12.5px] font-semibold text-stone-600 truncate">{f.label}</span>
+                    <input type="range" min={0} max={100} step={5} value={v} disabled={!canEdit}
+                      onChange={(e) => set({ fasi: { ...(d.fasi || {}), [f.id]: Number(e.target.value) } })}
+                      className="flex-1 accent-[#4338ca] cursor-pointer" />
+                    <b className="w-11 shrink-0 text-right text-[12.5px]" style={{ color: v >= 100 ? '#059669' : '#161616' }}>{v}%</b>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Commessa Materico collegata */}

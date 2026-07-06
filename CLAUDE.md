@@ -172,6 +172,11 @@ dentro Finanze, non più voce sidebar), `TrashView` (Cestino condiviso, vedi §2
   delle posizioni di investitori scollegati via `prevInvestorUidsRef` in App. Il modulo Unico lato studio
   (`UnicoStudioView`) ora ha SPV/cap table (`spvName`/`spvVat`/`unitPrice`), tab **Rendiconto** (riparto
   profitto + distribuzioni) e pannello **Aggiornamenti** (notifica gli investitori collegati).
+  **Monitoraggio fasi** (doc "UNICO il processo"): `UnicoDeal.fasi` = mappa fase→% sulle 8 fasi canoniche
+  (`UNICO_FASI` in `showcaseData.ts`: acquisto · prog. preliminare · prog. definitiva · autorizzazioni ·
+  permesso di costruire · esecuzione lavori · commercializzazione · vendita), editor a slider nel
+  `DealModal`; copiata nelle posizioni (`UnicoInvestorPosition.fasi`) e mostrata come barre "Avanzamento
+  operazione" in `MyInvestmentsPanel`. Nessun nodo/regola nuovi.
 - `crmLeads`, `crmSuppliers` — array CRM (pipeline + fornitori/partner).
 - `clients/<id>` — **Rubrica clienti** (anagrafica riutilizzabile, anche clienti **senza login**:
   privato/azienda con CF/P.IVA/PEC/SDI/indirizzo). Gestita in CRM → tab "Clienti" (admin/manager).

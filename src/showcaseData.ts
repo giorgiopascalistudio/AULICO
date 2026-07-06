@@ -573,6 +573,25 @@ export function dealToShowcaseEntry(d: UnicoDeal): UnicoShowcaseEntry {
   };
 }
 
+// Fasi canoniche dell'operazione Unico (doc "UNICO il processo", monitoraggio portale
+// investitore): acquisto · progettazione preliminare · progettazione definitiva ·
+// autorizzazioni · permesso di costruire · esecuzione lavori · commercializzazione · vendita.
+// Le % per fase vivono in `UnicoDeal.fasi` (chiave = id) e vengono copiate nelle posizioni.
+export const UNICO_FASI: { id: string; label: string }[] = [
+  { id: 'acquisto', label: 'Acquisto' },
+  { id: 'prog_preliminare', label: 'Progettazione preliminare' },
+  { id: 'prog_definitiva', label: 'Progettazione definitiva' },
+  { id: 'autorizzazioni', label: 'Autorizzazioni' },
+  { id: 'permesso_costruire', label: 'Permesso di costruire' },
+  { id: 'esecuzione_lavori', label: 'Esecuzione lavori' },
+  { id: 'commercializzazione', label: 'Commercializzazione' },
+  { id: 'vendita', label: 'Vendita' },
+];
+
+/** Avanzamento complessivo dell'operazione = media delle % di fase (0 se mai toccate). */
+export const unicoFasiAvg = (fasi?: Record<string, number> | null): number =>
+  Math.round(UNICO_FASI.reduce((s, f) => s + (Number((fasi || {})[f.id]) || 0), 0) / UNICO_FASI.length);
+
 // Costruisce le posizioni PRIVATE per gli investitori collegati (con investorUid)
 // di un'operazione → mappa { uid: UnicoInvestorPosition }. Solo dati del destinatario:
 // niente costi d'acquisto/ristrutturazione né importi/nomi degli altri investitori.
@@ -609,6 +628,7 @@ export function dealToInvestorPositions(d: UnicoDeal): Record<string, UnicoInves
       spvName: d.spvName || null,
       expectedReturn: Math.round(expectedReturn),
       distributed: myDist.reduce((s, x) => s + (Number(x.amount) || 0), 0),
+      fasi: d.fasi || null,
       updates,
       distributions: myDist
         .map((x) => ({ id: x.id, amount: Number(x.amount) || 0, date: x.date, kind: x.kind, note: x.note || null }))

@@ -51,7 +51,8 @@ import {
   Star,
   HelpCircle,
   ChevronDown,
-  Award
+  Award,
+  ListChecks
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, UserProfile, MatericoEstimate, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, UnicoShowcaseEntry, UnicoInvestorPosition, MarketingEvent, Survey, SurveyResponse, RsvpStatus, ClientRequest, PointEvent } from '../types';
@@ -67,6 +68,7 @@ import { CantiereBoard } from './CantiereBoard';
 import { ChatDeleteButton } from './ChatDeleteButton';
 import { ImpresaArea } from './cantiere/ImpresaArea';
 import { eur, fmtDay, isoDate, isForwardedTo } from '../utils';
+import { UNICO_FASI, unicoFasiAvg } from '../showcaseData';
 import { useLang, LangToggle } from '../i18n';
 import { BLOG_POSTS_IT, BLOG_POSTS_EN } from '../blogPosts';
 import { watchNode } from '../firebase';
@@ -2818,6 +2820,32 @@ const MyInvestmentsPanel: React.FC<{ positions: UnicoInvestorPosition[] }> = ({ 
                   <span>{p.durationMonths ? `${p.durationMonths} mesi` : ''}{p.spvName ? ` · ${p.spvName}` : ''}</span>
                 </div>
               </div>
+
+              {/* Fasi dell'operazione — monitoraggio (acquisto → vendita, % per fase) */}
+              {p.fasi && Object.keys(p.fasi).length > 0 && (
+                <div className="mt-3 pt-3 border-t border-[#f3f3f3]">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10.5px] font-bold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" /> Avanzamento operazione</span>
+                    <span className="text-[11px] font-bold text-[#4338ca]">{unicoFasiAvg(p.fasi)}%</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                    {UNICO_FASI.map((f) => {
+                      const v = Math.min(100, Math.max(0, Number((p.fasi || {})[f.id]) || 0));
+                      return (
+                        <div key={f.id}>
+                          <div className="flex items-center justify-between text-[11px] font-semibold">
+                            <span className="text-stone-600 truncate">{f.label}</span>
+                            <b className="shrink-0 ml-2" style={{ color: v >= 100 ? '#059669' : '#161616' }}>{v}%</b>
+                          </div>
+                          <div className="h-1 w-full bg-[#eee] rounded-full overflow-hidden mt-1">
+                            <div className="h-full rounded-full" style={{ width: `${v}%`, background: v >= 100 ? '#059669' : '#4338ca' }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {(p.updates || []).length > 0 && (
                 <div className="mt-3 pt-3 border-t border-[#f3f3f3]">

@@ -465,6 +465,8 @@ export interface UnicoDeal {
   updates?: UnicoUpdate[];           // comunicazioni agli investitori
   distributions?: UnicoDistribution[]; // distribuzioni/rendimenti erogati
   matericoProjectId?: string | null; // commessa Materico collegata (ristrutturazione)
+  /** Fasi dell'operazione (PDF Unico, monitoraggio portale investitore): fase → % completamento. */
+  fasi?: Record<string, number> | null;
   published?: boolean;       // pubblicato nella vetrina Unico
   showcase?: UnicoShowcaseConfig | null; // pagina vetrina cinematica (video + scene)
   // ---- Cascata ROE + commesse interne (visione Aulico) ----
@@ -651,6 +653,7 @@ export interface UnicoInvestorPosition {
   spvName?: string | null;
   expectedReturn: number;  // rendimento atteso stimato sul conferito (quota del profitto)
   distributed: number;     // totale già distribuito al destinatario
+  fasi?: Record<string, number> | null; // fase operazione → % (monitoraggio PDF)
   updates: UnicoUpdate[];
   distributions: UnicoInvestorPositionDistribution[];
   updatedAt: number;
