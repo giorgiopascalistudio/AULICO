@@ -122,7 +122,14 @@ export const EditorialCalendar: React.FC<Props> = ({
   React.useEffect(() => setChannel(initialChannel), [initialChannel]);
   const [cursor, setCursor] = React.useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const [editing, setEditing] = React.useState<EditorialPost | null>(null);
+  const [openDay, setOpenDay] = React.useState<string | null>(null); // pannello-giorno: tutti i contenuti del giorno
   const [dragId, setDragId] = React.useState<string | null>(null);
+
+  // Canale di un post (per badge nella vista "Tutti"): match per key o label legacy.
+  const channelOf = React.useCallback(
+    (p: EditorialPost) => channels.find((c) => c.key === p.channel || c.label === p.channel) || null,
+    [channels],
+  );
 
   // Il post può avere channel = key (nuovo) o label (legacy): matcha entrambi.
   const matchesChannel = React.useCallback((p: EditorialPost, ch: string) => {
@@ -186,7 +193,9 @@ export const EditorialCalendar: React.FC<Props> = ({
             <CalendarDays className="w-5.5 h-5.5" style={{ color }} /> Calendario editoriale
           </h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
-            Anteprima di pubblicazione per canale · trascina immagini o post tra i giorni.
+            {canEdit
+              ? 'Anteprima di pubblicazione per canale · trascina immagini o post tra i giorni · click sul giorno per vedere e aggiungere contenuti.'
+              : 'Anteprima di pubblicazione per canale · sola consultazione, click sul giorno per il dettaglio.'}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -235,8 +244,8 @@ export const EditorialCalendar: React.FC<Props> = ({
                 key={i}
                 onDragOver={(e) => { if (canEdit) e.preventDefault(); }}
                 onDrop={(e) => onDropDay(e, dISO)}
-                onClick={() => canEdit && setEditing(blank(dISO))}
-                className={`min-h-[104px] border-b border-r border-[#f0f0f0] p-1.5 flex flex-col gap-1 ${inMonth ? 'bg-white' : 'bg-[#fafafa]'} ${canEdit ? 'cursor-pointer hover:bg-[#faf9f7]' : ''} ${(i + 1) % 7 === 0 ? 'border-r-0' : ''}`}
+                onClick={() => setOpenDay(dISO)}
+                className={`min-h-[104px] border-b border-r border-[#f0f0f0] p-1.5 flex flex-col gap-1 ${inMonth ? 'bg-white' : 'bg-[#fafafa]'} cursor-pointer hover:bg-[#faf9f7] ${(i + 1) % 7 === 0 ? 'border-r-0' : ''}`}
               >
                 <div className="flex items-center justify-between">
                   <span className={`text-[11px] font-bold w-5 h-5 flex items-center justify-center rounded-full ${isToday ? 'bg-[#161616] text-white' : inMonth ? 'text-[#555]' : 'text-[#c0c0c0]'}`}>{d.getDate()}</span>
@@ -244,9 +253,13 @@ export const EditorialCalendar: React.FC<Props> = ({
                 </div>
                 <div className="flex flex-col gap-1">
                   {dayPosts.slice(0, 3).map((p) => (
-                    <PostChip key={p.id} post={p} canEdit={canEdit} onOpen={(e) => { e.stopPropagation(); setEditing(p); }} onDragStart={() => setDragId(p.id)} />
+                    <PostChip key={p.id} post={p} canEdit={canEdit} channel={channel === 'Tutti' ? channelOf(p) : null} onOpen={(e) => { e.stopPropagation(); setEditing(p); }} onDragStart={() => setDragId(p.id)} />
                   ))}
-                  {dayPosts.length > 3 && <span className="text-[10px] text-[#9a9a9a] font-semibold pl-1">+{dayPosts.length - 3} altri</span>}
+                  {dayPosts.length > 3 && (
+                    <button onClick={(e) => { e.stopPropagation(); setOpenDay(dISO); }} className="text-[10px] text-[#4338ca] font-bold pl-1 text-left cursor-pointer bg-transparent border-none hover:underline">
+                      +{dayPosts.length - 3} altri…
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -258,6 +271,57 @@ export const EditorialCalendar: React.FC<Props> = ({
       <div className="flex items-center gap-3 flex-wrap">
         {STATUS.map((s) => <span key={s.id} className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: s.color }} />{s.label}</span>)}
       </div>
+
+      {/* PANNELLO-GIORNO — tutti i contenuti del giorno (anche oltre i 3 in cella) + aggiungi */}
+      {openDay && !editing && (
+        <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setOpenDay(null)}>
+          <div className="bg-white rounded-[24px] w-full max-w-md max-h-[85vh] overflow-y-auto p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[15px] font-extrabold text-[#161616] inline-flex items-center gap-2 capitalize">
+                <CalendarDays className="w-4.5 h-4.5" style={{ color }} />
+                {new Date(`${openDay}T12:00:00`).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
+              </h3>
+              <button onClick={() => setOpenDay(null)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="flex flex-col gap-2">
+              {(byDay[openDay] || []).map((p) => {
+                const st = statusOf(p.status);
+                const ch = channelOf(p);
+                const cover = (p.media || []).find((m) => m.type === 'image');
+                return (
+                  <button key={p.id} onClick={() => setEditing(p)} className="text-left flex items-stretch gap-0 rounded-xl overflow-hidden border border-[#e6e6e6] bg-white hover:border-[#c0c0c0] cursor-pointer p-0">
+                    <span className="w-1.5 shrink-0" style={{ background: st.color }} />
+                    {cover ? (
+                      <img src={imgSrc(cover.url)} alt="" className="w-14 h-14 object-cover shrink-0 bg-[#f0f0f0]" />
+                    ) : (
+                      <span className="w-14 h-14 shrink-0 bg-[#f5f5f3] flex items-center justify-center text-[#c0c0c0]">
+                        {(p.media || []).some((m) => m.type === 'video') ? <Video className="w-5 h-5" /> : <ImageIcon className="w-5 h-5" />}
+                      </span>
+                    )}
+                    <span className="min-w-0 flex-1 px-2.5 py-1.5 flex flex-col justify-center">
+                      <b className="text-[12.5px] text-[#161616] truncate">{p.topic || p.caption || 'Senza titolo'}</b>
+                      <span className="text-[10.5px] text-[#9a9a9a] truncate">{[p.time, p.platform, st.label].filter(Boolean).join(' · ')}</span>
+                      {ch && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#8a8a8a] mt-0.5">
+                          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: ch.color || '#8a8a8a' }} /> {ch.label}
+                        </span>
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+              {(byDay[openDay] || []).length === 0 && (
+                <p className="text-[12.5px] text-[#9a9a9a] bg-[#fafafa] border border-[#ececec] rounded-xl p-4 text-center">Nessun contenuto pianificato in questo giorno.</p>
+              )}
+            </div>
+            {canEdit && (
+              <button onClick={() => setEditing(blank(openDay))} className="mt-3 w-full inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none">
+                <Plus className="w-4 h-4" /> Aggiungi contenuto in questo giorno
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {editing && (
         <PostEditor
@@ -276,8 +340,8 @@ export const EditorialCalendar: React.FC<Props> = ({
   );
 };
 
-/** Mini-card di un contenuto dentro la cella-giorno. */
-const PostChip: React.FC<{ post: EditorialPost; canEdit: boolean; onOpen: (e: React.MouseEvent) => void; onDragStart: () => void }> = ({ post, canEdit, onOpen, onDragStart }) => {
+/** Mini-card di un contenuto dentro la cella-giorno (con badge canale nella vista "Tutti"). */
+const PostChip: React.FC<{ post: EditorialPost; canEdit: boolean; channel?: EditorialChannel | null; onOpen: (e: React.MouseEvent) => void; onDragStart: () => void }> = ({ post, canEdit, channel, onOpen, onDragStart }) => {
   const st = statusOf(post.status);
   const media = post.media || [];
   const cover = media.find((m) => m.type === 'image');
@@ -288,7 +352,7 @@ const PostChip: React.FC<{ post: EditorialPost; canEdit: boolean; onOpen: (e: Re
       onDragStart={onDragStart}
       onClick={onOpen}
       className="group relative rounded-lg overflow-hidden border border-[#e8e8e8] bg-white hover:border-[#cfcfcf] shadow-3xs cursor-pointer"
-      title={post.topic || post.caption || 'Contenuto'}
+      title={`${post.topic || post.caption || 'Contenuto'}${channel ? ` — ${channel.label}` : ''}`}
     >
       <div className="flex items-stretch">
         <span className="w-1 shrink-0" style={{ background: st.color }} />
@@ -304,7 +368,10 @@ const PostChip: React.FC<{ post: EditorialPost; canEdit: boolean; onOpen: (e: Re
         )}
         <div className="min-w-0 flex-1 px-1.5 py-1">
           <b className="block text-[10.5px] leading-tight text-[#161616] truncate">{post.topic || post.caption || 'Senza titolo'}</b>
-          <span className="block text-[9px] text-[#9a9a9a] truncate">{[post.platform, post.time].filter(Boolean).join(' · ') || st.label}</span>
+          <span className="block text-[9px] text-[#9a9a9a] truncate">
+            {channel && <span className="inline-flex items-center gap-0.5 mr-1"><span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: channel.color || '#8a8a8a' }} />{channel.label}</span>}
+            {[post.platform, post.time].filter(Boolean).join(' · ') || st.label}
+          </span>
         </div>
       </div>
     </div>

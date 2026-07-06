@@ -687,6 +687,20 @@ reporting/redditività, integrazioni esterne
   `fant-ticket`. ⚠️ Nodi **`fantImmobili`+`fantTickets`** (read/write studio attivo non-cliente/
   partner): **ripubblicare le regole**. CI: `deploy.yml` ora fa **3 tentativi automatici** dello
   step deploy-pages (pausa 90s/180s) — niente più commit vuoti di rilancio.
+  **Consegna "richieste luglio" (NESSUN nodo/regola nuovi)**: 1) **Calendario editoriale aggregato**
+  nella dashboard del Centro Marketing (`MarketingHub` → `Centro`): `EditorialCalendar` con TUTTI i
+  canali (canale = account, badge colore account sui chip in vista "Tutti"), `canEdit=false`;
+  2) **pannello-giorno** in `EditorialCalendar` (stato `openDay`): click sul giorno → overlay con
+  TUTTI i contenuti del giorno (anche oltre i 3 in cella, "+N altri…" cliccabile) + "Aggiungi
+  contenuto in questo giorno" → più pianificazioni nello stesso giorno; il click NON apre più
+  direttamente l'editor vuoto; 3) **Governance sotto Amministrazione** in Strategico (voce
+  `hr-governance` reparent `amm`, id invariato per link/permessi; nelle altre società resta in HR);
+  4) **Mappa operativa ridisegnata** (`MatericoMappaView`): KPI per tipo, `KIND_META` con
+  colore+icona per tipo di sito, card con ring colorato, barra colore + azioni con icone nel
+  pannello mappa; 5) **Ferie & assenze SOLO nell'agenda personale** (prop `showLeave` di
+  `CalendarView`, App la passa `true` solo per `activeSocieta==='holding'`); 6) **Stima Preliminare
+  spostata nel gruppo Commerciale** di TUTTE le società (`comm-stime`, via da Produzione Onirico):
+  per-società via campo `StimaPreliminare.soc` (App filtra e timbra; legacy senza soc = Onirico).
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;

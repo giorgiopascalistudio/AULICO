@@ -4971,6 +4971,8 @@ export default function App() {
             teamLeave={Object.values(teamLeave)}
             onSaveLeave={handleSaveLeave}
             onDeleteLeave={handleDeleteLeave}
+            /* Ferie & assenze SOLO nell'agenda personale (Aulico), non nelle agende delle società */
+            showLeave={(activeSocieta as string) === 'holding'}
           />
         );
       }
@@ -5610,19 +5612,22 @@ export default function App() {
                 />
               </React.Suspense>
             );
-          case 'stima-preliminare':
+          case 'stima-preliminare': {
+            // Ogni società vede le PROPRIE stime (legacy senza `soc` = Onirico, dov'era la sezione).
+            const stimaSoc = activeSocieta as string;
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
                 <StimaPreliminareView
-                  stime={Object.values(stimePreliminari)}
+                  stime={Object.values(stimePreliminari).filter((s: any) => (s.soc || 'studio') === stimaSoc)}
                   rubrica={Object.values(clients)}
                   color={society.color}
                   canEdit={isStudioRole(currentUser.role)}
-                  onSave={handleSaveStima}
+                  onSave={(s) => handleSaveStima({ ...s, soc: (s as any).soc || stimaSoc })}
                   onDelete={handleDeleteStima}
                 />
               </React.Suspense>
             );
+          }
           case 'unico-opportunita':
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>

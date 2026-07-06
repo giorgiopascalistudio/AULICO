@@ -29,6 +29,8 @@ interface CalendarViewProps {
   teamLeave?: TeamLeave[];
   onSaveLeave?: (leave: TeamLeave) => void;
   onDeleteLeave?: (id: string) => void;
+  /** Pannello Ferie & assenze: solo nell'agenda personale (Aulico), non nelle agende società. */
+  showLeave?: boolean;
 }
 
 // ---- Vista settimana: griglia oraria ----
@@ -109,7 +111,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   myName,
   teamLeave = [],
   onSaveLeave,
-  onDeleteLeave
+  onDeleteLeave,
+  showLeave = true
 }) => {
   const todayISO = isoDate(new Date());
   // Scope agenda: 'all' = tutta la squadra (voci condivise di società) · 'mine' = solo le mie
@@ -777,7 +780,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         </motion.div>
       </AnimatePresence>
 
-      <TeamLeavePanel teamLeave={teamLeave} myUid={myUid} myName={myName || ''} onSaveLeave={onSaveLeave} onDeleteLeave={onDeleteLeave} />
+      {showLeave && <TeamLeavePanel teamLeave={teamLeave} myUid={myUid} myName={myName || ''} onSaveLeave={onSaveLeave} onDeleteLeave={onDeleteLeave} />}
     </div>
   );
 };

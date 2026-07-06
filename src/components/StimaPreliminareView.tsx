@@ -18,6 +18,8 @@ export type StimaLevel = 'base' | 'medio' | 'alto';
 export interface StimaPreliminare {
   id: string;
   title: string;
+  /** Società proprietaria (slug config: studio/materico/unico/fantastico) — legacy senza soc = Onirico. */
+  soc?: string | null;
   clientRecordId?: string | null;
   clientName?: string | null;
   qty?: Record<string, number>;              // quantità per voce parametrica

@@ -417,7 +417,6 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   // ---- PRODUZIONE (Progetti · Computi · Mappa operativa) ----
   s.push({ id: 'produzione', label: 'Produzione', icon: Layers, module: 'produzione', kind: 'group' });
   if (isUni) s.push({ id: 'prod-opportunita', label: 'Ricerca Opportunità', icon: Search, parent: 'produzione', module: 'produzione', view: 'unico-opportunita', note: 'Workflow a step obbligatori: contatto → sopralluogo → raccolta → analisi → due diligence → manifestazione → negoziazione → preliminare → atto → INVESTIMENTO.' });
-  if (soc === 'studio') s.push({ id: 'prod-stima', label: 'Stima Preliminare', icon: Calculator, parent: 'produzione', module: 'produzione', view: 'stima-preliminare', note: 'Simulatore della fase Pianificazione: quantità × livello Base/Medio/Alto → budget automatico.' });
   if (soc === 'fantastico') s.push({ id: 'prod-gestione', label: 'Immobili & Servizi', icon: Home, parent: 'produzione', module: 'produzione', view: 'fantastico-gestione', note: 'Gestione immobiliare: immobili in gestione + richieste di servizio/manutenzione smistate ai partner (con margine).' });
   if (isMat) s.push({ id: 'prod-potenziale', label: 'Potenziale Cantiere', icon: Target, parent: 'produzione', module: 'produzione', view: 'materico-deals' });
   s.push({ id: 'prod-progetti', label: isUni ? 'Operazioni & Investitori' : 'Progetti', icon: isUni ? Building2 : Layers, parent: 'produzione', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
@@ -427,6 +426,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   // ---- COMMERCIALE (consultazione: gestione centralizzata nel Centro Commerciale di Strategico) ----
   s.push({ id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', kind: 'group' });
   s.push({ id: 'comm-preventivi', label: 'Preventivi & Contratti', icon: FileText, parent: 'commerciale', module: 'commerciale', view: 'commerciale', note: 'Consultazione dei preventivi della società — la gestione (nuovi preventivi, firma, portale, documenti) è in Strategico → Centro Commerciale.' });
+  s.push({ id: 'comm-stime', label: 'Stima Preliminare', icon: Calculator, parent: 'commerciale', module: 'commerciale', view: 'stima-preliminare', note: 'Simulatore accanto ai preventivi: quantità × livello Base/Medio/Alto → budget automatico. Ogni società vede le proprie stime.' });
   s.push({ id: 'comm-clienti', label: isMat ? 'Imprese & Fornitori' : 'Registro clienti', icon: isMat ? Truck : BookUser, parent: 'commerciale', module: 'crm', legacyRoute: 'crm', preset: { crmTab: isMat ? 'fornitori' : 'clienti' } });
 
   // ---- MARKETING (consultazione: il piano editoriale è gestito dal Centro Marketing di Strategico) ----
@@ -461,7 +461,6 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       { id: 'hr', label: 'Risorse Umane', icon: Users, module: 'hr', kind: 'group', dashLabel: 'Agenda HR' },
       { id: 'hr-crm', label: 'CRM', icon: BookUser, parent: 'hr', shared: true, module: 'crm', legacyRoute: 'crm' },
       { id: 'hr-recruiting', label: 'Recruiting', icon: UserPlus, parent: 'hr', module: 'hr', view: 'recruiting', note: 'Annunci di lavoro, pipeline candidati (candidatura→colloquio→prova→inserito), piani di inserimento a 6 mesi.' },
-      { id: 'hr-governance', label: 'Governance', icon: Network, parent: 'hr', module: 'governance', view: 'governance', note: 'Organigramma, mansionari, procedure (SOP), team & permessi, cassaforte password.' },
       { id: 'hr-registro', label: 'Registro attività', icon: ScrollText, parent: 'hr', shared: true, module: 'registro', legacyRoute: 'registro' },
       // === SOTTO-CATEGORIA: Marketing (Centro Marketing: hub di TUTTI gli account gestiti) ===
       { id: 'marketing', label: 'Marketing', icon: Megaphone, module: 'marketing', kind: 'group' },
@@ -474,6 +473,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       { id: 'amm', label: 'Amministrazione & Contabilità', icon: Briefcase, module: 'finance', kind: 'group' },
       { id: 'amm-centro', label: 'Centro Direzione', icon: Briefcase, parent: 'amm', module: 'finance', view: 'direzione-hub', note: 'Salute economica di tutte le società + workspace per società con le sezioni della riunione strategica: KPI, Piano finanziario, IVA & Fiscale, Programmazione (fatturazione+costi), BEP, Budget per aree, Cicli aperti, Obiettivi, Report stampabile.' },
       { id: 'amm-contabilita', label: 'Contabilità operativa', icon: DollarSign, parent: 'amm', shared: true, module: 'finance', legacyRoute: 'finanze', note: 'Registrazione fatture, scadenze, movimenti e preventivi di tutte le società (selettore Società).' },
+      { id: 'hr-governance', label: 'Governance', icon: Network, parent: 'amm', module: 'governance', view: 'governance', note: 'Organigramma, mansionari, procedure (SOP), team & permessi, cassaforte password.' },
       // === SOTTO-CATEGORIA: Sviluppo Software ===
       { id: 'software', label: 'Sviluppo Software', icon: Code2, module: 'software', kind: 'group' },
       { id: 'sw-gestionale', label: 'Gestionale & Automazioni', icon: Code2, parent: 'software', module: 'software', kind: 'placeholder', note: 'Software house interna: gestionale, automazioni, compilatore pratiche.' },

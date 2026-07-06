@@ -318,6 +318,18 @@ const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void; onOp
         )}
       </div>
 
+      {/* CALENDARIO EDITORIALE AGGREGATO — tutti i canali insieme, SOLA consultazione:
+          la gestione operativa resta nel workspace di ogni account. */}
+      <div className="border-t border-[#e6e6e6] pt-4">
+        <EditorialCalendar
+          posts={posts}
+          channels={accounts.map((a) => ({ key: a.id, label: a.name, color: a.color || undefined }))}
+          color={color}
+          canEdit={false}
+          initialChannel="Tutti"
+        />
+      </div>
+
       {adding && canEdit && (
         <NewClientModal
           rubrica={rubrica}
