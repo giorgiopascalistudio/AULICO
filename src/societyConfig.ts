@@ -460,6 +460,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       // === SOTTO-CATEGORIA: Risorse Umane ===
       { id: 'hr', label: 'Risorse Umane', icon: Users, module: 'hr', kind: 'group', dashLabel: 'Agenda HR' },
       { id: 'hr-crm', label: 'CRM', icon: BookUser, parent: 'hr', shared: true, module: 'crm', legacyRoute: 'crm' },
+      { id: 'hr-team', label: 'Team & permessi', icon: Users, parent: 'hr', module: 'hr', legacyRoute: 'team', note: 'Approvazione iscritti, ruoli e permessi per società/sezione (la gestione accessi di TUTTO il gruppo vive qui in Strategico).' },
       { id: 'hr-recruiting', label: 'Recruiting', icon: UserPlus, parent: 'hr', module: 'hr', view: 'recruiting', note: 'Annunci di lavoro, pipeline candidati (candidatura→colloquio→prova→inserito), piani di inserimento a 6 mesi.' },
       { id: 'hr-registro', label: 'Registro attività', icon: ScrollText, parent: 'hr', shared: true, module: 'registro', legacyRoute: 'registro' },
       // === SOTTO-CATEGORIA: Marketing (Centro Marketing: hub di TUTTI gli account gestiti) ===

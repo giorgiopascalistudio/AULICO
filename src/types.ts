@@ -53,6 +53,8 @@ export interface UserProfile {
   // ---- Onboarding / iscrizione ----
   accountType?: AccountType;     // cliente | azienda | team (scelto all'iscrizione)
   profileComplete?: boolean;     // true quando il form di registrazione è stato completato
+  /** Contatto eliminato apposta dalla rubrica: la riconciliazione automatica NON lo ricrea. */
+  rubricaExcluded?: boolean | null;
   firstName?: string;
   lastName?: string;
   residenza?: string;            // indirizzo di residenza (privato)

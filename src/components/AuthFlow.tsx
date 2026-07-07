@@ -102,7 +102,20 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
 
   // Registrazione / completamento
   const splitName = (gUser?.displayName || '').trim().split(/\s+/);
-  const [accountType, setAccountType] = useState<AccountType>('cliente');
+  // Il tipo account scelto sopravvive al giro Google (su alcuni browser il popup
+  // ricarica la pagina e lo stato React si azzera → il team finiva registrato
+  // come "cliente"). È UI di dispositivo, non un dato: localStorage è ok.
+  const [accountType, setAccountTypeState] = useState<AccountType>(() => {
+    try {
+      const saved = localStorage.getItem('aulico_signup_type');
+      if (saved === 'team' || saved === 'azienda' || saved === 'cliente') return saved;
+    } catch { /* storage bloccato: default */ }
+    return 'cliente';
+  });
+  const setAccountType = (t: AccountType) => {
+    setAccountTypeState(t);
+    try { localStorage.setItem('aulico_signup_type', t); } catch { /* opzionale */ }
+  };
   const [firstName, setFirstName] = useState(splitName[0] || '');
   const [lastName, setLastName] = useState(splitName.slice(1).join(' ') || '');
   const [email, setEmail] = useState(gUser?.email || '');
@@ -201,6 +214,7 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
         uid = cred.user.uid; em = email.trim();
       }
       await setAccount(uid, buildRecord(uid, em, photo));
+      try { localStorage.removeItem('aulico_signup_type'); } catch { /* opzionale */ }
       // Consenso newsletter (facoltativo, spunta in registrazione): nodo dedicato.
       if (newsletter) {
         try { await writeNode(`newsletter/${uid}`, { uid, name: `${firstName.trim()} ${lastName.trim()}`.trim() || gUser?.displayName || em, email: em, subscribed: true, at: Date.now() }); } catch { /* opzionale */ }
