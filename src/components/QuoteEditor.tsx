@@ -107,7 +107,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
       }
     >
       <div className="flex flex-col gap-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <L label="Tipo documento">
             <select value={draft.docKind || 'preventivo'} onChange={(e) => setDraft((d) => ({ ...d, docKind: e.target.value as any }))} className="qi font-bold">
               <option value="preventivo">Preventivo</option>
@@ -116,7 +116,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
           </L>
           <L label="Numero *"><input value={draft.number} onChange={(e) => setDraft((d) => ({ ...d, number: e.target.value }))} placeholder={isParcella ? 'PAR-2026-001' : 'PRV-2026-001'} className="qi font-mono" /></L>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <L label="Cliente (rubrica)">
             <select value={draft.clientRecordId || ''} onChange={(e) => { const c = clients[e.target.value]; setDraft((d) => ({ ...d, clientRecordId: e.target.value || null, clientName: c ? c.name : d.clientName })); }} className="qi">
               <option value="">— seleziona / digita sotto —</option>
@@ -125,7 +125,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
           </L>
           <L label="Nome cliente *"><input value={draft.clientName} onChange={(e) => setDraft((d) => ({ ...d, clientName: e.target.value }))} className="qi" /></L>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <L label="Divisione">
             <select value={draft.division} onChange={(e) => setDraft((d) => ({ ...d, division: e.target.value as any }))} disabled={!!lockProject} className="qi font-bold disabled:opacity-60">
               <option value="studio">Studio</option><option value="strategico">Strategico</option><option value="materico">Materico</option><option value="unico">Unico</option>
@@ -164,7 +164,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
                   <input value={l.desc} onChange={(e) => updLine(l.id, { desc: e.target.value })} placeholder="Descrizione voce" className="qi flex-1 min-w-0" />
                   <button onClick={() => delLine(l.id)} className="text-rose-600 shrink-0 cursor-pointer bg-transparent border-none"><Trash2 className="w-4 h-4" /></button>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <label className="flex flex-col gap-0.5"><span className="qlbl">Qtà</span><input value={l.qty} onChange={(e) => updLine(l.id, { qty: num(e.target.value) })} inputMode="decimal" className="qi" /></label>
                   <label className="flex flex-col gap-0.5"><span className="qlbl">Prezzo unit. €</span><input value={l.unitPrice} onChange={(e) => updLine(l.id, { unitPrice: num(e.target.value) })} inputMode="decimal" className="qi" /></label>
                   <label className="flex flex-col gap-0.5" title="Quanto questa voce aumenta il valore dell'immobile (simulazione nel portale)"><span className="qlbl">% valore</span><input value={l.valuePct ?? ''} onChange={(e) => updLine(l.id, { valuePct: e.target.value === '' ? null : num(e.target.value) })} inputMode="decimal" placeholder="—" className="qi" /></label>

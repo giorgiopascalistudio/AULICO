@@ -568,7 +568,7 @@ const KpiTab: React.FC<{
             <span>Non accettati: <b className="text-rose-600">{gen.non.length}</b> ({eur(gen.non.reduce((t, q) => t + (q.total || 0), 0))})</span>
             <span>In attesa: <b className="text-[#b45309]">{gen.att.length}</b> ({eur(gen.att.reduce((t, q) => t + (q.total || 0), 0))})</span>
           </div>
-          <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto"><table className="w-full min-w-[480px] text-left border-collapse">
             <thead><tr className="border-b border-[#eee]">
               {['Fascia', 'N.', 'Accettati', 'Non accettati', 'In attesa'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i > 1 ? 'text-right' : ''}`}>{h}</th>)}
             </tr></thead>
@@ -583,14 +583,14 @@ const KpiTab: React.FC<{
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
           {noTier.length > 0 && <p className="text-[10.5px] text-[#a8a8a8] font-semibold mt-2">{noTier.length} preventivi senza fascia (assegna la fascia al cliente in rubrica).</p>}
         </div>
       )}
       {(metric === 'erogato' || metric === 'punti') && perColl.length > 0 && (
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
           <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Per collaboratore · {year}</p>
-          <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto"><table className="w-full min-w-[380px] text-left border-collapse">
             <thead><tr className="border-b border-[#eee]">
               {['Collaboratore', 'Erogato', 'Punti'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
             </tr></thead>
@@ -603,7 +603,7 @@ const KpiTab: React.FC<{
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
     </div>
@@ -647,7 +647,7 @@ const IvaTab: React.FC<{
     <div className="flex flex-col gap-4">
       <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
         <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Situazione IVA {year} (dalle fatture attive)</p>
-        <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto"><table className="w-full min-w-[480px] text-left border-collapse">
           <thead><tr className="border-b border-[#eee]">
             {['Trimestre', 'Imponibile fatturato', 'IVA a debito', 'Incassato'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
           </tr></thead>
@@ -661,7 +661,7 @@ const IvaTab: React.FC<{
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
         <p className="text-[10.5px] text-[#a8a8a8] font-semibold mt-2">L'IVA sugli acquisti non è tracciata (le fatture passive sono registrate a imponibile): il saldo IVA effettivo va verificato col fiscalista. Le scadenze di versamento si pianificano qui sotto.</p>
       </div>
       <FiscaleView items={fiscale.filter((i) => i.soc === soc)} soc={soc} socLabel={socLabel(soc)} color={socColor(soc)} canEdit={canEdit} onSave={onSaveFiscale} onDelete={onDeleteFiscale} />
@@ -1055,7 +1055,7 @@ const ReportTab: React.FC<Props & { soc: string; year: number; s: KpiSeries; bep
         </div>
         <div>
           <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">1 · Statistiche KPI</p>
-          <table className="w-full text-left border-collapse">
+          <div className="overflow-x-auto"><table className="w-full min-w-[480px] text-left border-collapse">
             <thead><tr className="border-b border-[#eee]">
               {['Voce', 'Mese', 'Δ prec.', 'Anno', 'Obiettivo'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
             </tr></thead>
@@ -1070,7 +1070,7 @@ const ReportTab: React.FC<Props & { soc: string; year: number; s: KpiSeries; bep
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
         <div>
           <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-1">2 · Piano finanziario (mese)</p>

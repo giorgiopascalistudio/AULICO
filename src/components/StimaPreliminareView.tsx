@@ -13,6 +13,7 @@ import React from 'react';
 import { Calculator, Plus, ArrowLeft, Trash2, Printer } from 'lucide-react';
 import type { ClientRecord, PriceItem } from '../types';
 import { eur } from '../utils';
+import { companyDoc } from '../companyInfo';
 
 export type StimaLevel = 'base' | 'medio' | 'alto';
 export interface StimaPreliminare {
@@ -156,7 +157,28 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; price
 
       <div className="print-area grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 flex flex-col gap-3">
-          <p className="hidden print:block text-[16px] font-black">{s.title}{s.clientName ? ` — ${s.clientName}` : ''}</p>
+          {/* CARTA INTESTATA (solo stampa): dati società da companyInfo, come QuotePrintDoc */}
+          {(() => {
+            const co = companyDoc(s.soc || 'studio');
+            return (
+              <div className="hidden print:block border-b-2 border-[#161616] pb-3 mb-1">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[24px] font-black tracking-tight leading-none">{co.brand}</p>
+                    <p className="text-[10px] text-[#555] mt-1">{co.legalName}{co.piva ? ` · P.IVA ${co.piva}` : ''}</p>
+                    {co.address && <p className="text-[10px] text-[#555]">{co.address}</p>}
+                    {co.contacts && <p className="text-[10px] text-[#555]">{co.contacts}</p>}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[13px] font-black uppercase tracking-wider">Stima preliminare</p>
+                    <p className="text-[10.5px] text-[#555] mt-1">{new Date(s.updatedAt || s.createdAt).toLocaleDateString('it-IT')}</p>
+                    {s.clientName && <p className="text-[11px] font-bold mt-1">Committente: {s.clientName}</p>}
+                  </div>
+                </div>
+                <p className="text-[14px] font-black mt-2">{s.title}</p>
+              </div>
+            );
+          })()}
           {groups.map((g) => (
             <div key={g} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
               <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">{g}</p>

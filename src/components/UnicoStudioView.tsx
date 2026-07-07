@@ -612,8 +612,8 @@ const DealModal: React.FC<{
               {UNICO_FASI.map((f) => {
                 const v = Number((d.fasi || {})[f.id]) || 0;
                 return (
-                  <div key={f.id} className="flex items-center gap-3">
-                    <span className="w-40 sm:w-48 shrink-0 text-[12.5px] font-semibold text-stone-600 truncate">{f.label}</span>
+                  <div key={f.id} className="flex items-center gap-2 sm:gap-3">
+                    <span className="w-28 sm:w-48 shrink-0 text-[11.5px] sm:text-[12.5px] font-semibold text-stone-600 truncate">{f.label}</span>
                     <input type="range" min={0} max={100} step={5} value={v} disabled={!canEdit}
                       onChange={(e) => set({ fasi: { ...(d.fasi || {}), [f.id]: Number(e.target.value) } })}
                       className="flex-1 accent-[#4338ca] cursor-pointer" />

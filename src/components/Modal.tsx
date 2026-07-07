@@ -38,7 +38,8 @@ export const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto animate-[fadeIn_0.18s_ease_both]">
+    // z-[220]: sopra bottom-nav (z-50) e overlay full-screen (z-200) — i modali non vanno mai coperti
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[220] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto animate-[fadeIn_0.18s_ease_both]">
       <div
         className={`bg-white border border-[#e2e2e2] rounded-t-[26px] sm:rounded-[26px] w-full shadow-2xl mt-auto sm:mt-0 mb-0 sm:my-auto pb-[env(safe-area-inset-bottom,0px)] sm:pb-0 animate-[popIn_0.22s_cubic-bezier(0.16,1,0.3,1)_both] ${
           wide ? 'sm:max-w-[680px]' : 'sm:max-w-[520px]'

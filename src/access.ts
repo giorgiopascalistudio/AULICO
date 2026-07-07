@@ -106,6 +106,23 @@ export function resolveAccess(
   return sa.default;
 }
 
+/**
+ * Livello effettivo su una SEZIONE: override `sections[sectionId]` (se presente
+ * nella mappa esplicita) → altrimenti risoluzione per modulo/default.
+ * Il fallback dal ruolo legacy non ha sections ⇒ comportamento invariato.
+ */
+export function resolveSectionAccess(
+  profile: Pick<UserProfile, 'access' | 'role'> | null | undefined,
+  societa: Societa,
+  sectionId: string,
+  modulo?: string,
+): AccessLevel {
+  const map = effectiveAccess(profile);
+  const sa: SocietaAccess | undefined = map[societa];
+  if (sa?.sections && sa.sections[sectionId] != null) return sa.sections[sectionId];
+  return resolveAccess(profile, societa, modulo);
+}
+
 export function canView(p: Parameters<typeof resolveAccess>[0], s: Societa, m?: string): boolean {
   return atLeast(resolveAccess(p, s, m), 'view');
 }

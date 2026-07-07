@@ -12,8 +12,9 @@
  *      d'interesse, stampa preventivo), Listino (+ Contratti imprese per Materico).
  */
 import React from 'react';
-import { Target, ArrowLeft, FileText, FileSignature, ListChecks, AlertTriangle, Trash2, Star } from 'lucide-react';
+import { Target, ArrowLeft, FileText, FileSignature, ListChecks, AlertTriangle, Trash2, Star, Calculator } from 'lucide-react';
 import type { Quote, ClientRecord, QuoteClientChoice, MatericoContract, MatericoDeal, MatericoPriceItem, PriceItem, TrashItem } from '../types';
+import { StimaPreliminareView, type StimaPreliminare } from './StimaPreliminareView';
 import HubCestino from './HubCestino';
 import { eur } from '../utils';
 import { SOCIETA_LABEL } from '../access';
@@ -52,6 +53,10 @@ interface Props {
   onDeleteMatListino?: (id: string) => void;
   /** Salva il listino voci (nodo priceList, array intero): abilita "Modifica listino" nel workspace. */
   onSavePriceList?: (arr: PriceItem[]) => void;
+  /** Stime preliminari (la GESTIONE vive qui nel hub; nelle società è sola consultazione). */
+  stime?: StimaPreliminare[];
+  onSaveStima?: (s: StimaPreliminare) => void;
+  onDeleteStima?: (id: string) => void;
   // Cestino & Archivio dell'area
   trash?: TrashItem[];
   onRestoreTrash?: (t: TrashItem) => void;
@@ -60,7 +65,7 @@ interface Props {
   onSaveClient?: (c: ClientRecord) => void;
 }
 
-type WsTab = 'preventivi' | 'documenti' | 'listino' | 'imprese' | 'valutazioni';
+type WsTab = 'preventivi' | 'stime' | 'documenti' | 'listino' | 'imprese' | 'valutazioni';
 
 export const CommercialeHub: React.FC<Props> = (p) => {
   const [activeSoc, setActiveSoc] = React.useState<string | null>(null);
@@ -193,6 +198,7 @@ const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) =
   const [listinoOpen, setListinoOpen] = React.useState(false);
   const tabs: { id: WsTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'preventivi', label: 'Preventivi & Contratti', icon: Target },
+    { id: 'stime', label: 'Stime', icon: Calculator },
     { id: 'documenti', label: 'Documenti', icon: FileText },
     ...(soc === 'materico' ? [
       { id: 'imprese' as WsTab, label: 'Contratti imprese', icon: FileSignature },
@@ -254,6 +260,18 @@ const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) =
             </div>
           )}
         </div>
+      )}
+
+      {tab === 'stime' && (
+        <StimaPreliminareView
+          stime={(p.stime || []).filter((s) => (s.soc || 'studio') === soc)}
+          rubrica={rubricaList}
+          priceList={p.priceList.filter((i) => !i.division || i.division === soc)}
+          color={socColor(soc)}
+          canEdit={canEdit}
+          onSave={p.onSaveStima ? (s) => p.onSaveStima!({ ...s, soc: s.soc || soc }) : undefined}
+          onDelete={p.onDeleteStima}
+        />
       )}
 
       {tab === 'valutazioni' && soc === 'materico' && (

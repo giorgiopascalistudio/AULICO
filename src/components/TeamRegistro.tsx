@@ -11,7 +11,8 @@ import {
   Users, Search, Plus, Mail, Phone, ShieldCheck, CheckCircle2, XCircle, Clock, Eye, Pencil, UserCog, Award, ChevronDown,
 } from 'lucide-react';
 import type { UserProfile, Task, PointEvent, AccessMap, AccessLevel, UserRole, Societa } from '../types';
-import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL } from '../access';
+import { SOCIETA, SOCIETA_LABEL, LEVELS, LEVEL_LABEL, legacyAccess } from '../access';
+import { SOCIETY_REGISTRY } from '../societyConfig';
 import { tierFor, nextTier, erogatoOf, profileCompleteness } from '../points';
 import { initials, eur } from '../utils';
 
@@ -158,7 +159,24 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
   const prof = profileCompleteness(sel);
 
   const fns = Array.isArray(sel.functions) ? sel.functions : (sel.functions ? Object.keys(sel.functions as any) : []);
-  const setLevel = (s: Societa, val: AccessLevel | '') => { setAccess((prev) => { const n: AccessMap = { ...prev }; if (!val) delete n[s]; else n[s] = { ...(n[s] || {}), default: val }; return n; }); setDirty(true); };
+  // Al PRIMO override la mappa esplicita sostituisce in blocco il fallback dal ruolo:
+  // parti dai livelli del ruolo, così le altre società non diventano 'none' a sorpresa.
+  const baseMap = (prev: AccessMap): AccessMap => (Object.keys(prev).length > 0 ? { ...prev } : { ...legacyAccess(sel.role) });
+  const setLevel = (s: Societa, val: AccessLevel | '') => { setAccess((prev) => { const n = baseMap(prev); if (!val) delete n[s]; else n[s] = { ...(n[s] || { default: 'none' as AccessLevel }), default: val }; return n; }); setDirty(true); };
+  // Override per-SEZIONE (3 livelli: Nascosta/Visualizza/Opera; '' = eredita dal modulo).
+  const setSectionLevel = (s: Societa, secId: string, val: AccessLevel | '') => {
+    setAccess((prev) => {
+      const n = baseMap(prev);
+      const sa = { ...(n[s] || { default: legacyAccess(sel.role)[s]?.default || 'none' }) };
+      const sections = { ...(sa.sections || {}) };
+      if (!val) delete sections[secId]; else sections[secId] = val;
+      sa.sections = Object.keys(sections).length ? sections : undefined;
+      if (!sa.sections) delete (sa as any).sections;
+      n[s] = sa;
+      return n;
+    });
+    setDirty(true);
+  };
   const statusPill = isPending ? { t: 'In attesa di approvazione', c: 'bg-amber-100 text-amber-800' } : sel.active === false ? { t: 'Sospeso', c: 'bg-gray-100 text-gray-600' } : { t: 'Attivo', c: 'bg-emerald-100 text-emerald-700' };
 
   return (
@@ -259,20 +277,51 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
                     <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase inline-flex items-center gap-1"><UserCog className="w-3 h-3" /> Permessi per società</p>
                     {Object.keys(access).length > 0 && <button onClick={() => { setAccess({}); setDirty(true); }} className="text-[11px] font-bold text-[#b45309] hover:underline cursor-pointer bg-transparent border-none p-0">Ripristina dal ruolo</button>}
                   </div>
-                  <p className="text-[11px] text-[#9a9a9a] mb-2">"Predefinito" usa i permessi del ruolo. Imposta un livello per un accesso mirato.</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-                    {SOCIETA.map((s) => (
-                      <div key={s} className="flex items-center justify-between gap-2">
-                        <span className="text-[12px] font-semibold text-[#161616]">{SOCIETA_LABEL[s]}</span>
-                        <div className="relative">
-                          <select value={access[s]?.default || ''} onChange={(e) => setLevel(s, e.target.value as AccessLevel | '')} className="appearance-none pl-2.5 pr-7 py-1.5 rounded-lg border border-[#e2e2e2] text-[11.5px] font-semibold bg-white outline-none focus:border-[#161616] cursor-pointer">
-                            <option value="">Predefinito</option>
-                            {LEVELS.map((lv) => <option key={lv} value={lv}>{LEVEL_LABEL[lv]}</option>)}
-                          </select>
-                          <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <p className="text-[11px] text-[#9a9a9a] mb-2">"Predefinito" usa i permessi del ruolo. Il livello società vale per tutte le sue sezioni; con "Sezioni" scendi nel dettaglio (Nascosta / Visualizza / Opera per singola sezione).</p>
+                  <div className="flex flex-col gap-1.5">
+                    {SOCIETA.map((s) => {
+                      const soc = SOCIETY_REGISTRY.find((x) => x.id === s);
+                      const secs = (soc?.sections || []).filter((x) => x.kind !== 'dashboard');
+                      const overrides = Object.keys(access[s]?.sections || {}).length;
+                      return (
+                        <div key={s} className="border border-[#ececec] rounded-xl bg-white">
+                          <div className="flex items-center justify-between gap-2 px-3 py-2">
+                            <span className="text-[12px] font-semibold text-[#161616]">{SOCIETA_LABEL[s]}</span>
+                            <div className="relative">
+                              <select value={access[s]?.default || ''} onChange={(e) => setLevel(s, e.target.value as AccessLevel | '')} className="appearance-none pl-2.5 pr-7 py-1.5 rounded-lg border border-[#e2e2e2] text-[11.5px] font-semibold bg-white outline-none focus:border-[#161616] cursor-pointer">
+                                <option value="">Predefinito</option>
+                                {LEVELS.map((lv) => <option key={lv} value={lv}>{LEVEL_LABEL[lv]}</option>)}
+                              </select>
+                              <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            </div>
+                          </div>
+                          {secs.length > 0 && (
+                            <details className="border-t border-[#f3f3f3]">
+                              <summary className="px-3 py-1.5 text-[10.5px] font-bold text-[#8a8a8a] cursor-pointer select-none hover:text-[#161616]">
+                                Sezioni ({secs.length}){overrides ? ` · ${overrides} personalizzate` : ''}
+                              </summary>
+                              <div className="px-3 pb-2 flex flex-col gap-1 max-h-[260px] overflow-y-auto">
+                                {secs.map((sec) => (
+                                  <div key={sec.id} className="flex items-center justify-between gap-2">
+                                    <span className={`text-[11.5px] truncate ${sec.kind === 'group' ? 'font-extrabold text-[#161616]' : sec.parent ? 'pl-3 font-semibold text-[#555]' : 'font-semibold text-[#555]'}`}>{sec.label}</span>
+                                    <select
+                                      value={access[s]?.sections?.[sec.id] || ''}
+                                      onChange={(e) => setSectionLevel(s, sec.id, e.target.value as AccessLevel | '')}
+                                      className={`appearance-none px-2 py-1 rounded-lg border text-[10.5px] font-semibold bg-white outline-none focus:border-[#161616] cursor-pointer shrink-0 ${access[s]?.sections?.[sec.id] ? 'border-[#161616]' : 'border-[#e2e2e2] text-[#9a9a9a]'}`}
+                                    >
+                                      <option value="">Eredita</option>
+                                      <option value="none">Nascosta</option>
+                                      <option value="view">Visualizza</option>
+                                      <option value="operate">Opera</option>
+                                    </select>
+                                  </div>
+                                ))}
+                              </div>
+                            </details>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   {dirty && <button onClick={() => { onSaveAccess(sel.uid, access); setDirty(false); }} className="mt-2.5 px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none">Salva permessi</button>}
                 </div>

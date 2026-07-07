@@ -213,7 +213,7 @@ const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m)
 const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
-  firstAuthorizedHash, canViewSection, DEFAULT_DASHBOARD, SOCIETY_COLOR, type SectionConfig, type DashboardCtx,
+  firstAuthorizedHash, canViewSection, canOperateSection, DEFAULT_DASHBOARD, SOCIETY_COLOR, type SectionConfig, type DashboardCtx,
 } from './societyConfig';
 import type { Societa } from './types';
 import { TeamAssistant } from './components/TeamAssistant';
@@ -5460,6 +5460,9 @@ export default function App() {
         const sec = society?.sections.find((s) => s.id === activeSection);
         if (!society || !sec) return <p className="text-[13px] text-[#8a8a8a]">Sezione non trovata.</p>;
         if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
+        // Override per-sezione (Team → Permessi → Sezioni): 'view' = sola consultazione
+        // anche per chi normalmente opererebbe. I gate admin/manager restano in aggiunta.
+        const secOp = canOperateSection(currentUser, activeSocieta, sec);
         switch (sec.view) {
           // Le sezioni V2 costruite "separate" si registrano qui (un caso per `view`).
           case 'marketing-hub': {
@@ -5491,7 +5494,7 @@ export default function App() {
                   rubrica={Object.values(clients).map((c) => ({ id: c.id, name: c.name }))}
                   importProjects={hubImport}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
                   onSaveAccount={handleSaveMktAccount}
                   onDeleteAccount={handleDeleteMktAccount}
                   onSavePost={handleSaveEditorialPost}
@@ -5533,7 +5536,7 @@ export default function App() {
                   clientTiers={Object.fromEntries(Object.values(clients).filter((c) => c.tier).map((c) => [c.id, c.tier as number]))}
                   rubricaOpts={Object.values(clients).map((c) => ({ id: c.id, name: c.name }))}
                   color={society.color}
-                  canEdit={isBoss}
+                  canEdit={isBoss && secOp}
                   onSaveTargets={handleSaveFinTargets}
                   onSaveLiquidity={handleSaveFinLiquidity}
                   onSaveCostPlan={handleSaveFinCostPlan}
@@ -5570,7 +5573,7 @@ export default function App() {
                   items={Object.values(battlePlan)}
                   cicli={cicli}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
                   onSave={handleSaveBattleItem}
                   onDelete={handleDeleteBattleItem}
                   onOpenCiclo={(pid) => { window.location.hash = `#progetto/${pid}`; }}
@@ -5587,7 +5590,7 @@ export default function App() {
                   requests={Object.values(clientRequests)}
                   myName={currentUser.name}
                   color={society.color}
-                  canEdit
+                  canEdit={secOp}
                   onSaveLeads={saveLeads}
                   onRouteLead={handleRouteLead}
                   onTakeCharge={handleTakeChargeClientRequest}
@@ -5606,7 +5609,7 @@ export default function App() {
                   tickets={Object.values(fantTickets)}
                   rubrica={Object.values(clients)}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
                   onSaveImmobile={handleSaveFantImmobile}
                   onDeleteImmobile={handleDeleteFantImmobile}
                   onSaveTicket={handleSaveFantTicket}
@@ -5620,7 +5623,7 @@ export default function App() {
                 <RecruitingView
                   items={Object.values(recruiting)}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
                   onSave={handleSaveRecruit}
                   onDelete={handleDeleteRecruit}
                 />
@@ -5639,7 +5642,7 @@ export default function App() {
                   mktAccounts={Object.values(mktAccounts)}
                   mktConsents={Object.values(mktConsents)}
                   color={society.color}
-                  canEdit
+                  canEdit={secOp}
                   askDelete={askDelete}
                   onTrashItem={moveToTrash}
                 />
@@ -5658,7 +5661,7 @@ export default function App() {
                   projects={Object.values(projects).filter((p) => p.division === compSoc && !p.archived)}
                   socLabel={society.label}
                   color={society.color}
-                  canEdit
+                  canEdit={secOp}
                   askDelete={askDelete}
                   onTrashItem={moveToTrash}
                 />
@@ -5666,18 +5669,16 @@ export default function App() {
             );
           }
           case 'stima-preliminare': {
-            // Ogni società vede le PROPRIE stime (legacy senza `soc` = Onirico, dov'era la sezione).
+            // Ogni società vede le PROPRIE stime in SOLA CONSULTAZIONE:
+            // la gestione (nuove stime, modifica) vive in Strategico → Centro Commerciale → tab Stime.
             const stimaSoc = activeSocieta as string;
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
                 <StimaPreliminareView
                   stime={Object.values(stimePreliminari).filter((s: any) => (s.soc || 'studio') === stimaSoc)}
                   rubrica={Object.values(clients)}
-                  priceList={priceList.filter((i) => !i.division || i.division === stimaSoc)}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
-                  onSave={(s) => handleSaveStima({ ...s, soc: (s as any).soc || stimaSoc })}
-                  onDelete={handleDeleteStima}
+                  canEdit={false}
                 />
               </React.Suspense>
             );
@@ -5689,7 +5690,7 @@ export default function App() {
                   opps={Object.values(unicoOpps)}
                   rubrica={Object.values(clients)}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
                   onSave={handleSaveUnicoOpp}
                   onDelete={handleDeleteUnicoOpp}
                   onCreateDeal={handleCreateDealFromOpp}
@@ -5721,7 +5722,7 @@ export default function App() {
                   clients={Object.values(clients).map((c) => ({ id: c.id, name: c.name }))}
                   listino={Object.values(matericoListino)}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
                   onSave={handleSaveMatericoDeal}
                   onDelete={handleDeleteMatericoDeal}
                   onGenerateQuote={handleGenerateQuoteFromDeal}
@@ -5734,7 +5735,7 @@ export default function App() {
                 <MatericoListinoView
                   items={matericoListino}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
                   onSave={handleSaveMatericoListino}
                   onDelete={handleDeleteMatericoListino}
                 />
@@ -5756,7 +5757,7 @@ export default function App() {
             };
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
-                <PianoFinanziarioView piano={pianoFinanziario[pid] || null} soc={psoc} socLabel={society.label} year={pianoAnno} color={society.color} canEdit={isStudioRole(currentUser.role)} onChangeYear={setPianoAnno} onSave={handleSavePiano} kpi={kpi} />
+                <PianoFinanziarioView piano={pianoFinanziario[pid] || null} soc={psoc} socLabel={society.label} year={pianoAnno} color={society.color} canEdit={isStudioRole(currentUser.role) && secOp} onChangeYear={setPianoAnno} onSave={handleSavePiano} kpi={kpi} />
               </React.Suspense>
             );
           }
@@ -5775,7 +5776,7 @@ export default function App() {
             const psoc = activeSocieta as string;
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
-                <FiscaleView items={Object.values(fiscalePlan).filter((i) => i.soc === psoc)} soc={psoc} socLabel={society.label} color={society.color} canEdit={isStudioRole(currentUser.role)} onSave={handleSaveFiscale} onDelete={handleDeleteFiscale} />
+                <FiscaleView items={Object.values(fiscalePlan).filter((i) => i.soc === psoc)} soc={psoc} socLabel={society.label} color={society.color} canEdit={isStudioRole(currentUser.role) && secOp} onSave={handleSaveFiscale} onDelete={handleDeleteFiscale} />
               </React.Suspense>
             );
           }
@@ -5783,7 +5784,7 @@ export default function App() {
             const psoc = activeSocieta as string;
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
-                <CredenzialiView entries={Object.values(governanceVault)} config={vaultConfig} soc={psoc} socLabel={society.label} canEdit={currentUser.role === 'admin' || currentUser.role === 'manager'} onSave={handleSaveVaultEntry} onDelete={handleDeleteVaultEntry} onSetConfig={handleSetVaultConfig} />
+                <CredenzialiView entries={Object.values(governanceVault)} config={vaultConfig} soc={psoc} socLabel={society.label} canEdit={(currentUser.role === 'admin' || currentUser.role === 'manager') && secOp} onSave={handleSaveVaultEntry} onDelete={handleDeleteVaultEntry} onSetConfig={handleSetVaultConfig} />
               </React.Suspense>
             );
           }
@@ -5840,7 +5841,7 @@ export default function App() {
                   matericoDeals={Object.values(matericoDeals)}
                   matericoListino={matericoListino}
                   color={society.color}
-                  canEdit={isBoss}
+                  canEdit={isBoss && secOp}
                   onSetStatus={handleSetQuoteStatus}
                   onArchive={handleArchiveQuote}
                   onSaveQuote={handleSaveQuote}
@@ -5851,6 +5852,9 @@ export default function App() {
                   onSaveMatListino={handleSaveMatericoListino}
                   onDeleteMatListino={handleDeleteMatericoListino}
                   onSavePriceList={canAnywhere(currentUser, 'operate', 'finance') ? savePriceList : undefined}
+                  stime={Object.values(stimePreliminari)}
+                  onSaveStima={handleSaveStima}
+                  onDeleteStima={handleDeleteStima}
                   trash={Object.values(trash)}
                   onRestoreTrash={handleRestoreTrash}
                   onTrashDeleteForever={handleTrashDeleteForever}
@@ -5869,7 +5873,7 @@ export default function App() {
                   socLabel={society.label}
                   clients={Object.values(clients).map((c) => ({ id: c.id, name: c.name }))}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
                   onSave={handleSaveFatturazione}
                   onDelete={handleDeleteFatturazione}
                   onEmit={handleEmitFatturazione}
@@ -5912,7 +5916,7 @@ export default function App() {
             }
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
-                <MatericoMappaView sites={sites} color={society.color} canEdit={isStudioRole(currentUser.role)} onQuickTask={handleQuickTask} onOpen={(h) => { window.location.hash = h; }} />
+                <MatericoMappaView sites={sites} color={society.color} canEdit={isStudioRole(currentUser.role) && secOp} onQuickTask={handleQuickTask} onOpen={(h) => { window.location.hash = h; }} />
               </React.Suspense>
             );
           }
@@ -5924,7 +5928,7 @@ export default function App() {
                   deals={Object.values(matericoDeals)}
                   partners={Object.values(clients).filter((c) => c.roles?.impresa || c.roles?.fornitore).map((c) => ({ id: c.id, name: c.name }))}
                   color={society.color}
-                  canEdit={isStudioRole(currentUser.role)}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
                   onSave={handleSaveMatericoContract}
                   onDelete={handleDeleteMatericoContract}
                 />
@@ -5937,7 +5941,7 @@ export default function App() {
                 sops={governanceSop}
                 members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
                 color={society.color}
-                canEdit={currentUser.role === 'admin' || currentUser.role === 'manager'}
+                canEdit={(currentUser.role === 'admin' || currentUser.role === 'manager') && secOp}
                 onSaveNode={handleSaveOrgNode}
                 onDeleteNode={handleDeleteOrgNode}
                 onSeed={handleSeedOrg}

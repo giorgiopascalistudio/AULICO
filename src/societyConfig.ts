@@ -29,7 +29,7 @@ import {
   Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
-import { SOCIETA_LABEL, canView } from './access';
+import { SOCIETA_LABEL, canView, resolveSectionAccess, atLeast } from './access';
 
 /** Divisioni "operative" (società con progetti/finanza già esistenti). */
 export type Division = 'studio' | 'strategico' | 'materico' | 'unico';
@@ -426,7 +426,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   // ---- COMMERCIALE (consultazione: gestione centralizzata nel Centro Commerciale di Strategico) ----
   s.push({ id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', kind: 'group' });
   s.push({ id: 'comm-preventivi', label: 'Preventivi & Contratti', icon: FileText, parent: 'commerciale', module: 'commerciale', view: 'commerciale', note: 'Consultazione dei preventivi della società — la gestione (nuovi preventivi, firma, portale, documenti) è in Strategico → Centro Commerciale.' });
-  s.push({ id: 'comm-stime', label: 'Stima Preliminare', icon: Calculator, parent: 'commerciale', module: 'commerciale', view: 'stima-preliminare', note: 'Simulatore accanto ai preventivi: quantità × livello Base/Medio/Alto → budget automatico. Ogni società vede le proprie stime.' });
+  s.push({ id: 'comm-stime', label: 'Stima Preliminare', icon: Calculator, parent: 'commerciale', module: 'commerciale', view: 'stima-preliminare', note: 'Le stime della società in sola consultazione — la gestione è in Strategico → Centro Commerciale → Stime.' });
   s.push({ id: 'comm-clienti', label: isMat ? 'Imprese & Fornitori' : 'Registro clienti', icon: isMat ? Truck : BookUser, parent: 'commerciale', module: 'crm', legacyRoute: 'crm', preset: { crmTab: isMat ? 'fornitori' : 'clienti' } });
 
   // ---- MARKETING (consultazione: il piano editoriale è gestito dal Centro Marketing di Strategico) ----
@@ -517,7 +517,13 @@ export function findSection(s: Societa, sectionId: string): SectionConfig | unde
 
 /** Vero se l'utente può vedere la sezione (RBAC). */
 export function canViewSection(profile: Parameters<typeof canView>[0], s: Societa, sec: SectionConfig): boolean {
-  return canView(profile, s, sec.module);
+  // Override per-sezione (access.sections) → altrimenti modulo/default come prima.
+  return atLeast(resolveSectionAccess(profile, s, sec.id, sec.module), 'view');
+}
+
+/** Vero se l'utente può OPERARE sulla sezione (override per-sezione → modulo). */
+export function canOperateSection(profile: Parameters<typeof canView>[0], s: Societa, sec: SectionConfig): boolean {
+  return atLeast(resolveSectionAccess(profile, s, sec.id, sec.module), 'operate');
 }
 
 /** Prima rotta autorizzata per l'utente, per il landing/redirect. */

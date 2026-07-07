@@ -9,8 +9,9 @@
  */
 import React, { useMemo, useState } from 'react';
 import {
-  FileSignature, Plus, Trash2, Receipt, ChevronDown, ChevronUp, ListChecks
+  FileSignature, Plus, Trash2, Receipt, ChevronDown, ChevronUp, ListChecks, Printer
 } from 'lucide-react';
+import QuotePrintDoc from './QuotePrintDoc';
 import { Quote, ClientRecord, Project, PriceItem, QuoteMacro } from '../types';
 import { eur } from '../utils';
 import { Company, COMPANY_LABEL, COMPANY_COLOR, quoteTotals } from '../finance';
@@ -47,6 +48,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
   const [filter, setFilter] = useState<'all' | Quote['status']>('all');
   const [expanded, setExpanded] = useState<string | null>(null);
   const [listinoOpen, setListinoOpen] = useState(false);
+  const [printing, setPrinting] = useState<Quote | null>(null); // Documento con carta intestata
 
   const showAll = company === 'all' || company === 'consolidato';
 
@@ -102,10 +104,11 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
               {plan.length > 0 ? ` · fatturato ${eur(fatturato)}/${eur(q.total)}` : ''}
             </div>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <select value={q.status} onChange={(e) => onSetStatus(q.id, e.target.value as Quote['status'])} className="px-2.5 py-1.5 rounded-xl border border-[#e2e2e2] text-[12px] font-bold outline-none bg-white cursor-pointer">
               {(['elaborato', 'in_attesa', 'accettato', 'rifiutato'] as Quote['status'][]).map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
             </select>
+            <button onClick={() => setPrinting(q)} className="w-8 h-8 rounded-xl border border-[#e2e2e2] flex items-center justify-center text-[#6b6b6b] bg-white hover:border-[#161616] cursor-pointer" title="Documento con carta intestata (Stampa/PDF)"><Printer className="w-4 h-4" /></button>
             <button onClick={() => setExpanded(open ? null : q.id)} className="w-8 h-8 rounded-xl border border-[#e2e2e2] flex items-center justify-center text-[#6b6b6b] bg-white cursor-pointer">{open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}</button>
             <button onClick={() => openEdit(q)} className="px-3 py-1.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[12px] font-bold border-none cursor-pointer">Modifica</button>
             <button onClick={() => onDeleteQuote(q.id)} className="w-8 h-8 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-rose-600 cursor-pointer" title="Elimina (nel Cestino)"><Trash2 className="w-4 h-4" /></button>
@@ -251,6 +254,14 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
       {listinoOpen && onSavePriceList && (
         <PriceListModal items={priceList} company={company} onSave={onSavePriceList} onClose={() => setListinoOpen(false)} />
       )}
+      {printing && (
+        <QuotePrintDoc
+          quote={printing}
+          client={printing.clientRecordId ? clients[printing.clientRecordId] : null}
+          projectName={projects.find((p) => p.id === printing.projectId)?.name || null}
+          onClose={() => setPrinting(null)}
+        />
+      )}
     </div>
   );
 };
@@ -290,34 +301,39 @@ export const PriceListModal: React.FC<{ items: PriceItem[]; company?: string; on
           <button onClick={add} className="inline-flex items-center gap-1 text-[12px] font-bold text-[#161616] cursor-pointer bg-transparent border-none shrink-0"><Plus className="w-3.5 h-3.5" /> Voce</button>
         </div>
         {rows.length === 0 && <p className="text-[13px] text-[#8a8a8a] py-6 text-center">Nessuna voce. Aggiungine una con "Voce".</p>}
+        {/* Su mobile la riga scorre in orizzontale invece di schiacciare i campi */}
         {rows.length > 0 && (
-          <div className="flex items-center gap-2 text-[9.5px] font-extrabold uppercase tracking-wider text-[#9a9a9a] px-1">
-            <span className="flex-1">Descrizione</span>
-            <span className="w-[130px] shrink-0">Macro</span>
-            {!scoped && <span className="w-[110px] shrink-0">Società</span>}
-            <span className="w-[60px] shrink-0 text-center">U.M.</span>
-            <span className="w-[84px] shrink-0 text-right">€/u</span>
-            <span className="w-[70px] shrink-0 text-right" title="Incremento % del valore dell'immobile">% valore</span>
-            <span className="w-8 shrink-0" />
+          <div className="overflow-x-auto -mx-1 px-1">
+            <div className="min-w-[560px] flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-[9.5px] font-extrabold uppercase tracking-wider text-[#9a9a9a] px-1">
+                <span className="flex-1">Descrizione</span>
+                <span className="w-[130px] shrink-0">Macro</span>
+                {!scoped && <span className="w-[110px] shrink-0">Società</span>}
+                <span className="w-[60px] shrink-0 text-center">U.M.</span>
+                <span className="w-[84px] shrink-0 text-right">€/u</span>
+                <span className="w-[70px] shrink-0 text-right" title="Incremento % del valore dell'immobile">% valore</span>
+                <span className="w-8 shrink-0" />
+              </div>
+              {rows.map((it) => (
+                <div key={it.id} className="flex items-center gap-2">
+                  <input value={it.label} onChange={(e) => upd(it.id, { label: e.target.value })} placeholder="Descrizione voce" className="qi flex-1 min-w-[140px]" />
+                  <select value={it.macro} onChange={(e) => upd(it.id, { macro: e.target.value as QuoteMacro })} className="qi w-[130px] shrink-0">
+                    {(Object.keys(MACRO_LABEL) as QuoteMacro[]).map((m) => <option key={m} value={m}>{MACRO_LABEL[m]}</option>)}
+                  </select>
+                  {!scoped && (
+                    <select value={it.division || ''} onChange={(e) => upd(it.id, { division: (e.target.value || null) as PriceItem['division'] })} className="qi w-[110px] shrink-0">
+                      {PL_SOC.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+                    </select>
+                  )}
+                  <input value={it.unit || ''} onChange={(e) => upd(it.id, { unit: e.target.value || null })} placeholder="u.m." className="qi w-[60px] shrink-0 text-center" />
+                  <input value={it.unitPrice} onChange={(e) => upd(it.id, { unitPrice: numv(e.target.value) })} placeholder="€/u" className="qi w-[84px] shrink-0 text-right font-mono" />
+                  <input value={it.valuePct ?? ''} onChange={(e) => upd(it.id, { valuePct: e.target.value === '' ? null : numv(e.target.value) })} placeholder="%" title="Incremento % del valore dell'immobile" className="qi w-[70px] shrink-0 text-right font-mono" />
+                  <button onClick={() => del(it.id)} className="w-8 h-8 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-rose-600 cursor-pointer shrink-0"><Trash2 className="w-4 h-4" /></button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
-        {rows.map((it) => (
-          <div key={it.id} className="flex items-center gap-2">
-            <input value={it.label} onChange={(e) => upd(it.id, { label: e.target.value })} placeholder="Descrizione voce" className="qi flex-1" />
-            <select value={it.macro} onChange={(e) => upd(it.id, { macro: e.target.value as QuoteMacro })} className="qi w-[130px] shrink-0">
-              {(Object.keys(MACRO_LABEL) as QuoteMacro[]).map((m) => <option key={m} value={m}>{MACRO_LABEL[m]}</option>)}
-            </select>
-            {!scoped && (
-              <select value={it.division || ''} onChange={(e) => upd(it.id, { division: (e.target.value || null) as PriceItem['division'] })} className="qi w-[110px] shrink-0">
-                {PL_SOC.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
-              </select>
-            )}
-            <input value={it.unit || ''} onChange={(e) => upd(it.id, { unit: e.target.value || null })} placeholder="u.m." className="qi w-[60px] shrink-0 text-center" />
-            <input value={it.unitPrice} onChange={(e) => upd(it.id, { unitPrice: numv(e.target.value) })} placeholder="€/u" className="qi w-[84px] shrink-0 text-right font-mono" />
-            <input value={it.valuePct ?? ''} onChange={(e) => upd(it.id, { valuePct: e.target.value === '' ? null : numv(e.target.value) })} placeholder="%" title="Incremento % del valore dell'immobile" className="qi w-[70px] shrink-0 text-right font-mono" />
-            <button onClick={() => del(it.id)} className="w-8 h-8 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-rose-600 cursor-pointer shrink-0"><Trash2 className="w-4 h-4" /></button>
-          </div>
-        ))}
       </div>
     </Modal>
   );

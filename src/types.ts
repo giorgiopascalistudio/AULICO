@@ -21,6 +21,9 @@ export type Societa = 'studio' | 'strategico' | 'materico' | 'unico' | 'fantasti
 export interface SocietaAccess {
   default: AccessLevel;
   modules?: Record<string, AccessLevel>;
+  /** Override PER-SEZIONE (id sezione di societyConfig): vince su modules/default.
+   *  'none' = nascosta · 'view' = consultazione · 'operate' = può modificare. */
+  sections?: Record<string, AccessLevel>;
 }
 
 /** Mappa permessi dell'utente per società. Assente ⇒ fallback al ruolo legacy. */

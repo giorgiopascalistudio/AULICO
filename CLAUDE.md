@@ -687,6 +687,25 @@ reporting/redditività, integrazioni esterne
   `fant-ticket`. ⚠️ Nodi **`fantImmobili`+`fantTickets`** (read/write studio attivo non-cliente/
   partner): **ripubblicare le regole**. CI: `deploy.yml` ora fa **3 tentativi automatici** dello
   step deploy-pages (pausa 90s/180s) — niente più commit vuoti di rilancio.
+  **Consegna "carta intestata + mobile + permessi" (7 lug, NESSUN nodo/regola nuovi)**:
+  1) **Carta intestata ovunque**: pulsante stampa (icona Printer) sulle card di Finanze→Preventivi
+  → `QuotePrintDoc` (prima c'era solo nel Centro Commerciale); le **stime** stampano con
+  intestazione società da `companyInfo` (blocco `hidden print:block` in `StimaPreliminareView`).
+  2) **Stime SOLO nel Centro Commerciale**: tab "Stime" nel workspace per società del
+  `CommercialeHub` (gestione, timbro `soc`); nelle società `comm-stime` è `canEdit=false`.
+  3) **Mappa operativa in BIANCO E NERO**: classe `grayscale` sull'iframe embed.
+  4) **Mobile**: `Modal` a `z-[220]` (sopra bottom-nav z-50 e overlay z-200 — era z-60 e veniva
+  coperto), grids del `QuoteEditor` a `grid-cols-1 sm:*`, righe del `PriceListModal` in
+  `overflow-x-auto` (min-w-560), tabelle `DirezioneHub` avvolte in overflow-x-auto, slider fasi
+  Unico con label `w-28 sm:w-48`.
+  5) **PERMESSI PER-SEZIONE** (3 livelli): `SocietaAccess.sections` (`Record<sectionId,
+  AccessLevel>`, vince su modules/default; types.ts) + `resolveSectionAccess` in access.ts;
+  `canViewSection` ora lo rispetta e c'è `canOperateSection` (societyConfig). In App il case
+  `sview` calcola `secOp` e lo mette in AND su TUTTI i `canEdit` delle sezioni → override "Visualizza"
+  = sola consultazione anche per admin. Editor in `TeamRegistro` (Permessi per società → <details>
+  "Sezioni" per società: Eredita/Nascosta/Visualizza/Opera per singola sezione; al primo override la
+  mappa esplicita parte dal `legacyAccess(role)` così le altre società non diventano none). Le regole
+  `users/$uid/access` esistenti coprono già il campo nuovo (stesso sottoalbero): NIENTE ripubblicazione.
   ⚠️ **Area Legale (Strategico)**: `legale-contratti` da placeholder a `view:'legale'` → componente
   **`LegaleView`** (lazy, admin/manager) con 3 tab: **Registro legale** (nodo NUOVO
   **`legalDocs/<id>`**, tipo `LegalDoc` in types.ts: contratti/liberatorie/informative/incarichi/

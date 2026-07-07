@@ -187,7 +187,8 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, color = '#161616', o
                   >Apri attività</button>
                 </div>
               )}
-              <iframe key={sel.id} title="mappa" src={embedUrl(sel)} className="w-full h-[58vh] border-0" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+              {/* Mappa in BIANCO E NERO (richiesta grafica): filtro grayscale sull'embed */}
+              <iframe key={sel.id} title="mappa" src={embedUrl(sel)} className="w-full h-[48vh] sm:h-[58vh] border-0 grayscale" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
             </>
           )}
         </div>
