@@ -1004,7 +1004,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             <motion.div
               key={currentTab}
               initial={{ opacity: 0, y: 10, filter: "blur(2.5px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)", transitionEnd: { filter: "none", transform: "none" } }}
               exit={{ opacity: 0, y: -10, filter: "blur(2.5px)" }}
               transition={{ duration: 0.15, ease: "easeOut" }}
               className="w-full"

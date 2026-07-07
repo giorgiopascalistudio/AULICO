@@ -312,6 +312,17 @@ regole** e ricordare all'utente di ripubblicarle.
 - TODO: firma digitale (provider esterno), upload file reale (oggi via link),
   blindatura regole, generazione contratto PDF.
 
+## 9-bis. POPUP/OVERLAY — regola d'oro (bug "si aprono a metà")
+Un antenato con `transform`/`filter`/`backdrop-filter` inline INTRAPPOLA i discendenti
+`position: fixed` (containing block): il popup si apre a metà, tagliato o dietro ad altro.
+Framer Motion lascia `filter: blur(0px)` inline a fine animazione → i wrapper di vista DEVONO
+avere `transitionEnd: { filter: 'none', transform: 'none' }` nell'`animate` (già fatto nei 4
+wrapper: route in App, CalendarView, tab del portale in ClientPortalView, MotionTabsMenu).
+`Modal` e `ConfirmDeleteModal` sono in **createPortal(document.body)**. Regole per i NUOVI overlay:
+o si usa `Modal`, o si fa createPortal su body; MAI un overlay `fixed` dentro un motion.div che
+anima filter/transform senza transitionEnd. Z-index: bottom-nav 50 < overlay ad-hoc 200 < Modal 220
+< ConfirmDeleteModal 300.
+
 ## 10. Convenzioni di stile (rispettare!)
 - Schema grafico: fondo `#F5F5F3`, testo `#161616`, accent nero `#1b1b1b`, card
   bianche `rounded-[22px]/[24px]/[26px]`, bordi `#e2e2e2`. Niente emoji a caso.

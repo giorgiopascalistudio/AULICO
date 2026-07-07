@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ModalProps {
   title: string;
@@ -37,7 +38,9 @@ export const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  // PORTAL su document.body: un antenato con transform/filter (es. viste animate con
+  // Framer Motion) intrappolerebbe il `fixed` e il modale si aprirebbe a metà/dietro.
+  return createPortal(
     // z-[220]: sopra bottom-nav (z-50) e overlay full-screen (z-200) — i modali non vanno mai coperti
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[220] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto animate-[fadeIn_0.18s_ease_both]">
       <div
@@ -93,6 +96,7 @@ export const Modal: React.FC<ModalProps> = ({
           }
         }
       `}</style>
-    </div>
+    </div>,
+    document.body
   );
 };

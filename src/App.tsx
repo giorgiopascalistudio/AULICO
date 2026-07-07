@@ -6402,7 +6402,10 @@ export default function App() {
             <motion.div
               key={route}
               initial={{ opacity: 0, scale: 0.994, filter: 'blur(3px)' }}
-              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+              /* transitionEnd: filter/transform inline residui creano un containing block
+                 e intrappolano i popup `fixed` delle viste (si aprivano a metà/dietro):
+                 a fine animazione vanno azzerati a none. */
+              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', transitionEnd: { filter: 'none', transform: 'none' } }}
               exit={{ opacity: 0, scale: 0.997 }}
               transition={{ duration: 0.16, ease: 'easeOut' }}
             >

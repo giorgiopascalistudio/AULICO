@@ -8,6 +8,7 @@
  * (salvo `permanent`, usato dal Cestino stesso per l'eliminazione definitiva).
  */
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Trash2, AlertTriangle } from 'lucide-react';
 
 export interface ConfirmDeleteRequest {
@@ -35,7 +36,8 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ request,
     onClose();
   };
 
-  return (
+  // PORTAL su body: mai intrappolato da antenati con transform/filter, sempre sopra tutto.
+  return createPortal(
     <div className="fixed inset-0 z-[300] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
       <div className="bg-white rounded-t-[26px] sm:rounded-[26px] w-full sm:max-w-sm p-6 shadow-2xl text-left animate-[riseIn_0.2s_ease_both]" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start gap-3.5">
@@ -76,6 +78,7 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ request,
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

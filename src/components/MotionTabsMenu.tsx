@@ -47,7 +47,9 @@ export const MotionTabsMenu: React.FC = () => {
       x: 0,
       opacity: 1,
       scale: 1,
-      filter: 'blur(0px)'
+      filter: 'blur(0px)',
+      // A riposo niente filter/transform inline: intrappolerebbero i popup `fixed` interni.
+      transitionEnd: { filter: 'none', transform: 'none' }
     },
     exit: (dir: number) => ({
       x: dir * -30,
