@@ -498,7 +498,8 @@ export const CrmView: React.FC<CrmViewProps> = ({
         </div>
       )}
 
-      {/* FORNITORI */}
+      {/* FORNITORI — onDelete SENZA askDelete: handleDeleteClient (App) apre già la doppia
+          conferma; due askDelete annidati si annullavano e l'eliminazione non partiva mai. */}
       {tab === 'fornitori' && (
         <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico il registro…</div>}>
           <CrmRegistro
@@ -509,7 +510,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
             societies={CRM_SOCIETIES}
             roles={CONTACT_ROLES}
             onSave={(rec) => onSaveClient?.(rec)}
-            onDelete={(rec) => (askDelete ? askDelete('Elimina fornitore', `Eliminare "${rec.name}" dal registro?`, () => onDeleteClient?.(rec.id)) : onDeleteClient?.(rec.id))}
+            onDelete={(rec) => onDeleteClient?.(rec.id)}
             onEdit={openEditClient}
             onNew={openNewFornitore}
             paymentStatus={(rec) => { const p = paymentsOfClient(rec); return { ok: p.daIncassare <= 0.5, daIncassare: p.daIncassare }; }}
@@ -527,7 +528,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
             societies={CRM_SOCIETIES}
             roles={CONTACT_ROLES}
             onSave={(rec) => onSaveClient?.(rec)}
-            onDelete={(rec) => (askDelete ? askDelete('Elimina contatto', `Eliminare "${rec.name}" dal registro?`, () => onDeleteClient?.(rec.id)) : onDeleteClient?.(rec.id))}
+            onDelete={(rec) => onDeleteClient?.(rec.id)}
             onEdit={openEditClient}
             onNew={openNewClient}
             onImport={onImportClients ? () => setImportOpen(true) : undefined}

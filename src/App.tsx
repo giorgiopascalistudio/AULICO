@@ -2220,7 +2220,10 @@ export default function App() {
           setClients((prev) => ({ ...prev, [id]: pl }));
           writeNode(`clients/${id}`, pl).catch(() => {});
           // Contatto tornato in rubrica: togli l'esclusione dal sync automatico.
-          if (pl?.accountUid) updateAccount(pl.accountUid, { rubricaExcluded: null }).catch(() => {});
+          if (pl?.accountUid) {
+            rubricaExclRef.current.delete(pl.accountUid);
+            updateAccount(pl.accountUid, { rubricaExcluded: null }).catch(() => {});
+          }
           break;
         case 'crm_lead':
           saveLeads([...crmLeads.filter((l) => l.id !== id), pl]);
@@ -2341,6 +2344,12 @@ export default function App() {
     }, true);
   };
 
+  // Esclusioni rubrica IMMEDIATE (in memoria): il flag `rubricaExcluded` su users/<uid>
+  // arriva col roundtrip Firebase, ma la riconciliazione qui sotto riparte subito al
+  // cambio di `clients` — senza questo Set il contatto appena eliminato veniva ricreato
+  // prima che il flag atterrasse (bug "non si cancella dalla rubrica").
+  const rubricaExclRef = useRef<Set<string>>(new Set());
+
   // Riconciliazione rubrica: ogni cliente/partner registrato viene salvato in automatico
   // in `clients` (diviso per categoria). Gira lato studio (admin/manager hanno write su clients).
   // Idempotente: crea solo i record mancanti (id deterministico `cli-<uid>`).
@@ -2349,8 +2358,8 @@ export default function App() {
     const existingUids = new Set(Object.values(clients).map((c) => c.accountUid).filter(Boolean));
     Object.values(users).forEach((u: any) => {
       if (!u || (u.role !== 'cliente' && u.role !== 'partner')) return;
-      // Contatto eliminato apposta dalla rubrica: NON ricrearlo (flag scritto da handleDeleteClient).
-      if (u.rubricaExcluded) return;
+      // Contatto eliminato apposta dalla rubrica: NON ricrearlo (flag persistito + Set immediato).
+      if (u.rubricaExcluded || rubricaExclRef.current.has(u.uid)) return;
       const recId = `cli-${u.uid}`;
       if (existingUids.has(u.uid) || clients[recId]) return;
       const isAzienda = u.accountType === 'azienda' || u.role === 'partner';
@@ -3403,7 +3412,11 @@ export default function App() {
       if (rec) moveToTrash('rubrica', rec.name || 'Cliente', rec);
       // Se il contatto è collegato a un account registrato, marca l'esclusione sul profilo:
       // senza questo flag la riconciliazione automatica lo ricreava subito (bug "non si cancella").
-      if (rec?.accountUid) updateAccount(rec.accountUid, { rubricaExcluded: true }).catch(() => {});
+      // Il Set locale copre la finestra PRIMA che il flag arrivi da Firebase.
+      if (rec?.accountUid) {
+        rubricaExclRef.current.add(rec.accountUid);
+        updateAccount(rec.accountUid, { rubricaExcluded: true }).catch(() => {});
+      }
       setClients((prev) => { const n = { ...prev }; delete n[id]; return n; });
       removeNode(`clients/${id}`).catch(() => showToast('Errore rubrica clienti (controlla regole).', 'err'));
       showToast('Cliente spostato nel Cestino.', 'err');
