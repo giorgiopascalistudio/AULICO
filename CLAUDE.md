@@ -687,6 +687,20 @@ reporting/redditività, integrazioni esterne
   `fant-ticket`. ⚠️ Nodi **`fantImmobili`+`fantTickets`** (read/write studio attivo non-cliente/
   partner): **ripubblicare le regole**. CI: `deploy.yml` ora fa **3 tentativi automatici** dello
   step deploy-pages (pausa 90s/180s) — niente più commit vuoti di rilancio.
+  ⚠️ **HARDENING sicurezza (7 lug)** — esito audit: XSS pulito (safeUrl ovunque, niente
+  dangerouslySetInnerHTML/eval, escape nelle stampe document.write), worker AI protetto (ID token +
+  profilo onboardato), root DB chiuso, anti-auto-promozione ok. Fix applicati alle regole —
+  **RIPUBBLICARE `firebase-rules.json`**: 1) **`governanceVault` + `governanceVaultConfig` read →
+  SOLO admin/manager** (prima: tutto lo studio attivo — le password della cassaforte sono in CHIARO
+  nel DB e la master password protegge solo la UI: uno staff poteva leggerle via API); 2) **`trash`
+  read → SOLO admin/manager** (i payload eliminati possono contenere dati finanza; write invariata
+  così lo staff continua a spostare nel cestino ciò che elimina — per lo staff il Cestino appare
+  vuoto, il restore era già admin/manager). 3) **App Check predisposto** (`firebase.ts`:
+  `initializeAppCheck` + ReCaptchaV3Provider, attivo SOLO se `window.__AULICO_APPCHECK_KEY__` è
+  impostata — placeholder commentato in `index.html`): quando si va in produzione, registrare l'app
+  in Console → App Check (reCAPTCHA v3) + abilitare l'enforcement su RTDB e incollare la site key.
+  Nota di design: l'apiKey Firebase nel client è pubblica per definizione, i dati sono protetti
+  dalle regole; evoluzione futura possibile = cifratura client-side della cassaforte (Web Crypto).
   **Consegna "carta intestata + mobile + permessi" (7 lug, NESSUN nodo/regola nuovi)**:
   1) **Carta intestata ovunque**: pulsante stampa (icona Printer) sulle card di Finanze→Preventivi
   → `QuotePrintDoc` (prima c'era solo nel Centro Commerciale); le **stime** stampano con

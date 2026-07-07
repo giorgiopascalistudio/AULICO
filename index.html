@@ -46,6 +46,10 @@
     <div id="root"></div>
     <!-- AI assist (Strategico) via Worker Cloudflare gratis (Gemini). Vedi cloudflare-worker/. -->
     <script>window.__AULICO_AI_URL__ = 'https://aulico-ai.giorgiopascali.workers.dev';</script>
+    <!-- App Check (anti-abuso, consigliato in produzione): registra l'app in
+         Firebase Console → App Check (reCAPTCHA v3) e incolla qui la SITE KEY.
+         Vuoto = disattivato (l'app funziona comunque; i dati restano protetti dalle regole).
+    <script>window.__AULICO_APPCHECK_KEY__ = 'INCOLLA-QUI-LA-SITE-KEY';</script> -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

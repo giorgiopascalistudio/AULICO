@@ -32,6 +32,7 @@ import {
   onValue
 } from 'firebase/database';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyArPgzmq9DIjW7XpdAY_HzT7nE4BUj02Ng',
@@ -44,6 +45,27 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+/**
+ * App Check (anti-abuso): blocca le richieste a Auth/RTDB che NON arrivano
+ * dall'app vera, anche se qualcuno conosce l'apiKey (che nel web è pubblica
+ * per design — la protezione dei DATI resta nelle regole).
+ * Attivazione (opzionale ma consigliata in produzione):
+ *   1. Firebase Console → App Check → registra l'app web con reCAPTCHA v3
+ *      (prendi la SITE KEY) e ABILITA l'enforcement su Realtime Database.
+ *   2. In index.html: window.__AULICO_APPCHECK_KEY__ = '<site key>';
+ * Finché la chiave non è impostata, questo blocco non fa nulla.
+ */
+const APPCHECK_KEY = (typeof window !== 'undefined' && (window as any).__AULICO_APPCHECK_KEY__) || '';
+if (APPCHECK_KEY) {
+  try {
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider(APPCHECK_KEY),
+      isTokenAutoRefreshEnabled: true,
+    });
+  } catch { /* mai bloccare l'app per l'anti-abuso */ }
+}
+
 export const auth = getAuth(app);
 export const db = getDatabase(app);
 // Cloud Functions (region coerente con la RTDB). Usato per l'AI assist (§22-quater).
