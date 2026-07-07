@@ -281,7 +281,8 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
                   <div className="flex flex-col gap-1.5">
                     {SOCIETA.map((s) => {
                       const soc = SOCIETY_REGISTRY.find((x) => x.id === s);
-                      const secs = (soc?.sections || []).filter((x) => x.kind !== 'dashboard');
+                      // Escluse dashboard e sezioni personali (Dashboard/Agenda: sempre visibili, non gated).
+                      const secs = (soc?.sections || []).filter((x) => x.kind !== 'dashboard' && !x.personal);
                       const overrides = Object.keys(access[s]?.sections || {}).length;
                       return (
                         <div key={s} className="border border-[#ececec] rounded-xl bg-white">

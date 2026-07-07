@@ -95,6 +95,10 @@ export interface SectionConfig {
   preset?: SectionPreset;     // stato da impostare prima del render
   note?: string;              // testo per i placeholder
   dashLabel?: string;         // etichetta della voce "dashboard" nel portale di gruppo (default "Dashboard")
+  /** Sezione PERSONALE (Dashboard/Agenda): sempre visibile a ogni membro interno,
+   *  MAI soggetta ai permessi per società — restringere Aulico non deve togliere
+   *  a nessuno la propria dashboard e la propria agenda. */
+  personal?: boolean;
 }
 
 export interface SocietyConfig {
@@ -498,8 +502,9 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
     sections: [
       // Voci UNICHE per ogni account: una sola Dashboard e una sola Agenda,
       // mostrate in cima alla sidebar (fuori dalle categorie società).
-      { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid, module: 'dashboard', kind: 'dashboard' },
-      { id: 'agenda', label: 'Agenda', icon: Calendar, module: 'agenda', legacyRoute: 'calendario' },
+      // `personal`: SEMPRE visibili a ogni membro interno, qualunque siano i permessi.
+      { id: 'dashboard', label: 'Dashboard', icon: LayoutGrid, module: 'dashboard', kind: 'dashboard', personal: true },
+      { id: 'agenda', label: 'Agenda', icon: Calendar, module: 'agenda', legacyRoute: 'calendario', personal: true },
       // Voci di gruppo (in fondo).
       { id: 'registro', label: 'Registro attività', icon: ScrollText, shared: true, module: 'registro', legacyRoute: 'registro' },
       { id: 'cestino', label: 'Cestino', icon: Trash2, shared: true, module: 'cestino', legacyRoute: 'cestino' },
@@ -518,12 +523,15 @@ export function findSection(s: Societa, sectionId: string): SectionConfig | unde
 
 /** Vero se l'utente può vedere la sezione (RBAC). */
 export function canViewSection(profile: Parameters<typeof canView>[0], s: Societa, sec: SectionConfig): boolean {
+  // Dashboard/Agenda personali: sempre accessibili, MAI gated dai permessi.
+  if (sec.personal) return true;
   // Override per-sezione (access.sections) → altrimenti modulo/default come prima.
   return atLeast(resolveSectionAccess(profile, s, sec.id, sec.module), 'view');
 }
 
 /** Vero se l'utente può OPERARE sulla sezione (override per-sezione → modulo). */
 export function canOperateSection(profile: Parameters<typeof canView>[0], s: Societa, sec: SectionConfig): boolean {
+  if (sec.personal) return true;
   return atLeast(resolveSectionAccess(profile, s, sec.id, sec.module), 'operate');
 }
 
