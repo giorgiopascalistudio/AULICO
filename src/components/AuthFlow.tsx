@@ -105,12 +105,14 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
   // Il tipo account scelto sopravvive al giro Google (su alcuni browser il popup
   // ricarica la pagina e lo stato React si azzera → il team finiva registrato
   // come "cliente"). È UI di dispositivo, non un dato: localStorage è ok.
-  const [accountType, setAccountTypeState] = useState<AccountType>(() => {
+  // Nel COMPLETAMENTO (gUser già presente) NIENTE default: la scelta è obbligatoria,
+  // così un default silenzioso non può più registrare nessuno col tipo sbagliato.
+  const [accountType, setAccountTypeState] = useState<AccountType | null>(() => {
     try {
       const saved = localStorage.getItem('aulico_signup_type');
       if (saved === 'team' || saved === 'azienda' || saved === 'cliente') return saved;
     } catch { /* storage bloccato: default */ }
-    return 'cliente';
+    return gUser ? null : 'cliente';
   });
   const setAccountType = (t: AccountType) => {
     setAccountTypeState(t);
@@ -176,6 +178,8 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
   };
 
   const validateProfile = (): string | null => {
+    // Tipo account SEMPRE esplicito (nel completamento non c'è default).
+    if (!accountType) return 'Scegli il tipo di account (Privato, Azienda o Team) per continuare.';
     // Con login Google nome/cognome arrivano da Google: non li chiediamo.
     if (!completing && (!firstName.trim() || !lastName.trim())) return t('auth.validate.name');
     if (!telefono.trim()) return t('auth.validate.phone');

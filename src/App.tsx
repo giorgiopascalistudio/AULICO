@@ -2012,6 +2012,17 @@ export default function App() {
           push(`rem-scad-${s.id}`, { type: 'scadenza', title: `Scadenza in arrivo: ${s.desc || 'Scadenza'}`, body: `${eur(s.amount || 0)} · ${fmtDay(s.dueDate)}`, link: '#finanze' });
         }
       });
+      // Richieste di accesso TEAM in attesa: notifica in-app ad admin/manager (dedup per uid).
+      // (Chi si registra non può scrivere sulle notifiche altrui: il promemoria nasce qui.)
+      Object.values(accounts).forEach((a: any) => {
+        if (!a || a.status !== 'pending') return;
+        push(`rem-access-${a.uid}`, {
+          type: 'accesso',
+          title: `Richiesta di accesso Team: ${a.name || a.email || 'nuovo iscritto'}`,
+          body: 'Approva o rifiuta da Team & permessi → Gestione accessi.',
+          link: '#strategico/hr-team',
+        });
+      });
     }
     // Proactive Alert scelte estetiche (PDF Onirico): remind GIORNALIERO al cliente
     // per gli arredi FISSI non confermati con scadenza ≤15gg; allo scadere,
@@ -2041,7 +2052,7 @@ export default function App() {
         pushTo(proj.clientUid, `rem-scelte-${pid}-${today}`, { type: 'progetto', title: 'Scelte estetiche in scadenza', body: `${proj.name}: ${soon.length} scelte (sanitari/rivestimenti/infissi…) da confermare per non bloccare il cantiere.`, link: '#portale' });
       }
     });
-  }, [currentUser?.uid, currentUser?.role, teamLeave, finScadenze, furnishings, projects]);
+  }, [currentUser?.uid, currentUser?.role, teamLeave, finScadenze, furnishings, projects, accounts]);
 
   // ----------------------------------------------------
   // CESTINO (nodo trash) + DOPPIA CONFERMA ELIMINAZIONE
