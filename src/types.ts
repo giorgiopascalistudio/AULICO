@@ -55,6 +55,8 @@ export interface UserProfile {
   profileComplete?: boolean;     // true quando il form di registrazione è stato completato
   /** Contatto eliminato apposta dalla rubrica: la riconciliazione automatica NON lo ricrea. */
   rubricaExcluded?: boolean | null;
+  /** Il titolare ha chiesto l'eliminazione dell'account dal portale (nodo `deletionRequests/<uid>`). */
+  deletionRequested?: boolean | null;
   firstName?: string;
   lastName?: string;
   residenza?: string;            // indirizzo di residenza (privato)

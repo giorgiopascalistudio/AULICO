@@ -784,7 +784,16 @@ export default function App() {
       removeAccount(uid)
         .then(() => showToast('Account eliminato.', 'err'))
         .catch(() => showToast('Errore di scrittura.', 'err'));
+      // Pulizia della richiesta di eliminazione collegata (se c'era).
+      removeNode(`deletionRequests/${uid}`).catch(() => {});
+      logAudit('delete', 'accessi', `Account eliminato`, uid);
     }, true);
+  };
+  // Annulla una richiesta di eliminazione account (l'account resta con i suoi dati).
+  const handleDismissDeletion = (uid: string) => {
+    updateAccount(uid, { deletionRequested: null }).catch(() => {});
+    removeNode(`deletionRequests/${uid}`).catch(() => {});
+    showToast('Richiesta di eliminazione annullata.');
   };
 
   // Mappa chiave-stato -> nodo del Database (le tue regole usano "studioFinance")
@@ -2015,13 +2024,24 @@ export default function App() {
       // Richieste di accesso TEAM in attesa: notifica in-app ad admin/manager (dedup per uid).
       // (Chi si registra non può scrivere sulle notifiche altrui: il promemoria nasce qui.)
       Object.values(accounts).forEach((a: any) => {
-        if (!a || a.status !== 'pending') return;
-        push(`rem-access-${a.uid}`, {
-          type: 'accesso',
-          title: `Richiesta di accesso Team: ${a.name || a.email || 'nuovo iscritto'}`,
-          body: 'Approva o rifiuta da Team & permessi → Gestione accessi.',
-          link: '#strategico/hr-team',
-        });
+        if (!a) return;
+        if (a.status === 'pending') {
+          push(`rem-access-${a.uid}`, {
+            type: 'accesso',
+            title: `Richiesta di accesso Team: ${a.name || a.email || 'nuovo iscritto'}`,
+            body: 'Approva o rifiuta da Team & permessi → Gestione accessi.',
+            link: '#strategico/hr-team',
+          });
+        }
+        // Richiesta di ELIMINAZIONE account dal portale (Profilo cliente).
+        if (a.deletionRequested) {
+          push(`rem-del-${a.uid}`, {
+            type: 'accesso',
+            title: `Richiesta di eliminazione account: ${a.name || a.email || 'account portale'}`,
+            body: 'Gestiscila da Team & permessi → Gestione accessi (elimina o annulla).',
+            link: '#strategico/hr-team',
+          });
+        }
       });
     }
     // Proactive Alert scelte estetiche (PDF Onirico): remind GIORNALIERO al cliente
@@ -4909,7 +4929,7 @@ export default function App() {
       peopleTab={peopleTab}
       onSetPeopleTab={setPeopleTab}
       onManageAccess={canManageAccess ? () => setAccessOpen(true) : undefined}
-      pendingCount={pendingAccounts.length}
+      pendingCount={pendingAccounts.length + deletionAccounts.length}
       onNewUser={() => { setNuName(''); setNuEmail(''); setNuPass(''); setNuRole('staff'); setNuTitle(''); setNuFns([]); setNewUserOpen(true); }}
       onNewClient={() => { setNuName(''); setNuEmail(''); setNuPass(''); setNuRole('cliente'); setNuTitle('studio'); setNewClientOpen(true); }}
       onEditUser={(uid) => { const u = users[uid]; if (!u) return; setEditUserId(uid); setNuName(u.name); setNuEmail(u.email); setNuPhone(u.telefono || ''); setNuRole(u.role); setNuTitle(u.title || ''); setNuFns(u.functions || []); setNuActive(u.active !== false); setNuAccess(u.access || {}); setEditUserOpen(true); }}
@@ -6080,6 +6100,7 @@ export default function App() {
   const canManageAccess = canAdmin(currentUser, 'holding');
   const pendingAccounts = Object.values(accounts).filter((a: any) => a?.status === 'pending') as UserProfile[];
   const approvedAccounts = Object.values(accounts).filter((a: any) => a?.status === 'approved') as UserProfile[];
+  const deletionAccounts = Object.values(accounts).filter((a: any) => a?.deletionRequested) as UserProfile[];
 
   // Richieste appuntamento in attesa dirette a ME (per notifiche + dashboard)
   const myApptRequests = Object.values(appointments).filter((a) =>
@@ -6462,12 +6483,14 @@ export default function App() {
           <AccessRequests
             pending={pendingAccounts}
             members={approvedAccounts}
+            deletionRequests={deletionAccounts}
             currentUid={currentUser.uid}
             onApprove={handleApproveAccount}
             onReject={handleRejectAccount}
             onChangeRole={handleChangeAccountRole}
             onRevoke={handleRevokeAccount}
             onRemove={handleRemoveAccount}
+            onDismissDeletion={handleDismissDeletion}
           />
         </Modal>
       )}

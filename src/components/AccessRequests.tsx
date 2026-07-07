@@ -7,19 +7,23 @@
  */
 
 import React, { useState } from 'react';
-import { Check, X, Shield, RotateCcw, Trash2 } from 'lucide-react';
+import { Check, X, Shield, RotateCcw, Trash2, UserX } from 'lucide-react';
 import type { UserProfile, UserRole } from '../types';
 import { initials, avColor } from '../utils';
 
 interface AccessRequestsProps {
   pending: UserProfile[];
   members: UserProfile[];
+  /** Account che hanno chiesto l'eliminazione dal portale (users con `deletionRequested`). */
+  deletionRequests?: UserProfile[];
   currentUid: string;
   onApprove: (uid: string, role: UserRole, sector?: string) => void;
   onReject: (uid: string) => void;
   onChangeRole: (uid: string, role: UserRole, sector?: string) => void;
   onRevoke: (uid: string) => void;
   onRemove: (uid: string) => void;
+  /** Annulla la richiesta di eliminazione (toglie flag + nodo, l'account resta). */
+  onDismissDeletion?: (uid: string) => void;
 }
 
 const ROLES: { value: UserRole; label: string }[] = [
@@ -58,12 +62,14 @@ const Avatar: React.FC<{ u: UserProfile; size?: number }> = ({ u, size = 38 }) =
 export const AccessRequests: React.FC<AccessRequestsProps> = ({
   pending,
   members,
+  deletionRequests = [],
   currentUid,
   onApprove,
   onReject,
   onChangeRole,
   onRevoke,
-  onRemove
+  onRemove,
+  onDismissDeletion
 }) => {
   // ruolo selezionato per ogni richiesta in attesa
   const [draftRole, setDraftRole] = useState<Record<string, UserRole>>({});
@@ -74,6 +80,41 @@ export const AccessRequests: React.FC<AccessRequestsProps> = ({
 
   return (
     <div className="flex flex-col gap-6 text-left max-h-[68vh] overflow-y-auto pr-1">
+      {/* Richieste di ELIMINAZIONE account (dal Profilo del portale cliente) */}
+      {deletionRequests.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-[14px] font-extrabold text-[#161616]">Richieste di eliminazione account</h4>
+            <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">{deletionRequests.length}</span>
+          </div>
+          <div className="flex flex-col gap-3">
+            {deletionRequests.map((u) => (
+              <div key={u.uid} className="border border-rose-200 rounded-2xl p-3.5 bg-rose-50/40 flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <Avatar u={u} />
+                  <div className="min-w-0 flex-grow">
+                    <b className="block text-[13.5px] text-[#161616] truncate">{u.name || 'Senza nome'}</b>
+                    <small className="block text-[12px] text-[#8a8a8a] truncate">{u.email}</small>
+                    <small className="block text-[11px] font-bold text-rose-600 mt-0.5 inline-flex items-center gap-1"><UserX className="w-3 h-3" /> Ha chiesto di eliminare il proprio account dal portale.</small>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button onClick={() => onRemove(u.uid)} className="flex-1 min-w-[150px] inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[12.5px] font-bold cursor-pointer border-none">
+                    <Trash2 className="w-4 h-4" /> Elimina account
+                  </button>
+                  {onDismissDeletion && (
+                    <button onClick={() => onDismissDeletion(u.uid)} className="flex-1 min-w-[150px] inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12.5px] font-bold cursor-pointer">
+                      <RotateCcw className="w-4 h-4" /> Annulla richiesta
+                    </button>
+                  )}
+                </div>
+                <p className="text-[10.5px] text-[#9a9a9a]">L'eliminazione rimuove la scheda dall'app (il login Google/email va rimosso anche da Firebase Console → Authentication per l'eliminazione totale).</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Richieste in attesa */}
       <div>
         <div className="flex items-center justify-between mb-3">
