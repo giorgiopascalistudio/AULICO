@@ -123,6 +123,12 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const apptsOn = (iso: string): Appointment[] =>
     (appointments || []).filter(a => a.date === iso && (scope === 'all' || mineAppt(a))).sort((a, b) => (a.time || '99').localeCompare(b.time || '99'));
 
+  // Ferie/assenze che coprono il giorno (intervallo dateFrom..dateTo inclusivo).
+  const leavesOn = (iso: string): TeamLeave[] =>
+    (teamLeave || [])
+      .filter(l => l.dateFrom && l.dateFrom <= iso && iso <= (l.dateTo || l.dateFrom) && (scope === 'all' || l.uid === myUid))
+      .sort((a, b) => a.dateFrom.localeCompare(b.dateFrom));
+
   const occursOn = (t: Task, iso: string): boolean => {
     if (!t.date || iso < t.date) return false;
     const f = t.frequency || 'once';
@@ -248,6 +254,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             const inMonth = c.getMonth() === calDate.getMonth();
             const list = tasksOnDate(iso);
             const aps = apptsOn(iso);
+            const lv = leavesOn(iso);
+            const lvShown = Math.min(lv.length, 2);
+            const taskMax = Math.max(0, 2 - lvShown);
             const apsPending = aps.some(a => a.status === 'pending');
             const isToday = iso === todayISO;
 
@@ -294,7 +303,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
                 {/* Desktop: Event lists rendered as horizontal Google Calendar-style strips */}
                 <div className="hidden md:flex flex-col gap-0.5 w-full overflow-hidden mt-0.5">
-                  {list.slice(0, 2).map(t => {
+                  {lv.slice(0, 2).map(l => (
+                    <div
+                      key={l.id}
+                      title={`${LEAVE_LABEL[l.type]} · ${l.name}${l.note ? ` · ${l.note}` : ''}`}
+                      className={`text-[9.5px] font-bold py-0.5 px-1 rounded truncate text-left border select-none leading-none ${LEAVE_STYLE[l.type]}`}
+                    >
+                      {LEAVE_LABEL[l.type]} · {l.name}
+                    </div>
+                  ))}
+                  {list.slice(0, taskMax).map(t => {
                     const done = taskDoneOn(t, iso);
                     const isProj = !!t._proj;
 
@@ -326,7 +344,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     );
                   })}
 
-                  {list.length > 2 && (
+                  {list.length + Math.max(0, lv.length - 2) > taskMax && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -335,14 +353,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       }}
                       className="text-[9px] font-bold text-gray-500 pl-1 mt-0.2 text-left bg-transparent border-none cursor-pointer hover:text-black transition-colors"
                     >
-                      +{list.length - 2} altri...
+                      +{list.length - taskMax + Math.max(0, lv.length - 2)} altri...
                     </button>
                   )}
                 </div>
 
                 {/* Mobile: Clean visual circular indicator dots to keep month view completely scroll-free and beautiful */}
                 <div className="flex md:hidden items-center justify-center gap-1 mt-1.5 flex-wrap w-full px-0.5 overflow-hidden">
-                  {list.slice(0, 3).map(t => {
+                  {lv.slice(0, 2).map(l => (
+                    <span
+                      key={l.id}
+                      className={`w-1.5 h-1.5 rounded-full ring-1 ring-white ${l.type === 'ferie' ? 'bg-indigo-500' : l.type === 'permesso' ? 'bg-amber-400' : 'bg-rose-500'}`}
+                    />
+                  ))}
+                  {list.slice(0, Math.max(1, 3 - lvShown)).map(t => {
                     const done = taskDoneOn(t, iso);
                     const isProj = !!t._proj;
 
@@ -359,7 +383,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       />
                     );
                   })}
-                  {list.length > 3 && (
+                  {list.length > Math.max(1, 3 - lvShown) && (
                     <span className="text-[8px] font-bold text-gray-400 leading-none">
                       •
                     </span>
@@ -379,6 +403,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     const days = Array.from({ length: 7 }).map((_, i) => addDays(s, i));
     const hours = Array.from({ length: WK_HOUR_END - WK_HOUR_START }).map((_, i) => WK_HOUR_START + i);
     const gridH = (WK_HOUR_END - WK_HOUR_START) * WK_HOUR_PX;
+    // Ferie/assenze: fascia all-day più alta per tutta la settimana (uguale nel gutter → ore allineate)
+    const weekLeaves = days.map(d => leavesOn(isoDate(d)));
+    const alldayPx = WK_ALLDAY_PX + (weekLeaves.some(x => x.length > 0) ? 22 : 0);
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
     const nowInRange = nowMin >= WK_HOUR_START * 60 && nowMin <= WK_HOUR_END * 60;
@@ -389,7 +416,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           <div className="flex gap-2 min-w-[860px]">
             {/* Gutter ore (allineato alle colonne tramite spazi header+all-day fissi) */}
             <div className="w-[42px] shrink-0">
-              <div style={{ height: WK_HEADER_PX + WK_ALLDAY_PX }} />
+              <div style={{ height: WK_HEADER_PX + alldayPx }} />
               <div className="relative" style={{ height: gridH }}>
                 {hours.map((h, idx) => (
                   <div key={h} className="absolute right-1.5 -translate-y-1/2 text-[10px] font-bold text-[#b0b0b0] tabular-nums" style={{ top: idx * WK_HOUR_PX }}>
@@ -403,6 +430,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             {days.map((c, di) => {
               const iso = isoDate(c);
               const isToday = iso === todayISO;
+              const lv = weekLeaves[di];
               const untimed = tasksOnDate(iso).filter(t => !t.time);
               const timed = tasksOnDate(iso).filter(t => !!t.time);
               const appts = apptsOn(iso).filter(a => !!a.time);
@@ -426,12 +454,21 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     </span>
                   </button>
 
-                  {/* Fascia "senza orario" */}
+                  {/* Fascia "senza orario" (+ ferie/assenze del giorno) */}
                   <div
                     onClick={() => onNewTask(iso)}
                     className="border-t border-[#f0f0f0] px-1 py-1 flex flex-col gap-0.5 overflow-hidden cursor-pointer hover:bg-gray-50/60"
-                    style={{ height: WK_ALLDAY_PX }}
+                    style={{ height: alldayPx }}
                   >
+                    {lv.slice(0, 1).map(l => (
+                      <div
+                        key={l.id}
+                        title={`${LEAVE_LABEL[l.type]} · ${l.name}${l.note ? ` · ${l.note}` : ''}`}
+                        className={`text-[10px] font-bold py-0.5 px-1.5 rounded-md truncate text-left border select-none ${LEAVE_STYLE[l.type]}`}
+                      >
+                        {LEAVE_LABEL[l.type]} · {l.name}{lv.length > 1 ? ` +${lv.length - 1}` : ''}
+                      </div>
+                    ))}
                     {untimed.slice(0, 1).map(t => {
                       const done = taskDoneOn(t, iso);
                       const isProj = !!t._proj;
@@ -516,6 +553,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     const iso = isoDate(calDate);
     const list = tasksOnDate(iso);
     const dayAppts = apptsOn(iso);
+    const dayLeaves = leavesOn(iso);
 
     return (
       <div className="bg-white border border-[#e2e2e2] rounded-[26px] p-6 shadow-xs text-left">
@@ -539,6 +577,22 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Ferie/assenze del giorno */}
+        {dayLeaves.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {dayLeaves.map(l => (
+              <span
+                key={l.id}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[12px] font-bold ${LEAVE_STYLE[l.type]}`}
+              >
+                {LEAVE_LABEL[l.type]} · {l.uid === myUid ? 'Io' : l.name}
+                {l.dateFrom !== l.dateTo && <span className="font-medium opacity-70">fino al {l.dateTo}</span>}
+                {l.note && <span className="font-medium opacity-70">· {l.note}</span>}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Appuntamenti del giorno */}
         {dayAppts.length > 0 && (
