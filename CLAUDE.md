@@ -677,8 +677,15 @@ reporting/redditività, integrazioni esterne
   (`rem-blocco[-studio]-<pid>-<giorno>`, dedup per giorno via getNode); 3) **Report settimanale al
   cliente** in `automation/cron.mjs` (`weeklyClientReport`, il VENERDÌ): per ogni progetto attivo
   con clientUid → notifica con avanzamento % dalle fasi + nuove foto cantiere della settimana
-  (richiede i secrets GitHub Actions di automation/README). Mancante dei 4 del PDF: solo il
-  **Render AI preliminare** (foto lotto + questionario → render; serve generazione immagini).
+  (richiede i secrets GitHub Actions di automation/README). 4) **Render AI preliminare** FATTO
+  (ultima automazione del PDF): sezione **Onirico → Produzione → "Render AI"** (`prod-render`,
+  view `render-ai`, componente **`RenderAiView`** lazy, NESSUN nodo DB): foto del lotto (resize
+  canvas → dataURL) + questionario (tipologia/stile/materiali/esterni/luce/note → prompt inglese)
+  + slider trasformazione (→ `strength` 0.35–0.8) → **`callAiImage`** (Worker Cloudflare
+  `kind:'image'`, img2img Workers AI — richiede il **binding [ai]** nel worker deployato) →
+  render PNG con zoom, **Scarica PNG** (nome file dalla pratica collegata) e storico tentativi
+  in-sessione. Banner di avviso se `window.__AULICO_AI_URL__` manca. Il render NON si salva su
+  Firebase (dataURL grandi): si scarica e si allega alla pratica dai Documenti se serve.
   **Point of Entry (docs 01-STRATEGICO)** — nuova PRIMA voce di Strategico (`point-of-entry`,
   componente **`PointOfEntryView`**, admin/manager): inbox unificata con i **lead da smistare**
   (crmLeads non `routed`: bottoni Onirico/Strategico/Materico → `saveLeads`+`handleRouteLead`,

@@ -205,6 +205,7 @@ const UnicoOpportunitaView = React.lazy(() => import('./components/UnicoOpportun
 const StimaPreliminareView = React.lazy(() => import('./components/StimaPreliminareView').then((m) => ({ default: m.StimaPreliminareView })));
 const ComputiView = React.lazy(() => import('./components/ComputiView').then((m) => ({ default: m.ComputiView })));
 const LegaleView = React.lazy(() => import('./components/LegaleView').then((m) => ({ default: m.LegaleView })));
+const RenderAiView = React.lazy(() => import('./components/RenderAiView').then((m) => ({ default: m.RenderAiView })));
 const RecruitingView = React.lazy(() => import('./components/RecruitingView').then((m) => ({ default: m.RecruitingView })));
 const FantasticoView = React.lazy(() => import('./components/FantasticoView').then((m) => ({ default: m.FantasticoView })));
 const PointOfEntryView = React.lazy(() => import('./components/PointOfEntryView').then((m) => ({ default: m.PointOfEntryView })));
@@ -5677,6 +5678,16 @@ export default function App() {
                   canEdit={isStudioRole(currentUser.role) && secOp}
                   onSave={handleSaveRecruit}
                   onDelete={handleDeleteRecruit}
+                />
+              </React.Suspense>
+            );
+          case 'render-ai':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <RenderAiView
+                  projects={Object.values(projects).filter((p) => p.division === 'studio' && !p.archived)}
+                  color={society.color}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
                 />
               </React.Suspense>
             );

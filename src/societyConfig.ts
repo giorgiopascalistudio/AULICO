@@ -26,7 +26,7 @@ import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
   Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
-  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home,
+  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
 import { SOCIETA_LABEL, canView, resolveSectionAccess, atLeast } from './access';
@@ -421,6 +421,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   // ---- PRODUZIONE (Progetti · Computi · Mappa operativa) ----
   s.push({ id: 'produzione', label: 'Produzione', icon: Layers, module: 'produzione', kind: 'group' });
   if (isUni) s.push({ id: 'prod-opportunita', label: 'Ricerca Opportunità', icon: Search, parent: 'produzione', module: 'produzione', view: 'unico-opportunita', note: 'Workflow a step obbligatori: contatto → sopralluogo → raccolta → analisi → due diligence → manifestazione → negoziazione → preliminare → atto → INVESTIMENTO.' });
+  if (soc === 'studio') s.push({ id: 'prod-render', label: 'Render AI', icon: Sparkles, parent: 'produzione', module: 'produzione', view: 'render-ai', note: 'Foto del lotto + questionario di stile → bozza render fotorealistica (pre-vendita, ultima automazione del PDF Onirico).' });
   if (soc === 'fantastico') s.push({ id: 'prod-gestione', label: 'Immobili & Servizi', icon: Home, parent: 'produzione', module: 'produzione', view: 'fantastico-gestione', note: 'Gestione immobiliare: immobili in gestione + richieste di servizio/manutenzione smistate ai partner (con margine).' });
   if (isMat) s.push({ id: 'prod-potenziale', label: 'Potenziale Cantiere', icon: Target, parent: 'produzione', module: 'produzione', view: 'materico-deals' });
   s.push({ id: 'prod-progetti', label: isUni ? 'Operazioni & Investitori' : 'Progetti', icon: isUni ? Building2 : Layers, parent: 'produzione', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
