@@ -8,7 +8,7 @@
  * (Registro attività, Cestino). Niente più voci legacy.
  */
 import React, { useState } from 'react';
-import { LayoutGrid, Calendar, Building2, Bell, MoreHorizontal, X, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutGrid, Calendar, Building2, Bell, MoreHorizontal, X, ChevronDown, ChevronLeft, ChevronRight, Bug } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserProfile, Societa } from '../types';
 import { initials } from '../utils';
@@ -29,11 +29,13 @@ interface NavbarProps {
   onNotificationsClick: () => void;
   /** richieste di accesso in attesa (admin/manager) — badge sul profilo mobile */
   pendingCount?: number;
+  /** Apre il form "Segnala ad Aulico" (bug/richieste — periodo di test). */
+  onFeedback?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   profile, activeSocieta, activeSection, onNav, onOpenProfile,
-  actionButton, notificationsCount, onNotificationsClick, pendingCount = 0,
+  actionButton, notificationsCount, onNotificationsClick, pendingCount = 0, onFeedback,
 }) => {
   const [socOpen, setSocOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -76,7 +78,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'home', label: 'Home', icon: LayoutGrid, active: isHome, onTap: () => go('#aulico/dashboard') },
     { id: 'agenda', label: 'Agenda', icon: Calendar, active: isAgenda, onTap: () => go('#aulico/agenda') },
     { id: 'societa', label: 'Società', icon: Building2, active: inSociety || socOpen, onTap: () => { setOpenSoc(null); setSocOpen(true); } },
-    ...(moreItems.length ? [{ id: 'altro', label: 'Altro', icon: MoreHorizontal, active: isMore || moreOpen, onTap: () => setMoreOpen(true) }] : []),
+    // "Altro" sempre presente: oltre a Registro/Cestino (RBAC) ospita "Segnala un problema".
+    ...(moreItems.length || onFeedback ? [{ id: 'altro', label: 'Altro', icon: MoreHorizontal, active: isMore || moreOpen, onTap: () => setMoreOpen(true) }] : []),
   ];
 
   const activeSocietyCfg = inSociety ? getSociety(activeSocieta) : null;
@@ -279,22 +282,32 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <b className="text-[15px] tracking-tight">Strumenti di gruppo</b>
                 <button onClick={() => setMoreOpen(false)} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 cursor-pointer bg-transparent border-none"><X className="w-4.5 h-4.5" /></button>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {moreItems.map((item) => {
-                  const Icon = item.icon;
-                  const active = activeSocieta === 'holding' && activeSection === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => go(`#aulico/${item.id}`)}
-                      className={`flex flex-col items-center justify-center gap-1.5 py-3.5 rounded-2xl border text-[12px] font-bold transition-colors cursor-pointer ${active ? 'bg-[#161616] text-white border-[#161616]' : 'bg-[#fafafa] border-[#ececec] text-[#3a3a3a] hover:border-[#cfcfcf]'}`}
-                    >
-                      <Icon className="w-[22px] h-[22px]" />
-                      <span className="text-center leading-tight px-1">{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              {moreItems.length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {moreItems.map((item) => {
+                    const Icon = item.icon;
+                    const active = activeSocieta === 'holding' && activeSection === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => go(`#aulico/${item.id}`)}
+                        className={`flex flex-col items-center justify-center gap-1.5 py-3.5 rounded-2xl border text-[12px] font-bold transition-colors cursor-pointer ${active ? 'bg-[#161616] text-white border-[#161616]' : 'bg-[#fafafa] border-[#ececec] text-[#3a3a3a] hover:border-[#cfcfcf]'}`}
+                      >
+                        <Icon className="w-[22px] h-[22px]" />
+                        <span className="text-center leading-tight px-1">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {onFeedback && (
+                <button
+                  onClick={() => { setMoreOpen(false); onFeedback(); }}
+                  className={`w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border border-[#ececec] bg-[#fafafa] text-[#3a3a3a] text-[12.5px] font-bold cursor-pointer hover:border-[#cfcfcf] ${moreItems.length ? 'mt-2' : ''}`}
+                >
+                  <Bug className="w-4 h-4" /> Segnala un problema / richiesta
+                </button>
+              )}
             </motion.div>
           </motion.div>
         )}

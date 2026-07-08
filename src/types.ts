@@ -339,6 +339,27 @@ export interface TrashItem {
   deletedByName?: string | null;
 }
 
+/**
+ * Segnalazione sviluppo software (nodo devReports/<id>): bug/malfunzionamenti,
+ * richieste di implementazione ed errori inoltrati dai box di errore. Chiunque
+ * autenticato può crearne una (periodo di test); gestione in Strategico →
+ * Sviluppo Software → "Aulico — Segnalazioni".
+ */
+export interface DevReport {
+  id: string;
+  kind: 'bug' | 'richiesta' | 'errore';
+  title: string;
+  description?: string | null;
+  errorText?: string | null;     // testo del box di errore inoltrato
+  route?: string | null;         // hash della pagina al momento della segnalazione
+  device?: string | null;        // userAgent (diagnosi mobile/desktop)
+  by: string;
+  byName: string;
+  byRole?: string | null;
+  at: number;
+  status: 'aperta' | 'in_lavorazione' | 'risolta' | 'chiusa';
+}
+
 /** Ferie/assenze del team (nodo teamLeave/<id>). */
 export interface TeamLeave {
   id: string;

@@ -656,6 +656,18 @@ reporting/redditività, integrazioni esterne
   kit, ruolo-obiettivi-PFV, formazione/tutor, feedback, verifiche — sezioni compilabili + stampa).
   Cestino sezione `recruiting`. ⚠️ Nodo **`recruiting`** (read/write studio attivo non-cliente/
   partner): **ripubblicare le regole**.
+  ⚠️ **Segnalazioni sviluppo / periodo di test (8 lug)** — nodo **`devReports`** (`DevReport`:
+  bug|richiesta|errore, con route/device auto-allegati): **read SOLO admin/manager; write per-`$id`
+  create-only di chiunque autenticato** (`by == auth.uid`, anche clienti/partner) o admin/manager —
+  **ripubblicare le regole**, altrimenti l'invio fallisce con toast di errore. Raccolta in
+  **Strategico → Sviluppo Software → "Aulico — Segnalazioni"** (`sw-aulico`, view `dev-reports`,
+  componente `DevReportsView` lazy: KPI, filtri, cambio stato, Cestino sezione `dev-report`).
+  Invio da: **`FeedbackModal`** (componente riusabile, montato in ENTRAMBI i layout) aperto da
+  "Segnala un problema" in `AulicoSidebar` (footer) e nello sheet "Altro" della `Navbar` mobile
+  (tab ora sempre visibile), dal pulsante **"Segnala" sui toast di errore** (inoltra il testo del
+  box, kind `errore`) e da "Nuova segnalazione" nella vista. Notifica in campanella ad
+  admin/manager. Il widget dashboard "Chat recenti" è stato RIMOSSO (doppione di
+  "Notifiche & messaggi").
   **Materico consegna 4 (dai 00-DESCRIZIONE)** — 3 upgrade, NESSUN nodo nuovo: 1) **Controllo
   margini PRE-FIRMA** in `MatericoContractsView` (pannello redditività quando il contratto è
   collegato a una commessa: ricavo/costo diretto dal computo, indiretti %, utile, margine % con

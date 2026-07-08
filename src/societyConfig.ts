@@ -26,7 +26,7 @@ import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
   Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
-  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles,
+  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles, Bug,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
 import { SOCIETA_LABEL, canView, resolveSectionAccess, atLeast, sectionOverride } from './access';
@@ -365,32 +365,8 @@ export const PERSONAL_DASHBOARD: DashboardSpec = {
         return { kind: 'list', items, emptyText: 'Nessuna notifica' };
       },
     },
-    {
-      id: 'chat-recenti', title: 'Chat recenti', size: 'md', icon: MessageSquare,
-      compute: (c) => {
-        const uid = c.profile?.uid;
-        const byProject = c.projectMessages || {};
-        const nameOf = (pid: string) => c.projects.find((p) => p.id === pid)?.name || 'Progetto';
-        // Ultimo messaggio per progetto, poi i più recenti in cima.
-        const latest = Object.entries(byProject)
-          .map(([pid, msgs]) => {
-            const arr = Object.values(msgs || {});
-            if (!arr.length) return null;
-            const last = arr.reduce((a, b) => (a.at >= b.at ? a : b));
-            return { pid, last };
-          })
-          .filter((x): x is { pid: string; last: ProjectMessage } => !!x)
-          .sort((a, b) => b.last.at - a.last.at)
-          .slice(0, 5)
-          .map(({ pid, last }) => ({
-            label: nameOf(pid),
-            sub: `${last.from === uid ? 'Tu' : (last.name || 'Ospite')}: ${last.text}`,
-            meta: relTime(last.at),
-            hash: `#progetto/${pid}`,
-          }));
-        return { kind: 'list', items: latest, emptyText: 'Nessun messaggio recente' };
-      },
-    },
+    // NB: il widget "Chat recenti" è stato RIMOSSO (doppione di "Notifiche & messaggi",
+    // richiesta utente 8 lug): le chat progetto restano raggiungibili dai fascicoli.
   ],
 };
 
@@ -483,6 +459,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       // === SOTTO-CATEGORIA: Sviluppo Software ===
       { id: 'software', label: 'Sviluppo Software', icon: Code2, module: 'software', kind: 'group' },
       { id: 'sw-gestionale', label: 'Gestionale & Automazioni', icon: Code2, parent: 'software', module: 'software', kind: 'placeholder', note: 'Software house interna: gestionale, automazioni, compilatore pratiche.' },
+      { id: 'sw-aulico', label: 'Aulico — Segnalazioni', icon: Bug, parent: 'software', module: 'software', view: 'dev-reports', note: 'Raccolta del periodo di test: bug, malfunzionamenti, richieste di implementazione ed errori inoltrati dagli utenti (pulsante "Segnala un problema" in sidebar/menu e "Segnala" sui box di errore).' },
       // === SOTTO-CATEGORIA: Area Legale ===
       { id: 'legale', label: 'Area Legale', icon: Scale, module: 'legale', kind: 'group' },
       { id: 'legale-contratti', label: 'Contrattualistica', icon: FileText, parent: 'legale', module: 'legale', view: 'legale', note: 'Registro legale di tutte le società (contratti, liberatorie, informative, polizze con scadenze), modelli da stampare e cruscotto privacy/consensi.' },

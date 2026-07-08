@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Bug } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserProfile, Societa } from '../types';
 import { initials } from '../utils';
@@ -22,6 +22,8 @@ interface AulicoSidebarProps {
   badges?: Record<string, number>; // chiave `${societa}:${sectionId}`
   onNav: (hash: string) => void;
   onOpenProfile: () => void;
+  /** Apre il form "Segnala ad Aulico" (bug/richieste — periodo di test). */
+  onFeedback?: () => void;
 }
 
 // Animazione di apertura/chiusura (slide verticale).
@@ -33,7 +35,7 @@ const slide = {
 };
 
 export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
-  profile, activeSocieta, activeSection, badges, onNav, onOpenProfile,
+  profile, activeSocieta, activeSection, badges, onNav, onOpenProfile, onFeedback,
 }) => {
   // Livello 1: una sola categoria (società) aperta per volta. Le sotto-categorie
   // NON si espandono nel menu: cliccandole si apre il loro "portale" (pagina hub).
@@ -165,8 +167,18 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
         })}
       </nav>
 
+      {/* Segnalazioni test (bug/richieste): visibile a tutti i membri */}
+      {onFeedback && (
+        <button
+          onClick={onFeedback}
+          className="mt-auto flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-bold text-[#8a8a8a] hover:text-[#161616] hover:bg-[#ececec] transition-colors w-full text-left cursor-pointer bg-transparent border-none"
+        >
+          <Bug className="w-4 h-4" /> Segnala un problema
+        </button>
+      )}
+
       {/* Profilo */}
-      <div className="mt-auto pt-3 border-t border-[#f5f5f5]/80">
+      <div className={`${onFeedback ? '' : 'mt-auto '}pt-3 border-t border-[#f5f5f5]/80`}>
         <button
           onClick={onOpenProfile}
           className="flex items-center gap-[11px] p-[9px] rounded-xl hover:bg-[#ececec] transition-colors w-full text-left cursor-pointer"

@@ -62,6 +62,7 @@ import {
   ClientRecord,
   Notification,
   TeamLeave,
+  DevReport,
   Quote,
   PaymentMilestone,
   PriceItem,
@@ -195,6 +196,7 @@ const MatericoHomeView = React.lazy(() => import('./components/MatericoHomeView'
 const PianoFinanziarioView = React.lazy(() => import('./components/PianoFinanziarioView').then((m) => ({ default: m.PianoFinanziarioView })));
 const ProgFatturazioneView = React.lazy(() => import('./components/ProgFatturazioneView').then((m) => ({ default: m.ProgFatturazioneView })));
 const CommercialeView = React.lazy(() => import('./components/CommercialeView').then((m) => ({ default: m.CommercialeView })));
+const DevReportsView = React.lazy(() => import('./components/DevReportsView').then((m) => ({ default: m.DevReportsView })));
 const EditorialCalendar = React.lazy(() => import('./components/EditorialCalendar').then((m) => ({ default: m.EditorialCalendar })));
 const MarketingHub = React.lazy(() => import('./components/MarketingHub').then((m) => ({ default: m.MarketingHub })));
 const DirezioneHub = React.lazy(() => import('./components/DirezioneHub').then((m) => ({ default: m.DirezioneHub })));
@@ -228,6 +230,7 @@ import { AccessRequests } from './components/AccessRequests';
 import type { Lead, Supplier } from './components/CrmView';
 import { ConfirmDeleteModal, type ConfirmDeleteRequest } from './components/ConfirmDeleteModal';
 import { UpdateBanner } from './components/UpdateBanner';
+import { FeedbackModal, type FeedbackPrefill } from './components/FeedbackModal';
 import {
   watchAuth,
   logoutGoogle,
@@ -558,6 +561,10 @@ export default function App() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   // Ferie/assenze team
   const [teamLeave, setTeamLeave] = useState<Record<string, TeamLeave>>({});
+  // Segnalazioni sviluppo software (bug/richieste/errori — periodo di test)
+  const [devReports, setDevReports] = useState<Record<string, DevReport>>({});
+  // Form "Segnala ad Aulico": null = chiuso, oggetto = aperto (con eventuale prefill errore)
+  const [feedback, setFeedback] = useState<FeedbackPrefill | null>(null);
 
   // ----------------------------------------------------
   // INITIALIZATIONS
@@ -1856,6 +1863,8 @@ export default function App() {
       add('clients', setClients);
       // Ferie/assenze team
       add('teamLeave', setTeamLeave);
+      // Segnalazioni sviluppo (bug/richieste/errori): read solo direzione (regole)
+      if (currentUser.role === 'admin' || currentUser.role === 'manager') add('devReports', setDevReports);
       // Cestino condiviso (elementi eliminati, 60 giorni)
       add('trash', setTrash);
     } else {
@@ -2233,6 +2242,10 @@ export default function App() {
         case 'recruiting':
           setRecruiting((prev) => ({ ...prev, [id]: pl }));
           writeNode(`recruiting/${id}`, pl).catch(() => {});
+          break;
+        case 'dev-report':
+          setDevReports((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`devReports/${id}`, pl).catch(() => {});
           break;
         case 'fant-immobile':
           setFantImmobili((prev) => ({ ...prev, [id]: pl }));
@@ -4013,6 +4026,42 @@ export default function App() {
       removeNode(`teamLeave/${id}`).catch(() => showToast('Errore ferie (controlla regole/permessi).', 'err'));
     });
   };
+
+  // ---- Segnalazioni sviluppo software (devReports/<id>, periodo di test) ----
+  const handleSubmitDevReport = (data: { kind: DevReport['kind']; title: string; description: string; errorText?: string | null }) => {
+    if (!currentUser) return;
+    const id = `dev-${Date.now()}-${Math.floor(Math.random() * 900)}`;
+    const rep: DevReport = {
+      id, kind: data.kind, title: data.title, description: data.description || null,
+      errorText: data.errorText || null,
+      route: window.location.hash || null,
+      device: (navigator.userAgent || '').slice(0, 180) || null,
+      by: currentUser.uid, byName: currentUser.name || currentUser.email || 'Utente',
+      byRole: currentUser.role || null, at: Date.now(), status: 'aperta',
+    };
+    setDevReports((prev) => ({ ...prev, [id]: rep }));
+    writeNode(`devReports/${id}`, rep)
+      .then(() => showToast('Segnalazione inviata. Grazie!'))
+      .catch(() => showToast('Errore invio segnalazione (controlla regole/permessi).', 'err'));
+    // Campanella alla direzione (no-op dai portali: lì `users` non è popolato)
+    Object.values(users).forEach((u: any) => {
+      if (u && u.active && (u.role === 'admin' || u.role === 'manager') && u.uid !== currentUser.uid) {
+        pushNotification(u.uid, { type: 'dev', title: `Nuova segnalazione: ${data.title}`, body: data.kind === 'bug' ? 'Bug/malfunzionamento' : data.kind === 'richiesta' ? 'Richiesta di implementazione' : 'Errore inoltrato', link: '#strategico/sw-aulico' });
+      }
+    });
+    setFeedback(null);
+  };
+  const handleSetDevReportStatus = (id: string, status: DevReport['status']) => {
+    setDevReports((prev) => (prev[id] ? { ...prev, [id]: { ...prev[id], status } } : prev));
+    updateNode(`devReports/${id}`, { status }).catch(() => showToast('Errore aggiornamento (regole/permessi).', 'err'));
+  };
+  const handleDeleteDevReport = (r: DevReport) => {
+    askDelete('Elimina segnalazione', `Eliminare "${r.title}"? Finisce nel Cestino per 60 giorni.`, () => {
+      moveToTrash('dev-report', r.title, r, undefined, r.kind === 'bug' ? 'Bug' : r.kind === 'richiesta' ? 'Richiesta' : 'Errore app');
+      setDevReports((prev) => { const n = { ...prev }; delete n[r.id]; return n; });
+      removeNode(`devReports/${r.id}`).catch(() => {});
+    });
+  };
   // Auto-compila i campi del progetto dall'anagrafica selezionata (committente solo se vuoto;
   // pIndirizzo NON viene toccato: è l'indirizzo dell'immobile, non la residenza del cliente)
   const applyClientRecord = (rec: ClientRecord | null) => {
@@ -4898,6 +4947,7 @@ export default function App() {
       </React.Suspense>
       {/* Doppia conferma eliminazione anche nel portale cliente/partner */}
       {confirmDel && <ConfirmDeleteModal request={confirmDel} onClose={() => setConfirmDel(null)} />}
+      {feedback && <FeedbackModal prefill={feedback} onClose={() => setFeedback(null)} onSubmit={handleSubmitDevReport} />}
       <UpdateBanner />
       </LangProvider>
     );
@@ -5703,6 +5753,21 @@ export default function App() {
                 />
               </React.Suspense>
             );
+          case 'dev-reports':
+            // Raccolta segnalazioni test (read regole: admin/manager; gli altri
+            // membri inviano dal pulsante "Segnala un problema").
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <DevReportsView
+                  reports={Object.values(devReports)}
+                  color={society.color}
+                  canEdit={(currentUser.role === 'admin' || currentUser.role === 'manager') && secOp}
+                  onSetStatus={handleSetDevReportStatus}
+                  onDelete={handleDeleteDevReport}
+                  onNew={() => setFeedback({})}
+                />
+              </React.Suspense>
+            );
           case 'legale': {
             // Nodo legalDocs: admin/manager (dati legali sensibili).
             if (!(currentUser.role === 'admin' || currentUser.role === 'manager')) {
@@ -6187,6 +6252,7 @@ export default function App() {
         }}
         onNav={(h) => { window.location.hash = h; }}
         onOpenProfile={openProfile}
+        onFeedback={() => setFeedback({})}
       />
 
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden relative">
@@ -6200,6 +6266,7 @@ export default function App() {
           notificationsCount={liveNotifications.filter(n => !n.read).length}
           onNotificationsClick={() => setNotificationsOpen(!notificationsOpen)}
           pendingCount={0}
+          onFeedback={() => setFeedback({})}
           actionButton={
             route === 'progetti' && activeSecOp && !(activeDivision === 'strategico' && (currentUser.role === 'admin' || currentUser.role === 'manager')) ? (
               <button onClick={() => handleOpenNewProject(activeDivision)} className="w-[38px] h-[38px] rounded-full bg-[#1b1b1b] text-white flex items-center justify-center border-none cursor-pointer active:scale-95 transition-transform" aria-label="Nuovo progetto">
@@ -7853,6 +7920,9 @@ export default function App() {
       {/* Doppia conferma eliminazione (condivisa da tutte le sezioni) */}
       {confirmDel && <ConfirmDeleteModal request={confirmDel} onClose={() => setConfirmDel(null)} />}
 
+      {/* Segnala ad Aulico (bug/richieste/errori — periodo di test) */}
+      {feedback && <FeedbackModal prefill={feedback} onClose={() => setFeedback(null)} onSubmit={handleSubmitDevReport} />}
+
       {/* Avviso nuova versione online (cache Pages sul telefono) */}
       <UpdateBanner />
 
@@ -7884,6 +7954,14 @@ export default function App() {
               <span className="text-green-500 font-extrabold">✓</span>
             )}
             <span>{t.msg}</span>
+            {t.type === 'err' && (
+              <button
+                onClick={() => setFeedback({ kind: 'errore', errorText: t.msg })}
+                className="ml-1 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-white text-[11px] font-bold cursor-pointer shrink-0"
+              >
+                Segnala
+              </button>
+            )}
           </div>
         ))}
       </div>
