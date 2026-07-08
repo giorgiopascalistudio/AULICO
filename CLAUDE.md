@@ -668,6 +668,17 @@ reporting/redditività, integrazioni esterne
   box, kind `errore`) e da "Nuova segnalazione" nella vista. Notifica in campanella ad
   admin/manager. Il widget dashboard "Chat recenti" è stato RIMOSSO (doppione di
   "Notifiche & messaggi").
+  ⚠️ **Adempimenti societari (8 lug)** — nodo **`compliance/<societa>`** (`ComplianceRecord`:
+  `items` map voce→{present, expiry, note, attachments}): **read studio attivo non-cliente/partner,
+  write admin/manager** — **ripubblicare le regole**. Sezione per OGNI società in *Contabilità &
+  Amministrazione* → **"Adempimenti societari"** (`amm-adempimenti`, view `compliance`, componente
+  `ComplianceView` lazy): checklist con voci PRECARICATE per società (`COMPLIANCE_SEED` dal foglio
+  docs/V2/00.jpeg — Onirico: Albo/Polizza/Inarcassa/Firma/PEC/Commercialista/Cespiti; Materico:
+  DURC/Cassa Edile/INAIL/INPS/Polizza/Sicurezza/Patentino/…; Unico e Fantastico: CCIAA/PEC/Polizza/
+  Commercialista; Strategico: PEC/Polizza/Firma/DVR/Visite mediche). Per voce: spunta presenza,
+  scadenza (badge scadenza/≤30gg), nota, allegati (link safeUrl **o** file inline immagini/PDF ≤700KB
+  data URL — per file grandi usare il link, come DriveUploader). Voci custom aggiungibili. Modulo
+  finance → admin/manager + permesso Opera.
   **Materico consegna 4 (dai 00-DESCRIZIONE)** — 3 upgrade, NESSUN nodo nuovo: 1) **Controllo
   margini PRE-FIRMA** in `MatericoContractsView` (pannello redditività quando il contratto è
   collegato a una commessa: ricavo/costo diretto dal computo, indiretti %, utile, margine % con
