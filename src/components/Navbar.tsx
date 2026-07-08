@@ -8,7 +8,7 @@
  * (Registro attività, Cestino). Niente più voci legacy.
  */
 import React, { useState } from 'react';
-import { LayoutGrid, Calendar, Building2, Bell, MoreHorizontal, X, ChevronDown } from 'lucide-react';
+import { LayoutGrid, Calendar, Building2, Bell, MoreHorizontal, X, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserProfile, Societa } from '../types';
 import { initials } from '../utils';
@@ -75,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const barTabs = [
     { id: 'home', label: 'Home', icon: LayoutGrid, active: isHome, onTap: () => go('#aulico/dashboard') },
     { id: 'agenda', label: 'Agenda', icon: Calendar, active: isAgenda, onTap: () => go('#aulico/agenda') },
-    { id: 'societa', label: 'Società', icon: Building2, active: inSociety || socOpen, onTap: () => setSocOpen(true) },
+    { id: 'societa', label: 'Società', icon: Building2, active: inSociety || socOpen, onTap: () => { setOpenSoc(null); setSocOpen(true); } },
     ...(moreItems.length ? [{ id: 'altro', label: 'Altro', icon: MoreHorizontal, active: isMore || moreOpen, onTap: () => setMoreOpen(true) }] : []),
   ];
 
@@ -88,7 +88,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-2 min-w-0">
           <span className="font-extrabold text-[18px] tracking-tight text-[#161616] font-sans antialiased">Aulico</span>
           {activeSocietyCfg && (
-            <button onClick={() => setSocOpen(true)} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f3f3f1] border border-[#e6e6e4] cursor-pointer min-w-0">
+            <button onClick={() => { setOpenSoc(activeSocieta); setSocOpen(true); }} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f3f3f1] border border-[#e6e6e4] cursor-pointer min-w-0">
               <span className="w-2 h-2 rounded-full shrink-0" style={{ background: activeSocietyCfg.color }} />
               <span className="text-[11px] font-extrabold text-[#444] truncate">{activeSocietyCfg.label}</span>
               <ChevronDown className="w-3 h-3 text-[#9a9a9a] shrink-0" />
@@ -163,79 +163,92 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={(e) => e.stopPropagation()}
               className="w-full max-h-[82vh] overflow-y-auto bg-white rounded-t-[26px] border-t border-[#ececec] shadow-2xl p-4 pb-[calc(env(safe-area-inset-bottom,0px)+18px)]"
             >
-              <div className="flex items-center justify-between px-1 pb-3 sticky top-0 bg-white z-10">
-                <b className="text-[15px] tracking-tight">Le società</b>
-                <button onClick={() => setSocOpen(false)} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 cursor-pointer bg-transparent border-none"><X className="w-4.5 h-4.5" /></button>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                {societies.map(({ society, entries }) => {
-                  const soc = society.id;
-                  const open = openSoc === soc;
-                  return (
-                    <div key={soc} className={`rounded-[18px] border ${open ? 'border-[#dcdcda] bg-[#fafaf8]' : 'border-[#ececec] bg-white'}`}>
-                      <button
-                        onClick={() => setOpenSoc(open ? null : soc)}
-                        className="flex items-center gap-2.5 px-3.5 py-3 w-full cursor-pointer bg-transparent border-none"
-                      >
-                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: society.color }} />
-                        <span className="flex-1 truncate text-left text-[13px] font-extrabold text-[#161616]">{society.label}</span>
-                        {activeSocieta === soc && <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#161616] text-white">attiva</span>}
-                        <ChevronDown className={`w-4 h-4 text-[#9a9a9a] transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-                      </button>
-                      <AnimatePresence initial={false}>
-                        {open && (
-                          <motion.div
-                            key={`${soc}:body`}
-                            initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            style={{ overflow: 'hidden' }}
+              {(() => {
+                const pageSoc = openSoc && CATEGORIE.includes(openSoc) ? societies.find((g) => g.society.id === openSoc) : null;
+                // LIVELLO 1 — griglia di card colorate (chooser società)
+                if (!pageSoc) return (
+                  <>
+                    <div className="flex items-center justify-between px-1 pb-3 sticky top-0 bg-white z-10">
+                      <b className="text-[15px] tracking-tight">Le società</b>
+                      <button onClick={() => setSocOpen(false)} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 cursor-pointer bg-transparent border-none"><X className="w-4.5 h-4.5" /></button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {societies.map(({ society, entries }) => {
+                        const soc = society.id;
+                        const secCount = entries.reduce((n, e) => n + (e.children.length || 1), 0);
+                        const active = activeSocieta === soc;
+                        return (
+                          <button
+                            key={soc}
+                            onClick={() => setOpenSoc(soc)}
+                            className="relative overflow-hidden rounded-[20px] border border-[#ececec] p-3.5 text-left flex flex-col gap-2 min-h-[104px] cursor-pointer active:scale-[0.98] transition-transform"
+                            style={{ background: `${society.color}0f` }}
                           >
-                            <div className="px-2.5 pb-2.5 flex flex-col gap-2">
-                              {entries.map(({ top, children }) => {
-                                const TopIcon = top.icon;
-                                if (children.length === 0) {
-                                  const active = activeSocieta === soc && activeSection === top.id;
-                                  return (
-                                    <button key={top.id} onClick={() => go(`#${societaSlug(soc)}/${top.id}`)} className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-[12.5px] font-bold cursor-pointer ${active ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white border-[#ececec] text-[#333]'}`}>
-                                      <TopIcon className="w-4 h-4" /> {top.label}
-                                    </button>
-                                  );
-                                }
+                            <span className="absolute top-0 left-0 h-full w-1.5" style={{ background: society.color }} />
+                            <span className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0" style={{ background: society.color }}>
+                              <Building2 className="w-4.5 h-4.5" />
+                            </span>
+                            <span className="flex-1 flex flex-col justify-end">
+                              <span className="block text-[13.5px] font-extrabold text-[#161616] leading-tight truncate">{society.label}</span>
+                              <span className="block text-[10.5px] font-bold text-[#8a8a8a] mt-0.5">{secCount} sezion{secCount === 1 ? 'e' : 'i'}</span>
+                            </span>
+                            {active && <span className="absolute top-2.5 right-2.5 text-[8.5px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[#161616] text-white">attiva</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                );
+                // LIVELLO 2 — pagina dedicata della società scelta
+                const { society, entries } = pageSoc;
+                const soc = society.id;
+                return (
+                  <>
+                    <div className="flex items-center gap-2 px-1 pb-3 sticky top-0 bg-white z-10">
+                      <button onClick={() => setOpenSoc(null)} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 cursor-pointer bg-transparent border-none"><ChevronLeft className="w-5 h-5" /></button>
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: society.color }} />
+                      <b className="flex-1 text-[15px] tracking-tight truncate">{society.label}</b>
+                      <button onClick={() => setSocOpen(false)} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 cursor-pointer bg-transparent border-none"><X className="w-4.5 h-4.5" /></button>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      {entries.map(({ top, children }) => {
+                        const TopIcon = top.icon;
+                        if (children.length === 0) {
+                          const active = activeSocieta === soc && activeSection === top.id;
+                          return (
+                            <button key={top.id} onClick={() => go(`#${societaSlug(soc)}/${top.id}`)} className={`flex items-center gap-2 px-3.5 py-3 rounded-2xl border text-[13px] font-bold cursor-pointer ${active ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white border-[#ececec] text-[#333]'}`}>
+                              <TopIcon className="w-4.5 h-4.5" /> <span className="flex-1 text-left">{top.label}</span> <ChevronRight className="w-4 h-4 opacity-40" />
+                            </button>
+                          );
+                        }
+                        return (
+                          <div key={top.id}>
+                            <div className="flex items-center gap-1.5 px-1.5 pb-1.5 text-[10.5px] font-extrabold uppercase tracking-wider text-[#8a8a8a]">
+                              <TopIcon className="w-3.5 h-3.5" /> {top.label}
+                            </div>
+                            <div className="grid grid-cols-2 gap-1.5">
+                              {children.map((sec) => {
+                                const Icon = sec.icon;
+                                const active = activeSocieta === soc && activeSection === sec.id;
                                 return (
-                                  <div key={top.id}>
-                                    <button
-                                      onClick={() => go(`#${societaSlug(soc)}/${top.id}`)}
-                                      className="flex items-center gap-1.5 px-1.5 pb-1 text-[10.5px] font-extrabold uppercase tracking-wider text-[#8a8a8a] cursor-pointer bg-transparent border-none"
-                                    >
-                                      <TopIcon className="w-3.5 h-3.5" /> {top.label}
-                                    </button>
-                                    <div className="grid grid-cols-2 gap-1.5">
-                                      {children.map((sec) => {
-                                        const Icon = sec.icon;
-                                        const active = activeSocieta === soc && activeSection === sec.id;
-                                        return (
-                                          <button
-                                            key={sec.id}
-                                            onClick={() => go(`#${societaSlug(soc)}/${sec.id}`)}
-                                            className={`flex items-center gap-2 px-2.5 py-2.5 rounded-xl border text-[12px] font-bold cursor-pointer text-left ${active ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white border-[#ececec] text-[#333] hover:border-[#cfcfcf]'}`}
-                                          >
-                                            <Icon className={`w-4 h-4 shrink-0 ${active ? '' : 'opacity-60'}`} />
-                                            <span className="truncate leading-tight">{sec.label}</span>
-                                          </button>
-                                        );
-                                      })}
-                                    </div>
-                                  </div>
+                                  <button
+                                    key={sec.id}
+                                    onClick={() => go(`#${societaSlug(soc)}/${sec.id}`)}
+                                    className={`flex items-center gap-2 px-2.5 py-2.5 rounded-xl border text-[12px] font-bold cursor-pointer text-left ${active ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white border-[#ececec] text-[#333] hover:border-[#cfcfcf]'}`}
+                                  >
+                                    <Icon className={`w-4 h-4 shrink-0 ${active ? '' : 'opacity-60'}`} />
+                                    <span className="truncate leading-tight">{sec.label}</span>
+                                  </button>
                                 );
                               })}
                             </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
+                  </>
+                );
+              })()}
             </motion.div>
           </motion.div>
         )}
