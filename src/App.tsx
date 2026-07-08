@@ -63,6 +63,7 @@ import {
   Notification,
   TeamLeave,
   DevReport,
+  ComplianceRecord,
   Quote,
   PaymentMilestone,
   PriceItem,
@@ -197,6 +198,7 @@ const PianoFinanziarioView = React.lazy(() => import('./components/PianoFinanzia
 const ProgFatturazioneView = React.lazy(() => import('./components/ProgFatturazioneView').then((m) => ({ default: m.ProgFatturazioneView })));
 const CommercialeView = React.lazy(() => import('./components/CommercialeView').then((m) => ({ default: m.CommercialeView })));
 const DevReportsView = React.lazy(() => import('./components/DevReportsView').then((m) => ({ default: m.DevReportsView })));
+const ComplianceView = React.lazy(() => import('./components/ComplianceView').then((m) => ({ default: m.ComplianceView })));
 const EditorialCalendar = React.lazy(() => import('./components/EditorialCalendar').then((m) => ({ default: m.EditorialCalendar })));
 const MarketingHub = React.lazy(() => import('./components/MarketingHub').then((m) => ({ default: m.MarketingHub })));
 const DirezioneHub = React.lazy(() => import('./components/DirezioneHub').then((m) => ({ default: m.DirezioneHub })));
@@ -563,6 +565,8 @@ export default function App() {
   const [teamLeave, setTeamLeave] = useState<Record<string, TeamLeave>>({});
   // Segnalazioni sviluppo software (bug/richieste/errori — periodo di test)
   const [devReports, setDevReports] = useState<Record<string, DevReport>>({});
+  // Adempimenti societari (compliance/<societa>): checklist documenti per società
+  const [compliance, setCompliance] = useState<Record<string, ComplianceRecord>>({});
   // Form "Segnala ad Aulico": null = chiuso, oggetto = aperto (con eventuale prefill errore)
   const [feedback, setFeedback] = useState<FeedbackPrefill | null>(null);
 
@@ -1863,6 +1867,8 @@ export default function App() {
       add('clients', setClients);
       // Ferie/assenze team
       add('teamLeave', setTeamLeave);
+      // Adempimenti societari (checklist documenti per società)
+      add('compliance', setCompliance);
       // Segnalazioni sviluppo (bug/richieste/errori): read solo direzione (regole)
       if (currentUser.role === 'admin' || currentUser.role === 'manager') add('devReports', setDevReports);
       // Cestino condiviso (elementi eliminati, 60 giorni)
@@ -4051,6 +4057,12 @@ export default function App() {
     });
     setFeedback(null);
   };
+  // ---- Adempimenti societari (compliance/<societa>) ----
+  const handleSaveCompliance = (soc: Societa, record: ComplianceRecord) => {
+    const rec = { ...record, by: currentUser?.uid || null };
+    setCompliance((prev) => ({ ...prev, [soc]: rec }));
+    writeNode(`compliance/${soc}`, rec).catch(() => showToast('Errore salvataggio adempimenti (controlla regole/permessi).', 'err'));
+  };
   const handleSetDevReportStatus = (id: string, status: DevReport['status']) => {
     setDevReports((prev) => (prev[id] ? { ...prev, [id]: { ...prev[id], status } } : prev));
     updateNode(`devReports/${id}`, { status }).catch(() => showToast('Errore aggiornamento (regole/permessi).', 'err'));
@@ -5750,6 +5762,20 @@ export default function App() {
                   projects={Object.values(projects).filter((p) => p.division === 'studio' && !p.archived)}
                   color={society.color}
                   canEdit={isStudioRole(currentUser.role) && secOp}
+                />
+              </React.Suspense>
+            );
+          case 'compliance':
+            // Adempimenti societari: checklist documenti per società (nodo compliance/<soc>).
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <ComplianceView
+                  soc={activeSocieta}
+                  socLabel={society.label}
+                  color={society.color}
+                  record={compliance[activeSocieta as string]}
+                  canEdit={(currentUser.role === 'admin' || currentUser.role === 'manager') && secOp}
+                  onSave={handleSaveCompliance}
                 />
               </React.Suspense>
             );

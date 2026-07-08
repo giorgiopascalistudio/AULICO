@@ -360,6 +360,31 @@ export interface DevReport {
   status: 'aperta' | 'in_lavorazione' | 'risolta' | 'chiusa';
 }
 
+/**
+ * Adempimenti societari (nodo compliance/<societa>): checklist di documenti/
+ * obblighi per società (Albo, PEC, Polizza, DURC…). Ogni voce si spunta come
+ * "presente" e può avere scadenza + allegati (link o file/scansione inline).
+ */
+export interface ComplianceAttachment {
+  id: string;
+  name: string;
+  kind: 'link' | 'file';
+  url: string;                   // http(s) per 'link'; data URL per 'file' (solo immagini/PDF piccoli)
+  mime?: string | null;
+}
+export interface ComplianceItemState {
+  present: boolean;
+  note?: string | null;
+  expiry?: string | null;        // yyyy-mm-dd (per polizze/DURC/firma che scadono)
+  attachments?: ComplianceAttachment[];
+  customLabel?: string | null;   // presente solo per le voci aggiunte a mano
+}
+export interface ComplianceRecord {
+  items: Record<string, ComplianceItemState>;
+  updatedAt: number;
+  by?: string | null;
+}
+
 /** Ferie/assenze del team (nodo teamLeave/<id>). */
 export interface TeamLeave {
   id: string;

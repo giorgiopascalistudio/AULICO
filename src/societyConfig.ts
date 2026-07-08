@@ -26,7 +26,7 @@ import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
   Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
-  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles, Bug,
+  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles, Bug, ClipboardCheck,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
 import { SOCIETA_LABEL, canView, resolveSectionAccess, atLeast, sectionOverride } from './access';
@@ -417,6 +417,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   // ---- CONTABILITÀ & AMMINISTRAZIONE (consultazione: gestione centralizzata nel Centro Direzione di Strategico) ----
   s.push({ id: 'amm', label: 'Contabilità & Amministrazione', icon: DollarSign, module: 'finance', kind: 'group' });
   s.push({ id: 'amm-quadro', label: 'Quadro contabile', icon: DollarSign, parent: 'amm', module: 'finance', view: 'contabilita-read', note: 'Numeri della società in sola consultazione — la gestione è in Strategico → Centro Direzione.' });
+  s.push({ id: 'amm-adempimenti', label: 'Adempimenti societari', icon: ClipboardCheck, parent: 'amm', module: 'finance', view: 'compliance', note: 'Checklist dei documenti/obblighi della società (Albo, PEC, Polizza, DURC…): spunta la presenza e allega i documenti.' });
   s.push({ id: 'amm-credenziali', label: 'Credenziali & password', icon: Lock, parent: 'amm', module: 'finance', view: 'credenziali-soc', note: 'Cassaforte credenziali della società (master password).' });
   s.push({ id: 'amm-registro', label: 'Registro attività', icon: ScrollText, parent: 'amm', module: 'registro', legacyRoute: 'registro', shared: true });
 
@@ -455,6 +456,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       { id: 'amm', label: 'Amministrazione & Contabilità', icon: Briefcase, module: 'finance', kind: 'group' },
       { id: 'amm-centro', label: 'Centro Direzione', icon: Briefcase, parent: 'amm', module: 'finance', view: 'direzione-hub', note: 'Salute economica di tutte le società + workspace per società con le sezioni della riunione strategica: KPI, Piano finanziario, IVA & Fiscale, Programmazione (fatturazione+costi), BEP, Budget per aree, Cicli aperti, Obiettivi, Report stampabile.' },
       { id: 'amm-contabilita', label: 'Contabilità operativa', icon: DollarSign, parent: 'amm', shared: true, module: 'finance', legacyRoute: 'finanze', note: 'Registrazione fatture, scadenze, movimenti e preventivi di tutte le società (selettore Società).' },
+      { id: 'amm-adempimenti', label: 'Adempimenti societari', icon: ClipboardCheck, parent: 'amm', module: 'finance', view: 'compliance', note: 'Checklist dei documenti/obblighi di Strategico (PEC, Polizza, Firma, DVR/visite mediche dipendenti…): spunta la presenza e allega i documenti.' },
       { id: 'hr-governance', label: 'Governance', icon: Network, parent: 'amm', module: 'governance', view: 'governance', note: 'Organigramma, mansionari, procedure (SOP), team & permessi, cassaforte password.' },
       // === SOTTO-CATEGORIA: Sviluppo Software ===
       { id: 'software', label: 'Sviluppo Software', icon: Code2, module: 'software', kind: 'group' },
