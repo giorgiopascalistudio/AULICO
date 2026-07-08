@@ -3,12 +3,24 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
 
+// Build id per l'avviso "nuova versione online" (UpdateBanner): iniettato nel
+// bundle via define e pubblicato come version.json accanto a index.html — a ogni
+// deploy cambia, così l'app aperta (anche in cache) sa che c'è un aggiornamento.
+const BUILD_ID = Date.now().toString(36);
+
 // base: './' => percorsi relativi, così funziona sia su
 // utente.github.io (root) sia su utente.github.io/repo (sottocartella).
 // Il routing dell'app è già a hash (#dashboard…), ideale per GitHub Pages.
 export default defineConfig({
   base: './',
-  plugins: [react(), tailwindcss()],
+  define: { __BUILD_ID__: JSON.stringify(BUILD_ID) },
+  plugins: [react(), tailwindcss(), {
+    name: 'emit-version-json',
+    apply: 'build',
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ id: BUILD_ID }) });
+    },
+  }],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.')

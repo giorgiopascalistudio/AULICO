@@ -227,6 +227,7 @@ import { LangProvider } from './i18n';
 import { AccessRequests } from './components/AccessRequests';
 import type { Lead, Supplier } from './components/CrmView';
 import { ConfirmDeleteModal, type ConfirmDeleteRequest } from './components/ConfirmDeleteModal';
+import { UpdateBanner } from './components/UpdateBanner';
 import {
   watchAuth,
   logoutGoogle,
@@ -4897,6 +4898,7 @@ export default function App() {
       </React.Suspense>
       {/* Doppia conferma eliminazione anche nel portale cliente/partner */}
       {confirmDel && <ConfirmDeleteModal request={confirmDel} onClose={() => setConfirmDel(null)} />}
+      <UpdateBanner />
       </LangProvider>
     );
   }
@@ -7850,6 +7852,9 @@ export default function App() {
 
       {/* Doppia conferma eliminazione (condivisa da tutte le sezioni) */}
       {confirmDel && <ConfirmDeleteModal request={confirmDel} onClose={() => setConfirmDel(null)} />}
+
+      {/* Avviso nuova versione online (cache Pages sul telefono) */}
+      <UpdateBanner />
 
       {/* Assistente personale AI — bottone flottante su ogni schermata (studio) */}
       <TeamAssistant
