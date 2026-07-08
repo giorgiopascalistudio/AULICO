@@ -29,7 +29,7 @@ import {
   Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
-import { SOCIETA_LABEL, canView, resolveSectionAccess, atLeast } from './access';
+import { SOCIETA_LABEL, canView, resolveSectionAccess, atLeast, sectionOverride } from './access';
 
 /** Divisioni "operative" (società con progetti/finanza già esistenti). */
 export type Division = 'studio' | 'strategico' | 'materico' | 'unico';
@@ -522,18 +522,34 @@ export function findSection(s: Societa, sectionId: string): SectionConfig | unde
   return getSociety(s)?.sections.find((sec) => sec.id === sectionId);
 }
 
+/**
+ * Livello effettivo di una sezione, con CASCATA sull'albero della sidebar:
+ * override della sezione stessa → override del suo GRUPPO padre (così "Opera"
+ * sulla riga madre, es. "Marketing", vale per tutte le sue voci senza doverle
+ * impostare una a una) → modulo/default della società.
+ */
+function sectionLevel(profile: Parameters<typeof canView>[0], s: Societa, sec: SectionConfig): AccessLevel {
+  const own = sectionOverride(profile, s, sec.id);
+  if (own != null) return own;
+  if (sec.parent) {
+    const parent = sectionOverride(profile, s, sec.parent);
+    if (parent != null) return parent;
+  }
+  return resolveSectionAccess(profile, s, sec.id, sec.module);
+}
+
 /** Vero se l'utente può vedere la sezione (RBAC). */
 export function canViewSection(profile: Parameters<typeof canView>[0], s: Societa, sec: SectionConfig): boolean {
   // Dashboard/Agenda personali: sempre accessibili, MAI gated dai permessi.
   if (sec.personal) return true;
-  // Override per-sezione (access.sections) → altrimenti modulo/default come prima.
-  return atLeast(resolveSectionAccess(profile, s, sec.id, sec.module), 'view');
+  // Override sezione → gruppo padre → modulo/default.
+  return atLeast(sectionLevel(profile, s, sec), 'view');
 }
 
-/** Vero se l'utente può OPERARE sulla sezione (override per-sezione → modulo). */
+/** Vero se l'utente può OPERARE sulla sezione (override sezione → gruppo → modulo). */
 export function canOperateSection(profile: Parameters<typeof canView>[0], s: Societa, sec: SectionConfig): boolean {
   if (sec.personal) return true;
-  return atLeast(resolveSectionAccess(profile, s, sec.id, sec.module), 'operate');
+  return atLeast(sectionLevel(profile, s, sec), 'operate');
 }
 
 /** Prima rotta autorizzata per l'utente, per il landing/redirect. */

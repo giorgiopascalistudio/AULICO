@@ -123,6 +123,16 @@ export function resolveSectionAccess(
   return resolveAccess(profile, societa, modulo);
 }
 
+/** Override esplicito per-sezione dalla mappa effettiva (nessun fallback). */
+export function sectionOverride(
+  profile: Pick<UserProfile, 'access' | 'role'> | null | undefined,
+  societa: Societa,
+  sectionId: string,
+): AccessLevel | undefined {
+  const sa = effectiveAccess(profile)[societa];
+  return sa?.sections ? sa.sections[sectionId] : undefined;
+}
+
 export function canView(p: Parameters<typeof resolveAccess>[0], s: Societa, m?: string): boolean {
   return atLeast(resolveAccess(p, s, m), 'view');
 }

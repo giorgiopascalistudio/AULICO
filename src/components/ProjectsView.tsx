@@ -63,6 +63,8 @@ interface ProjectsViewProps {
   param: string | null;
   onNav: (route: string) => void;
   onNewProject: () => void;
+  /** Permesso di creare cicli/pratiche (permesso "Opera" sulla sezione). */
+  canCreate?: boolean;
   onEditProject: (projectId: string) => void;
   onDeleteProject: (projectId: string) => void;
   onTogglePtask: (projId: string, phId: string, tId: string) => void;
@@ -230,6 +232,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   param,
   onNav,
   onNewProject,
+  canCreate = false,
   onEditProject,
   onDeleteProject,
   onTogglePtask,
@@ -2479,6 +2482,15 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </div>
 
         {!hideProjectsUI && (
+        <div className="flex items-center gap-1.5">
+        {canCreate && (
+          <button
+            onClick={() => onNewProject()}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-[#1b1b1b] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none shadow-sm active:scale-[0.98] transition-all"
+          >
+            <Plus className="w-4 h-4" /> Nuovo ciclo
+          </button>
+        )}
         <div className="flex items-center gap-1.5 bg-white border border-[#e2e2e2] p-1.5 rounded-2xl shadow-sm">
           <button
             onClick={() => setViewMode('grid')}
@@ -2496,6 +2508,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           >
             <List className="w-4.5 h-4.5" />
           </button>
+        </div>
         </div>
         )}
       </div>

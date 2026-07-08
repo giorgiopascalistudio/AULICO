@@ -39,6 +39,8 @@ interface Props {
   restrictRoles?: string[];   // se presente: lista pre-filtrata a questi ruoli (es. fornitori)
   variant?: 'clienti' | 'fornitori';  // filtri e scheda differenziati
   title?: string;
+  /** false = SOLA CONSULTAZIONE (permesso "Visualizza" per-sezione). */
+  canEdit?: boolean;
 }
 
 const onKeys = (m?: Record<string, boolean>) => Object.keys(m || {}).filter((k) => m![k]);
@@ -69,7 +71,7 @@ const tierStyle = (t?: number | null) => (t === 1 ? 'bg-rose-50 text-rose-700' :
 const INT_ICON = { riunione: FileText, evento: Calendar, campagna: Megaphone, regalo: Gift } as const;
 const INT_LABEL = { riunione: 'Riunione / Nota', evento: 'Evento', campagna: 'Campagna', regalo: 'Pensiero / Gadget' } as const;
 
-export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, onImport, paymentStatus, projectsOf, memberName, consentsOf, duplicatesOf, onMerge, restrictRoles, variant = 'clienti', title }) => {
+export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, onImport, paymentStatus, projectsOf, memberName, consentsOf, duplicatesOf, onMerge, restrictRoles, variant = 'clienti', title, canEdit = true }) => {
   const isFornitori = variant === 'fornitori';
   const [selId, setSelId] = React.useState<string | null>(null);
   const [search, setSearch] = React.useState('');
@@ -101,8 +103,8 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
 
   const sel = selId ? clients.find((c) => c.id === selId) || null : null;
 
-  // patch helper: aggiorna il contatto selezionato e persiste
-  const patch = (changes: Partial<ClientRecord>) => { if (sel) onSave({ ...sel, ...changes, updatedAt: Date.now() }); };
+  // patch helper: aggiorna il contatto selezionato e persiste (no-op in sola consultazione)
+  const patch = (changes: Partial<ClientRecord>) => { if (sel && canEdit) onSave({ ...sel, ...changes, updatedAt: Date.now() }); };
 
   const roleLabel = (id: string) => roles.find((r) => r.id === id)?.label || id;
 
@@ -161,8 +163,8 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
             <div className="flex items-center gap-1.5 flex-wrap justify-end">
               <button onClick={exportCsv} title="Esporta CSV (filtri applicati)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Download className="w-3.5 h-3.5" /> CSV</button>
               <button onClick={exportPdf} title="Esporta PDF / stampa (filtri applicati)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><FileDown className="w-3.5 h-3.5" /> PDF</button>
-              {onImport && <button onClick={onImport} title="Importa da CSV (registro clienti)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Upload className="w-3.5 h-3.5" /> Importa</button>}
-              <button onClick={onNew} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> Nuovo</button>
+              {canEdit && onImport && <button onClick={onImport} title="Importa da CSV (registro clienti)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Upload className="w-3.5 h-3.5" /> Importa</button>}
+              {canEdit && <button onClick={onNew} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> Nuovo</button>}
             </div>
           </div>
           {/* Ricerca */}
@@ -271,10 +273,12 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button onClick={() => onEdit(sel.id)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#e2e2e2] hover:border-black text-[#333] text-[12.5px] font-bold cursor-pointer bg-white"><Edit2 className="w-4 h-4" /> Modifica</button>
-                  <button onClick={() => onDelete(sel)} className="p-2 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 cursor-pointer bg-white"><Trash2 className="w-4 h-4" /></button>
-                </div>
+                {canEdit && (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button onClick={() => onEdit(sel.id)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#e2e2e2] hover:border-black text-[#333] text-[12.5px] font-bold cursor-pointer bg-white"><Edit2 className="w-4 h-4" /> Modifica</button>
+                    <button onClick={() => onDelete(sel)} className="p-2 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 cursor-pointer bg-white"><Trash2 className="w-4 h-4" /></button>
+                  </div>
+                )}
               </div>
 
               {/* BANNER LIBERATORIA BLOCCANTE */}
@@ -298,10 +302,13 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
               </div>
 
               <div className="flex-1 overflow-y-auto p-5">
-                {detTab === 'anagrafica' && <AnagraficaPane sel={sel} pay={pay} societies={societies} roles={roles} onPatch={patch} projectsOf={projectsOf} memberName={memberName} isFornitori={isFornitori} consents={consentsOf ? consentsOf(sel) : undefined} duplicates={duplicatesOf ? duplicatesOf(sel) : []} onMerge={onMerge} />}
-                {detTab === 'brand' && <BrandPane sel={sel} onSave={(b) => patch({ brandAsset: b })} />}
-                {detTab === 'credenziali' && <CredenzialiPane sel={sel} pwShown={pwShown} setPwShown={setPwShown} onSave={(cr) => patch({ credentials: cr })} />}
-                {detTab === 'storia' && <StoriaPane sel={sel} onSave={(it) => patch({ interactions: it })} />}
+                {/* Sola consultazione: il fieldset disabilita nativamente input/bottoni dei pannelli */}
+                <fieldset disabled={!canEdit} className="contents">
+                  {detTab === 'anagrafica' && <AnagraficaPane sel={sel} pay={pay} societies={societies} roles={roles} onPatch={patch} projectsOf={projectsOf} memberName={memberName} isFornitori={isFornitori} consents={consentsOf ? consentsOf(sel) : undefined} duplicates={duplicatesOf ? duplicatesOf(sel) : []} onMerge={canEdit ? onMerge : undefined} />}
+                  {detTab === 'brand' && <BrandPane sel={sel} onSave={(b) => patch({ brandAsset: b })} />}
+                  {detTab === 'credenziali' && <CredenzialiPane sel={sel} pwShown={pwShown} setPwShown={setPwShown} onSave={(cr) => patch({ credentials: cr })} />}
+                  {detTab === 'storia' && <StoriaPane sel={sel} onSave={(it) => patch({ interactions: it })} />}
+                </fieldset>
               </div>
             </>
           );

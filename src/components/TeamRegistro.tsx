@@ -277,7 +277,7 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
                     <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase inline-flex items-center gap-1"><UserCog className="w-3 h-3" /> Permessi per società</p>
                     {Object.keys(access).length > 0 && <button onClick={() => { setAccess({}); setDirty(true); }} className="text-[11px] font-bold text-[#b45309] hover:underline cursor-pointer bg-transparent border-none p-0">Ripristina dal ruolo</button>}
                   </div>
-                  <p className="text-[11px] text-[#9a9a9a] mb-2">"Predefinito" usa i permessi del ruolo. Il livello società vale per tutte le sue sezioni; con "Sezioni" scendi nel dettaglio (Nascosta / Visualizza / Opera per singola sezione).</p>
+                  <p className="text-[11px] text-[#9a9a9a] mb-2">"Predefinito" usa i permessi del ruolo. Il livello società vale per tutte le sue sezioni; con "Sezioni" scendi nel dettaglio (Nascosta / Visualizza / Opera). Un livello su una riga <b>in grassetto</b> (gruppo, es. Marketing) vale per tutte le sue voci; le singole voci possono comunque sovrascriverlo. Es.: società "Nessuno" + gruppo Marketing "Opera" = l'utente vede SOLO il Marketing di quella società.</p>
                   <div className="flex flex-col gap-1.5">
                     {SOCIETA.map((s) => {
                       const soc = SOCIETY_REGISTRY.find((x) => x.id === s);

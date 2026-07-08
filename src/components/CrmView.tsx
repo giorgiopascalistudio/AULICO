@@ -69,6 +69,8 @@ interface CrmViewProps {
   onRouteLead?: (lead: Lead, sector: 'studio' | 'strategico' | 'materico') => void;
   /** Permesso "gestione lead" (Point of Entry). Senza, lo smistamento è nascosto. */
   canManageLeads?: boolean;
+  /** Permesso per-sezione: false = SOLA CONSULTAZIONE (niente nuovo/modifica/elimina). */
+  canEdit?: boolean;
   clients?: Record<string, ClientRecord>;
   onSaveClient?: (rec: ClientRecord) => void;
   onDeleteClient?: (id: string) => void;
@@ -158,6 +160,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
   onConvertLead,
   onRouteLead,
   canManageLeads = true,
+  canEdit = true,
   clients = {},
   onSaveClient,
   onDeleteClient,
@@ -410,7 +413,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
             Pipeline commerciale, fornitori e storico delle interazioni.
           </p>
         </div>
-        {tab !== 'dashboard' && (
+        {tab !== 'dashboard' && canEdit && (
           <button
             onClick={() => { resetForm(); tab === 'pipeline' ? setNewLeadOpen(true) : tab === 'fornitori' ? openNewFornitore() : openNewClient(); }}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none hover:shadow-md active:scale-[0.98] transition-all"
@@ -482,14 +485,16 @@ export const CrmView: React.FC<CrmViewProps> = ({
                       </span>
                       {l.value ? <span className="text-[11px] font-bold text-[#161616]">{eur(l.value)}</span> : null}
                     </div>
-                    <div className="flex items-center justify-between pt-1 border-t border-dashed border-[#f0f0f0]">
-                      <button onClick={(e) => { e.stopPropagation(); moveLead(l.id, -1); }} className="w-6 h-6 rounded-md hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-black cursor-pointer border-none bg-transparent">
-                        <ChevronLeft className="w-3.5 h-3.5" />
-                      </button>
-                      <button onClick={(e) => { e.stopPropagation(); moveLead(l.id, 1); }} className="w-6 h-6 rounded-md hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-black cursor-pointer border-none bg-transparent">
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                    {canEdit && (
+                      <div className="flex items-center justify-between pt-1 border-t border-dashed border-[#f0f0f0]">
+                        <button onClick={(e) => { e.stopPropagation(); moveLead(l.id, -1); }} className="w-6 h-6 rounded-md hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-black cursor-pointer border-none bg-transparent">
+                          <ChevronLeft className="w-3.5 h-3.5" />
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); moveLead(l.id, 1); }} className="w-6 h-6 rounded-md hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-black cursor-pointer border-none bg-transparent">
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -506,6 +511,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
             title="Fornitori & Subappaltatori"
             variant="fornitori"
             restrictRoles={['fornitore', 'impresa']}
+            canEdit={canEdit}
             clients={Object.values(clients)}
             societies={CRM_SOCIETIES}
             roles={CONTACT_ROLES}
@@ -524,6 +530,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
       {tab === 'clienti' && (
         <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico il registro…</div>}>
           <CrmRegistro
+            canEdit={canEdit}
             clients={Object.values(clients)}
             societies={CRM_SOCIETIES}
             roles={CONTACT_ROLES}
@@ -531,13 +538,13 @@ export const CrmView: React.FC<CrmViewProps> = ({
             onDelete={(rec) => onDeleteClient?.(rec.id)}
             onEdit={openEditClient}
             onNew={openNewClient}
-            onImport={onImportClients ? () => setImportOpen(true) : undefined}
+            onImport={canEdit && onImportClients ? () => setImportOpen(true) : undefined}
             paymentStatus={(rec) => { const p = paymentsOfClient(rec); return { ok: p.daIncassare <= 0.5, daIncassare: p.daIncassare }; }}
             projectsOf={(rec) => projectsOfClient(rec).map((p) => ({ id: p.id, name: p.name, status: p.status, manager: p.manager || null }))}
             memberName={memberName}
             consentsOf={consentsOf}
             duplicatesOf={duplicatesOf}
-            onMerge={onMergeClients}
+            onMerge={canEdit ? onMergeClients : undefined}
           />
         </React.Suspense>
       )}
@@ -652,10 +659,12 @@ export const CrmView: React.FC<CrmViewProps> = ({
             )}
           </div>
 
-          <div className="flex items-center gap-2 mt-5">
-            <button onClick={() => { openEditClient(activeClient.id); setOpenClient(null); }} className="flex-1 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[13px] cursor-pointer border-none">Modifica</button>
-            <button onClick={() => { onDeleteClient?.(activeClient.id); setOpenClient(null); }} className="py-2.5 px-3 rounded-xl border border-[#e2e2e2] text-rose-600 font-bold text-[13px] cursor-pointer bg-white" title="Elimina (nel Cestino)"><Trash2 className="w-4 h-4" /></button>
-          </div>
+          {canEdit && (
+            <div className="flex items-center gap-2 mt-5">
+              <button onClick={() => { openEditClient(activeClient.id); setOpenClient(null); }} className="flex-1 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[13px] cursor-pointer border-none">Modifica</button>
+              <button onClick={() => { onDeleteClient?.(activeClient.id); setOpenClient(null); }} className="py-2.5 px-3 rounded-xl border border-[#e2e2e2] text-rose-600 font-bold text-[13px] cursor-pointer bg-white" title="Elimina (nel Cestino)"><Trash2 className="w-4 h-4" /></button>
+            </div>
+          )}
         </Overlay>
         );
       })()}
@@ -839,7 +848,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
           </div>
 
           {/* Smistamento alla società di competenza (Point of Entry) */}
-          {canManageLeads && (
+          {canManageLeads && canEdit && (
             <div className="mb-4 rounded-xl border border-[#ececec] bg-[#fafafa] p-3">
               {activeLead.routed ? (
                 <div className="flex items-center gap-1.5 text-[12px] text-emerald-700 font-bold">
@@ -873,19 +882,21 @@ export const CrmView: React.FC<CrmViewProps> = ({
             </div>
           )}
 
-          <div className="flex items-center gap-2 mb-4 flex-wrap">
-            {activeLead.stage !== 'vinto' && activeLead.stage !== 'perso' && (
-              <button onClick={() => { onConvertLead(activeLead); onSaveLeads(leads.map(l => l.id === activeLead.id ? { ...l, stage: 'vinto' } : l)); setOpenLead(null); }}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1b1b1b] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none">
-                <ArrowRightCircle className="w-4 h-4" /> Converti in commessa
+          {canEdit && (
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              {activeLead.stage !== 'vinto' && activeLead.stage !== 'perso' && (
+                <button onClick={() => { onConvertLead(activeLead); onSaveLeads(leads.map(l => l.id === activeLead.id ? { ...l, stage: 'vinto' } : l)); setOpenLead(null); }}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1b1b1b] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none">
+                  <ArrowRightCircle className="w-4 h-4" /> Converti in commessa
+                </button>
+              )}
+              <button onClick={() => deleteLead(activeLead.id)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-[12px] font-bold cursor-pointer border border-red-200">
+                <Trash2 className="w-4 h-4" /> Elimina
               </button>
-            )}
-            <button onClick={() => deleteLead(activeLead.id)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-[12px] font-bold cursor-pointer border border-red-200">
-              <Trash2 className="w-4 h-4" /> Elimina
-            </button>
-          </div>
+            </div>
+          )}
 
-          <NotesPanel notes={activeLead.notes} draft={noteDraft} setDraft={setNoteDraft} onAdd={() => addLeadNote(activeLead.id)} />
+          <NotesPanel notes={activeLead.notes} draft={noteDraft} setDraft={setNoteDraft} onAdd={canEdit ? () => addLeadNote(activeLead.id) : undefined} />
         </Overlay>
       )}
 
@@ -906,12 +917,14 @@ export const CrmView: React.FC<CrmViewProps> = ({
               {activeSupplier.phone && <span className="flex items-center gap-1.5 text-[12px] text-gray-600"><Phone className="w-3.5 h-3.5 text-gray-400" />{activeSupplier.phone}</span>}
             </div>
           )}
-          <div className="mb-4">
-            <button onClick={() => deleteSupplier(activeSupplier.id)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-[12px] font-bold cursor-pointer border border-red-200">
-              <Trash2 className="w-4 h-4" /> Elimina
-            </button>
-          </div>
-          <NotesPanel notes={activeSupplier.notes} draft={noteDraft} setDraft={setNoteDraft} onAdd={() => addSupplierNote(activeSupplier.id)} />
+          {canEdit && (
+            <div className="mb-4">
+              <button onClick={() => deleteSupplier(activeSupplier.id)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-[12px] font-bold cursor-pointer border border-red-200">
+                <Trash2 className="w-4 h-4" /> Elimina
+              </button>
+            </div>
+          )}
+          <NotesPanel notes={activeSupplier.notes} draft={noteDraft} setDraft={setNoteDraft} onAdd={canEdit ? () => addSupplierNote(activeSupplier.id) : undefined} />
         </Overlay>
       )}
 
@@ -992,13 +1005,15 @@ const SectorSelect: React.FC<{ value: string; onChange: (v: any) => void }> = ({
     <option value="materico">Materico</option>
   </select>
 );
-const NotesPanel: React.FC<{ notes?: CrmNote[]; draft: string; setDraft: (s: string) => void; onAdd: () => void }> = ({ notes, draft, setDraft, onAdd }) => (
+const NotesPanel: React.FC<{ notes?: CrmNote[]; draft: string; setDraft: (s: string) => void; onAdd?: () => void }> = ({ notes, draft, setDraft, onAdd }) => (
   <div>
     <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#8a8a8a] block mb-2">Storico interazioni</span>
-    <div className="flex items-center gap-2 mb-3">
-      <input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && onAdd()} placeholder="Aggiungi nota / interazione…" className="crm-input flex-grow" />
-      <button onClick={onAdd} className="w-9 h-9 rounded-xl bg-[#1b1b1b] hover:bg-black text-white flex items-center justify-center shrink-0 cursor-pointer border-none"><MessageSquarePlus className="w-4 h-4" /></button>
-    </div>
+    {onAdd && (
+      <div className="flex items-center gap-2 mb-3">
+        <input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && onAdd()} placeholder="Aggiungi nota / interazione…" className="crm-input flex-grow" />
+        <button onClick={onAdd} className="w-9 h-9 rounded-xl bg-[#1b1b1b] hover:bg-black text-white flex items-center justify-center shrink-0 cursor-pointer border-none"><MessageSquarePlus className="w-4 h-4" /></button>
+      </div>
+    )}
     {(notes && notes.length > 0) ? (
       <div className="flex flex-col gap-2 max-h-[240px] overflow-y-auto">
         {[...notes].sort((a, b) => b.at - a.at).map((n, i) => (

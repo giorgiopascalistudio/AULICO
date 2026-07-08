@@ -131,7 +131,7 @@ export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [
                   <span className="text-[16px] font-black text-[#161616]">{eur(q.total || 0)}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-[11px] text-[#9a9a9a]">Valido fino: {fmt(q.validUntil)}</span>
-                    <button onClick={() => setPrinting(q)} title="Genera documento da modello (carta intestata)" className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[10.5px] font-bold cursor-pointer"><FileText className="w-3 h-3" /> Documento</button>
+                    {canEdit && <button onClick={() => setPrinting(q)} title="Genera documento da modello (carta intestata)" className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[10.5px] font-bold cursor-pointer"><FileText className="w-3 h-3" /> Documento</button>}
                   </div>
                 </div>
                 {/* Tecnico di riferimento */}
