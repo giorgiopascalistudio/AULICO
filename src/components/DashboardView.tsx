@@ -5,10 +5,17 @@
 
 import React from 'react';
 import { Clock, CheckSquare, Folder, Calendar, AlertTriangle, Plus, MoreHorizontal, Check, X, Inbox } from 'lucide-react';
-import { Project, Task, UserProfile, Appointment, MktProject } from '../types';
+import { Project, Task, UserProfile, Appointment, MktProject, TeamLeave } from '../types';
 import { eur, fmtDayLong, initials } from '../utils';
 import { Company, COMPANY_LABEL, COMPANY_COLOR } from '../finance';
 import { SmartText } from './SmartText';
+
+const LEAVE_LABEL: Record<TeamLeave['type'], string> = { ferie: 'Ferie', permesso: 'Permesso', malattia: 'Malattia' };
+const LEAVE_STYLE: Record<TeamLeave['type'], string> = {
+  ferie: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+  permesso: 'bg-amber-50 text-amber-700 border-amber-200',
+  malattia: 'bg-rose-50 text-rose-700 border-rose-200',
+};
 
 interface DashboardViewProps {
   profile: UserProfile;
@@ -27,6 +34,8 @@ interface DashboardViewProps {
   /** Messaggi/richieste recenti (notifiche persistenti + richieste appuntamento) per il box sotto l'agenda. */
   messages?: { id: string; title: string; text: string; time: string; read: boolean; link?: string | null }[];
   onOpenMessage?: (id: string, link?: string | null) => void;
+  /** Ferie/assenze del team: chi è assente OGGI compare in cima all'agenda. */
+  teamLeave?: TeamLeave[];
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -43,7 +52,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onConfirmAppointment,
   onDeclineAppointment,
   messages = [],
-  onOpenMessage
+  onOpenMessage,
+  teamLeave = []
 }) => {
   const todayISO = () => {
     const x = new Date();
@@ -66,6 +76,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     }
     return false;
   }).sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
+
+  // Assenze che coprono oggi (intervallo dateFrom..dateTo inclusivo), ordinate.
+  const todaysLeaves = (teamLeave || [])
+    .filter(l => l.dateFrom && l.dateFrom <= today && today <= (l.dateTo || l.dateFrom))
+    .sort((a, b) => (a.uid === profile.uid ? -1 : b.uid === profile.uid ? 1 : a.name.localeCompare(b.name)));
 
   const doneToday = todaysTasks.filter(t => {
     if (t.frequency === 'once') return !!t.done;
@@ -241,6 +256,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <Plus className="w-4 h-4" /> Task
             </button>
           </div>
+
+          {todaysLeaves.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3 pb-3 border-b border-[#f0f0f0]">
+              {todaysLeaves.map(l => (
+                <span
+                  key={l.id}
+                  title={`${LEAVE_LABEL[l.type]} · ${l.name}${l.dateFrom !== l.dateTo ? ` (fino al ${l.dateTo})` : ''}${l.note ? ` · ${l.note}` : ''}`}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11.5px] font-bold ${LEAVE_STYLE[l.type]}`}
+                >
+                  {LEAVE_LABEL[l.type]} · {l.uid === profile.uid ? 'Io' : l.name}
+                  {l.dateFrom !== l.dateTo && <span className="font-medium opacity-70">→ {l.dateTo}</span>}
+                </span>
+              ))}
+            </div>
+          )}
 
           <div className="flex flex-col gap-1">
             {todaysTasks.length > 0 ? (

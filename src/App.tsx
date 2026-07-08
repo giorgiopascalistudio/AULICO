@@ -4971,6 +4971,7 @@ export default function App() {
             projects={Object.values(projects)}
             mktProjects={Object.values(mktProjects)}
             users={users}
+            teamLeave={Object.values(teamLeave)}
             appointmentRequests={myApptRequests}
             onConfirmAppointment={handleConfirmAppointment}
             onDeclineAppointment={handleDeclineAppointment}
