@@ -164,7 +164,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* MOBILE — tile compatte coi numeri chiave: il dettaglio si apre in overlay */}
       <div className="grid grid-cols-2 gap-2.5 md:hidden">
-        <button onClick={() => setDashModal('agenda')} className="relative bg-white border border-[#e2e2e2] rounded-[20px] p-3.5 text-left cursor-pointer active:scale-[0.98] transition-transform flex flex-col gap-2 min-h-[104px]">
+        <button onClick={() => setDashModal('agenda')} className="relative bg-white border border-[#e2e2e2] rounded-[20px] p-3.5 text-left cursor-pointer active:scale-[0.98] transition-transform flex flex-col gap-2 min-h-[96px]">
           <div className="flex items-center justify-between">
             <span className="w-8 h-8 rounded-xl bg-orange-50 text-orange-700 flex items-center justify-center"><Clock className="w-4 h-4" /></span>
             <ChevronRight className="w-4 h-4 text-[#c9c9c9]" />
@@ -176,7 +176,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </button>
 
-        <button onClick={() => setDashModal('messaggi')} className="relative bg-white border border-[#e2e2e2] rounded-[20px] p-3.5 text-left cursor-pointer active:scale-[0.98] transition-transform flex flex-col gap-2 min-h-[104px]">
+        <button onClick={() => setDashModal('messaggi')} className="relative bg-white border border-[#e2e2e2] rounded-[20px] p-3.5 text-left cursor-pointer active:scale-[0.98] transition-transform flex flex-col gap-2 min-h-[96px]">
           <div className="flex items-center justify-between">
             <span className="w-8 h-8 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center"><Inbox className="w-4 h-4" /></span>
             {(unreadCount > 0 || appointmentRequests.length > 0) && <span className="w-2 h-2 rounded-full bg-orange-500" />}
@@ -188,7 +188,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </button>
 
-        <button onClick={() => setDashModal('progetti')} className="relative bg-white border border-[#e2e2e2] rounded-[20px] p-3.5 text-left cursor-pointer active:scale-[0.98] transition-transform flex flex-col gap-2 min-h-[104px]">
+        <button onClick={() => setDashModal('progetti')} className="relative bg-white border border-[#e2e2e2] rounded-[20px] p-3.5 text-left cursor-pointer active:scale-[0.98] transition-transform flex flex-col gap-2 min-h-[96px]">
           <div className="flex items-center justify-between">
             <span className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center"><Folder className="w-4 h-4" /></span>
             <ChevronRight className="w-4 h-4 text-[#c9c9c9]" />
@@ -200,7 +200,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </button>
 
-        <button onClick={() => onNav('calendario')} className={`relative border rounded-[20px] p-3.5 text-left cursor-pointer active:scale-[0.98] transition-transform flex flex-col gap-2 min-h-[104px] ${overdueCount > 0 ? 'bg-rose-50/60 border-rose-200' : 'bg-white border-[#e2e2e2]'}`}>
+        <button onClick={() => onNav('calendario')} className={`relative border rounded-[20px] p-3.5 text-left cursor-pointer active:scale-[0.98] transition-transform flex flex-col gap-2 min-h-[96px] ${overdueCount > 0 ? 'bg-rose-50/60 border-rose-200' : 'bg-white border-[#e2e2e2]'}`}>
           <div className="flex items-center justify-between">
             <span className={`w-8 h-8 rounded-xl flex items-center justify-center ${overdueCount > 0 ? 'bg-rose-100 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>{overdueCount > 0 ? <AlertTriangle className="w-4 h-4" /> : <Calendar className="w-4 h-4" />}</span>
             <ChevronRight className="w-4 h-4 text-[#c9c9c9]" />
@@ -211,6 +211,51 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="text-[10.5px] text-[#9a9a9a] font-semibold">vai all'agenda</div>
           </div>
         </button>
+      </div>
+
+      {/* MOBILE — anteprima "Agenda di oggi": usa lo spazio sotto le tile (il resto sta negli overlay) */}
+      <div className="md:hidden bg-white border border-[#e2e2e2] rounded-[20px] p-4 text-left">
+        <div className="flex items-center justify-between mb-1.5">
+          <b className="text-[15px] font-extrabold tracking-tight text-[#161616]">Agenda di oggi</b>
+          <button onClick={() => setDashModal('agenda')} className="text-[11.5px] font-bold text-[#8a8a8a] bg-transparent border-none cursor-pointer inline-flex items-center gap-0.5 p-0">
+            Tutti ({todaysTasks.length}) <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+        {todaysLeaves.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {todaysLeaves.slice(0, 3).map(l => (
+              <span key={l.id} className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10.5px] font-bold ${LEAVE_STYLE[l.type]}`}>
+                {LEAVE_LABEL[l.type]} · {l.uid === profile.uid ? 'Io' : (l.name || '').split(' ')[0]}
+              </span>
+            ))}
+            {todaysLeaves.length > 3 && <span className="text-[10.5px] font-bold text-[#9a9a9a] self-center">+{todaysLeaves.length - 3}</span>}
+          </div>
+        )}
+        {pendingToday.length > 0 ? (
+          <div className="flex flex-col">
+            {pendingToday.slice(0, 3).map(t => (
+              <div key={t.id} className="flex items-center gap-2.5 py-2 border-b border-[#f5f5f5] last:border-b-0">
+                <button
+                  onClick={() => onToggleTask(t.id, today)}
+                  className="w-[20px] h-[20px] rounded-md border-2 border-[#e2e2e2] bg-white cursor-pointer shrink-0"
+                  aria-label="Completa"
+                />
+                <span className="flex-1 min-w-0 text-[13px] font-semibold text-[#161616] truncate">{t.title}</span>
+                {t.time && <span className="bg-[#ececec] text-[#333] font-mono text-[11px] px-1.5 py-0.5 rounded-md shrink-0">{t.time}</span>}
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${t.priority === 'alta' ? 'bg-red-600' : t.priority === 'media' ? 'bg-amber-500' : 'bg-gray-300'}`} />
+              </div>
+            ))}
+            {pendingToday.length > 3 && (
+              <button onClick={() => setDashModal('agenda')} className="text-left text-[11.5px] font-bold text-[#8a8a8a] pt-2 bg-transparent border-none cursor-pointer p-0">
+                +{pendingToday.length - 3} altri impegni…
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 py-2 text-[12.5px] text-[#8a8a8a] font-semibold">
+            <CheckSquare className="w-4 h-4 text-emerald-600" /> {todaysTasks.length > 0 ? 'Tutto completato per oggi.' : 'Nessun impegno per oggi.'}
+          </div>
+        )}
       </div>
 
       {/* Richieste di appuntamento in attesa (desktop; su mobile stanno nell'overlay Messaggi) */}
