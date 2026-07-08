@@ -96,14 +96,14 @@ export const TeamAssistant: React.FC<{
         <button
           onClick={() => setOpen(true)}
           title="Assistente Aulico"
-          className="fixed bottom-5 right-5 z-[150] w-12 h-12 rounded-full bg-[#1b1b1b] hover:bg-black text-white shadow-lg flex items-center justify-center cursor-pointer border-none active:scale-95 transition-transform"
+          className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+96px)] right-4 md:bottom-5 md:right-5 z-[45] md:z-[150] w-12 h-12 rounded-full bg-[#1b1b1b] hover:bg-black text-white shadow-lg flex items-center justify-center cursor-pointer border-none active:scale-95 transition-transform"
         >
           <Sparkles className="w-5 h-5" />
         </button>
       )}
 
       {open && (
-        <div className="fixed bottom-5 right-5 z-[150] w-[min(94vw,400px)] h-[min(80vh,560px)] bg-white border border-[#e2e2e2] rounded-[20px] shadow-2xl flex flex-col animate-[popIn_0.2s_ease_both]">
+        <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+96px)] right-3 md:bottom-5 md:right-5 z-[150] w-[min(94vw,400px)] h-[min(70vh,560px)] md:h-[min(80vh,560px)] bg-white border border-[#e2e2e2] rounded-[20px] shadow-2xl flex flex-col animate-[popIn_0.2s_ease_both]">
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#ececec] shrink-0">
             <b className="text-[14px] inline-flex items-center gap-2"><Sparkles className="w-4 h-4 text-[#b45309]" /> Assistente Aulico</b>
             <div className="flex items-center gap-1">
