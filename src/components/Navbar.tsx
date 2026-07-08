@@ -210,23 +210,29 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <b className="flex-1 text-[15px] tracking-tight truncate">{society.label}</b>
                       <button onClick={() => setSocOpen(false)} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 cursor-pointer bg-transparent border-none"><X className="w-4.5 h-4.5" /></button>
                     </div>
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-2.5">
                       {entries.map(({ top, children }) => {
                         const TopIcon = top.icon;
+                        // Voce singola (senza gruppo): riga piena uniforme.
                         if (children.length === 0) {
                           const active = activeSocieta === soc && activeSection === top.id;
                           return (
-                            <button key={top.id} onClick={() => go(`#${societaSlug(soc)}/${top.id}`)} className={`flex items-center gap-2 px-3.5 py-3 rounded-2xl border text-[13px] font-bold cursor-pointer ${active ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white border-[#ececec] text-[#333]'}`}>
-                              <TopIcon className="w-4.5 h-4.5" /> <span className="flex-1 text-left">{top.label}</span> <ChevronRight className="w-4 h-4 opacity-40" />
+                            <button key={top.id} onClick={() => go(`#${societaSlug(soc)}/${top.id}`)} className={`flex items-center gap-2.5 px-3 py-2.5 rounded-2xl border text-[13px] font-bold cursor-pointer ${active ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white border-[#ececec] text-[#333]'}`}>
+                              <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? 'bg-white/15' : ''}`} style={active ? undefined : { background: `${society.color}14`, color: society.color }}>
+                                <TopIcon className="w-4 h-4" />
+                              </span>
+                              <span className="flex-1 text-left truncate">{top.label}</span>
+                              <ChevronRight className="w-4 h-4 opacity-40 shrink-0" />
                             </button>
                           );
                         }
+                        // Gruppo: card morbida con le sue voci UNA PER RIGA (niente griglia).
                         return (
-                          <div key={top.id}>
-                            <div className="flex items-center gap-1.5 px-1.5 pb-1.5 text-[10.5px] font-extrabold uppercase tracking-wider text-[#8a8a8a]">
+                          <div key={top.id} className="rounded-[18px] border border-[#ececec] bg-[#fafaf8] p-1.5">
+                            <div className="flex items-center gap-1.5 px-2 py-1.5 text-[10.5px] font-extrabold uppercase tracking-wider text-[#8a8a8a]">
                               <TopIcon className="w-3.5 h-3.5" /> {top.label}
                             </div>
-                            <div className="grid grid-cols-2 gap-1.5">
+                            <div className="flex flex-col gap-1">
                               {children.map((sec) => {
                                 const Icon = sec.icon;
                                 const active = activeSocieta === soc && activeSection === sec.id;
@@ -234,10 +240,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                                   <button
                                     key={sec.id}
                                     onClick={() => go(`#${societaSlug(soc)}/${sec.id}`)}
-                                    className={`flex items-center gap-2 px-2.5 py-2.5 rounded-xl border text-[12px] font-bold cursor-pointer text-left ${active ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white border-[#ececec] text-[#333] hover:border-[#cfcfcf]'}`}
+                                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-[12.5px] font-bold cursor-pointer text-left ${active ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white border-[#efefed] text-[#333] hover:border-[#cfcfcf]'}`}
                                   >
-                                    <Icon className={`w-4 h-4 shrink-0 ${active ? '' : 'opacity-60'}`} />
-                                    <span className="truncate leading-tight">{sec.label}</span>
+                                    <Icon className={`w-4 h-4 shrink-0 ${active ? '' : 'opacity-55'}`} />
+                                    <span className="flex-1 truncate leading-tight">{sec.label}</span>
+                                    <ChevronRight className={`w-3.5 h-3.5 shrink-0 ${active ? 'opacity-60' : 'opacity-25'}`} />
                                   </button>
                                 );
                               })}
