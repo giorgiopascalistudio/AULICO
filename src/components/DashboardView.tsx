@@ -126,13 +126,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const firstName = (profile.name || '').split(' ')[0];
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 lg:gap-6">
       {/* Welcome Banner */}
       <div className="text-left">
-        <h1 className="text-[34px] font-extrabold tracking-tight text-[#161616] leading-tight font-sans">
+        <h1 className="text-[24px] sm:text-[30px] lg:text-[34px] font-extrabold tracking-tight text-[#161616] leading-tight font-sans">
           {greeting}{firstName ? `, ${firstName}` : ''}.
         </h1>
-        <div className="text-[14px] text-[#8a8a8a] capitalize mt-1 font-semibold">
+        <div className="text-[12.5px] sm:text-[14px] text-[#8a8a8a] capitalize mt-0.5 sm:mt-1 font-semibold">
           {fmtDayLong(new Date())}
         </div>
       </div>
@@ -239,11 +239,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       )}
 
       {/* Main Dual Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-start">
         {/* Colonna sinistra: Agenda + Messaggi & richieste */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 lg:gap-6">
         {/* Agenda Section */}
-        <div className="bg-white border border-[#e2e2e2] rounded-[26px] p-5 shadow-sm text-left">
+        <div className="bg-white border border-[#e2e2e2] rounded-[22px] sm:rounded-[26px] p-4 sm:p-5 shadow-sm text-left">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="text-[19px] font-extrabold tracking-tight text-[#161616]">Agenda di oggi</h2>
@@ -348,7 +348,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Messaggi & richieste (sotto l'Agenda di oggi) */}
-        <div className="bg-white border border-[#e2e2e2] rounded-[26px] p-5 shadow-sm text-left">
+        <div className="bg-white border border-[#e2e2e2] rounded-[22px] sm:rounded-[26px] p-4 sm:p-5 shadow-sm text-left">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="text-[19px] font-extrabold tracking-tight text-[#161616]">Messaggi & richieste</h2>
@@ -389,7 +389,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
 
         {/* Active Projects Quick Panel */}
-        <div className="bg-white border border-[#e2e2e2] rounded-[26px] p-5 shadow-sm text-left">
+        <div className="bg-white border border-[#e2e2e2] rounded-[22px] sm:rounded-[26px] p-4 sm:p-5 shadow-sm text-left">
           <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="text-[19px] font-extrabold tracking-tight text-[#161616]">Progetti attivi</h2>

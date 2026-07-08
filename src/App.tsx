@@ -6410,7 +6410,7 @@ export default function App() {
         )}
 
         {/* Scrollable primary content viewer */}
-        <div className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch px-4 py-4 md:px-[30px] md:pb-[140px] pb-[120px]">
+        <div className="flex-1 overflow-y-auto -webkit-overflow-scrolling-touch px-4 py-3 md:py-4 md:px-[30px] md:pb-[140px] pb-[104px]">
           {/* Pillbar sotto-categorie (portale): Dashboard + voci dell'area */}
           {groupCtx && (
             <GroupTabBar
