@@ -5134,7 +5134,6 @@ export default function App() {
               window.location.hash = `#${hash}`;
             }}
             onNewProject={handleOpenNewProject}
-            canCreate={activeSecOp}
             onEditProject={handleEditProject}
             onDeleteProject={handleDeleteProject}
             onTogglePtask={handleTogglePtask}
