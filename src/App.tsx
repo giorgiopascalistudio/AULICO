@@ -64,6 +64,7 @@ import {
   TeamLeave,
   DevReport,
   ComplianceRecord,
+  SocietyChatMessage,
   Quote,
   PaymentMilestone,
   PriceItem,
@@ -200,6 +201,7 @@ const CommercialeView = React.lazy(() => import('./components/CommercialeView').
 const DevReportsView = React.lazy(() => import('./components/DevReportsView').then((m) => ({ default: m.DevReportsView })));
 const ComplianceView = React.lazy(() => import('./components/ComplianceView').then((m) => ({ default: m.ComplianceView })));
 const NotificheView = React.lazy(() => import('./components/NotificheView').then((m) => ({ default: m.NotificheView })));
+const SocietyChat = React.lazy(() => import('./components/SocietyChat').then((m) => ({ default: m.SocietyChat })));
 const EditorialCalendar = React.lazy(() => import('./components/EditorialCalendar').then((m) => ({ default: m.EditorialCalendar })));
 const MarketingHub = React.lazy(() => import('./components/MarketingHub').then((m) => ({ default: m.MarketingHub })));
 const DirezioneHub = React.lazy(() => import('./components/DirezioneHub').then((m) => ({ default: m.DirezioneHub })));
@@ -568,6 +570,8 @@ export default function App() {
   const [devReports, setDevReports] = useState<Record<string, DevReport>>({});
   // Adempimenti societari (compliance/<societa>): checklist documenti per società
   const [compliance, setCompliance] = useState<Record<string, ComplianceRecord>>({});
+  // Chat di gruppo per società (societyChat/<societa>/<id>)
+  const [societyChat, setSocietyChat] = useState<Record<string, Record<string, SocietyChatMessage>>>({});
   // Form "Segnala ad Aulico": null = chiuso, oggetto = aperto (con eventuale prefill errore)
   const [feedback, setFeedback] = useState<FeedbackPrefill | null>(null);
 
@@ -1870,6 +1874,8 @@ export default function App() {
       add('teamLeave', setTeamLeave);
       // Adempimenti societari (checklist documenti per società)
       add('compliance', setCompliance);
+      // Chat di gruppo per società
+      add('societyChat', setSocietyChat);
       // Segnalazioni sviluppo (bug/richieste/errori): read solo direzione (regole)
       if (currentUser.role === 'admin' || currentUser.role === 'manager') add('devReports', setDevReports);
       // Cestino condiviso (elementi eliminati, 60 giorni)
@@ -4058,6 +4064,22 @@ export default function App() {
     });
     setFeedback(null);
   };
+  // ---- Chat di gruppo per società (societyChat/<societa>/<id>) ----
+  const handleSendSocietyChat = (soc: string, text: string) => {
+    if (!currentUser) return;
+    const id = `sc-${Date.now()}-${Math.floor(Math.random() * 900)}`;
+    const msg: SocietyChatMessage = {
+      id, from: currentUser.uid, fromName: currentUser.name || currentUser.email || 'Utente',
+      fromRole: currentUser.role || null, text, at: Date.now(),
+    };
+    setSocietyChat((prev) => ({ ...prev, [soc]: { ...(prev[soc] || {}), [id]: msg } }));
+    writeNode(`societyChat/${soc}/${id}`, msg).catch(() => showToast('Errore invio messaggio (controlla regole/permessi).', 'err'));
+  };
+  const handleDeleteSocietyChatMessage = (soc: string, id: string) => {
+    setSocietyChat((prev) => { const room = { ...(prev[soc] || {}) }; delete room[id]; return { ...prev, [soc]: room }; });
+    removeNode(`societyChat/${soc}/${id}`).catch(() => {});
+  };
+
   // ---- Adempimenti societari (compliance/<societa>) ----
   const handleSaveCompliance = (soc: Societa, record: ComplianceRecord) => {
     const rec = { ...record, by: currentUser?.uid || null };
@@ -5762,6 +5784,22 @@ export default function App() {
                   projects={Object.values(projects).filter((p) => p.division === 'studio' && !p.archived)}
                   color={society.color}
                   canEdit={isStudioRole(currentUser.role) && secOp}
+                />
+              </React.Suspense>
+            );
+          case 'society-chat':
+            // Chat di gruppo del team della società (una stanza per società).
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <SocietyChat
+                  socLabel={society.label}
+                  color={society.color}
+                  messages={Object.values(societyChat[activeSocieta as string] || {})}
+                  myUid={currentUser.uid}
+                  canWrite={isStudioRole(currentUser.role)}
+                  isBoss={currentUser.role === 'admin' || currentUser.role === 'manager'}
+                  onSend={(text) => handleSendSocietyChat(activeSocieta as string, text)}
+                  onDelete={(id) => handleDeleteSocietyChatMessage(activeSocieta as string, id)}
                 />
               </React.Suspense>
             );

@@ -393,6 +393,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   s.push({ id: 'home-cicli', label: 'Lista dei cicli', icon: Layers, parent: 'home', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
   s.push({ id: 'home-piano', label: 'Piano di Battaglia', icon: Swords, parent: 'home', module: 'produzione', view: 'piano-battaglia', note: 'La settimana operativa: porta qui i cicli quando vanno lavorati (PDF: Agenda ↔ Cicli ↔ Piano di Battaglia dialogano).' });
   s.push({ id: 'home-notifiche', label: 'Notifiche', icon: Bell, parent: 'home', module: 'produzione', view: 'notifiche', note: 'Notifiche/messaggi della società e chat coi clienti (progetti della società).' });
+  s.push({ id: 'home-chat', label: 'Chat di società', icon: MessageSquare, parent: 'home', module: 'produzione', view: 'society-chat', note: 'Chat di gruppo del team della società (una stanza per società, visibile a chi ha accesso).' });
 
   // ---- PRODUZIONE (Progetti · Computi · Mappa operativa) ----
   s.push({ id: 'produzione', label: 'Produzione', icon: Layers, module: 'produzione', kind: 'group' });
@@ -439,6 +440,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
     sections: [
       // === POINT OF ENTRY (docs: tutti i lead e le richieste transitano da qui) ===
       { id: 'point-of-entry', label: 'Point of Entry', icon: Inbox, module: 'crm', view: 'point-of-entry', note: 'Inbox unificata: lead da smistare alla società competente + richieste dei clienti dal portale (prendi in carico / converti in progetto).' },
+      { id: 'home-chat', label: 'Chat di società', icon: MessageSquare, module: 'produzione', view: 'society-chat', note: 'Chat di gruppo del team di Strategico (una stanza per società, visibile a chi ha accesso).' },
       // === SOTTO-CATEGORIA: Risorse Umane ===
       { id: 'hr', label: 'Risorse Umane', icon: Users, module: 'hr', kind: 'group', dashLabel: 'Agenda HR' },
       { id: 'hr-crm', label: 'CRM', icon: BookUser, parent: 'hr', shared: true, module: 'crm', legacyRoute: 'crm' },

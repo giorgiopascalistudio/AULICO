@@ -386,6 +386,20 @@ export interface ComplianceRecord {
   by?: string | null;
 }
 
+/**
+ * Messaggio della chat di gruppo di una società (nodo societyChat/<societa>/<id>).
+ * Chat interna del team, una stanza per società, visibile a chi ha accesso alla
+ * società. Niente 1:1 privata.
+ */
+export interface SocietyChatMessage {
+  id: string;
+  from: string;
+  fromName: string;
+  fromRole?: string | null;
+  text: string;
+  at: number;
+}
+
 /** Ferie/assenze del team (nodo teamLeave/<id>). */
 export interface TeamLeave {
   id: string;
