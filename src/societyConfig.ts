@@ -392,7 +392,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   s.push({ id: 'home-agenda', label: 'Agenda', icon: Calendar, parent: 'home', module: 'produzione', legacyRoute: 'calendario', shared: true });
   s.push({ id: 'home-cicli', label: 'Lista dei cicli', icon: Layers, parent: 'home', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
   s.push({ id: 'home-piano', label: 'Piano di Battaglia', icon: Swords, parent: 'home', module: 'produzione', view: 'piano-battaglia', note: 'La settimana operativa: porta qui i cicli quando vanno lavorati (PDF: Agenda ↔ Cicli ↔ Piano di Battaglia dialogano).' });
-  s.push(ph('home-notifiche', 'Notifiche', Bell, 'home', 'produzione', 'Notifiche e messaggi della società.'));
+  s.push({ id: 'home-notifiche', label: 'Notifiche', icon: Bell, parent: 'home', module: 'produzione', view: 'notifiche', note: 'Notifiche/messaggi della società e chat coi clienti (progetti della società).' });
 
   // ---- PRODUZIONE (Progetti · Computi · Mappa operativa) ----
   s.push({ id: 'produzione', label: 'Produzione', icon: Layers, module: 'produzione', kind: 'group' });

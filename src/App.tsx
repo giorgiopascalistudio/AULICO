@@ -199,6 +199,7 @@ const ProgFatturazioneView = React.lazy(() => import('./components/ProgFatturazi
 const CommercialeView = React.lazy(() => import('./components/CommercialeView').then((m) => ({ default: m.CommercialeView })));
 const DevReportsView = React.lazy(() => import('./components/DevReportsView').then((m) => ({ default: m.DevReportsView })));
 const ComplianceView = React.lazy(() => import('./components/ComplianceView').then((m) => ({ default: m.ComplianceView })));
+const NotificheView = React.lazy(() => import('./components/NotificheView').then((m) => ({ default: m.NotificheView })));
 const EditorialCalendar = React.lazy(() => import('./components/EditorialCalendar').then((m) => ({ default: m.EditorialCalendar })));
 const MarketingHub = React.lazy(() => import('./components/MarketingHub').then((m) => ({ default: m.MarketingHub })));
 const DirezioneHub = React.lazy(() => import('./components/DirezioneHub').then((m) => ({ default: m.DirezioneHub })));
@@ -5761,6 +5762,23 @@ export default function App() {
                   projects={Object.values(projects).filter((p) => p.division === 'studio' && !p.archived)}
                   color={society.color}
                   canEdit={isStudioRole(currentUser.role) && secOp}
+                />
+              </React.Suspense>
+            );
+          case 'notifiche':
+            // Home → Notifiche della società: notifiche/messaggi + chat coi clienti
+            // (projectMessages dei progetti della società). Chat 1:1/stanza = modulo futuro.
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <NotificheView
+                  socLabel={society.label}
+                  color={society.color}
+                  notifications={liveNotifications}
+                  projects={Object.values(projects).filter((p: any) => p.division === (activeSocieta as string) && !p.archived)}
+                  projectMessages={projectMessages}
+                  myUid={currentUser.uid}
+                  onOpenNotification={(id, link) => { markNotificationRead(id); if (link) window.location.hash = link; }}
+                  onOpenProject={(pid) => { window.location.hash = `#progetto/${pid}`; }}
                 />
               </React.Suspense>
             );
