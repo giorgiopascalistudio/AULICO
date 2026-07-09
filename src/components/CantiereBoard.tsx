@@ -28,6 +28,7 @@ import { DriveUploader } from './cantiere/DriveUploader';
 import { ChatDeleteButton } from './ChatDeleteButton';
 import { DocRegistry, DocItem } from './cantiere/DocRegistry';
 import { RecordRegistry, GenericRecord, RecordColumn } from './cantiere/RecordRegistry';
+import { GanttChart } from './cantiere/GanttChart';
 import { SectionPlaceholder } from './cantiere/SectionPlaceholder';
 import { GiornaleCantiere } from './cantiere/GiornaleCantiere';
 import { CantierePanoramica } from './cantiere/CantierePanoramica';
@@ -371,16 +372,21 @@ const CantiereDetail: React.FC<CantiereBoardProps & {
     }
     if (r.t === 'cantrec') {
       const canWrite = isStudio || (!!r.partnerWrite && partnerAssigned);
+      const recItems = cantRecItems(r.section);
       return (
-        <RecordRegistry
-          items={cantRecItems(r.section)}
-          columns={r.columns}
-          statuses={r.statuses}
-          canWrite={canWrite}
-          canDelete={(rec) => isStudio || rec.by === myUid}
-          onAdd={(data) => saveEntity('cantiereRecords', { id: newId('rec'), section: r.section, title: data.title, date: data.date || null, dateEnd: data.dateEnd || null, status: data.status || null, fields: data.fields, by: myUid, byName: myName, role: myRole, at: Date.now() })}
-          onDelete={(id) => delEntity('cantiereRecords', id)}
-        />
+        <div className="flex flex-col gap-3">
+          {/* Cronoprogramma: diagramma di Gantt sopra la tabella (stessi record). */}
+          {r.section === 'cronoprogramma' && <GanttChart items={recItems} />}
+          <RecordRegistry
+            items={recItems}
+            columns={r.columns}
+            statuses={r.statuses}
+            canWrite={canWrite}
+            canDelete={(rec) => isStudio || rec.by === myUid}
+            onAdd={(data) => saveEntity('cantiereRecords', { id: newId('rec'), section: r.section, title: data.title, date: data.date || null, dateEnd: data.dateEnd || null, status: data.status || null, fields: data.fields, by: myUid, byName: myName, role: myRole, at: Date.now() })}
+            onDelete={(id) => delEntity('cantiereRecords', id)}
+          />
+        </div>
       );
     }
     if (r.t === 'impdoc' || r.t === 'imprec') {
