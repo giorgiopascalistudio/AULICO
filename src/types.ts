@@ -378,6 +378,7 @@ export interface ComplianceItemState {
   expiry?: string | null;        // yyyy-mm-dd (per polizze/DURC/firma che scadono)
   attachments?: ComplianceAttachment[];
   customLabel?: string | null;   // presente solo per le voci aggiunte a mano
+  hidden?: boolean;              // voce base rimossa (nascosta ma ripristinabile)
 }
 export interface ComplianceRecord {
   items: Record<string, ComplianceItemState>;

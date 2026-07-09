@@ -9,7 +9,7 @@
  * sono precaricate per società (COMPLIANCE_SEED); se ne possono aggiungere altre.
  */
 import React from 'react';
-import { Check, Paperclip, Link2, Upload, Trash2, Plus, X, AlertTriangle, FileText, ExternalLink } from 'lucide-react';
+import { Check, Paperclip, Link2, Upload, Trash2, Plus, X, AlertTriangle, FileText, ExternalLink, RotateCcw } from 'lucide-react';
 import type { Societa, ComplianceRecord, ComplianceItemState, ComplianceAttachment } from '../types';
 import { safeUrl } from '../utils';
 
@@ -86,7 +86,9 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
   const customEntries = Object.entries(items)
     .filter(([id, st]) => !seedIds.has(id) && st.customLabel)
     .map(([id, st]) => ({ id, label: st.customLabel as string }));
-  const rows = [...seed, ...customEntries];
+  // Le voci base "nascoste" (eliminate) non compaiono ma restano ripristinabili.
+  const hiddenSeed = seed.filter((s) => items[s.id]?.hidden);
+  const rows = [...seed.filter((s) => !items[s.id]?.hidden), ...customEntries];
 
   const [openId, setOpenId] = React.useState<string | null>(null);
   const [newLabel, setNewLabel] = React.useState('');
@@ -103,8 +105,20 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
   };
   const removeItem = (id: string) => {
     if (!canEdit) return;
-    const next = { ...items }; delete next[id]; persist(next);
+    if (seedIds.has(id)) {
+      // Voce base: la nascondo (ripristinabile), non la cancello davvero.
+      const cur = items[id] || emptyItem();
+      persist({ ...items, [id]: { ...cur, hidden: true } });
+    } else {
+      const next = { ...items }; delete next[id]; persist(next);
+    }
     if (openId === id) setOpenId(null);
+  };
+  const restoreItem = (id: string) => {
+    if (!canEdit) return;
+    const cur = items[id] || emptyItem();
+    const { hidden, ...rest } = cur;
+    persist({ ...items, [id]: rest });
   };
   const addCustom = () => {
     const label = newLabel.trim();
@@ -197,6 +211,15 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
                   </span>
                 )}
                 {attN > 0 && <Paperclip className="w-4 h-4 text-[#b0b0b0] shrink-0" />}
+                {canEdit && (
+                  <button
+                    onClick={() => removeItem(r.id)}
+                    className="p-1.5 rounded-lg text-[#b0b0b0] hover:text-rose-600 hover:bg-rose-50 cursor-pointer bg-transparent border-none shrink-0"
+                    title="Elimina voce"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               {expanded && (
@@ -262,9 +285,6 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
                           placeholder="Nota (es. n° polizza, ente…)"
                           className="flex-1 min-w-[160px] px-2.5 py-1.5 rounded-xl border border-[#e2e2e2] text-[12.5px] outline-none focus:border-black bg-white"
                         />
-                        {!seedIds.has(r.id) && (
-                          <button onClick={() => removeItem(r.id)} className="p-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 cursor-pointer bg-white" title="Rimuovi voce"><Trash2 className="w-4 h-4" /></button>
-                        )}
                       </div>
                     </>
                   )}
@@ -287,6 +307,18 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
             className="flex-1 px-2.5 py-2 rounded-xl border border-[#e2e2e2] text-[13px] outline-none focus:border-black bg-white"
           />
           <button onClick={addCustom} disabled={!newLabel.trim()} className="px-3.5 py-2 rounded-xl bg-[#161616] text-white text-[12.5px] font-bold cursor-pointer border-none disabled:opacity-40">Aggiungi</button>
+        </div>
+      )}
+
+      {/* Voci base rimosse: ripristinabili */}
+      {canEdit && hiddenSeed.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap text-[11.5px] text-[#9a9a9a] px-1">
+          <span className="font-bold">Voci rimosse:</span>
+          {hiddenSeed.map((s) => (
+            <button key={s.id} onClick={() => restoreItem(s.id)} className="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-[#e2e2e2] bg-white hover:border-black text-[#555] cursor-pointer">
+              <RotateCcw className="w-3 h-3" /> {s.label}
+            </button>
+          ))}
         </div>
       )}
 
