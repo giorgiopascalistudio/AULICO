@@ -6,7 +6,6 @@
  * Il colore RIEMPIE il blocco in base all'Area del Vivere; la società resta un
  * PALLINO (scelta utente, coerente con la regola "colore società solo nei pallini").
  */
-import { COMPANY_COLOR } from './finance';
 import type { Appointment } from './types';
 
 export type LifeArea = 'personale' | 'familiare' | 'sociale' | 'professionale';
@@ -21,15 +20,17 @@ export const AREA_META: Record<LifeArea, { label: string; dot: string; fill: str
 export const LIFE_AREAS: LifeArea[] = ['personale', 'familiare', 'sociale', 'professionale'];
 
 /**
- * Società per il PALLINO identità. Usa COMPANY_COLOR (unica fonte) per coerenza
- * con tutto il resto dell'app; Fantastico non è in COMPANY_COLOR → viola dedicato.
+ * Società per il PALLINO identità in agenda. Palette dal documento (docs/V2/agg.txt):
+ * Onirico → Verde, Strategico → Rosso, Materico → Arancione, Unico → Giallo,
+ * Fantastico → Viola. NB: solo per il pallino d'agenda (il resto dell'app usa
+ * COMPANY_COLOR come unica fonte, vedi §10).
  */
 export const SOC_META: Record<string, { label: string; color: string }> = {
-  studio:     { label: 'Onirico',    color: COMPANY_COLOR.studio },
-  strategico: { label: 'Strategico', color: COMPANY_COLOR.strategico },
-  materico:   { label: 'Materico',   color: COMPANY_COLOR.materico },
-  unico:      { label: 'Unico',      color: COMPANY_COLOR.unico },
-  fantastico: { label: 'Fantastico', color: '#7c3aed' },
+  studio:     { label: 'Onirico',    color: '#16a34a' }, // Verde
+  strategico: { label: 'Strategico', color: '#dc2626' }, // Rosso (scala del rosso)
+  materico:   { label: 'Materico',   color: '#ea580c' }, // Arancione
+  unico:      { label: 'Unico',      color: '#eab308' }, // Giallo
+  fantastico: { label: 'Fantastico', color: '#7c3aed' }, // Viola
 };
 export const SOC_LIST: string[] = ['studio', 'strategico', 'materico', 'unico', 'fantastico'];
 
