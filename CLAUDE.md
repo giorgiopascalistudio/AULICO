@@ -817,6 +817,37 @@ reporting/redditività, integrazioni esterne
   `CalendarView`, App la passa `true` solo per `activeSocieta==='holding'`); 6) **Stima Preliminare
   spostata nel gruppo Commerciale** di TUTTE le società (`comm-stime`, via da Produzione Onirico):
   per-società via campo `StimaPreliminare.soc` (App filtra e timbra; legacy senza soc = Onirico).
+  ⚠️ **CRM V2 — Agenda/Cronometro/Report/Questionario/Presentazioni (docs/V2 agg.txt + metodo I-time)**:
+  1) **Agenda V2** (`src/agenda.ts`): `Appointment` esteso con `endTime` (blocco proporzionale alla
+  durata), `area` (Area del Vivere personale/familiare/sociale/professionale → colore RIEMPIMENTO del
+  blocco), `societa` (identità → PALLINO, scelta utente coerente con la regola §10; colori da
+  COMPANY_COLOR + viola per Fantastico), `recurrence` (daily/weekly/monthly + ogni N + until, espansa
+  client-side da `apptOccursOn`, nessun record extra), `exceptions`, `remindMinutes` (promemoria "X min
+  prima": effetto in App best-effort ad app aperta, dedup su `notifications/<uid>`; per l'orario esatto
+  servono le Cloud Functions §18). Modale nuovo appuntamento e viste giorno/settimana aggiornate.
+  2) **Cronometro attività + tempo medio** (`src/timetracking.ts`, nodo **`timeEntries`**): `TimeEntry`
+  registra il tempo REALE (start/stop, uno attivo per utente → `RunningTimerPill` fluttuante + pulsante
+  Avvia/Ferma su ogni task in CalendarView). `Task.estMinutes` (stima, precompilata dalla MEDIA del tipo)
+  e `actualMinutes` (reale accumulato). Il **tempo medio per `tipo`** si ricalcola a **finestra mobile**
+  (`avgMinutesForTipo`, default ultime 8): un lavoro anomalo non lo sposta, un trend sì (richiesta utente).
+  3) **Report & Tempi + Liste attività collaboratori** (`TimeReportView`, sezione **`hr-report`** in
+  Strategico→HR, view `time-report`): report AUTOMATICI (tempo medio per tipo, distribuzione ore per
+  collaboratore, storico) + liste attività per collaboratore (accordion, base delle riunioni) + Stampa.
+  Nessun nodo nuovo.
+  4) **Questionario iniziale cliente** (`src/projectBrief.ts`, `ProjectBriefForm`, nodo **`projectBriefs/<pid>`**):
+  `ProjectBrief.answers` (catalogo domande stile/materiali/esigenze/funzioni/budget/riferimenti) compilabile
+  da studio (tab "Questionario" nel fascicolo Onirico/Unico) e dal CLIENTE (tab "Questionario" nel portale
+  studio → "Invia allo studio" notifica). Alimenta moodboard/preventivi/PRESENTAZIONI. Regola come
+  `projectFurnishings` (studio + cliente collegato, rw).
+  5) **Presentazioni** (`src/presentation.ts`, `PresentationBuilder`, nodo **`projectPresentations/<pid>`**):
+  bozza slide (copertina, analisi sito, moodboard, materiali, arredi, conclusioni…) auto-composta dai dati
+  (progetto + questionario + arredi), slide di analisi editabili, toggle inclusione; **anteprima 16:9 +
+  Stampa/PDF interna + Export PowerPoint .pptx** (dep `pptxgenjs`, chunk lazy caricato solo all'export).
+  Tab "Presentazione" nel fascicolo (Onirico/Unico). Regola: read studio, write studio non-cliente.
+  ⚠️ Nodi NUOVI **`timeEntries`**, **`projectBriefs`**, **`projectPresentations`** in `firebase-rules.json`:
+  **RIPUBBLICARE le regole**, altrimenti cronometro/questionario/presentazioni falliscono con write silenziosa.
+  Dal metodo I-time il **Business Plan settimanale** resta il **Piano di Battaglia** esistente; la matrice
+  di Covey a 2 assi e l'esercizio "cicli aperti" mentale NON sono stati costruiti (roadmap).
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto
   `aulico-228bd` → abilitare **Google Drive API**; creare un **ID client OAuth → Applicazione
   web** con JS origins `http://localhost:3000` e `https://giorgiopascalistudio.github.io`;
