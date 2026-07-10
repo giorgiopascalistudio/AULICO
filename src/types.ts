@@ -1174,9 +1174,66 @@ export interface MktAccount {
   channels?: { platform: string; handle?: string | null; url?: string | null }[]; // canali social
   liberatoria?: boolean;           // consenso pubblicazione: se manca → NON PUBBLICARE NULLA
   budgetMonthly?: number | null;   // budget marketing mensile (€)
+  reviewUrl?: string | null;       // link "lascia una recensione" (Google/Trustpilot…) usato in Altro→Recensioni
   notes?: string | null;
   createdAt: number;
   updatedAt?: number;
+}
+
+// ============================================================
+// Centro Marketing — tab "Altro": comunicazioni in uscita (nodo `mktOutreach/<id>`).
+// Newsletter, messaggi di ricorrenza (auguri/anniversari) e richieste di recensione.
+// Approccio "ibrido": si genera testo + link mailto/wa.me pronti (niente invio
+// automatico senza backend), ma i destinatari sono salvati con stato così un
+// futuro backend può inviare davvero. Destinatari SOLO con consenso.
+// ============================================================
+export type MktOutreachKind = 'newsletter' | 'ricorrenza' | 'recensione';
+export interface MktOutreachRecipient {
+  contactId: string;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  status: 'da_inviare' | 'inviato';
+  sentAt?: number | null;
+}
+export interface MktOutreach {
+  id: string;
+  accountId: string;                 // MktAccount.id
+  kind: MktOutreachKind;
+  title: string;                     // oggetto newsletter / occasione ricorrenza / "Richiesta recensione"
+  body?: string | null;              // testo del messaggio (AI-assist)
+  channel?: 'email' | 'whatsapp' | 'misto' | null;
+  reviewUrl?: string | null;         // recensione: link usato
+  occasion?: string | null;          // ricorrenza: id festività o testo
+  recipients?: Record<string, MktOutreachRecipient> | null;
+  status: 'bozza' | 'inviata';       // stato complessivo
+  createdAt: number;
+  updatedAt?: number;
+  by?: string | null;
+}
+
+/** Contatto "leggero" passato al Centro Marketing (rubrica + consensi risolti in App). */
+export interface MktContact {
+  id: string;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  whatsapp?: string | null;
+  category?: 'cliente' | 'partner';
+  societies?: Record<string, boolean>;   // appartenenza multi-società (per filtrare per account-società)
+  consentMarketing?: boolean;            // consenso marketing (users.consents.marketing)
+  consentNewsletter?: boolean;           // iscritto newsletter (nodo newsletter/<uid> o consents.newsletter)
+}
+
+/** Foto di cantiere "leggera" per il Centro Marketing (Altro → Foto cantieri). */
+export interface MktCantierePhoto {
+  id: string;
+  cantiereId: string;
+  cantiereName?: string | null;
+  division: string;                      // studio/materico/unico (= account-società)
+  url: string;                           // driveUrl o link
+  takenAt?: number | null;
+  caption?: string | null;
 }
 /** Nodo `mktKpi/<id>` — statistiche mensili MANUALI per piattaforma (predisposte per API future).
  * id deterministico `<accountId>__<platform>__<yyyy-mm>`; metriche per piattaforma (PDF Excel):

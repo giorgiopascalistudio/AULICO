@@ -114,6 +114,9 @@ import {
   MktKpiEntry,
   MktExpense,
   MktMonthlyReport,
+  MktOutreach,
+  MktContact,
+  MktCantierePhoto,
   FinTargets,
   FinLiquidity,
   FinCostPlanItem,
@@ -440,6 +443,7 @@ export default function App() {
   const [mktKpi, setMktKpi] = useState<Record<string, MktKpiEntry>>({});
   const [mktExpenses, setMktExpenses] = useState<Record<string, MktExpense>>({});
   const [mktReports, setMktReports] = useState<Record<string, MktMonthlyReport>>({});
+  const [mktOutreach, setMktOutreach] = useState<Record<string, MktOutreach>>({});
   const [fiscalePlan, setFiscalePlan] = useState<Record<string, FiscaleItem>>({});
   // Centro Direzione (Strategico → Amministrazione & Contabilità)
   const [finTargets, setFinTargets] = useState<Record<string, FinTargets>>({});
@@ -1786,6 +1790,7 @@ export default function App() {
       add('mktKpi', setMktKpi);
       add('mktExpenses', setMktExpenses);
       add('mktReports', setMktReports);
+      add('mktOutreach', setMktOutreach);
       add('fiscalePlan', setFiscalePlan);
       if (role === 'admin' || role === 'manager') add('auditLog', setAuditLog);
       subs.push(watchNode('unicoDeals', (v) => {
@@ -2321,6 +2326,10 @@ export default function App() {
         case 'mkt-campagna':
           setMktCampaigns((prev) => ({ ...prev, [id]: pl }));
           writeNode(`mktCampaigns/${id}`, pl).catch(() => {});
+          break;
+        case 'mkt-outreach':
+          setMktOutreach((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`mktOutreach/${id}`, pl).catch(() => {});
           break;
         case 'mkt-sondaggio':
           setMktSurveys((prev) => ({ ...prev, [id]: pl }));
@@ -3754,6 +3763,20 @@ export default function App() {
   const handleSaveMktReport = (r: MktMonthlyReport) => {
     setMktReports((prev) => ({ ...prev, [r.id]: r }));
     writeNode(`mktReports/${r.id}`, r).catch(() => showToast('Errore report marketing (controlla regole).', 'err'));
+  };
+  // ---- Centro Marketing → Altro: comunicazioni in uscita (mktOutreach) ----
+  const handleSaveMktOutreach = (o: MktOutreach) => {
+    const enriched: MktOutreach = { ...o, updatedAt: Date.now(), createdAt: o.createdAt || Date.now(), by: o.by || currentUser?.uid || null };
+    setMktOutreach((prev) => ({ ...prev, [o.id]: enriched }));
+    writeNode(`mktOutreach/${o.id}`, enriched).catch(() => showToast('Errore comunicazioni marketing (controlla regole).', 'err'));
+  };
+  const handleDeleteMktOutreach = (id: string) => {
+    const o = mktOutreach[id];
+    askDelete('Eliminare questo elemento?', o ? `"${o.title}"` : null, () => {
+      if (o) moveToTrash('mkt-outreach', o.title || 'Comunicazione', o);
+      setMktOutreach((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`mktOutreach/${id}`).catch(() => {});
+    });
   };
   // ---- Centro Direzione (finTargets / finLiquidity / finCostPlan / finBudget / finCicli / finReports) ----
   const handleSaveFinTargets = (t: FinTargets) => {
@@ -5629,10 +5652,37 @@ export default function App() {
                 docs: Object.values(documents[p.id] || {}).map((dd: any) => ({ id: dd.id, name: dd.name, url: dd.url, type: dd.type })),
               }))
               .filter((p) => p.docs.length > 0);
+            // Contatti con consenso risolto (Altro → Newsletter/Ricorrenze/Recensioni).
+            const mktContacts: MktContact[] = Object.values(clients).map((c) => {
+              const uid = c.accountUid || '';
+              return {
+                id: c.id, name: c.name, email: c.email || null, phone: c.phone || null, whatsapp: c.whatsapp || null,
+                category: c.category || 'cliente', societies: c.societies || {},
+                consentMarketing: !!(uid && users[uid]?.consents?.marketing),
+                consentNewsletter: !!(uid && (newsletterSubs[uid] || users[uid]?.consents?.newsletter)),
+              };
+            });
+            // Foto cantieri per account-società (Altro → Foto cantieri).
+            const mktCantierePhotos: MktCantierePhoto[] = [];
+            Object.values(cantieri).forEach((cn) => {
+              Object.values(cantFoto[cn.id] || {}).forEach((f: any) => {
+                const url = f.driveUrl || f.link || '';
+                if (!url) return;
+                mktCantierePhotos.push({
+                  id: f.id, cantiereId: cn.id, cantiereName: cn.name || 'Cantiere',
+                  division: cn.division || 'studio', url, takenAt: f.takenAt || f.at || null, caption: f.caption || null,
+                });
+              });
+            });
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
                 <MarketingHub
                   accounts={[...socAccounts, ...cliAccounts]}
+                  contacts={mktContacts}
+                  cantierePhotos={mktCantierePhotos}
+                  outreach={Object.values(mktOutreach)}
+                  onSaveOutreach={handleSaveMktOutreach}
+                  onDeleteOutreach={handleDeleteMktOutreach}
                   posts={Object.values(editorialPosts)}
                   kpi={Object.values(mktKpi)}
                   expenses={Object.values(mktExpenses)}

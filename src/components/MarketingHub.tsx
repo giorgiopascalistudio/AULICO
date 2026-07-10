@@ -17,13 +17,16 @@ import {
   Megaphone, ArrowLeft, Plus, X, Trash2, Calendar as CalendarIcon, ListChecks,
   BarChart3, Wallet, FileText, Gift, Newspaper, LayoutGrid, AlertTriangle,
   Printer, CheckCircle2, Ban, ExternalLink, UserPlus, Sparkles,
+  Mail, MessageCircle, Star, Image as ImageIcon, Send, Copy, Loader2, Camera,
 } from 'lucide-react';
 import type {
   MktAccount, MktKpiEntry, MktKpiPlatform, MktExpense, MktMonthlyReport,
   EditorialPost, EditorialPhase, SocMktItem, Quote, TrashItem,
+  MktContact, MktCantierePhoto, MktOutreach, MktOutreachKind, MktOutreachRecipient,
 } from '../types';
 import HubCestino from './HubCestino';
 import { eur, safeUrl } from '../utils';
+import { callAi } from '../firebase';
 import EditorialCalendar, { ED_PHASES, ED_STATUS, deriveStatus } from './EditorialCalendar';
 import type { EditorialImportProject } from './EditorialCalendar';
 
@@ -116,6 +119,12 @@ interface Props {
   quotes: Quote[];                     // preventivi Strategico (report riunione)
   rubrica: { id: string; name: string }[];
   importProjects?: EditorialImportProject[];
+  // Altro → comunicazioni in uscita + foto cantieri
+  contacts?: MktContact[];             // rubrica con consensi risolti (destinatari)
+  cantierePhotos?: MktCantierePhoto[]; // foto cantieri per account-società
+  outreach?: MktOutreach[];            // storico newsletter/ricorrenze/recensioni
+  onSaveOutreach?: (o: MktOutreach) => void;
+  onDeleteOutreach?: (id: string) => void;
   color?: string;
   canEdit?: boolean;
   onSaveAccount?: (a: MktAccount) => void;
@@ -493,7 +502,19 @@ const Workspace: React.FC<Props & { account: MktAccount; tab: WsTab; onTab: (t: 
       {tab === 'spese' && <SpeseTab acc={acc} expenses={p.expenses} canEdit={canEdit} onSave={p.onSaveExpense} onDelete={p.onDeleteExpense} onRegister={p.onRegisterExpense} />}
       {tab === 'report' && <ReportTab acc={acc} posts={accPosts} kpi={p.kpi} expenses={p.expenses} reports={p.reports} canEdit={canEdit} onSaveReport={p.onSaveReport} />}
       {(tab === 'eventi' || tab === 'blog') && <ExtrasTab acc={acc} kindTab={tab} extras={p.extras} canEdit={canEdit} onSave={p.onSaveExtra} onDelete={p.onDeleteExtra} />}
-      {tab === 'altro' && <AltroTab />}
+      {tab === 'altro' && (
+        <AltroTab
+          acc={acc}
+          canEdit={canEdit}
+          contacts={p.contacts || []}
+          cantierePhotos={p.cantierePhotos || []}
+          outreach={p.outreach || []}
+          onSaveOutreach={p.onSaveOutreach}
+          onDeleteOutreach={p.onDeleteOutreach}
+          onSaveAccount={p.onSaveAccount}
+          onSavePost={p.onSavePost}
+        />
+      )}
     </div>
   );
 };
@@ -1146,24 +1167,327 @@ const ExtraForm: React.FC<{ item: SocMktItem; canEdit: boolean; onSave: (i: SocM
   );
 };
 
-// ---------------------------------------------------------------- Altro (in preparazione)
-const AltroTab: React.FC = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-    {[
-      { t: 'Newsletters', d: 'Creazione e invio newsletter ai contatti dell’account.' },
-      { t: 'Messaggi automatici', d: 'Auguri di compleanno/feste, anniversario ingresso in casa, pensiero all’agibilità…' },
-      { t: 'Recensioni', d: 'Richiesta feedback e recensioni positive ai clienti soddisfatti.' },
-      { t: 'Foto cantieri', d: 'Una foto rappresentativa al mese per ogni cantiere attivo, per documentarne l’evoluzione.' },
-      { t: 'Archivio idee', d: 'Spunti creativi, reel, headline e trend salvati con tag, riutilizzabili nelle campagne.' },
-      { t: 'Minute riunioni', d: 'Sintesi AI delle riunioni registrate, archiviate per account.' },
-    ].map((x) => (
-      <div key={x.t} className="bg-white border border-dashed border-[#d8d8d4] rounded-[20px] p-4">
-        <b className="text-[13.5px] text-[#8a8a8a]">{x.t}</b>
-        <p className="text-[11.5px] text-[#a8a8a8] mt-1">{x.d}</p>
-        <span className="inline-block mt-2 text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#f0f0ee] text-[#9a9a9a]">In preparazione</span>
+// ============================================================================
+// Altro — comunicazioni in uscita (Newsletter · Ricorrenze · Recensioni) + Foto cantieri.
+// Approccio "ibrido": genera testo + link mailto/wa.me pronti (niente invio
+// automatico), salva i destinatari con stato su `mktOutreach` (predisposto per API).
+// Destinatari SOLO con consenso (marketing/newsletter).
+// ============================================================================
+const enc = encodeURIComponent;
+const waNum = (s?: string | null) => (s ? s.replace(/[^\d]/g, '').replace(/^00/, '') : '');
+const mailtoBcc = (emails: string[], subject: string, body: string) =>
+  `mailto:?bcc=${enc(emails.join(','))}&subject=${enc(subject)}&body=${enc(body)}`;
+const waLink = (phone: string, text: string) => `https://wa.me/${waNum(phone)}?text=${enc(text)}`;
+
+/** Pasqua (algoritmo gregoriano anonimo) → ISO yyyy-mm-dd. */
+function easterISO(y: number): string {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4;
+  const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1;
+  return `${y}-${pad(mo)}-${pad(da)}`;
+}
+const festivitaOf = (y: number) => [
+  { id: 'epifania', label: 'Epifania', date: `${y}-01-06` },
+  { id: 'festa-donna', label: 'Festa della donna', date: `${y}-03-08` },
+  { id: 'festa-papa', label: 'Festa del papà', date: `${y}-03-19` },
+  { id: 'pasqua', label: 'Auguri di Pasqua', date: easterISO(y) },
+  { id: 'festa-mamma', label: 'Festa della mamma', date: `${y}-05-11` },
+  { id: 'ferragosto', label: 'Ferragosto', date: `${y}-08-15` },
+  { id: 'natale', label: 'Buon Natale', date: `${y}-12-25` },
+  { id: 'capodanno', label: 'Buon Anno', date: `${y}-12-31` },
+];
+
+const aiBtnCls = 'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#e2e2e2] bg-white hover:bg-[#fafafa] text-[#b45309] text-[11.5px] font-bold cursor-pointer disabled:opacity-50';
+const linkBtnCls = 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none';
+const softBtnCls = 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer';
+
+/** Bottone "✨ Bozza AI": riempie un testo via callAi (degrada se l'AI non è deployata). */
+const AiDraft: React.FC<{ prompt: string; onResult: (t: string) => void; label?: string }> = ({ prompt, onResult, label }) => {
+  const [loading, setLoading] = React.useState(false);
+  const run = async () => {
+    setLoading(true);
+    try {
+      const out = await callAi({ prompt, system: 'Sei il copywriter del gruppo Aulico (architettura/immobiliare, Puglia). Scrivi in italiano, tono caldo e professionale. Rispondi SOLO col testo del messaggio, senza preamboli né virgolette.', maxTokens: 320 });
+      if (out && out.trim()) onResult(out.trim());
+      else alert('AI non disponibile ora: scrivi il testo a mano (o riprova più tardi).');
+    } catch { alert('AI non disponibile ora: scrivi il testo a mano.'); }
+    finally { setLoading(false); }
+  };
+  return (
+    <button type="button" onClick={run} disabled={loading} className={aiBtnCls} title="Genera una bozza con l'AI">
+      {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />} {label || 'Bozza AI'}
+    </button>
+  );
+};
+
+interface AltroProps {
+  acc: MktAccount;
+  canEdit: boolean;
+  contacts: MktContact[];
+  cantierePhotos: MktCantierePhoto[];
+  outreach: MktOutreach[];
+  onSaveOutreach?: (o: MktOutreach) => void;
+  onDeleteOutreach?: (id: string) => void;
+  onSaveAccount?: (a: MktAccount) => void;
+  onSavePost?: (p: EditorialPost) => void;
+}
+type AltroTool = 'newsletter' | 'ricorrenza' | 'recensione' | 'foto';
+const ALTRO_TOOLS: { id: AltroTool; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { id: 'newsletter', label: 'Newsletter', icon: Mail },
+  { id: 'ricorrenza', label: 'Messaggi ricorrenze', icon: Gift },
+  { id: 'recensione', label: 'Recensioni', icon: Star },
+  { id: 'foto', label: 'Foto cantieri', icon: Camera },
+];
+
+const AltroTab: React.FC<AltroProps> = (props) => {
+  const { acc, canEdit, contacts, outreach } = props;
+  const [tool, setTool] = React.useState<AltroTool>('newsletter');
+  const isSoc = acc.kind === 'societa';
+  // Destinatari con consenso, appartenenti alla società (per gli account-società).
+  const audience = React.useMemo(
+    () => contacts.filter((c) => c.category !== 'partner' && (c.consentNewsletter || c.consentMarketing) && (!isSoc || c.societies?.[acc.id])),
+    [contacts, isSoc, acc.id],
+  );
+  const mine = React.useMemo(() => outreach.filter((o) => o.accountId === acc.id), [outreach, acc.id]);
+  const mkId = (k: string) => `out-${acc.id}-${k}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
+  const save = (o: MktOutreach) => props.onSaveOutreach?.(o);
+  const recipientsFrom = (list: MktContact[]): Record<string, MktOutreachRecipient> =>
+    Object.fromEntries(list.map((c) => [c.id, { contactId: c.id, name: c.name, email: c.email || null, phone: c.whatsapp || c.phone || null, status: 'inviato' as const, sentAt: Date.now() }]));
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="pillbar inline-flex flex-wrap items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] self-start">
+        {ALTRO_TOOLS.map(({ id, label, icon: Icon }) => (
+          <button key={id} onClick={() => setTool(id)} className={`inline-flex items-center gap-1.5 text-[11.5px] font-bold px-3 py-1.5 rounded-full cursor-pointer border-none ${tool === id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>
+            <Icon className="w-3.5 h-3.5" /> {label}
+          </button>
+        ))}
       </div>
-    ))}
+
+      {tool === 'newsletter' && <NewsletterTool acc={acc} canEdit={canEdit} audience={audience} history={mine} mkId={mkId} onSave={save} recipientsFrom={recipientsFrom} onDelete={props.onDeleteOutreach} />}
+      {tool === 'ricorrenza' && <RicorrenzeTool acc={acc} canEdit={canEdit} audience={audience} history={mine} mkId={mkId} onSave={save} recipientsFrom={recipientsFrom} onDelete={props.onDeleteOutreach} />}
+      {tool === 'recensione' && <RecensioniTool acc={acc} canEdit={canEdit} audience={audience} history={mine} mkId={mkId} onSave={save} onSaveAccount={props.onSaveAccount} onDelete={props.onDeleteOutreach} />}
+      {tool === 'foto' && <FotoCantieriTool acc={acc} canEdit={canEdit} photos={props.cantierePhotos} onSavePost={props.onSavePost} />}
+
+      {/* Ancora in preparazione */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+        {[
+          { t: 'Archivio idee', d: 'Spunti creativi, reel, headline e trend salvati con tag, riutilizzabili nelle campagne.' },
+          { t: 'Minute riunioni', d: 'Sintesi AI delle riunioni, archiviate per account.' },
+        ].map((x) => (
+          <div key={x.t} className="bg-white border border-dashed border-[#d8d8d4] rounded-[20px] p-4">
+            <b className="text-[13.5px] text-[#8a8a8a]">{x.t}</b>
+            <p className="text-[11.5px] text-[#a8a8a8] mt-1">{x.d}</p>
+            <span className="inline-block mt-2 text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#f0f0ee] text-[#9a9a9a]">In preparazione</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/** Riquadro comune con avviso destinatari + storico invii. */
+const AudienceNote: React.FC<{ acc: MktAccount; count: number; withEmail?: number }> = ({ acc, count, withEmail }) => (
+  <div className="text-[11.5px] text-[#8a8a8a] bg-[#f7f7f5] border border-[#eee] rounded-xl px-3 py-2">
+    {acc.kind === 'societa' ? (
+      <><b className="text-[#161616]">{count}</b> contatti con consenso {typeof withEmail === 'number' ? <>· <b className="text-[#161616]">{withEmail}</b> con email</> : null} appartenenti a <b>{acc.name}</b>.</>
+    ) : (
+      <>Per i clienti terzi i destinatari vanno gestiti dal cliente stesso: qui prepari solo il testo e i materiali.</>
+    )}{' '}Solo chi ha dato il consenso (marketing/newsletter) compare qui.
   </div>
 );
+const OutreachHistory: React.FC<{ items: MktOutreach[]; onDelete?: (id: string) => void }> = ({ items, onDelete }) => (
+  items.length === 0 ? null : (
+    <div className="flex flex-col gap-1.5">
+      <span className={lbl}>Storico</span>
+      {items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 12).map((o) => (
+        <div key={o.id} className="flex items-center justify-between gap-2 text-[12px] px-3 py-1.5 rounded-lg bg-white border border-[#eee]">
+          <span className="truncate"><CheckCircle2 className="w-3.5 h-3.5 inline text-emerald-600 mr-1.5" />{o.title}</span>
+          <span className="flex items-center gap-2 shrink-0 text-[#9a9a9a]">
+            {o.recipients ? `${Object.keys(o.recipients).length} dest.` : ''} · {new Date(o.createdAt).toLocaleDateString('it-IT')}
+            {onDelete && <button onClick={() => onDelete(o.id)} className="text-rose-500 hover:text-rose-700 cursor-pointer bg-transparent border-none p-0"><Trash2 className="w-3.5 h-3.5" /></button>}
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+);
+
+// ---- Newsletter -------------------------------------------------------------
+interface ToolProps {
+  acc: MktAccount; canEdit: boolean; audience: MktContact[]; history: MktOutreach[];
+  mkId: (k: string) => string; onSave: (o: MktOutreach) => void;
+  recipientsFrom: (l: MktContact[]) => Record<string, MktOutreachRecipient>;
+  onDelete?: (id: string) => void;
+}
+const NewsletterTool: React.FC<ToolProps> = ({ acc, canEdit, audience, history, mkId, onSave, recipientsFrom, onDelete }) => {
+  const [subject, setSubject] = React.useState('');
+  const [body, setBody] = React.useState('');
+  const withEmail = audience.filter((c) => c.email);
+  const emails = withEmail.map((c) => c.email!) as string[];
+  const canSend = canEdit && subject.trim() && body.trim() && emails.length > 0;
+  const logSent = () => onSave({ id: mkId('nl'), accountId: acc.id, kind: 'newsletter', title: subject.trim(), body, channel: 'email', recipients: recipientsFrom(withEmail), status: 'inviata', createdAt: Date.now() });
+  return (
+    <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-4 flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <h4 className="text-[14px] font-extrabold text-[#161616] inline-flex items-center gap-2"><Mail className="w-4 h-4" /> Newsletter</h4>
+        <AiDraft label="Bozza AI" prompt={`Scrivi una breve newsletter (max 120 parole) per "${acc.name}"${acc.tone ? `, tono ${acc.tone}` : ''}${acc.goals ? `. Obiettivo: ${acc.goals}` : ''}. Oggetto: "${subject || 'aggiornamento'}". Includi un saluto e una call to action gentile.`} onResult={(t) => setBody(t)} />
+      </div>
+      <AudienceNote acc={acc} count={audience.length} withEmail={withEmail.length} />
+      <input disabled={!canEdit} value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Oggetto della newsletter" className={inp} />
+      <textarea disabled={!canEdit} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Testo della newsletter…" rows={7} className={inp + ' resize-y min-h-[120px]'} />
+      <div className="flex items-center gap-2 flex-wrap">
+        <a href={canSend ? mailtoBcc(emails, subject, body) : undefined} onClick={() => canSend && logSent()} className={`${linkBtnCls} ${canSend ? '' : 'opacity-40 pointer-events-none'}`}><Send className="w-4 h-4" /> Apri email ({emails.length} in ccn)</a>
+        <button onClick={() => { navigator.clipboard?.writeText(body); }} disabled={!body.trim()} className={softBtnCls + ' disabled:opacity-40'}><Copy className="w-4 h-4" /> Copia testo</button>
+      </div>
+      <p className="text-[10.5px] text-[#a8a8a8]">I destinatari vanno in <b>copia nascosta (ccn)</b>. Quando l'invio email automatico sarà attivo, questa lista verrà usata dal backend.</p>
+      <OutreachHistory items={history.filter((o) => o.kind === 'newsletter')} onDelete={onDelete} />
+    </div>
+  );
+};
+
+// ---- Ricorrenze -------------------------------------------------------------
+const RicorrenzeTool: React.FC<ToolProps> = ({ acc, canEdit, audience, history, mkId, onSave, recipientsFrom, onDelete }) => {
+  const year = new Date().getFullYear();
+  const upcoming = React.useMemo(() => {
+    const t = todayISO();
+    const all = [...festivitaOf(year), ...festivitaOf(year + 1)];
+    return all.filter((f) => f.date >= t).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 6);
+  }, [year]);
+  const [occId, setOccId] = React.useState(upcoming[0]?.id || 'custom');
+  const occ = upcoming.find((u) => u.id === occId);
+  const [title, setTitle] = React.useState(occ?.label || '');
+  const [body, setBody] = React.useState('');
+  React.useEffect(() => { setTitle(occ?.label || title); }, [occId]); // eslint-disable-line
+  const withContact = audience.filter((c) => c.email || c.whatsapp || c.phone);
+  const canLog = canEdit && title.trim() && body.trim() && withContact.length > 0;
+  const logSent = () => onSave({ id: mkId('ric'), accountId: acc.id, kind: 'ricorrenza', title: title.trim(), body, occasion: occId, channel: 'misto', recipients: recipientsFrom(withContact), status: 'inviata', createdAt: Date.now() });
+  return (
+    <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-4 flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <h4 className="text-[14px] font-extrabold text-[#161616] inline-flex items-center gap-2"><Gift className="w-4 h-4" /> Messaggi per ricorrenze</h4>
+        <AiDraft label="Bozza AI" prompt={`Scrivi un messaggio breve (max 45 parole) di auguri per l'occasione "${title || 'ricorrenza'}" da parte di "${acc.name}"${acc.tone ? `, tono ${acc.tone}` : ''}. Personale e caloroso, adatto a WhatsApp/email.`} onResult={(t) => setBody(t)} />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <label className="flex flex-col gap-1"><span className={lbl}>Occasione</span>
+          <select disabled={!canEdit} value={occId} onChange={(e) => setOccId(e.target.value)} className={inp}>
+            {upcoming.map((f) => <option key={f.id} value={f.id}>{f.label} · {dISO(f.date)}</option>)}
+            <option value="custom">Occasione personalizzata…</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1"><span className={lbl}>Titolo</span>
+          <input disabled={!canEdit} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Es. Anniversario ingresso in casa" className={inp} />
+        </label>
+      </div>
+      <textarea disabled={!canEdit} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Testo degli auguri…" rows={4} className={inp + ' resize-y'} />
+      <AudienceNote acc={acc} count={audience.length} />
+      {canEdit && withContact.length > 0 && body.trim() && (
+        <div className="flex flex-col gap-1.5 max-h-56 overflow-y-auto pr-1">
+          {withContact.slice(0, 40).map((c) => (
+            <div key={c.id} className="flex items-center justify-between gap-2 text-[12px] px-3 py-1.5 rounded-lg bg-[#fafafa] border border-[#eee]">
+              <span className="truncate">{c.name}</span>
+              <span className="flex items-center gap-1.5 shrink-0">
+                {(c.whatsapp || c.phone) && <a href={waLink(c.whatsapp || c.phone!, body)} target="_blank" rel="noreferrer" className="text-emerald-600 hover:text-emerald-800" title="WhatsApp"><MessageCircle className="w-4 h-4" /></a>}
+                {c.email && <a href={`mailto:${c.email}?subject=${enc(title)}&body=${enc(body)}`} className="text-[#161616] hover:text-black" title="Email"><Mail className="w-4 h-4" /></a>}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+      <div><button onClick={logSent} disabled={!canLog} className={linkBtnCls + ' disabled:opacity-40'}><CheckCircle2 className="w-4 h-4" /> Segna come inviati ({withContact.length})</button></div>
+      <OutreachHistory items={history.filter((o) => o.kind === 'ricorrenza')} onDelete={onDelete} />
+    </div>
+  );
+};
+
+// ---- Recensioni -------------------------------------------------------------
+const RecensioniTool: React.FC<Omit<ToolProps, 'recipientsFrom'> & { onSaveAccount?: (a: MktAccount) => void }> = ({ acc, canEdit, audience, history, mkId, onSave, onSaveAccount, onDelete }) => {
+  const [reviewUrl, setReviewUrl] = React.useState(acc.reviewUrl || '');
+  const [body, setBody] = React.useState('');
+  const saved = (acc.reviewUrl || '') === reviewUrl.trim();
+  const targets = audience.filter((c) => c.whatsapp || c.phone || c.email);
+  const msg = (name: string) => `${body}${reviewUrl.trim() ? `\n\n${reviewUrl.trim()}` : ''}`.replace('{nome}', name);
+  const logOne = (c: MktContact) => onSave({ id: mkId('rev'), accountId: acc.id, kind: 'recensione', title: `Recensione — ${c.name}`, body, reviewUrl: reviewUrl.trim() || null, channel: c.whatsapp || c.phone ? 'whatsapp' : 'email', recipients: { [c.id]: { contactId: c.id, name: c.name, email: c.email || null, phone: c.whatsapp || c.phone || null, status: 'inviato', sentAt: Date.now() } }, status: 'inviata', createdAt: Date.now() });
+  return (
+    <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-4 flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <h4 className="text-[14px] font-extrabold text-[#161616] inline-flex items-center gap-2"><Star className="w-4 h-4" /> Richieste di recensione</h4>
+        <AiDraft label="Bozza AI" prompt={`Scrivi un messaggio breve (max 40 parole) che chiede gentilmente una recensione a un cliente soddisfatto di "${acc.name}". Usa il segnaposto {nome} per il nome. Non includere il link (verrà aggiunto dopo).`} onResult={(t) => setBody(t)} />
+      </div>
+      <label className="flex flex-col gap-1"><span className={lbl}>Link recensione (Google, Trustpilot…)</span>
+        <div className="flex items-center gap-2">
+          <input disabled={!canEdit} value={reviewUrl} onChange={(e) => setReviewUrl(e.target.value)} placeholder="https://g.page/…/review" className={inp} />
+          {canEdit && onSaveAccount && !saved && <button onClick={() => onSaveAccount({ ...acc, reviewUrl: reviewUrl.trim() || null })} className={softBtnCls}>Salva</button>}
+        </div>
+      </label>
+      <textarea disabled={!canEdit} value={body} onChange={(e) => setBody(e.target.value)} placeholder="Messaggio (usa {nome} per personalizzare)…" rows={3} className={inp + ' resize-y'} />
+      <AudienceNote acc={acc} count={audience.length} />
+      {canEdit && targets.length > 0 && body.trim() && (
+        <div className="flex flex-col gap-1.5 max-h-56 overflow-y-auto pr-1">
+          {targets.slice(0, 40).map((c) => (
+            <div key={c.id} className="flex items-center justify-between gap-2 text-[12px] px-3 py-1.5 rounded-lg bg-[#fafafa] border border-[#eee]">
+              <span className="truncate">{c.name}</span>
+              <span className="flex items-center gap-2 shrink-0">
+                {(c.whatsapp || c.phone) && <a href={waLink(c.whatsapp || c.phone!, msg(c.name))} onClick={() => logOne(c)} target="_blank" rel="noreferrer" className="text-emerald-600 hover:text-emerald-800" title="WhatsApp"><MessageCircle className="w-4 h-4" /></a>}
+                {c.email && <a href={`mailto:${c.email}?subject=${enc('La tua opinione conta')}&body=${enc(msg(c.name))}`} onClick={() => logOne(c)} className="text-[#161616]" title="Email"><Mail className="w-4 h-4" /></a>}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+      {targets.length === 0 && <p className="text-[11.5px] text-[#a8a8a8]">Nessun destinatario con consenso e recapito.</p>}
+      <OutreachHistory items={history.filter((o) => o.kind === 'recensione')} onDelete={onDelete} />
+    </div>
+  );
+};
+
+// ---- Foto cantieri ----------------------------------------------------------
+const FotoCantieriTool: React.FC<{ acc: MktAccount; canEdit: boolean; photos: MktCantierePhoto[]; onSavePost?: (p: EditorialPost) => void }> = ({ acc, canEdit, photos, onSavePost }) => {
+  const [done, setDone] = React.useState<Record<string, boolean>>({});
+  const mine = photos.filter((ph) => ph.division === acc.id);
+  const useInCalendar = (ph: MktCantierePhoto) => {
+    if (!onSavePost) return;
+    const id = `ed-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
+    onSavePost({
+      id, channel: acc.id, dateISO: todayISO(), status: 'idea',
+      topic: `Cantiere ${ph.cantiereName || ''}`.trim(), caption: ph.caption || '',
+      media: [{ id: `m-${id}`, type: 'image', url: ph.url, name: ph.cantiereName || 'Foto cantiere', source: 'link' }],
+      createdAt: Date.now(),
+    });
+    setDone((d) => ({ ...d, [ph.id]: true }));
+  };
+  if (acc.kind !== 'societa') return (
+    <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-6 text-center text-[12.5px] text-[#8a8a8a]">Le foto cantiere sono disponibili solo per gli account delle società del gruppo (Onirico/Materico/Unico).</div>
+  );
+  return (
+    <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-4 flex flex-col gap-3">
+      <h4 className="text-[14px] font-extrabold text-[#161616] inline-flex items-center gap-2"><Camera className="w-4 h-4" /> Foto cantieri · {acc.name}</h4>
+      {mine.length === 0 ? (
+        <p className="text-[12.5px] text-[#8a8a8a] py-6 text-center">Nessuna foto dai cantieri di {acc.name}. Le foto caricate nel modulo Cantiere compaiono qui.</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {mine.sort((a, b) => (b.takenAt || 0) - (a.takenAt || 0)).slice(0, 60).map((ph) => (
+            <div key={ph.id} className="rounded-2xl overflow-hidden border border-[#eee] bg-[#fafafa] flex flex-col">
+              <div className="aspect-square bg-[#f0f0ee] overflow-hidden">
+                <img src={safeUrl(ph.url) || ''} alt={ph.cantiereName || 'Foto cantiere'} className="w-full h-full object-cover" loading="lazy" />
+              </div>
+              <div className="p-2 flex flex-col gap-1.5">
+                <span className="text-[10.5px] font-bold text-[#161616] truncate">{ph.cantiereName}</span>
+                <span className="text-[9.5px] text-[#9a9a9a]">{ph.takenAt ? new Date(ph.takenAt).toLocaleDateString('it-IT') : ''}</span>
+                {canEdit && onSavePost && (
+                  <button onClick={() => useInCalendar(ph)} disabled={done[ph.id]} className="text-[10.5px] font-bold px-2 py-1 rounded-lg bg-[#161616] text-white cursor-pointer border-none disabled:opacity-40 inline-flex items-center justify-center gap-1">
+                    {done[ph.id] ? <><CheckCircle2 className="w-3 h-3" /> Aggiunta</> : <><Plus className="w-3 h-3" /> Nel calendario</>}
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default MarketingHub;
