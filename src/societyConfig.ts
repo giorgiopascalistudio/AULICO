@@ -59,13 +59,15 @@ export function slugToSocieta(slug: string): Societa | null {
 }
 
 /** Colore identificativo società (schema §10 CLAUDE.md). */
+// Palette società dal documento (docs/V2/agg.txt): Onirico Verde · Strategico Rosso ·
+// Materico Arancione · Unico Giallo · Fantastico Viola. Unica fonte per la nav e le card.
 export const SOCIETY_COLOR: Record<Societa, string> = {
-  studio: '#161616',
-  strategico: '#b45309',
-  materico: '#c2410c',
-  unico: '#4338ca',
-  fantastico: '#0d9488', // teal
-  holding: '#3f3f46',    // zinc (Aulico, gruppo)
+  studio: '#16a34a',     // Onirico — Verde
+  strategico: '#dc2626', // Strategico — Rosso
+  materico: '#ea580c',   // Materico — Arancione
+  unico: '#eab308',      // Unico — Giallo
+  fantastico: '#7c3aed', // Fantastico — Viola
+  holding: '#3f3f46',    // zinc (Aulico, gruppo — non nel documento)
 };
 
 // ---- Tipi di configurazione ----------------------------------------------

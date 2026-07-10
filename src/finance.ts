@@ -31,12 +31,13 @@ export const COMPANY_INVOICE_PREFIX: Record<Company, string> = {
   unico: 'FE-UNI'
 };
 
-/** Colore identificativo della società (schema grafico Onirico, vedi CLAUDE.md §10). */
+/** Colore identificativo società — palette dal documento (Onirico Verde · Strategico
+ * Rosso · Materico Arancione · Unico Giallo), allineata a SOCIETY_COLOR (vedi §10). */
 export const COMPANY_COLOR: Record<Company, string> = {
-  studio: '#161616',
-  strategico: '#b45309',
-  materico: '#c2410c',
-  unico: '#4338ca'
+  studio: '#16a34a',
+  strategico: '#dc2626',
+  materico: '#ea580c',
+  unico: '#eab308'
 };
 
 // --- Costanti di default (override-abili per progetto) ---
