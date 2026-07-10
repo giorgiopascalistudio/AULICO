@@ -19,13 +19,12 @@ export const SectionPlaceholder: React.FC<Props> = ({ section, societyLabel, col
   return (
     <div className="flex-1 flex items-center justify-center p-8">
       <div className="max-w-[420px] w-full bg-white border border-[#e2e2e2] rounded-[24px] p-8 text-center shadow-sm">
-        <div
-          className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center mb-4"
-          style={{ background: `${color}14`, color }}
-        >
+        <div className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center mb-4 bg-[#f5f5f3] text-[#161616]">
           <Icon className="w-7 h-7" />
         </div>
-        <div className="text-[11px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-1">{societyLabel}</div>
+        <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-1">
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />{societyLabel}
+        </div>
         <h2 className="text-[20px] font-extrabold text-[#161616] tracking-tight">{section.label}</h2>
         <p className="text-[13.5px] text-[#6e6e6e] mt-2 leading-relaxed">
           {section.note || 'Questa sezione è in preparazione.'}

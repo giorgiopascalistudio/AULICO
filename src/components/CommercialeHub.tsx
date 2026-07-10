@@ -134,7 +134,7 @@ const Centro: React.FC<Props & { onOpen: (s: string) => void; onOpenCestino?: ()
     <div className="flex flex-col gap-5 text-left">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Target className="w-5.5 h-5.5" style={{ color }} /> Centro Commerciale</h2>
+          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Target className="w-5.5 h-5.5 text-[#161616]" /> Centro Commerciale</h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">La parte commerciale di tutte le società: preventivi interattivi, contratti e documenti da modello, per società.</p>
         </div>
         {onOpenCestino && (
@@ -253,7 +253,7 @@ const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) =
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {templates.map((tp) => (
                 <button key={tp.id} onClick={() => setOpenTpl(tp.id)} className="text-left bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm hover:border-[#161616] hover:shadow-md transition-all cursor-pointer">
-                  <p className="inline-flex items-center gap-2 font-extrabold text-[14px] text-[#161616]"><FileSignature className="w-4 h-4" style={{ color: socColor(soc) }} /> {tp.label}</p>
+                  <p className="inline-flex items-center gap-2 font-extrabold text-[14px] text-[#161616]"><FileSignature className="w-4 h-4 text-[#161616]" /> {tp.label}</p>
                   <p className="text-[11.5px] text-[#8a8a8a] mt-1">{tp.desc}</p>
                 </button>
               ))}
@@ -393,7 +393,7 @@ const ImpreseRating: React.FC<{ rubrica: ClientRecord[]; canEdit: boolean; color
                                 disabled={!canEdit}
                                 onClick={() => onSaveClient?.({ ...c, valutazioni: { ...(c.valutazioni || {}), [cr]: i === val ? 0 : i } })}
                                 className="p-0.5 cursor-pointer bg-transparent border-none"
-                              ><Star className="w-4 h-4" style={{ color: i <= val ? color : '#d9d9d5', fill: i <= val ? color : 'none' }} /></button>
+                              ><Star className="w-4 h-4" style={{ color: i <= val ? '#f59e0b' : '#d9d9d5', fill: i <= val ? '#f59e0b' : 'none' }} /></button>
                             ))}
                           </span>
                         </div>

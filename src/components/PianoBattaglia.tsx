@@ -99,7 +99,7 @@ export const PianoBattaglia: React.FC<Props> = ({ soc, socLabel, items, cicli, c
     <div className="flex flex-col gap-4 text-left">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Swords className="w-5.5 h-5.5" style={{ color }} /> Piano di Battaglia {socLabel ? `· ${socLabel}` : ''}</h2>
+          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Swords className="w-5.5 h-5.5 text-[#161616]" /> Piano di Battaglia {socLabel ? `· ${socLabel}` : ''}</h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">La settimana operativa: porta qui i cicli quando vanno lavorati, collocali nei giorni, spuntali quando fatti.</p>
         </div>
         <div className="flex items-center gap-1.5">

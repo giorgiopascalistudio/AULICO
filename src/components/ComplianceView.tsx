@@ -167,7 +167,7 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
           <p className="text-[12.5px] text-[#8a8a8a] mt-0.5">Documenti e obblighi di {socLabel}: spunta la presenza e allega i documenti.</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1.5 rounded-full border text-[12px] font-bold" style={{ borderColor: `${color}44`, color, background: `${color}0f` }}>
+          <span className="px-3 py-1.5 rounded-full border border-[#e2e2e2] bg-[#f7f7f5] text-[#161616] text-[12px] font-bold">
             {present}/{total} presenti
           </span>
           {expiring > 0 && (

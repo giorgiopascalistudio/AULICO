@@ -34,8 +34,10 @@ import type { InvoiceActive, InvoicePassive, ScadenzaItem } from '../finance';
 import { eur, safeUrl } from '../utils';
 import { callAi } from '../firebase';
 
-const ACCENT = '#b45309';
-const IN = 'w-full h-10 px-3 text-[14px] border border-[#e2e2e2] rounded-lg bg-white outline-none focus:border-[#b45309]';
+// Stile unico Aulico: accent nero, niente tinta-società sulle superfici (il colore
+// vive solo nei pallini). Gli amber rimasti nel file sono SEMANTICI (stati/warning).
+const ACCENT = '#161616';
+const IN = 'w-full h-10 px-3 text-[14px] border border-[#e2e2e2] rounded-lg bg-white outline-none focus:border-[#161616]';
 const uid = (p: string) => `${p}-${Date.now()}-${Math.floor(Math.random() * 9000)}`;
 const dtLocal = (ts?: number | null) => (ts ? new Date(ts - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '');
 const parseDt = (s: string) => (s ? new Date(s).getTime() : 0);
@@ -183,7 +185,7 @@ export const StrategicoView: React.FC<Props> = (props) => {
           <button onClick={() => setActiveId(null)} className="w-9 h-9 rounded-xl border border-[#e2e2e2] bg-white hover:bg-stone-50 flex items-center justify-center text-stone-500 cursor-pointer shrink-0" title="Torna ai progetti"><ArrowRight className="w-4.5 h-4.5 rotate-180" /></button>
           <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white shrink-0" style={{ background: proj?.color || ACCENT }}><Megaphone className="w-5 h-5" /></div>
           <div className="min-w-0">
-            <button onClick={() => setActiveId(null)} className="text-[11px] text-stone-400 hover:text-[#b45309] bg-transparent border-none cursor-pointer p-0">Strategico · Progetti</button>
+            <button onClick={() => setActiveId(null)} className="text-[11px] text-stone-400 hover:text-[#161616] bg-transparent border-none cursor-pointer p-0">Strategico · Progetti</button>
             <h1 className="text-[19px] font-extrabold tracking-tight truncate">{title}</h1>
             {proj?.clientName && <p className="text-[12px] text-stone-400">{proj.clientName}</p>}
           </div>
@@ -259,7 +261,7 @@ const ProjectPanoramica: React.FC<Props & { inProj: <T extends { mktProjectId?: 
   const dlOpen = dl.filter((d) => d.stage !== 'pubblicato').length;
   const tiles: { tab: ProjTab; label: string; value: string; icon: React.ElementType; accent?: string }[] = [
     { tab: 'deliverable', label: 'Deliverable aperti', value: `${dlOpen}/${dl.length}`, icon: Columns, accent: ACCENT },
-    { tab: 'revisioni', label: 'Revisioni da approvare', value: String(proofOpen), icon: Eye, accent: proofOpen ? '#b45309' : undefined },
+    { tab: 'revisioni', label: 'Revisioni da approvare', value: String(proofOpen), icon: Eye, accent: proofOpen ? '#d97706' : undefined },
     { tab: 'campagne', label: 'Campagne', value: String(cm.length), icon: Megaphone },
     { tab: 'social', label: 'Post social', value: String(so.length), icon: Share2 },
     { tab: 'eventi', label: 'Eventi', value: String(ev.length), icon: Calendar },
@@ -273,7 +275,7 @@ const ProjectPanoramica: React.FC<Props & { inProj: <T extends { mktProjectId?: 
         {tiles.map((t) => {
           const Icon = t.icon;
           return (
-            <button key={t.tab} onClick={() => goTab(t.tab)} className="text-left bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm cursor-pointer hover:border-[#b45309] hover:shadow-md transition-all duration-300">
+            <button key={t.tab} onClick={() => goTab(t.tab)} className="text-left bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm cursor-pointer hover:border-[#161616] hover:shadow-md transition-all duration-300">
               <span className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wide text-stone-400"><Icon className="w-4 h-4" />{t.label}</span>
               <b className="block text-[22px] mt-1.5 leading-none tracking-tight" style={t.accent ? { color: t.accent } : undefined}>{t.value}</b>
             </button>
@@ -327,7 +329,7 @@ const MktProjectsTab: React.FC<Props & { onOpenProject: (id: string) => void }> 
             );
           })}
           {unassignedCount > 0 && (
-            <button onClick={() => onOpenProject(UNASSIGNED)} className="text-left bg-[#fafafa] border border-dashed border-[#d8d8d8] rounded-[22px] p-5 shadow-sm cursor-pointer hover:border-[#b45309] flex flex-col justify-center">
+            <button onClick={() => onOpenProject(UNASSIGNED)} className="text-left bg-[#fafafa] border border-dashed border-[#d8d8d8] rounded-[22px] p-5 shadow-sm cursor-pointer hover:border-[#161616] flex flex-col justify-center">
               <span className="text-[10.5px] font-bold uppercase tracking-wide text-stone-400">Migrazione</span>
               <b className="block text-[15px] tracking-tight mt-1">Non assegnati</b>
               <span className="text-[12px] text-stone-500 mt-1">{unassignedCount} voci senza progetto — aprile e riassegnale.</span>
@@ -356,7 +358,7 @@ const MktProjectModal: React.FC<{ project: MktProject; clients: Record<string, C
           </select>
         </Field>
         <Field label="Stato"><select className={IN} value={p.status} onChange={(e) => set({ status: e.target.value as MktProjectStatus })}><option value="attivo">Attivo</option><option value="in_pausa">In pausa</option><option value="concluso">Concluso</option></select></Field>
-        <Field label="Colore"><input type="color" className="w-full h-10 rounded-lg border border-[#e2e2e2] bg-white cursor-pointer" value={p.color || '#b45309'} onChange={(e) => set({ color: e.target.value })} /></Field>
+        <Field label="Colore"><input type="color" className="w-full h-10 rounded-lg border border-[#e2e2e2] bg-white cursor-pointer" value={p.color || '#161616'} onChange={(e) => set({ color: e.target.value })} /></Field>
         <Field label="Obiettivo" full><input className={IN} value={p.goal || ''} onChange={(e) => set({ goal: e.target.value })} placeholder="Es. +30% lead in 6 mesi" /></Field>
         <Field label="Inizio"><input type="date" className={IN} value={dOnly(p.startAt)} onChange={(e) => set({ startAt: e.target.value ? parseD(e.target.value) : null })} /></Field>
         <Field label="Fine"><input type="date" className={IN} value={dOnly(p.endAt)} onChange={(e) => set({ endAt: e.target.value ? parseD(e.target.value) : null })} /></Field>
@@ -417,7 +419,7 @@ const SaveBtn: React.FC<{ onClick: () => void; disabled?: boolean; label?: strin
 );
 const EmptyBox: React.FC<{ icon: React.ReactNode; title: string; text: string }> = ({ icon, title, text }) => (
   <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-10 shadow-sm text-center">
-    <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#b45309] flex items-center justify-center mx-auto mb-3">{icon}</div>
+    <div className="w-12 h-12 rounded-2xl bg-[#f5f5f3] text-[#161616] flex items-center justify-center mx-auto mb-3">{icon}</div>
     <b className="block text-[16px]">{title}</b>
     <p className="text-[13px] text-stone-500 mt-1.5 max-w-[420px] mx-auto">{text}</p>
   </div>
@@ -526,7 +528,7 @@ const EventModal: React.FC<{ event: MarketingEvent; clients: Record<string, Clie
         <Field label="Stato" full>
           <div className="flex gap-1.5">
             {(['bozza', 'pubblicato', 'concluso'] as const).map((s) => (
-              <button key={s} onClick={() => set({ status: s })} className={`text-[11.5px] font-bold px-3 py-1.5 rounded-full border cursor-pointer capitalize ${e.status === s ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-white text-stone-500 border-stone-200'}`}>{s}</button>
+              <button key={s} onClick={() => set({ status: s })} className={`text-[11.5px] font-bold px-3 py-1.5 rounded-full border cursor-pointer capitalize ${e.status === s ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-stone-500 border-stone-200'}`}>{s}</button>
             ))}
           </div>
         </Field>
@@ -545,7 +547,7 @@ const EventModal: React.FC<{ event: MarketingEvent; clients: Record<string, Clie
         <div className="flex flex-col gap-2 mt-3">
           {inv.map(([k, i]) => (
             <div key={k} className="flex items-center gap-2 bg-[#fafafa] border border-[#ececec] rounded-xl px-3 py-2">
-              <b className="text-[13px] flex-1 truncate">{i.name}{i.uid && <span className="text-[10px] text-[#b45309] ml-1.5">portale</span>}</b>
+              <b className="text-[13px] flex-1 truncate">{i.name}{i.uid && <span className="text-[10px] text-[#161616] ml-1.5">portale</span>}</b>
               <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded-full border ${RSVP_META[i.status].cls}`}>{RSVP_META[i.status].label}</span>
               <button onClick={() => removeInvitee(k)} className="w-7 h-7 rounded-lg hover:bg-red-50 text-red-500 flex items-center justify-center"><X className="w-4 h-4" /></button>
             </div>
@@ -654,7 +656,7 @@ const CampaignModal: React.FC<{ campaign: Campaign; clients: Record<string, Clie
         <Field label="Stato"><select className={IN} value={c.status} onChange={(e) => set({ status: e.target.value as Campaign['status'] })}><option value="bozza">Bozza</option><option value="attiva">Attiva</option><option value="conclusa">Conclusa</option></select></Field>
         <Field label="Fasce destinatarie">
           <div className="flex gap-1.5 items-center h-10">
-            {[1, 2, 3].map((t) => <button key={t} onClick={() => toggleTier(t)} className={`text-[12px] font-bold w-9 h-9 rounded-lg border cursor-pointer ${(c.audienceTiers || []).includes(t) ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-white text-stone-500 border-stone-200'}`}>{t}</button>)}
+            {[1, 2, 3].map((t) => <button key={t} onClick={() => toggleTier(t)} className={`text-[12px] font-bold w-9 h-9 rounded-lg border cursor-pointer ${(c.audienceTiers || []).includes(t) ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-stone-500 border-stone-200'}`}>{t}</button>)}
             <span className="text-[11px] text-stone-400 ml-1">{(c.audienceTiers || []).length === 0 ? 'tutte' : ''}</span>
           </div>
         </Field>
@@ -675,7 +677,7 @@ const CampaignModal: React.FC<{ campaign: Campaign; clients: Record<string, Clie
         {utmUrl && (
           <div className="flex items-center gap-2 mt-3 bg-[#fafafa] border border-[#ececec] rounded-xl px-3 py-2">
             <span className="text-[12px] text-stone-600 truncate flex-1">{utmUrl}</span>
-            <button onClick={() => { navigator.clipboard?.writeText(utmUrl); }} className="shrink-0 flex items-center gap-1 text-[11.5px] font-bold text-[#b45309] bg-white border border-[#e2e2e2] rounded-lg px-2 py-1 cursor-pointer"><Copy className="w-3.5 h-3.5" /> Copia</button>
+            <button onClick={() => { navigator.clipboard?.writeText(utmUrl); }} className="shrink-0 flex items-center gap-1 text-[11.5px] font-bold text-[#161616] bg-white border border-[#e2e2e2] rounded-lg px-2 py-1 cursor-pointer"><Copy className="w-3.5 h-3.5" /> Copia</button>
           </div>
         )}
       </div>
@@ -684,7 +686,7 @@ const CampaignModal: React.FC<{ campaign: Campaign; clients: Record<string, Clie
       <div className="border-t border-[#ececec] pt-4">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" /> Follow-up pianificati</span>
-          <button onClick={addStep} className="text-[12px] font-bold text-[#b45309] flex items-center gap-1 bg-transparent border-none cursor-pointer"><Plus className="w-3.5 h-3.5" /> Aggiungi</button>
+          <button onClick={addStep} className="text-[12px] font-bold text-[#161616] flex items-center gap-1 bg-transparent border-none cursor-pointer"><Plus className="w-3.5 h-3.5" /> Aggiungi</button>
         </div>
         <div className="flex flex-col gap-2 mt-3">
           {(c.steps || []).map((s) => (
@@ -707,7 +709,7 @@ const CampaignModal: React.FC<{ campaign: Campaign; clients: Record<string, Clie
           {audience.map((cl) => (
             <div key={cl.id} className="flex items-center gap-2 text-[13px] bg-[#fafafa] border border-[#ececec] rounded-lg px-3 py-1.5">
               <b className="flex-1 truncate">{cl.name}</b>
-              {cl.email && <a href={safeUrl(`mailto:${cl.email}?subject=${encodeURIComponent(c.name)}&body=${enc}`) || '#'} className="w-7 h-7 rounded-lg bg-white border border-[#e2e2e2] flex items-center justify-center text-stone-600 hover:text-[#b45309]" title="Email"><Mail className="w-3.5 h-3.5" /></a>}
+              {cl.email && <a href={safeUrl(`mailto:${cl.email}?subject=${encodeURIComponent(c.name)}&body=${enc}`) || '#'} className="w-7 h-7 rounded-lg bg-white border border-[#e2e2e2] flex items-center justify-center text-stone-600 hover:text-[#161616]" title="Email"><Mail className="w-3.5 h-3.5" /></a>}
               {(cl.whatsapp || cl.phone) && <a href={safeUrl(`https://wa.me/${(cl.whatsapp || cl.phone || '').replace(/[^0-9]/g, '')}?text=${enc}`) || '#'} target="_blank" rel="noreferrer" className="w-7 h-7 rounded-lg bg-white border border-[#e2e2e2] flex items-center justify-center text-stone-600 hover:text-emerald-600" title="WhatsApp"><MessageCircle className="w-3.5 h-3.5" /></a>}
             </div>
           ))}
@@ -784,16 +786,16 @@ const SurveyModal: React.FC<{ survey: Survey; onClose: () => void; onSave: (s: S
         <Field label="Titolo" full><input className={IN} value={s.title} onChange={(e) => set({ title: e.target.value })} placeholder="Es. Soddisfazione fine lavori" /></Field>
         <Field label="Introduzione" full><textarea className={`${IN} h-auto py-2 min-h-[50px]`} value={s.intro || ''} onChange={(e) => set({ intro: e.target.value })} /></Field>
         <Field label="Destinatari"><select className={IN} value={s.audience} onChange={(e) => set({ audience: e.target.value as Survey['audience'] })}><option value="clienti">Clienti</option><option value="partner">Partner</option><option value="tutti">Tutti</option></select></Field>
-        <Field label="Stato"><label className="flex items-center gap-2 h-10 cursor-pointer"><input type="checkbox" checked={s.active} onChange={(e) => set({ active: e.target.checked })} className="w-4 h-4 accent-[#b45309]" /><span className="text-[13px] text-stone-600">Attivo (visibile nel portale)</span></label></Field>
+        <Field label="Stato"><label className="flex items-center gap-2 h-10 cursor-pointer"><input type="checkbox" checked={s.active} onChange={(e) => set({ active: e.target.checked })} className="w-4 h-4 accent-[#161616]" /><span className="text-[13px] text-stone-600">Attivo (visibile nel portale)</span></label></Field>
       </div>
 
       <div className="border-t border-[#ececec] pt-4">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400">Domande ({s.questions.length})</span>
           <div className="flex gap-1.5">
-            <button onClick={() => addQ('rating')} className="text-[11.5px] font-bold text-[#b45309] border border-amber-200 bg-amber-50 rounded-lg px-2 py-1 cursor-pointer">+ Voto</button>
-            <button onClick={() => addQ('choice')} className="text-[11.5px] font-bold text-[#b45309] border border-amber-200 bg-amber-50 rounded-lg px-2 py-1 cursor-pointer">+ Scelta</button>
-            <button onClick={() => addQ('text')} className="text-[11.5px] font-bold text-[#b45309] border border-amber-200 bg-amber-50 rounded-lg px-2 py-1 cursor-pointer">+ Testo</button>
+            <button onClick={() => addQ('rating')} className="text-[11.5px] font-bold text-[#161616] border border-[#e2e2e2] bg-white rounded-lg px-2 py-1 cursor-pointer">+ Voto</button>
+            <button onClick={() => addQ('choice')} className="text-[11.5px] font-bold text-[#161616] border border-[#e2e2e2] bg-white rounded-lg px-2 py-1 cursor-pointer">+ Scelta</button>
+            <button onClick={() => addQ('text')} className="text-[11.5px] font-bold text-[#161616] border border-[#e2e2e2] bg-white rounded-lg px-2 py-1 cursor-pointer">+ Testo</button>
           </div>
         </div>
         <div className="flex flex-col gap-2 mt-3">
@@ -813,7 +815,7 @@ const SurveyModal: React.FC<{ survey: Survey; onClose: () => void; onSave: (s: S
                       <button onClick={() => setQ(q.id, { options: (q.options || []).filter((_, j) => j !== oi) })} className="w-6 h-6 rounded hover:bg-red-50 text-red-400 flex items-center justify-center"><X className="w-3.5 h-3.5" /></button>
                     </div>
                   ))}
-                  <button onClick={() => setQ(q.id, { options: [...(q.options || []), ''] })} className="self-start text-[11.5px] font-bold text-[#b45309] bg-transparent border-none cursor-pointer flex items-center gap-1"><Plus className="w-3 h-3" /> opzione</button>
+                  <button onClick={() => setQ(q.id, { options: [...(q.options || []), ''] })} className="self-start text-[11.5px] font-bold text-[#161616] bg-transparent border-none cursor-pointer flex items-center gap-1"><Plus className="w-3 h-3" /> opzione</button>
                 </div>
               )}
             </div>
@@ -1036,7 +1038,7 @@ const DashboardTab: React.FC<Props & { onOpenProject: (id: string) => void; goHo
       <div>
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400">I tuoi progetti</span>
-          <button onClick={() => goHome('progetti')} className="text-[11.5px] font-bold text-[#b45309] bg-transparent border-none cursor-pointer flex items-center gap-1">Tutti i progetti <ArrowRight className="w-3.5 h-3.5" /></button>
+          <button onClick={() => goHome('progetti')} className="text-[11.5px] font-bold text-[#161616] bg-transparent border-none cursor-pointer flex items-center gap-1">Tutti i progetti <ArrowRight className="w-3.5 h-3.5" /></button>
         </div>
         {recent.length === 0 ? (
           <EmptyBox icon={<FolderOpen className="w-6 h-6" />} title="Nessun progetto" text="Crea il primo progetto marketing dalla scheda 'Progetti' per iniziare a organizzare contenuti, campagne e ads per cliente." />
@@ -1045,7 +1047,7 @@ const DashboardTab: React.FC<Props & { onOpenProject: (id: string) => void; goHo
             {recent.map((p) => {
               const meta = PROJ_STATUS_META[p.status] || PROJ_STATUS_META.attivo;
               return (
-                <button key={p.id} onClick={() => onOpenProject(p.id)} className="text-left bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm cursor-pointer hover:border-[#b45309] hover:shadow-md transition-all duration-300 border-l-[5px]" style={{ borderLeftColor: p.color || ACCENT }}>
+                <button key={p.id} onClick={() => onOpenProject(p.id)} className="text-left bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm cursor-pointer hover:border-[#161616] hover:shadow-md transition-all duration-300 border-l-[5px]" style={{ borderLeftColor: p.color || ACCENT }}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0"><b className="block text-[14px] tracking-tight truncate">{p.name}</b>{p.clientName && <span className="text-[12px] text-stone-500">{p.clientName}</span>}</div>
                     <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border ${meta.cls}`}>{meta.label}</span>
@@ -1081,7 +1083,7 @@ const ContractsTab: React.FC<{ contracts: MktContract[]; clients: Record<string,
         <Kpi icon={<FileText className="w-4 h-4" />} label="Contratti" value={String(contracts.length)} sub={`${attivi.length} attivi`} accent={ACCENT} />
         <Kpi icon={<RefreshCw className="w-4 h-4" />} label="Ricorrente / mese" value={eur(mrr)} accent="#059669" />
         <Kpi icon={<Banknote className="w-4 h-4" />} label="Ricorrente / anno" value={eur(mrr * 12)} />
-        <Kpi icon={<AlertTriangle className="w-4 h-4" />} label="Rinnovi ≤30gg" value={String(soon.length)} accent={soon.length ? '#b45309' : undefined} />
+        <Kpi icon={<AlertTriangle className="w-4 h-4" />} label="Rinnovi ≤30gg" value={String(soon.length)} accent={soon.length ? '#d97706' : undefined} />
       </div>
       <div className="flex justify-end"><AddBtn onClick={() => setEditing(blank())} label="Nuovo contratto" /></div>
 
@@ -1109,7 +1111,7 @@ const ContractsTab: React.FC<{ contracts: MktContract[]; clients: Record<string,
                 </div>
                 <div className="flex items-center gap-3 mt-2 text-[12px] text-stone-500 flex-wrap">
                   <span>{(k.emissions || []).length} emissioni</span>
-                  {k.endAt && <span className={renewSoon ? 'text-[#b45309] font-bold flex items-center gap-1' : 'flex items-center gap-1'}>{renewSoon && <AlertTriangle className="w-3.5 h-3.5" />}rinnovo {new Date(k.endAt).toLocaleDateString('it-IT')}</span>}
+                  {k.endAt && <span className={renewSoon ? 'text-amber-700 font-bold flex items-center gap-1' : 'flex items-center gap-1'}>{renewSoon && <AlertTriangle className="w-3.5 h-3.5" />}rinnovo {new Date(k.endAt).toLocaleDateString('it-IT')}</span>}
                 </div>
                 <div className="flex items-center gap-2 mt-4 pt-3 border-t border-[#f0f0f0]">
                   <button disabled={k.status !== 'attivo' || emittedThis} onClick={() => onEmit(k.id)} title="Emetti il periodo corrente in Finanza" className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-white text-[12.5px] font-bold border-none cursor-pointer disabled:opacity-40 disabled:cursor-default" style={{ background: emittedThis ? '#9ca3af' : ACCENT }}><Receipt className="w-3.5 h-3.5" /> {emittedThis ? `${period} emesso` : `Emetti ${period}`}</button>
@@ -1290,7 +1292,7 @@ const EconomiaTab: React.FC<Props & { go: (t: string) => void }> = (props) => {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="bg-amber-50 border border-amber-200 rounded-[20px] px-4 py-3 text-[12.5px] text-amber-800 flex items-start gap-2">
+      <div className="bg-[#f7f7f5] border border-[#e2e2e2] rounded-[20px] px-4 py-3 text-[12.5px] text-[#6b6b6b] flex items-start gap-2">
         <Wallet className="w-4 h-4 mt-0.5 shrink-0" />
         <span>Tutti i dati economici di Strategico (contratti, ore fatturate, spese campagne/eventi) confluiscono nei nodi finanza con società <b>Strategico</b> e compaiono nel <b>Consolidato</b> di Finanze e in Statistiche & BEP.</span>
       </div>
@@ -1301,7 +1303,7 @@ const EconomiaTab: React.FC<Props & { go: (t: string) => void }> = (props) => {
         <Kpi icon={<TrendingUp className="w-4 h-4" />} label="Margine" value={eur(ricavi - costi)} accent={ACCENT} />
         <Kpi icon={<RefreshCw className="w-4 h-4" />} label="Ricorrente / mese" value={eur(mrr)} />
         <Kpi icon={<CheckCircle2 className="w-4 h-4" />} label="Incassato" value={eur(incassato)} accent="#059669" />
-        <Kpi icon={<Banknote className="w-4 h-4" />} label="Da incassare" value={eur(daIncassare)} accent="#b45309" />
+        <Kpi icon={<Banknote className="w-4 h-4" />} label="Da incassare" value={eur(daIncassare)} accent="#d97706" />
         <Kpi icon={<Timer className="w-4 h-4" />} label="Ore non fatturate" value={eur(oreNonFatt)} sub="valore potenziale" />
         <Kpi icon={<FileText className="w-4 h-4" />} label="Contratti attivi" value={String(contracts.filter((k) => k.status === 'attivo').length)} />
       </div>
@@ -1310,7 +1312,7 @@ const EconomiaTab: React.FC<Props & { go: (t: string) => void }> = (props) => {
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <b className="text-[14px] flex items-center gap-1.5"><Receipt className="w-4 h-4" style={{ color: ACCENT }} /> Ultime fatture attive</b>
-            <button onClick={() => go('contratti')} className="text-[11.5px] font-bold text-[#b45309] bg-transparent border-none cursor-pointer flex items-center gap-1">Contratti <ArrowRight className="w-3.5 h-3.5" /></button>
+            <button onClick={() => go('contratti')} className="text-[11.5px] font-bold text-[#161616] bg-transparent border-none cursor-pointer flex items-center gap-1">Contratti <ArrowRight className="w-3.5 h-3.5" /></button>
           </div>
           {strA.length === 0 ? <span className="text-[13px] italic text-stone-400">Nessuna fattura Strategico.</span> : (
             <div className="flex flex-col gap-1.5">
@@ -1327,7 +1329,7 @@ const EconomiaTab: React.FC<Props & { go: (t: string) => void }> = (props) => {
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <b className="text-[14px] flex items-center gap-1.5"><Wallet className="w-4 h-4 text-red-500" /> Ultimi costi</b>
-            <button onClick={() => go('campagne')} className="text-[11.5px] font-bold text-[#b45309] bg-transparent border-none cursor-pointer flex items-center gap-1">Campagne <ArrowRight className="w-3.5 h-3.5" /></button>
+            <button onClick={() => go('campagne')} className="text-[11.5px] font-bold text-[#161616] bg-transparent border-none cursor-pointer flex items-center gap-1">Campagne <ArrowRight className="w-3.5 h-3.5" /></button>
           </div>
           {strP.length === 0 ? <span className="text-[13px] italic text-stone-400">Nessun costo Strategico.</span> : (
             <div className="flex flex-col gap-1.5">
@@ -1391,7 +1393,7 @@ const AssetsTab: React.FC<{ assets: MktAsset[]; clients: Record<string, ClientRe
                 <div className="p-3 flex flex-col gap-1.5 flex-1">
                   <b className="text-[13px] truncate">{a.name || 'Senza nome'}</b>
                   <span className="text-[10.5px] font-bold uppercase tracking-wide text-stone-400">{M.label}</span>
-                  {(a.tags || []).length > 0 && <div className="flex flex-wrap gap-1">{(a.tags || []).slice(0, 3).map((t) => <span key={t} className="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-1.5 py-0.5">{t}</span>)}</div>}
+                  {(a.tags || []).length > 0 && <div className="flex flex-wrap gap-1">{(a.tags || []).slice(0, 3).map((t) => <span key={t} className="text-[10px] bg-[#f1f1f1] text-[#555] border border-[#e2e2e2] rounded-full px-1.5 py-0.5">{t}</span>)}</div>}
                   <div className="flex items-center gap-1 mt-auto pt-1.5">
                     <button onClick={() => setEditing(a)} className="flex-1 h-8 rounded-lg bg-[#1b1b1b] hover:bg-black text-white text-[12px] font-bold border-none cursor-pointer">Modifica</button>
                     <button onClick={() => onDelete(a.id)} className="w-8 h-8 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-600 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -1426,9 +1428,9 @@ const AssetModal: React.FC<{ asset: MktAsset; clients: Record<string, ClientReco
         <Field label="Tag" full>
           <div className="flex items-center gap-2">
             <input className={IN} value={tagIn} onChange={(e) => setTagIn(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }} placeholder="Aggiungi tag e Invio" />
-            <button onClick={addTag} className="h-10 px-3 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[12.5px] cursor-pointer">+ Tag</button>
+            <button onClick={addTag} className="h-10 px-3 rounded-lg bg-white text-[#161616] border border-[#e2e2e2] font-bold text-[12.5px] cursor-pointer">+ Tag</button>
           </div>
-          <div className="flex flex-wrap gap-1.5 mt-2">{(a.tags || []).map((t) => <span key={t} className="text-[11.5px] bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2 py-0.5 flex items-center gap-1">{t}<button onClick={() => set({ tags: (a.tags || []).filter((x) => x !== t) })} className="text-amber-700"><X className="w-3 h-3" /></button></span>)}</div>
+          <div className="flex flex-wrap gap-1.5 mt-2">{(a.tags || []).map((t) => <span key={t} className="text-[11.5px] bg-[#f1f1f1] text-[#555] border border-[#e2e2e2] rounded-full px-2 py-0.5 flex items-center gap-1">{t}<button onClick={() => set({ tags: (a.tags || []).filter((x) => x !== t) })} className="text-[#555]"><X className="w-3 h-3" /></button></span>)}</div>
         </Field>
         <Field label="Note" full><textarea className={`${IN} h-auto py-2 min-h-[50px]`} value={a.note || ''} onChange={(e) => set({ note: e.target.value })} /></Field>
       </div>
@@ -1639,7 +1641,7 @@ const ProofViewer: React.FC<{ proof: MktProof; onClose: () => void; onSave: (p: 
               <div className="relative inline-block max-w-full max-h-full cursor-crosshair" onClick={onImgClick}>
                 <img src={href} alt={proof.title} className="max-w-full max-h-[70vh] object-contain block" />
                 {anns.map((a, i) => (
-                  <span key={a.id} title={a.text} className={`absolute -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-2 border-white text-[11px] font-bold text-white flex items-center justify-center ${a.resolved ? 'bg-emerald-500' : 'bg-[#b45309]'}`} style={{ left: `${a.x}%`, top: `${a.y}%` }}>{i + 1}</span>
+                  <span key={a.id} title={a.text} className={`absolute -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-2 border-white text-[11px] font-bold text-white flex items-center justify-center ${a.resolved ? 'bg-emerald-500' : 'bg-amber-600'}`} style={{ left: `${a.x}%`, top: `${a.y}%` }}>{i + 1}</span>
                 ))}
                 {pending && <span className="absolute -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-2 border-white bg-blue-500 animate-pulse" style={{ left: `${pending.x}%`, top: `${pending.y}%` }} />}
               </div>
@@ -1659,7 +1661,7 @@ const ProofViewer: React.FC<{ proof: MktProof; onClose: () => void; onSave: (p: 
               {anns.map((a, i) => (
                 <div key={a.id} className={`border rounded-xl p-2.5 ${a.resolved ? 'bg-emerald-50/50 border-emerald-100' : 'bg-[#fafafa] border-[#ececec]'}`}>
                   <div className="flex items-start gap-2">
-                    <span className={`w-5 h-5 rounded-full text-[10px] font-bold text-white flex items-center justify-center shrink-0 ${a.resolved ? 'bg-emerald-500' : 'bg-[#b45309]'}`}>{i + 1}</span>
+                    <span className={`w-5 h-5 rounded-full text-[10px] font-bold text-white flex items-center justify-center shrink-0 ${a.resolved ? 'bg-emerald-500' : 'bg-amber-600'}`}>{i + 1}</span>
                     <span className="text-[12.5px] flex-1">{a.text}</span>
                   </div>
                   <div className="flex items-center gap-1 mt-1.5 justify-end">
@@ -1706,7 +1708,7 @@ const AiAssist: React.FC<{ build: () => string; system?: string; onResult: (text
     <div className="flex flex-col gap-1 mt-1.5">
       <button type="button" onClick={run} disabled={loading}
         className="self-start flex items-center gap-1.5 text-[12px] font-bold px-3 py-1.5 rounded-lg border cursor-pointer disabled:opacity-50"
-        style={{ background: '#fff7ed', color: ACCENT, borderColor: '#fed7aa' }}>
+        style={{ background: '#fff7ed', color: '#b45309', borderColor: '#fed7aa' }}>
         <Sparkles className="w-3.5 h-3.5" /> {loading ? 'Genero…' : (label || 'Genera con AI')}
       </button>
       {err && <span className="text-[11px] text-red-500">{err}</span>}
@@ -1826,7 +1828,7 @@ const ActivityTab: React.FC<Props> = (props) => {
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] overflow-hidden shadow-sm">
           {sorted.map((r) => (
             <div key={r.id} className="flex items-center gap-3 px-4 py-2.5 border-b border-[#f3f3f3] last:border-0 text-[13px]">
-              <span className="text-[10.5px] font-bold uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 shrink-0 w-[92px] text-center">{r.cat}</span>
+              <span className="text-[10.5px] font-bold uppercase tracking-wide text-[#555] bg-[#f1f1f1] border border-[#e2e2e2] rounded-full px-2 py-0.5 shrink-0 w-[92px] text-center">{r.cat}</span>
               <span className="flex-1 truncate">{r.label}</span>
               <span className="text-[11.5px] text-stone-400 shrink-0">{new Date(r.at).toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
             </div>
@@ -1882,7 +1884,7 @@ const LeadsTab: React.FC<{ leads: MktLead[]; clients: Record<string, ClientRecor
                   <span className="text-[11.5px] text-stone-400">{l.source || '—'}{l.value ? ` · ${eur(l.value)}` : ''}</span>
                 </div>
                 <div className="hidden sm:flex items-center gap-1.5 w-28">
-                  <div className="flex-1 h-1.5 bg-[#eee] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${sc}%`, background: sc >= 60 ? '#059669' : sc >= 30 ? ACCENT : '#dc2626' }} /></div>
+                  <div className="flex-1 h-1.5 bg-[#eee] rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${sc}%`, background: sc >= 60 ? '#059669' : sc >= 30 ? '#d97706' : '#dc2626' }} /></div>
                   <span className="text-[11px] font-bold w-7 text-right">{sc}</span>
                 </div>
                 <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded-full ${meta.cls} shrink-0`}>{meta.label}</span>
@@ -1947,7 +1949,7 @@ const AutomationTab: React.FC<{ flows: MktFlow[]; clients: Record<string, Client
                 <span className={`shrink-0 text-[10px] font-bold px-2 py-1 rounded-full border ${f.active ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-stone-100 text-stone-500 border-stone-200'}`}>{f.active ? 'Attivo' : 'Off'}</span>
               </div>
               <div className="flex flex-col gap-1.5 mt-3">
-                {(f.steps || []).map((s) => (<div key={s.id} className="flex items-center gap-2 text-[12px] text-stone-600"><span className="w-10 shrink-0 text-stone-400">+{s.offsetDays}gg</span><span className="text-[10px] font-bold uppercase text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5">{s.channel}</span><span className="truncate">{s.message || s.subject || '—'}</span></div>))}
+                {(f.steps || []).map((s) => (<div key={s.id} className="flex items-center gap-2 text-[12px] text-stone-600"><span className="w-10 shrink-0 text-stone-400">+{s.offsetDays}gg</span><span className="text-[10px] font-bold uppercase text-[#555] bg-[#f1f1f1] border border-[#e2e2e2] rounded px-1.5 py-0.5">{s.channel}</span><span className="truncate">{s.message || s.subject || '—'}</span></div>))}
                 {(f.steps || []).length === 0 && <span className="text-[12px] italic text-stone-400">Nessuno step.</span>}
               </div>
               <div className="flex items-center gap-2 mt-4 pt-3 border-t border-[#f0f0f0]">
@@ -1978,7 +1980,7 @@ const FlowModal: React.FC<{ flow: MktFlow; onClose: () => void; onSave: (f: MktF
         <Field label="Attivo"><button onClick={() => set({ active: !f.active })} className={`h-10 px-3 rounded-lg border text-[12.5px] font-bold cursor-pointer ${f.active ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white text-stone-500 border-stone-200'}`}>{f.active ? 'Sì' : 'No'}</button></Field>
       </div>
       <div className="border-t border-[#ececec] pt-4">
-        <div className="flex items-center justify-between"><span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" /> Step</span><button onClick={addStep} className="text-[12px] font-bold text-[#b45309] flex items-center gap-1 bg-transparent border-none cursor-pointer"><Plus className="w-3.5 h-3.5" /> Aggiungi</button></div>
+        <div className="flex items-center justify-between"><span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" /> Step</span><button onClick={addStep} className="text-[12px] font-bold text-[#161616] flex items-center gap-1 bg-transparent border-none cursor-pointer"><Plus className="w-3.5 h-3.5" /> Aggiungi</button></div>
         <div className="flex flex-col gap-2 mt-3">
           {(f.steps || []).map((s) => (
             <div key={s.id} className="flex items-center gap-2 bg-[#fafafa] border border-[#ececec] rounded-xl px-3 py-2">
@@ -2032,7 +2034,7 @@ const SeoTab: React.FC<{ items: MktSeoItem[]; clients: Record<string, ClientReco
           <div className="hidden md:grid grid-cols-[1fr_80px_80px_80px_64px] gap-2 px-4 py-2.5 bg-[#fafafa] text-[10.5px] font-extrabold uppercase tracking-wide text-stone-400 border-b border-[#ececec]"><span>Keyword</span><span>Volume</span><span>Diff.</span><span>Pos.</span><span></span></div>
           {list.map((k) => (
             <div key={k.id} className="grid grid-cols-[1fr_80px_80px_80px_64px] gap-2 items-center px-4 py-2.5 border-b border-[#f3f3f3] last:border-0 text-[13px]">
-              <span className="truncate"><b>{k.keyword}</b>{k.url && <a href={safeUrl(k.url) || '#'} target="_blank" rel="noreferrer" className="text-[11px] text-[#b45309] ml-1.5">↗</a>}</span>
+              <span className="truncate"><b>{k.keyword}</b>{k.url && <a href={safeUrl(k.url) || '#'} target="_blank" rel="noreferrer" className="text-[11px] text-[#161616] ml-1.5">↗</a>}</span>
               <span className="text-stone-500">{k.volume ?? '—'}</span>
               <span className="text-stone-500">{k.difficulty ?? '—'}</span>
               <span className="font-bold" style={{ color: ACCENT }}>{k.position ?? '—'}</span>
@@ -2164,7 +2166,7 @@ const MetricsTab: React.FC<{ metrics: MktMetric[]; clients: Record<string, Clien
   const blank = (): MktMetric => ({ id: uid('mt'), source: 'ga4', metric: '', value: 0, date: Date.now(), createdAt: Date.now() });
   return (
     <div className="flex flex-col gap-4">
-      <div className="bg-amber-50 border border-amber-200 rounded-[16px] px-4 py-2.5 text-[12px] text-amber-800 flex items-center gap-2"><Globe className="w-4 h-4 shrink-0" /> Metriche inserite a mano (GA4/Ads/social). Predisposto per l'aggregazione automatica via API in un secondo momento.</div>
+      <div className="bg-[#f7f7f5] border border-[#e2e2e2] rounded-[16px] px-4 py-2.5 text-[12px] text-[#6b6b6b] flex items-center gap-2"><Globe className="w-4 h-4 shrink-0" /> Metriche inserite a mano (GA4/Ads/social). Predisposto per l'aggregazione automatica via API in un secondo momento.</div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Kpi icon={<TrendingUp className="w-4 h-4" />} label="Metriche" value={String(metrics.length)} accent={ACCENT} />
         <Kpi icon={<Globe className="w-4 h-4" />} label="Fonti" value={String(new Set(metrics.map((m) => m.source)).size)} />
@@ -2179,7 +2181,7 @@ const MetricsTab: React.FC<{ metrics: MktMetric[]; clients: Record<string, Clien
           <div className="hidden md:grid grid-cols-[90px_1fr_110px_100px_64px] gap-2 px-4 py-2.5 bg-[#fafafa] text-[10.5px] font-extrabold uppercase tracking-wide text-stone-400 border-b border-[#ececec]"><span>Fonte</span><span>Metrica</span><span>Valore</span><span>Periodo</span><span></span></div>
           {sorted.map((m) => (
             <div key={m.id} className="grid grid-cols-[90px_1fr_110px_100px_64px] gap-2 items-center px-4 py-2.5 border-b border-[#f3f3f3] last:border-0 text-[13px]">
-              <span className="text-[11px] font-bold text-amber-700">{METRIC_SRC[m.source]}</span>
+              <span className="text-[11px] font-bold text-[#8a8a8a]">{METRIC_SRC[m.source]}</span>
               <span className="truncate">{m.metric}</span>
               <b style={{ color: ACCENT }}>{m.value.toLocaleString('it-IT')}</b>
               <span className="text-stone-500 text-[12px]">{new Date(m.date).toLocaleDateString('it-IT', { month: 'short', year: '2-digit' })}</span>
@@ -2214,10 +2216,10 @@ const InboxTab: React.FC<{ inbox: MktInboxItem[]; clients: Record<string, Client
   const blank = (): MktInboxItem => ({ id: uid('in'), channel: 'instagram', from: '', text: '', at: Date.now(), handled: false, sentiment: 'neutro', createdAt: Date.now() });
   return (
     <div className="flex flex-col gap-4">
-      <div className="bg-amber-50 border border-amber-200 rounded-[16px] px-4 py-2.5 text-[12px] text-amber-800 flex items-center gap-2"><Inbox className="w-4 h-4 shrink-0" /> Inbox unificata a inserimento manuale, pronta per la connessione alle API social (Meta/IG/LinkedIn) in un secondo momento.</div>
+      <div className="bg-[#f7f7f5] border border-[#e2e2e2] rounded-[16px] px-4 py-2.5 text-[12px] text-[#6b6b6b] flex items-center gap-2"><Inbox className="w-4 h-4 shrink-0" /> Inbox unificata a inserimento manuale, pronta per la connessione alle API social (Meta/IG/LinkedIn) in un secondo momento.</div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Kpi icon={<Inbox className="w-4 h-4" />} label="Messaggi" value={String(inbox.length)} accent={ACCENT} />
-        <Kpi icon={<AlertTriangle className="w-4 h-4" />} label="Da gestire" value={String(open)} accent={open ? '#b45309' : undefined} />
+        <Kpi icon={<AlertTriangle className="w-4 h-4" />} label="Da gestire" value={String(open)} accent={open ? '#d97706' : undefined} />
         <Kpi icon={<CheckCircle2 className="w-4 h-4" />} label="Positivi" value={String(inbox.filter((i) => i.sentiment === 'positivo').length)} accent="#059669" />
         <Kpi icon={<XCircle className="w-4 h-4" />} label="Negativi" value={String(inbox.filter((i) => i.sentiment === 'negativo').length)} accent="#dc2626" />
       </div>
@@ -2231,7 +2233,7 @@ const InboxTab: React.FC<{ inbox: MktInboxItem[]; clients: Record<string, Client
         <div className="flex flex-col gap-2">
           {sorted.map((i) => (
             <div key={i.id} className={`bg-white border rounded-[16px] p-4 flex items-start gap-3 ${i.handled ? 'border-[#eee] opacity-70' : 'border-[#e2e2e2]'}`}>
-              <span className="text-[10.5px] font-bold uppercase text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 shrink-0">{INBOX_CH[i.channel]}</span>
+              <span className="text-[10.5px] font-bold uppercase text-[#555] bg-[#f1f1f1] border border-[#e2e2e2] rounded-full px-2 py-0.5 shrink-0">{INBOX_CH[i.channel]}</span>
               <div className="min-w-0 flex-1">
                 <b className="text-[13px]">{i.from}</b>
                 {i.sentiment && <span className={`text-[10.5px] font-bold ml-2 ${i.sentiment === 'positivo' ? 'text-emerald-600' : i.sentiment === 'negativo' ? 'text-red-500' : 'text-stone-400'}`}>● {i.sentiment}</span>}
@@ -2307,7 +2309,7 @@ const ConsentsTab: React.FC<{ consents: MktConsent[]; clients: Record<string, Cl
             <Field label="Email"><input className={IN} value={editing.email || ''} onChange={(e) => setEditing({ ...editing, email: e.target.value })} /></Field>
             <Field label="Cliente"><select className={IN} value={editing.clientId || ''} onChange={(e) => setEditing({ ...editing, clientId: e.target.value || null })}><option value="">—</option>{Object.values(clients).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></Field>
             <Field label="Finalità" full>
-              <div className="flex flex-wrap gap-1.5">{CONSENT_SCOPES.map((s) => { const on = editing.scopes.includes(s.id); return <button key={s.id} onClick={() => setEditing({ ...editing, scopes: on ? editing.scopes.filter((x) => x !== s.id) : [...editing.scopes, s.id] })} className={`text-[12px] font-bold px-3 py-1.5 rounded-full border cursor-pointer ${on ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-white text-stone-500 border-stone-200'}`}>{s.label}</button>; })}</div>
+              <div className="flex flex-wrap gap-1.5">{CONSENT_SCOPES.map((s) => { const on = editing.scopes.includes(s.id); return <button key={s.id} onClick={() => setEditing({ ...editing, scopes: on ? editing.scopes.filter((x) => x !== s.id) : [...editing.scopes, s.id] })} className={`text-[12px] font-bold px-3 py-1.5 rounded-full border cursor-pointer ${on ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-stone-500 border-stone-200'}`}>{s.label}</button>; })}</div>
             </Field>
             <Field label="Base giuridica" full><input className={IN} value={editing.basis || ''} onChange={(e) => setEditing({ ...editing, basis: e.target.value })} placeholder="Es. consenso esplicito art. 6.1.a" /></Field>
             <Field label="Stato"><button onClick={() => setEditing({ ...editing, granted: !editing.granted, grantedAt: !editing.granted ? Date.now() : editing.grantedAt, revokedAt: !editing.granted ? null : Date.now() })} className={`h-10 px-3 rounded-lg border text-[12.5px] font-bold cursor-pointer ${editing.granted ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'}`}>{editing.granted ? 'Concesso' : 'Revocato'}</button></Field>

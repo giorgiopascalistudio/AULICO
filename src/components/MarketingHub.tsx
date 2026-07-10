@@ -253,7 +253,7 @@ const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void; onOp
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
-            <Megaphone className="w-5.5 h-5.5" style={{ color }} /> Centro Marketing
+            <Megaphone className="w-5.5 h-5.5 text-[#161616]" /> Centro Marketing
           </h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
             Tutti gli account gestiti da Strategico: società del gruppo + clienti terzi. Ogni account ha il suo workspace.

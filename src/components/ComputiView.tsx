@@ -109,7 +109,7 @@ export const ComputiView: React.FC<Props> = ({ projects, socLabel, color = '#161
       <div className="flex items-end justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
-            <Calculator className="w-5.5 h-5.5" style={{ color }} /> Computi metrici
+            <Calculator className="w-5.5 h-5.5 text-[#161616]" /> Computi metrici
           </h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
             Un computo per ogni progetto di {socLabel}: voci a mano o importate da CSV. Il valore opera alimenta parcelle e contabilità di commessa.
@@ -120,11 +120,11 @@ export const ComputiView: React.FC<Props> = ({ projects, socLabel, color = '#161
             { l: 'Computi', v: String(mine.length) },
             { l: 'Valore opere', v: eur(totValue) },
             { l: 'Voci', v: String(totVoci) },
-            { l: 'Progetti senza computo', v: String(withoutComputo.length), c: withoutComputo.length ? '#b45309' : undefined },
+            { l: 'Progetti senza computo', v: String(withoutComputo.length), c: withoutComputo.length ? '#d97706' : undefined },
           ].map((k) => (
             <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[16px] px-3.5 py-2 shadow-sm text-center">
               <p className="text-[9px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
-              <p className="text-[17px] font-black leading-none mt-0.5" style={{ color: k.c || color }}>{k.v}</p>
+              <p className="text-[17px] font-black leading-none mt-0.5" style={{ color: k.c || '#161616' }}>{k.v}</p>
             </div>
           ))}
         </div>
@@ -153,7 +153,7 @@ export const ComputiView: React.FC<Props> = ({ projects, socLabel, color = '#161
             <button key={c.id} onClick={() => setOpenId(c.id)} className="text-left bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
               <b className="text-[14px] text-[#161616] block truncate">{c.title}</b>
               <p className="text-[11.5px] text-[#8a8a8a] mt-0.5 truncate">{projById[c.projectId]?.name || '—'}</p>
-              <p className="text-[18px] font-black mt-2" style={{ color }}>{eur(computoTotal(c))}</p>
+              <p className="text-[18px] font-black mt-2 text-[#161616]">{eur(computoTotal(c))}</p>
               <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-0.5">
                 {(c.items || []).length} voci{c.sourceFileName ? ` · da ${c.sourceFileName}` : ''}
               </p>
@@ -277,7 +277,7 @@ const ComputoEditor: React.FC<{
             <div key={cat} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">{cat}</p>
-                <p className="text-[11.5px] font-extrabold" style={{ color }}>{eur(items.filter((it) => (it.category || 'Altro') === cat).reduce((s, it) => s + (Number(it.quantity) || 0) * (Number(it.unitPrice) || 0), 0))}</p>
+                <p className="text-[11.5px] font-extrabold text-[#161616]">{eur(items.filter((it) => (it.category || 'Altro') === cat).reduce((s, it) => s + (Number(it.quantity) || 0) * (Number(it.unitPrice) || 0), 0))}</p>
               </div>
               <div className="flex flex-col gap-1.5">
                 {items.filter((it) => (it.category || 'Altro') === cat).map((it) => (
@@ -314,7 +314,7 @@ const ComputoEditor: React.FC<{
         <div className="flex flex-col gap-3">
           <div className="bg-white border-2 rounded-[22px] p-5 lg:sticky lg:top-4" style={{ borderColor: color }}>
             <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Valore opera (computo)</p>
-            <p className="text-[32px] font-black leading-tight" style={{ color }}>{eur(total)}</p>
+            <p className="text-[32px] font-black leading-tight text-[#161616]">{eur(total)}</p>
             <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-1.5">{items.length} voci · importi imponibili. Il valore alimenta parcella e contabilità di commessa.</p>
           </div>
           <div className="no-print bg-white border border-[#e2e2e2] rounded-[20px] p-4">

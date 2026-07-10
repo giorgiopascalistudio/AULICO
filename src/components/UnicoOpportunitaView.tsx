@@ -70,7 +70,7 @@ export const UnicoOpportunitaView: React.FC<Props> = ({ opps, rubrica, color = '
     <div className="flex flex-col gap-4 text-left">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Search className="w-5.5 h-5.5" style={{ color }} /> Ricerca Opportunità</h2>
+          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Search className="w-5.5 h-5.5 text-[#161616]" /> Ricerca Opportunità</h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Workflow a step obbligatori: dal contatto all'atto. A checklist di due diligence completa si sblocca la manifestazione d'interesse; all'atto nasce l'investimento.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -97,7 +97,7 @@ export const UnicoOpportunitaView: React.FC<Props> = ({ opps, rubrica, color = '
                   {o.status === 'acquisita' && <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 shrink-0">Acquisita</span>}
                 </div>
                 <p className="text-[11.5px] text-[#8a8a8a] mt-0.5 truncate">{[o.comune, o.contactName].filter(Boolean).join(' · ') || '—'}</p>
-                <div className="mt-2.5 h-2 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(n / OPP_STEPS.length) * 100}%`, background: color }} /></div>
+                <div className="mt-2.5 h-2 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(n / OPP_STEPS.length) * 100}%`, background: '#161616' }} /></div>
                 <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-1">{n}/{OPP_STEPS.length} step{next ? ` · prossimo: ${next.label}` : ' · completata'}</p>
                 {o.prezzoRichiesto != null && <p className="text-[12px] font-extrabold text-[#161616] mt-1">{eur(o.prezzoRichiesto)}</p>}
               </button>
@@ -170,7 +170,7 @@ const OppDetail: React.FC<{
                   onClick={() => toggleStep(s.id, idx)}
                   className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 transition-colors ${done ? 'border-emerald-200 bg-emerald-50/60' : locked ? 'border-[#f0f0f0] bg-[#fafafa] opacity-60' : 'border-[#e6e6e6] bg-white'} ${canEdit && !locked && !(gated) ? 'cursor-pointer hover:border-[#161616]' : ''}`}
                 >
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black shrink-0 ${done ? 'bg-emerald-500 text-white' : locked ? 'bg-[#ececec] text-[#b0b0b0]' : 'text-white'}`} style={!done && !locked ? { background: color } : undefined}>
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black shrink-0 ${done ? 'bg-emerald-500 text-white' : locked ? 'bg-[#ececec] text-[#b0b0b0]' : 'text-white'}`} style={!done && !locked ? { background: '#161616' } : undefined}>
                     {done ? <CheckCircle2 className="w-4 h-4" /> : locked ? <Lock className="w-3 h-3" /> : idx + 1}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -200,7 +200,7 @@ const OppDetail: React.FC<{
 
           {/* Atto concluso → investimento */}
           {allDone && o.status !== 'acquisita' && canEdit && onCreateDeal && (
-            <button onClick={() => onCreateDeal(o)} className="mt-2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white text-[13px] font-bold cursor-pointer border-none" style={{ background: color }}>
+            <button onClick={() => onCreateDeal(o)} className="mt-2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">
               <TrendingUp className="w-4 h-4" /> Acquisto concluso: crea l'INVESTIMENTO
             </button>
           )}

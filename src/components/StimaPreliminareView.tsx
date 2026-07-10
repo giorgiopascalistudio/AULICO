@@ -94,7 +94,7 @@ export const StimaPreliminareView: React.FC<Props> = ({ stime, rubrica, priceLis
     <div className="flex flex-col gap-4 text-left">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Calculator className="w-5.5 h-5.5" style={{ color }} /> Stima Preliminare</h2>
+          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Calculator className="w-5.5 h-5.5 text-[#161616]" /> Stima Preliminare</h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Il simulatore della fase Pianificazione: inserisci solo le quantità e il livello Base/Medio/Alto — il budget si calcola da solo.</p>
         </div>
         {canEdit && <button onClick={nuova} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuova stima</button>}
@@ -107,7 +107,7 @@ export const StimaPreliminareView: React.FC<Props> = ({ stime, rubrica, priceLis
             <button key={s.id} onClick={() => setOpenId(s.id)} className="text-left bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
               <b className="text-[14px] text-[#161616] block truncate">{s.title}</b>
               <p className="text-[11.5px] text-[#8a8a8a] mt-0.5 truncate">{s.clientName || '—'}</p>
-              <p className="text-[18px] font-black mt-2" style={{ color }}>{eur(stimaTotal(s))}</p>
+              <p className="text-[18px] font-black mt-2 text-[#161616]">{eur(stimaTotal(s))}</p>
             </button>
           ))}
         </div>
@@ -255,7 +255,7 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; price
         <div className="flex flex-col gap-3">
           <div className="bg-white border-2 rounded-[22px] p-5 sticky top-4" style={{ borderColor: color }}>
             <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Budget stimato</p>
-            <p className="text-[32px] font-black leading-tight" style={{ color }}>{eur(total)}</p>
+            <p className="text-[32px] font-black leading-tight text-[#161616]">{eur(total)}</p>
             <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-1.5">Stima parametrica indicativa (IVA e oneri esclusi). I valori si aggiorneranno coi preventivi reali delle imprese partner.</p>
           </div>
           <textarea disabled={!canEdit} value={s.notes || ''} onChange={(e) => set({ notes: e.target.value || null })} rows={4} placeholder="Note per il cliente…" className={`${inp} w-full resize-none`} />

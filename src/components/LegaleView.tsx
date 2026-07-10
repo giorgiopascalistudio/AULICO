@@ -89,7 +89,7 @@ export const LegaleView: React.FC<Props> = ({ rubrica, users, mktAccounts, mktCo
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
-            <Scale className="w-5.5 h-5.5" style={{ color }} /> Area Legale
+            <Scale className="w-5.5 h-5.5 text-[#161616]" /> Area Legale
           </h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
             Contrattualistica, liberatorie e privacy di tutte le società del gruppo — gestita da Strategico.
@@ -192,9 +192,9 @@ const RegistroTab: React.FC<{
             const st = expired ? STATUS_META.scaduto : STATUS_META[d.status];
             return (
               <button key={d.id} onClick={() => setEditing(d)} className="text-left bg-white border border-[#e2e2e2] rounded-[18px] px-4 py-3 hover:border-[#161616] cursor-pointer flex items-center gap-3 flex-wrap">
-                <span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${socColor(d.soc)}14`, color: socColor(d.soc) }}><FileText className="w-4.5 h-4.5" /></span>
+                <span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#f5f5f3] text-[#161616]"><FileText className="w-4.5 h-4.5" /></span>
                 <div className="min-w-0 flex-1">
-                  <b className="text-[13.5px] text-[#161616] block truncate">{d.title || 'Senza titolo'}</b>
+                  <b className="text-[13.5px] text-[#161616] flex items-center gap-1.5 truncate"><span className="w-2 h-2 rounded-full shrink-0" style={{ background: socColor(d.soc) }} />{d.title || 'Senza titolo'}</b>
                   <p className="text-[11px] text-[#8a8a8a] truncate">
                     {KIND_LABEL[d.kind]} · {socLabel(d.soc)}{d.counterparty ? ` · ${d.counterparty}` : ''}
                   </p>
@@ -298,7 +298,7 @@ const ModelliTab: React.FC<{ rubrica: ClientRecord[] }> = ({ rubrica }) => {
           <button key={tp.id} onClick={() => setOpen({ id: tp.id, soc: tp.soc })} className="text-left bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm hover:border-[#161616] hover:shadow-md transition-all cursor-pointer">
             <p className="inline-flex items-center gap-2 font-extrabold text-[14px] text-[#161616]">
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: socColor(tp.soc) }} />
-              <FileSignature className="w-4 h-4" style={{ color: socColor(tp.soc) }} /> {tp.label}
+              <FileSignature className="w-4 h-4 text-[#161616]" /> {tp.label}
             </p>
             <p className="text-[11.5px] text-[#8a8a8a] mt-1">{socLabel(tp.soc)} · {tp.desc}</p>
           </button>

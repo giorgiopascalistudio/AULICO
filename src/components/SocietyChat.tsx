@@ -51,7 +51,7 @@ export const SocietyChat: React.FC<Props> = ({ socLabel, color, messages, myUid,
     <div className="flex flex-col h-[calc(100vh-210px)] min-h-[440px] bg-white border border-[#e2e2e2] rounded-[22px] overflow-hidden text-left">
       {/* Header */}
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[#f0f0f0] shrink-0">
-        <span className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${color}14`, color }}><Users className="w-4.5 h-4.5" /></span>
+        <span className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#f5f5f3] text-[#161616]"><Users className="w-4.5 h-4.5" /></span>
         <div className="min-w-0">
           <b className="block text-[14.5px] font-extrabold text-[#161616] leading-tight truncate">Chat di {socLabel}</b>
           <span className="text-[11px] text-[#8a8a8a]">Chat di gruppo del team — {ordered.length} messagg{ordered.length === 1 ? 'io' : 'i'}</span>
@@ -82,7 +82,7 @@ export const SocietyChat: React.FC<Props> = ({ socLabel, color, messages, myUid,
                     <span className="w-7 h-7 rounded-full bg-[#e6e6e4] text-[#555] text-[10px] font-bold flex items-center justify-center shrink-0" title={m.fromName}>{initials(m.fromName)}</span>
                   )}
                   <div className={`group relative rounded-2xl px-3 py-2 ${mine ? 'bg-[#161616] text-white rounded-br-md' : 'bg-white border border-[#ececec] text-[#161616] rounded-bl-md'}`}>
-                    {!mine && <span className="block text-[10.5px] font-extrabold mb-0.5" style={{ color }}>{m.fromName}</span>}
+                    {!mine && <span className="block text-[10.5px] font-extrabold mb-0.5 text-[#6b6b6b]">{m.fromName}</span>}
                     <span className="text-[13px] leading-snug whitespace-pre-wrap break-words">{m.text}</span>
                     <span className={`block text-[9.5px] mt-0.5 text-right ${mine ? 'text-white/55' : 'text-[#b0b0b0]'}`}>{fmtTime(m.at)}</span>
                   </div>

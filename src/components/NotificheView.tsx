@@ -68,7 +68,7 @@ export const NotificheView: React.FC<Props> = ({ socLabel, color, notifications,
         <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${color}14`, color }}><Bell className="w-4 h-4" /></span>
+              <span className="w-8 h-8 rounded-xl flex items-center justify-center bg-[#f5f5f3] text-[#161616]"><Bell className="w-4 h-4" /></span>
               <b className="text-[14px] font-extrabold text-[#161616]">Notifiche</b>
             </div>
             {unread > 0 && <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-[#161616] text-white text-[11px] font-extrabold">{unread}</span>}
@@ -101,7 +101,7 @@ export const NotificheView: React.FC<Props> = ({ socLabel, color, notifications,
         {/* Chat coi clienti */}
         <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-4">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${color}14`, color }}><MessageSquare className="w-4 h-4" /></span>
+            <span className="w-8 h-8 rounded-xl flex items-center justify-center bg-[#f5f5f3] text-[#161616]"><MessageSquare className="w-4 h-4" /></span>
             <b className="text-[14px] font-extrabold text-[#161616]">Chat coi clienti</b>
           </div>
           {chats.length === 0 ? (

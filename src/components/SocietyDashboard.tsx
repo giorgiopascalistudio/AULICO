@@ -18,20 +18,12 @@ interface Props {
 const sizeClass = (s?: 'sm' | 'md' | 'lg') =>
   s === 'lg' ? 'md:col-span-2' : 'md:col-span-1';
 
-/** Schiarisce un hex per lo sfondo tenue dell'icona (mix col bianco). */
-function tint(hex: string, amount = 0.12): string {
-  const h = hex.replace('#', '');
-  if (h.length !== 6) return hex;
-  const r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
-  const mix = (c: number) => Math.round(c + (255 - c) * (1 - amount));
-  return `rgb(${mix(r)}, ${mix(g)}, ${mix(b)})`;
-}
-
+// Stile unico Aulico: superfici neutre, il colore società vive SOLO nei pallini.
 const WidgetBody: React.FC<{ data: WidgetData; color: string; go: (h: string) => void }> = ({ data, color, go }) => {
   if (data.kind === 'kpi') {
     return (
       <div className="pt-1">
-        <div className="text-[40px] leading-none font-black tracking-tight" style={{ color }}>{data.value}</div>
+        <div className="text-[40px] leading-none font-black tracking-tight text-[#161616]">{data.value}</div>
         {data.sub && <div className="text-[12px] text-[#8a8a8a] mt-2 font-medium">{data.sub}</div>}
       </div>
     );
@@ -86,7 +78,7 @@ const WidgetBody: React.FC<{ data: WidgetData; color: string; go: (h: string) =>
                 <span className="block w-full h-[5px] bg-[#ececec] rounded-full overflow-hidden mt-1.5">
                   <span
                     className="block h-full rounded-full"
-                    style={{ width: `${Math.max(0, Math.min(100, it.progress))}%`, background: it.progress >= 100 ? '#15803d' : (it.accent || color) }}
+                    style={{ width: `${Math.max(0, Math.min(100, it.progress))}%`, background: it.progress >= 100 ? '#15803d' : (it.accent || '#161616') }}
                   />
                 </span>
               )}
@@ -104,7 +96,7 @@ const WidgetCard: React.FC<{ w: WidgetSpec; data: WidgetData; color: string; go:
     <div className={`group bg-white border border-[#e8e8e6] rounded-[24px] p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 ${sizeClass(w.size)}`}>
       <div className="flex items-center gap-2.5 mb-3.5">
         {Icon && (
-          <span className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: tint(color), color }}>
+          <span className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-[#f5f5f3] text-[#161616]">
             <Icon className="w-4 h-4" />
           </span>
         )}
@@ -152,7 +144,7 @@ export const SocietyDashboard: React.FC<Props> = ({ spec, ctx, societyLabel, col
     <div className="flex-1 overflow-y-auto px-0 py-0 md:px-[30px] md:py-6 md:bg-[#f5f5f3]">
       {isPersonal ? (
         <div className="mb-4 md:mb-6">
-          <div className="flex items-center gap-2 text-[11px] md:text-[12px] font-bold uppercase tracking-wider mb-1.5 md:mb-2" style={{ color }}>
+          <div className="flex items-center gap-2 text-[11px] md:text-[12px] font-bold uppercase tracking-wider mb-1.5 md:mb-2 text-[#8a8a8a]">
             <span className="w-2 h-2 rounded-full" style={{ background: color }} />
             {societyLabel}
           </div>
@@ -202,7 +194,7 @@ export const SocietyDashboard: React.FC<Props> = ({ spec, ctx, societyLabel, col
               >
                 <div className="flex items-center justify-between">
                   {Icon ? (
-                    <span className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: tint(color), color }}>
+                    <span className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-[#f5f5f3] text-[#161616]">
                       <Icon className="w-4 h-4" />
                     </span>
                   ) : <span />}
@@ -233,7 +225,7 @@ export const SocietyDashboard: React.FC<Props> = ({ spec, ctx, societyLabel, col
             <div className="flex items-center justify-between gap-2 pb-3 sticky top-0 bg-white z-10">
               <div className="flex items-center gap-2.5 min-w-0">
                 {openW.w.icon && (
-                  <span className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: tint(color), color }}>
+                  <span className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-[#f5f5f3] text-[#161616]">
                     <openW.w.icon className="w-4 h-4" />
                   </span>
                 )}

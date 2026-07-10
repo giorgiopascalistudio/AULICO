@@ -256,11 +256,8 @@ export const TrashView: React.FC<TrashViewProps> = ({ trash, onRestore, onDelete
                   <div key={t.id} className="bg-white border border-[#e2e2e2] rounded-[22px] p-4 flex items-center justify-between gap-3 flex-wrap">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span
-                          className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white"
-                          style={{ background: companyColor(t._company) }}
-                        >
-                          {COMPANY_LABEL[t._company]}
+                        <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#f1f1f1] text-[#555]">
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: companyColor(t._company) }} />{COMPANY_LABEL[t._company]}
                         </span>
                         <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#f0f0f0] text-[#6b6b6b] px-2 py-0.5 rounded-full">
                           {sectionLabel(t.section)}

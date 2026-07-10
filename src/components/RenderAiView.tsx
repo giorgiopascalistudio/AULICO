@@ -153,7 +153,7 @@ export const RenderAiView: React.FC<Props> = ({ projects, color = '#161616', can
     <div className="flex flex-col gap-4 text-left">
       <div>
         <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
-          <Sparkles className="w-5.5 h-5.5" style={{ color }} /> Render AI preliminare
+          <Sparkles className="w-5.5 h-5.5 text-[#161616]" /> Render AI preliminare
         </h2>
         <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
           Foto del lotto + questionario → bozza render fotorealistica in pochi secondi. È un'anteprima

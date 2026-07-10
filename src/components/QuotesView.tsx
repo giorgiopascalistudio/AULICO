@@ -99,16 +99,16 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
     const totals = quoteTotals(q);
     const col = COMPANY_COLOR[(q.division || 'studio') as Company];
     return (
-      <div key={q.id} className="bg-white border border-[#e2e2e2] rounded-[22px] p-4 border-l-[5px]" style={{ borderLeftColor: col }}>
+      <div key={q.id} className="bg-white border border-[#e2e2e2] rounded-[22px] p-4">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[14px] font-extrabold text-[#161616]">{q.number || '(senza numero)'}</span>
               {q.docKind === 'parcella' && (
-                <span className="text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider bg-indigo-50 text-indigo-700">Parcella</span>
+                <span className="text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider bg-[#f1f1f1] text-[#555]">Parcella</span>
               )}
-              <span className="text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider text-white" style={{ background: col }}>
-                {COMPANY_LABEL[(q.division || 'studio') as Company]}
+              <span className="inline-flex items-center gap-1.5 text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider bg-[#f1f1f1] text-[#555]">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: col }} />{COMPANY_LABEL[(q.division || 'studio') as Company]}
               </span>
               <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${STATUS_STYLE[q.status]}`}>{STATUS_LABEL[q.status]}</span>
             </div>
@@ -188,8 +188,8 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] leading-none flex items-center gap-2">
             <FileSignature className="w-5 h-5" /> Preventivi &amp; Parcelle
             {!showAll && (
-              <span className="text-[10px] px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider text-white" style={{ background: COMPANY_COLOR[company as Company] }}>
-                {COMPANY_LABEL[company as Company]}
+              <span className="inline-flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider bg-[#f1f1f1] text-[#555]">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: COMPANY_COLOR[company as Company] }} />{COMPANY_LABEL[company as Company]}
               </span>
             )}
           </h2>
@@ -246,7 +246,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
             <div key={g.company} className="flex flex-col gap-2.5">
               <div className="flex items-center gap-2.5">
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: COMPANY_COLOR[g.company] }} />
-                <h3 className="text-[13px] font-black uppercase tracking-wider" style={{ color: COMPANY_COLOR[g.company] === '#161616' ? '#161616' : COMPANY_COLOR[g.company] }}>
+                <h3 className="text-[13px] font-black uppercase tracking-wider text-[#161616]">
                   {COMPANY_LABEL[g.company]}
                 </h3>
                 <span className="text-[10.5px] font-bold text-[#8a8a8a]">{g.items.length} · {eur(g.items.reduce((s, q) => s + (q.total || 0), 0))}</span>

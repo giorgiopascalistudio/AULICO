@@ -67,14 +67,14 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, color = '#161616', o
       <div className="flex items-end justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
-            <MapPin className="w-5.5 h-5.5" style={{ color }} /> Mappa operativa
+            <MapPin className="w-5.5 h-5.5 text-[#161616]" /> Mappa operativa
           </h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">I siti della società sulla mappa: individua, apri la scheda, segnala, naviga.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div className="bg-white border border-[#e2e2e2] rounded-[16px] px-3.5 py-2 shadow-sm text-center">
             <p className="text-[9px] font-bold uppercase tracking-wider text-[#a0a0a0]">Siti</p>
-            <p className="text-[17px] font-black leading-none mt-0.5" style={{ color }}>{sites.length}</p>
+            <p className="text-[17px] font-black leading-none mt-0.5 text-[#161616]">{sites.length}</p>
           </div>
           {kindsPresent.map((k) => (
             <div key={k} className="bg-white border border-[#e2e2e2] rounded-[16px] px-3.5 py-2 shadow-sm text-center">

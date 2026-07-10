@@ -38,7 +38,7 @@ export const SectionPortal: React.FC<Props> = ({ title, color, items, onOpen }) 
               onClick={() => onOpen(sec.id)}
               className="group text-left bg-white border border-[#e2e2e2] rounded-[20px] p-5 shadow-sm hover:shadow-md hover:border-[#cfcfcf] transition-all cursor-pointer flex flex-col gap-3"
             >
-              <span className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: `${color}15`, color }}>
+              <span className="w-11 h-11 rounded-2xl flex items-center justify-center bg-[#f5f5f3] text-[#161616]">
                 <Icon className="w-5 h-5" />
               </span>
               <div>

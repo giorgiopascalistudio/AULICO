@@ -274,7 +274,7 @@ const Centro: React.FC<Props & { onOpen: (s: string, t?: WsTab) => void; onOpenC
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
-            <Briefcase className="w-5.5 h-5.5" style={{ color }} /> Centro Direzione
+            <Briefcase className="w-5.5 h-5.5 text-[#161616]" /> Centro Direzione
           </h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
             Amministrazione & contabilità di tutte le società del gruppo — le sezioni della riunione strategica, per società.
@@ -348,7 +348,7 @@ const Centro: React.FC<Props & { onOpen: (s: string, t?: WsTab) => void; onOpenC
               </div>
               {pct != null && (
                 <div className="mt-2.5">
-                  <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${pct}%`, background: socColor(soc) }} /></div>
+                  <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#161616' }} /></div>
                   <p className="text-[10px] text-[#9a9a9a] font-semibold mt-1">Obiettivo fatturato {year}: {eur(ytdF)} su {eur(t!.fatturato!)} ({Math.round(pct)}%)</p>
                 </div>
               )}
@@ -1050,7 +1050,7 @@ const ReportTab: React.FC<Props & { soc: string; year: number; s: KpiSeries; bep
       </div>
       <div className="print-area bg-white border border-[#e2e2e2] rounded-[22px] p-6 flex flex-col gap-5">
         <div>
-          <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: '#b45309' }}>Strategico · Riunione strategica contabilità</p>
+          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Strategico · Riunione strategica contabilità</p>
           <h3 className="text-[22px] font-black text-[#161616] capitalize">{socLabel(soc)} — {ymLabel(ym)}</h3>
         </div>
         <div>

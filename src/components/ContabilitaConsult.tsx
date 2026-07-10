@@ -40,7 +40,7 @@ export const ContabilitaConsult: React.FC<Props> = ({ soc, socLabel, invA, invP,
   return (
     <div className="flex flex-col gap-4 text-left">
       <div>
-        <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><DollarSign className="w-5.5 h-5.5" style={{ color }} /> Quadro contabile {socLabel ? `· ${socLabel}` : ''}</h2>
+        <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><DollarSign className="w-5.5 h-5.5 text-[#161616]" /> Quadro contabile {socLabel ? `· ${socLabel}` : ''}</h2>
         <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Sola consultazione — la gestione contabile è centralizzata in Strategico → Centro Direzione.</p>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

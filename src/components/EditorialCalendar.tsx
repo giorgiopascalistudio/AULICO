@@ -190,7 +190,7 @@ export const EditorialCalendar: React.FC<Props> = ({
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
-            <CalendarDays className="w-5.5 h-5.5" style={{ color }} /> Calendario editoriale
+            <CalendarDays className="w-5.5 h-5.5 text-[#161616]" /> Calendario editoriale
           </h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
             {canEdit
@@ -278,7 +278,7 @@ export const EditorialCalendar: React.FC<Props> = ({
           <div className="bg-white rounded-[24px] w-full max-w-md max-h-[85vh] overflow-y-auto p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-[15px] font-extrabold text-[#161616] inline-flex items-center gap-2 capitalize">
-                <CalendarDays className="w-4.5 h-4.5" style={{ color }} />
+                <CalendarDays className="w-4.5 h-4.5 text-[#161616]" />
                 {new Date(`${openDay}T12:00:00`).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })}
               </h3>
               <button onClick={() => setOpenDay(null)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button>

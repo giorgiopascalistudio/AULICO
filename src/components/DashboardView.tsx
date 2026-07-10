@@ -532,11 +532,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div
                     key={p.id}
                     onClick={() => onNav(p.isMkt ? 'progetti' : `progetto/${p.id}`)}
-                    className="flex items-center gap-3.5 p-3 rounded-xl border border-[#f5f5f5] hover:bg-[#fcfcfc] transition-all cursor-pointer hover:-translate-y-0.5 hover:shadow-xs border-l-[4px]"
-                    style={{ borderLeftColor: col }}
+                    className="flex items-center gap-3.5 p-3 rounded-xl border border-[#f5f5f5] hover:bg-[#fcfcfc] transition-all cursor-pointer hover:-translate-y-0.5 hover:shadow-xs"
                   >
-                    <div className="w-[38px] h-[38px] rounded-xl text-white flex items-center justify-center flex-shrink-0" style={{ background: col }}>
+                    <div className="relative w-[38px] h-[38px] rounded-xl bg-[#f5f5f3] text-[#161616] flex items-center justify-center flex-shrink-0">
                       <Folder className="w-4 h-4" />
+                      <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white" style={{ background: col }} />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -686,10 +686,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <button
                   key={p.id}
                   onClick={() => { setDashModal(null); onNav(p.isMkt ? 'progetti' : `progetto/${p.id}`); }}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-[#f0f0f0] bg-white cursor-pointer text-left border-l-[4px]"
-                  style={{ borderLeftColor: col }}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-[#f0f0f0] bg-white cursor-pointer text-left"
                 >
-                  <span className="w-9 h-9 rounded-xl text-white flex items-center justify-center shrink-0" style={{ background: col }}><Folder className="w-4 h-4" /></span>
+                  <span className="relative w-9 h-9 rounded-xl bg-[#f5f5f3] text-[#161616] flex items-center justify-center shrink-0"><Folder className="w-4 h-4" /><span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white" style={{ background: col }} /></span>
                   <span className="flex-1 min-w-0">
                     <b className="block text-[13.5px] font-bold text-[#161616] truncate leading-snug">{p.name}</b>
                     <small className="block text-[11px] text-[#8a8a8a] truncate mt-0.5">

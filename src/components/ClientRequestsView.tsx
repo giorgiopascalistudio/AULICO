@@ -111,11 +111,12 @@ export const ClientRequestsView: React.FC<ClientRequestsViewProps> = ({
             return (
               <div key={r.id} className="bg-white border border-[#e2e2e2] rounded-[22px] p-4 sm:p-5">
                 <div className="flex items-start gap-3">
-                  <span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-white" style={{ backgroundColor: color }}>
+                  <span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[#f5f5f3] text-[#161616]">
                     <m.icon className="w-5 h-5" />
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} title={m.name} />
                       <b className="text-[15px] text-[#161616]">{r.title}</b>
                       <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded-full border ${st.cls}`}>{st.label}</span>
                       {(r.moodboard || []).length > 0 && (

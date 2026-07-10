@@ -85,7 +85,7 @@ export const FantasticoView: React.FC<Props> = ({ immobili, tickets, rubrica, co
     <div className="flex flex-col gap-4 text-left">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Home className="w-5.5 h-5.5" style={{ color }} /> Immobili & Servizi</h2>
+          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Home className="w-5.5 h-5.5 text-[#161616]" /> Immobili & Servizi</h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Gli immobili in gestione e le richieste di servizio smistate ai partner — dal taglio del prato al van per gli ospiti.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -122,7 +122,7 @@ export const FantasticoView: React.FC<Props> = ({ immobili, tickets, rubrica, co
                 <button key={i.id} onClick={() => setOpenImm(i.id)} className={`text-left bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer ${i.active === false ? 'opacity-60' : ''}`}>
                   <div className="flex items-center justify-between gap-2">
                     <b className="text-[14px] text-[#161616] truncate">{i.name}</b>
-                    {open > 0 && <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: color }}>{open} apert{open === 1 ? 'a' : 'e'}</span>}
+                    {open > 0 && <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#161616] text-white shrink-0">{open} apert{open === 1 ? 'a' : 'e'}</span>}
                   </div>
                   <p className="text-[11.5px] text-[#8a8a8a] mt-0.5 truncate">{[i.address, i.comune].filter(Boolean).join(', ') || '—'}</p>
                   <p className="text-[11px] text-[#9a9a9a] mt-1 truncate">{i.ownerName ? `Proprietario: ${i.ownerName}` : '—'}{i.canoneMensile ? ` · canone ${eur(i.canoneMensile)}/mese` : ''}</p>

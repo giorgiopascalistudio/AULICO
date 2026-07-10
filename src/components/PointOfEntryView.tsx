@@ -56,7 +56,7 @@ export const PointOfEntryView: React.FC<Props> = ({ leads, requests, myName, col
     <div className="flex flex-col gap-4 text-left">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Inbox className="w-5.5 h-5.5" style={{ color }} /> Point of Entry</h2>
+          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Inbox className="w-5.5 h-5.5 text-[#161616]" /> Point of Entry</h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Tutto entra da qui: lead e richieste dei clienti, smistati alla società competente prima di diventare lavoro.</p>
         </div>
         <div className="flex items-center gap-2">

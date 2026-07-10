@@ -69,7 +69,7 @@ export const RecruitingView: React.FC<Props> = ({ items, color = '#b45309', canE
     <div className="flex flex-col gap-4 text-left">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><UserPlus className="w-5.5 h-5.5" style={{ color }} /> Recruiting</h2>
+          <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><UserPlus className="w-5.5 h-5.5 text-[#161616]" /> Recruiting</h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Annunci, pipeline candidati e piani di inserimento a 6 mesi — l'onboarding del gruppo, gestito da Strategico.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -140,7 +140,7 @@ export const RecruitingView: React.FC<Props> = ({ items, color = '#b45309', canE
                 <button key={p.id} onClick={() => setEditing(p)} className="text-left bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm hover:border-[#161616] cursor-pointer">
                   <b className="text-[14px] text-[#161616]">{p.title || 'Risorsa'}</b>
                   <p className="text-[11.5px] text-[#8a8a8a] mt-0.5">{[p.ruolo, p.tutor ? `tutor ${p.tutor}` : null, p.startDate ? `dal ${new Date(p.startDate).toLocaleDateString('it-IT')}` : null].filter(Boolean).join(' · ') || '—'}</p>
-                  <div className="mt-2 h-2 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(filled / PIANO_SECTIONS.length) * 100}%`, background: color }} /></div>
+                  <div className="mt-2 h-2 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(filled / PIANO_SECTIONS.length) * 100}%`, background: '#161616' }} /></div>
                   <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-1">{filled}/{PIANO_SECTIONS.length} sezioni compilate</p>
                 </button>
               );
@@ -201,7 +201,7 @@ const RecruitEditor: React.FC<{ item: RecruitItem; annunci: RecruitItem[]; canEd
           )}
           {K === 'inserimento' && PIANO_SECTIONS.map((s) => (
             <label key={s.key} className="flex flex-col gap-1">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color }}>{s.label}</span>
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6b6b6b]">{s.label}</span>
               <textarea disabled={!canEdit} value={d.piano?.[s.key] || ''} onChange={(e) => set({ piano: { ...(d.piano || {}), [s.key]: e.target.value } })} rows={3} placeholder={s.hint} className={`${inp} resize-y`} />
             </label>
           ))}
