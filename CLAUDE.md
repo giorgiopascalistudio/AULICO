@@ -328,6 +328,14 @@ anima filter/transform senza transitionEnd. Z-index: bottom-nav 50 < overlay ad-
   bianche `rounded-[22px]/[24px]/[26px]`, bordi `#e2e2e2`. Niente emoji a caso.
 - Colori settore (a colpo d'occhio): Studio `#161616`, Strategico `#b45309`
   (ambra), Materico `#c2410c` (arancio), Unico `#4338ca` (indaco).
+  ⚠️ **REGOLA (10 lug, commit 206eb1a)**: il colore società vive **SOLO nei pallini**
+  (o badge neutro `bg-[#f1f1f1]` con pallino dentro). MAI come superficie nella UI
+  interna: niente bottoni/KPI/barre/riquadri-icona/border-left a tinta società
+  (l'utente: "non mi piace che in Strategico sia tutto arancione"). Bottoni primari
+  neri, icone-titolo nere, riquadri icona `bg-[#f5f5f3]`. Eccezioni che RESTANO
+  colorate: grafici (serie per società), documenti stampati con carta intestata,
+  portale cliente, colori semantici (verde/rosso esiti, ambra warning/in-attesa,
+  oro rating, KIND_META per-tipo della Mappa, accent AI ✨).
 - Pattern "barra settori" (tabs a pillola) e "box clienti" riusati in più sezioni
   — mantenerli coerenti.
 - Modali: o il componente `Modal`, o overlay `fixed inset-0 z-[200] bg-black/40
