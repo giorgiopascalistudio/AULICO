@@ -181,10 +181,35 @@ export interface Task {
   notes?: string | null;
   done: boolean;
   completions?: Record<string, boolean>;
+  estMinutes?: number | null;    // stima durata (min) — precompilata dal tempo medio del tipo
+  actualMinutes?: number | null; // tempo reale accumulato (min) dai cronometri
   createdAt: number;
   updatedAt: number;
   createdBy: string;
   _proj?: boolean; // synthesized flag for client-side project task mapping
+}
+
+/**
+ * Cronometro attività (Time Tracking). Ogni rilevazione registra il tempo REALE.
+ * end==null → cronometro in corso (al più uno per utente). Il tempo medio per
+ * `tipo` si ricalcola dallo storico (finestra mobile) → src/timetracking.ts.
+ * Nodo `timeEntries/<id>`.
+ */
+export interface TimeEntry {
+  id: string;
+  tipo: string;                  // tipologia attività (rilievo, progetto 3D, computo…) → chiave del tempo medio
+  taskId?: string | null;        // task collegato (agenda)
+  taskTitle?: string | null;
+  projectId?: string | null;
+  clientId?: string | null;
+  whoUid: string;                // collaboratore
+  whoName?: string | null;
+  start: number;                 // ms epoch inizio
+  end?: number | null;           // ms epoch fine (null = in corso)
+  minutes?: number | null;       // durata reale in minuti (a cronometro fermo)
+  note?: string | null;
+  createdAt: number;
+  updatedAt?: number;
 }
 
 /** Notifica persistente (nodo notifications/<uid>/<id>); scritta da app o Cloud Functions. */

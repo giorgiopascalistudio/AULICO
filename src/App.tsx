@@ -126,6 +126,7 @@ import {
   QuoteClientChoice,
   BattleItem,
   UnicoOpportunity,
+  TimeEntry,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -228,8 +229,10 @@ import {
 } from './societyConfig';
 import type { Societa } from './types';
 import { apptOccursOn, hhmmToMinutes } from './agenda';
+import { runningEntry, avgMinutesForTipo, countForTipo, minutesForTask, fmtDuration } from './timetracking';
 import { TeamAssistant } from './components/TeamAssistant';
 import { Navbar } from './components/Navbar';
+import { RunningTimerPill } from './components/RunningTimerPill';
 import { Modal } from './components/Modal';
 import { AppleSwitch } from './components/AppleSwitch';
 import { injectSmartTextStyles } from './components/SmartText';
@@ -518,6 +521,7 @@ export default function App() {
 
   // Agenda condivisa (appuntamenti / note tra utenti)
   const [appointments, setAppointments] = useState<Record<string, Appointment>>({});
+  const [timeEntries, setTimeEntries] = useState<Record<string, TimeEntry>>({});
   const [apptOpen, setApptOpen] = useState(false);
   const [apptDate, setApptDate] = useState('');
   const [apptTitle, setApptTitle] = useState('');
@@ -1850,6 +1854,7 @@ export default function App() {
       subs.push(watchNode('mktConsents', (v) => setMktConsents(v || {}), () => {}));
       subs.push(watchNode('mktProjects', (v) => setMktProjects(v || {}), () => {}));
       subs.push(watchNode('appointments', (v) => setAppointments(v || {}), () => {}));
+      subs.push(watchNode('timeEntries', (v) => setTimeEntries(v || {}), () => {}));
       subs.push(watchNode('directory', (v) => setDirectory(v || {}), () => {}));
       subs.push(watchNode('matericoRequests', (v) => {
         const all = (v || {}) as Record<string, MatericoRequest>;
@@ -2571,6 +2576,7 @@ export default function App() {
   const [tAssignees, setTAssignees] = useState<string[]>([]);   // multi-assegnatario
   const [tProjectId, setTProjectId] = useState('');
   const [tNotes, setTNotes] = useState('');
+  const [tEst, setTEst] = useState('');   // stima minuti (precompilata dal tempo medio del tipo)
 
   // Project Form
   const [newProjOpen, setNewProjOpen] = useState(false);
@@ -2782,6 +2788,7 @@ export default function App() {
     setTAssignees(t.assignees && t.assignees.length ? t.assignees : t.assignee ? [t.assignee] : []);
     setTProjectId(t.projectId || '');
     setTNotes(t.notes || '');
+    setTEst(t.estMinutes != null ? String(t.estMinutes) : '');
     setTaskEditorOpen(true);
   };
 
@@ -2824,6 +2831,7 @@ export default function App() {
           assignees: tAssignees.length ? tAssignees : null,
           projectId: tProjectId || null,
           notes: tNotes.trim() || null,
+          estMinutes: tEst.trim() ? Math.max(0, Math.round(Number(tEst) || 0)) : (avgMinutesForTipo(timeList, tTipo) ?? null),
           updatedAt: Date.now()
         };
         showToast('Task modificato con successo!');
@@ -2843,6 +2851,7 @@ export default function App() {
           assignees: tAssignees.length ? tAssignees : null,
           projectId: tProjectId || null,
           notes: tNotes.trim() || null,
+          estMinutes: tEst.trim() ? Math.max(0, Math.round(Number(tEst) || 0)) : (avgMinutesForTipo(timeList, tTipo) ?? null),
           done: false,
           createdAt: Date.now(),
           updatedAt: Date.now(),
@@ -2857,6 +2866,66 @@ export default function App() {
 
     setTaskEditorOpen(false);
     setEditTaskId(null);
+  };
+
+  // ---- Cronometro attività (Time Tracking) ----
+  const timeList = Object.values(timeEntries);
+  const myRunning = currentUser ? runningEntry(timeList, currentUser.uid) : null;
+
+  const finalizeTimer = (running: TimeEntry): TimeEntry => {
+    const end = Date.now();
+    const minutes = Math.max(1, Math.round((end - running.start) / 60000));
+    const next: TimeEntry = { ...running, end, minutes, updatedAt: end };
+    setTimeEntries((prev) => ({ ...prev, [running.id]: next }));
+    writeNode(`timeEntries/${running.id}`, next).catch(() => {});
+    // accumula il tempo reale sul task collegato
+    if (running.taskId) {
+      setTasks((prev) => {
+        const t = prev[running.taskId!];
+        if (!t) return prev;
+        const nextTasks = { ...prev, [running.taskId!]: { ...t, actualMinutes: (t.actualMinutes || 0) + minutes, updatedAt: end } };
+        syncState('tasks', nextTasks);
+        return nextTasks;
+      });
+    }
+    return next;
+  };
+
+  const handleStartTimer = (opts: { taskId?: string | null; taskTitle?: string | null; tipo?: string | null; projectId?: string | null; clientId?: string | null }) => {
+    if (!currentUser) return;
+    const running = runningEntry(Object.values(timeEntries), currentUser.uid);
+    if (running) finalizeTimer(running); // uno solo alla volta: chiude il precedente
+    const id = `te-${Date.now()}`;
+    const entry: TimeEntry = {
+      id,
+      tipo: (opts.tipo || opts.taskTitle || 'attività').toString().trim() || 'attività',
+      taskId: opts.taskId || null,
+      taskTitle: opts.taskTitle || null,
+      projectId: opts.projectId || null,
+      clientId: opts.clientId || null,
+      whoUid: currentUser.uid,
+      whoName: currentUser.name || null,
+      start: Date.now(),
+      end: null,
+      minutes: null,
+      createdAt: Date.now(),
+    };
+    setTimeEntries((prev) => ({ ...prev, [id]: entry }));
+    writeNode(`timeEntries/${id}`, entry).catch(() => showToast('Errore avvio cronometro.', 'err'));
+    showToast(`Cronometro avviato · ${entry.tipo}`);
+  };
+
+  const handleStopTimer = () => {
+    if (!currentUser) return;
+    const running = runningEntry(Object.values(timeEntries), currentUser.uid);
+    if (!running) return;
+    const done = finalizeTimer(running);
+    showToast(`Registrato ${fmtDuration(done.minutes)} · ${done.tipo}`);
+  };
+
+  const handleToggleTimer = (task: Task) => {
+    if (myRunning && myRunning.taskId === task.id) { handleStopTimer(); return; }
+    handleStartTimer({ taskId: task.id, taskTitle: task.title, tipo: task.tipo || task.title, projectId: task.projectId || null });
   };
 
   const handleDeleteTask = () => {
@@ -5169,6 +5238,7 @@ export default function App() {
               setTAssignees([]);
               setTProjectId('');
               setTNotes('');
+              setTEst('');
               setTaskEditorOpen(true);
             }}
           />
@@ -5207,6 +5277,7 @@ export default function App() {
               setTAssignees([]);
               setTProjectId('');
               setTNotes('');
+              setTEst('');
               setTaskEditorOpen(true);
             }}
             myUid={currentUser.uid}
@@ -5216,6 +5287,8 @@ export default function App() {
             onDeleteLeave={handleDeleteLeave}
             /* Ferie & assenze SOLO nell'agenda personale (Aulico), non nelle agende delle società */
             showLeave={(activeSocieta as string) === 'holding'}
+            onToggleTimer={handleToggleTimer}
+            runningTaskId={myRunning?.taskId || null}
           />
         );
       }
@@ -6779,6 +6852,8 @@ export default function App() {
       )}
 
       {/* 1c. Nuovo appuntamento (multi-partecipante: team + clienti + partner) */}
+      <RunningTimerPill entry={myRunning} onStop={handleStopTimer} />
+
       <Modal title="Nuovo appuntamento" isOpen={apptOpen} onClose={() => setApptOpen(false)}>
         <div className="flex flex-col gap-3 text-left">
           <label className="flex flex-col gap-1.5">
@@ -7007,6 +7082,45 @@ export default function App() {
               </datalist>
             </label>
           </div>
+
+          {/* Durata stimata + TEMPO MEDIO del tipo (si auto-aggiorna dai cronometri) */}
+          {(() => {
+            const avg = avgMinutesForTipo(timeList, tTipo);
+            const n = countForTipo(timeList, tTipo);
+            const doneMin = editTaskId ? (tasks[editTaskId]?.actualMinutes || 0) : 0;
+            return (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Durata stimata</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number" min={0} value={tEst}
+                    onChange={(e) => setTEst(e.target.value)}
+                    placeholder={avg != null ? String(avg) : 'minuti'}
+                    className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] w-28"
+                  />
+                  <span className="text-[12px] text-[#8a8a8a] font-semibold">minuti</span>
+                  {avg != null && (
+                    <button
+                      type="button"
+                      onClick={() => setTEst(String(avg))}
+                      className="ml-auto text-[11.5px] font-bold px-2.5 py-1.5 rounded-lg border border-[#e2e2e2] bg-white hover:border-black cursor-pointer"
+                      title={`Media sulle ultime ${n} rilevazioni di "${tTipo.trim()}"`}
+                    >
+                      Usa media: {fmtDuration(avg)}
+                    </button>
+                  )}
+                </div>
+                <span className="text-[11px] text-[#9a9a9a]">
+                  {avg != null
+                    ? `Tempo medio "${tTipo.trim()}": ${fmtDuration(avg)} (da ${n} rilevazion${n === 1 ? 'e' : 'i'}). Si aggiorna da solo col cronometro.`
+                    : tTipo.trim()
+                    ? `Nessuna rilevazione ancora per "${tTipo.trim()}": la media nascerà usando il cronometro.`
+                    : 'Indica una tipologia per calcolare il tempo medio.'}
+                  {doneMin > 0 && ` · Tempo reale registrato su questo task: ${fmtDuration(doneMin)}.`}
+                </span>
+              </div>
+            );
+          })()}
 
           {/* Attività del catalogo punti → punteggio automatico al completamento */}
           <label className="flex flex-col gap-1.5">

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, Sparkles, Edit2, Check, X, UserPlus, CalendarPlus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, Sparkles, Edit2, Check, X, UserPlus, CalendarPlus, Play, Square } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, Task, Appointment, TeamLeave } from '../types';
 import { fmtMonthYear, fmtDayLong, DOW, addDays, startOfMonth, startOfWeek, isoDate, relDay, sameDay, parseISO } from '../utils';
@@ -32,6 +32,9 @@ interface CalendarViewProps {
   onDeleteLeave?: (id: string) => void;
   /** Pannello Ferie & assenze: solo nell'agenda personale (Aulico), non nelle agende società. */
   showLeave?: boolean;
+  /** Cronometro attività: avvia/ferma il timer sul task; runningTaskId = task col timer attivo. */
+  onToggleTimer?: (task: Task) => void;
+  runningTaskId?: string | null;
 }
 
 // ---- Vista settimana: griglia oraria ----
@@ -113,7 +116,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   teamLeave = [],
   onSaveLeave,
   onDeleteLeave,
-  showLeave = true
+  showLeave = true,
+  onToggleTimer,
+  runningTaskId = null
 }) => {
   const todayISO = isoDate(new Date());
   // Scope agenda: 'all' = tutta la squadra (voci condivise di società) · 'mine' = solo le mie
@@ -759,6 +764,23 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         <Clock className="w-3 h-3 opacity-60" /> {t.time}
                       </span>
                     )}
+
+                    {/* Cronometro attività (solo task reali, non le voci di cantiere) */}
+                    {onToggleTimer && !isProj && !done && (() => {
+                      const isRunning = runningTaskId === t.id;
+                      return (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onToggleTimer(t); }}
+                          title={isRunning ? 'Ferma e registra il tempo' : 'Avvia cronometro'}
+                          className={`h-[34px] px-3 rounded-xl flex items-center gap-1.5 text-[11.5px] font-bold transition-colors cursor-pointer flex-shrink-0 border ${
+                            isRunning ? 'bg-[#161616] text-white border-black' : 'bg-white text-[#161616] border-[#e2e2e2] hover:border-black'
+                          }`}
+                        >
+                          {isRunning ? <Square className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5" />}
+                          {isRunning ? 'Ferma' : 'Avvia'}
+                        </button>
+                      );
+                    })()}
 
                     <button
                       onClick={() => onEditTask(t.id)}
