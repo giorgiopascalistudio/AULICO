@@ -15,6 +15,7 @@ import {
   Gift, Megaphone, Target, ChevronDown, FolderOpen, Hash, UserCog, Upload, Download, FileDown, Star,
 } from 'lucide-react';
 import type { ClientRecord, BrandAsset, ContactCredential, ContactInteraction } from '../types';
+import { exportXlsx as ioExportXlsx, type ExportColumn } from '../dataIO';
 
 interface Soc { id: string; label: string; color: string; }
 interface Role { id: string; label: string; }
@@ -128,6 +129,11 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
     ['Da incassare', (c) => { const p = paymentStatus(c); return p.daIncassare ? p.daIncassare.toFixed(2) : ''; }],
     ...(isFornitori ? [['Valutazione', (c: ClientRecord) => { const a = ratingAvg(c.partnerRating); return a ? a.toFixed(1) : ''; }] as [string, (c: ClientRecord) => string]] : []),
   ];
+  const exportXlsx = () => {
+    const cols: ExportColumn<ClientRecord>[] = EXP_COLS.map(([header, f]) => ({ header, value: (c: ClientRecord) => f(c) }));
+    ioExportXlsx(`Registro_${(title || 'clienti').toLowerCase().replace(/\s+/g, '-')}`, title || 'Clienti', cols, list)
+      .catch((e) => { console.error(e); alert('Export Excel non riuscito.'); });
+  };
   const exportCsv = () => {
     const esc = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
     const csv = [EXP_COLS.map((c) => c[0]), ...list.map((c) => EXP_COLS.map(([, f]) => f(c)))].map((r) => r.map(esc).join(';')).join('\r\n');
@@ -161,6 +167,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
           <div className="flex items-center justify-between">
             <h3 className="inline-flex items-center gap-2 text-[14px] font-extrabold text-[#161616]"><Users className="w-4.5 h-4.5" /> {title || 'Registro Unico'} <span className="text-[#b0b0b0] font-bold">({list.length})</span></h3>
             <div className="flex items-center gap-1.5 flex-wrap justify-end">
+              <button onClick={exportXlsx} title="Esporta Excel (.xlsx, filtri applicati)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Download className="w-3.5 h-3.5" /> Excel</button>
               <button onClick={exportCsv} title="Esporta CSV (filtri applicati)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Download className="w-3.5 h-3.5" /> CSV</button>
               <button onClick={exportPdf} title="Esporta PDF / stampa (filtri applicati)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><FileDown className="w-3.5 h-3.5" /> PDF</button>
               {canEdit && onImport && <button onClick={onImport} title="Importa da CSV (registro clienti)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Upload className="w-3.5 h-3.5" /> Importa</button>}

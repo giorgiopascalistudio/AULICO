@@ -8,6 +8,7 @@
 import React, { useState } from 'react';
 import { X, Upload } from 'lucide-react';
 import type { ClientRecord } from '../types';
+import { readTabularFile } from '../dataIO';
 
 const normKey = (s: string): string =>
   s.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ');
@@ -98,17 +99,24 @@ export const ClientImportModal: React.FC<{ onClose: () => void; onImport: (recs:
   const [preview, setPreview] = useState<ClientRecord[] | null>(null);
   const [result, setResult] = useState('');
   const parse = (t: string) => setPreview(rowsToClients(parseCsvText(t), myUid));
-  const onFile = (f?: File) => { if (!f) return; const rd = new FileReader(); rd.onload = () => { const t = String(rd.result || ''); setText(t); parse(t); }; rd.readAsText(f, 'utf-8'); };
+  const onFile = async (f?: File) => {
+    if (!f) return;
+    try {
+      const grid = await readTabularFile(f); // .xlsx/.xls o .csv → griglia string[][]
+      setText(grid.map((r) => r.join('\t')).join('\n'));
+      setPreview(rowsToClients(grid, myUid));
+    } catch (e) { console.error(e); setResult('File non leggibile. Usa .xlsx o .csv.'); }
+  };
   const doImport = () => { if (!preview) return; const r = onImport(preview); setResult(`Importati ${r.added} · saltati (già presenti/vuoti) ${r.skipped}.`); setPreview(null); setText(''); };
   return (
     <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-[24px] w-full max-w-xl max-h-[90vh] overflow-y-auto p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-3"><h3 className="text-[16px] font-extrabold text-[#161616]">Importa Registro Clienti (CSV)</h3><button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button></div>
+        <div className="flex items-center justify-between mb-3"><h3 className="text-[16px] font-extrabold text-[#161616]">Importa Registro Clienti (Excel / CSV)</h3><button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button></div>
         <div className="flex flex-col gap-3">
-          <p className="text-[12px] text-[#8a8a8a] leading-relaxed">Esporta il foglio Excel come <b>CSV</b> (o incolla il testo). Colonne riconosciute: Numero, Denominazione, Cognome, Nome, Indirizzo, Email, Numero di telefono, Stato, Fascia, Responsabile cliente, Riferimento comunicazione, Preventivo, Saldato, Data inizio, Data fine. I duplicati (stesso nome+telefono) vengono saltati.</p>
+          <p className="text-[12px] text-[#8a8a8a] leading-relaxed">Carica il file <b>Excel (.xlsx)</b> o <b>CSV</b> (oppure incolla il testo). Colonne riconosciute: Numero, Denominazione, Cognome, Nome, Indirizzo, Email, Numero di telefono, Stato, Fascia, Responsabile cliente, Riferimento comunicazione, Preventivo, Saldato, Data inizio, Data fine. I duplicati (stesso nome+telefono) vengono saltati.</p>
           <label className="inline-flex items-center gap-2 text-[12.5px] font-bold text-[#161616] cursor-pointer self-start">
-            <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-[#e2e2e2] hover:border-black"><Upload className="w-4 h-4" /> Carica file CSV</span>
-            <input type="file" accept=".csv,text/csv" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
+            <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-[#e2e2e2] hover:border-black"><Upload className="w-4 h-4" /> Carica Excel / CSV</span>
+            <input type="file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
           </label>
           <textarea value={text} onChange={(e) => setText(e.target.value)} onBlur={() => text.trim() && parse(text)} placeholder="…oppure incolla qui il CSV e clicca Anteprima" rows={6} className="w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12px] font-mono outline-none focus:border-[#161616] bg-white resize-none" />
           <div className="flex items-center gap-2">

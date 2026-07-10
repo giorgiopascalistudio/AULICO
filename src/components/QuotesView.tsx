@@ -7,9 +7,9 @@
  * stati, IVA/cassa spuntabili, piano pagamenti e collegamento a fatturazione/incassi
  * (le rate "emesse" generano fattura attiva + scadenza in Finanze).
  */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
-  FileSignature, Plus, Trash2, Receipt, ChevronDown, ChevronUp, ListChecks, Printer
+  FileSignature, Plus, Trash2, Receipt, ChevronDown, ChevronUp, ListChecks, Printer, Upload
 } from 'lucide-react';
 import QuotePrintDoc from './QuotePrintDoc';
 import { Quote, ClientRecord, Project, PriceItem, QuoteMacro } from '../types';
@@ -17,6 +17,8 @@ import { eur } from '../utils';
 import { Company, COMPANY_LABEL, COMPANY_COLOR, quoteTotals } from '../finance';
 import { QuoteEditor, emptyQuoteDraft, MACRO_LABEL } from './QuoteEditor';
 import { Modal } from './Modal';
+import ExportMenu from './ExportMenu';
+import { readTabularFile, type ExportColumn } from '../dataIO';
 
 const STATUS_LABEL: Record<Quote['status'], string> = {
   elaborato: 'Elaborato', in_attesa: 'In attesa', accettato: 'Accettato', rifiutato: 'Rifiutato'
@@ -25,6 +27,18 @@ const STATUS_STYLE: Record<Quote['status'], string> = {
   elaborato: 'bg-[#f1f1f1] text-[#6b6b6b]', in_attesa: 'bg-amber-50 text-amber-700',
   accettato: 'bg-emerald-50 text-emerald-700', rifiutato: 'bg-rose-50 text-rose-700'
 };
+
+/** Colonne export (Excel/PDF) del registro preventivi/parcelle. */
+const QUOTE_COLS: ExportColumn<Quote>[] = [
+  { header: 'Numero', value: (q) => q.number || '', width: 16 },
+  { header: 'Tipo', value: (q) => (q.docKind === 'parcella' ? 'Parcella' : 'Preventivo'), width: 12 },
+  { header: 'Società', value: (q) => COMPANY_LABEL[(q.division || 'studio') as Company], width: 14 },
+  { header: 'Cliente', value: (q) => q.clientName || '', width: 28 },
+  { header: 'Stato', value: (q) => STATUS_LABEL[q.status], width: 12 },
+  { header: 'Imponibile', value: (q) => quoteTotals(q).imponibile, type: 'currency', width: 14 },
+  { header: 'Totale doc.', value: (q) => quoteTotals(q).totale, type: 'currency', width: 14 },
+  { header: 'Data', value: (q) => (q.createdAt ? new Date(q.createdAt).toLocaleDateString('it-IT') : ''), type: 'date', width: 12 },
+];
 
 interface QuotesViewProps {
   quotes: Record<string, Quote>;
@@ -182,6 +196,15 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
           <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1.5">Registro per società con macro-voci, stati, IVA/cassa e piano pagamenti collegato alla fatturazione.</p>
         </div>
         <div className="flex items-center gap-2">
+          <ExportMenu
+            filename={`Preventivi_${company}`}
+            title="Preventivi & Parcelle"
+            subtitle={!showAll ? `Società: ${COMPANY_LABEL[company as Company]}` : 'Tutte le società'}
+            company={!showAll ? (company === 'studio' ? 'studio' : company) : undefined}
+            columns={QUOTE_COLS}
+            rows={list}
+            footer={[{ label: 'Valore totale (imponibile)', value: eur(kpi.tot) }]}
+          />
           {onSavePriceList && (
             <button onClick={() => setListinoOpen(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[13px] font-bold cursor-pointer transition-colors" title="Listino voci di costo riusabili">
               <ListChecks className="w-4 h-4" /> Listino
@@ -289,16 +312,62 @@ export const PriceListModal: React.FC<{ items: PriceItem[]; company?: string; on
   const del = (id: string) => setRows((r) => r.filter((x) => x.id !== id));
   const numv = (v: any) => Number(String(v).replace(',', '.')) || 0;
   const socLabel = PL_SOC.find((s) => s.id === company)?.label || company;
+
+  // Export/import listino (Excel/CSV)
+  const fileRef = useRef<HTMLInputElement>(null);
+  const PL_COLS: ExportColumn<PriceItem>[] = [
+    { header: 'Descrizione', value: (i) => i.label, width: 40 },
+    { header: 'Macro', value: (i) => MACRO_LABEL[i.macro] || i.macro, width: 18 },
+    { header: 'U.M.', value: (i) => i.unit || '', width: 10 },
+    { header: '€/u', value: (i) => i.unitPrice || 0, type: 'currency', width: 12 },
+    { header: '% valore', value: (i) => (i.valuePct ?? ''), type: 'number', width: 10 },
+  ];
+  const onImportFile = async (f?: File) => {
+    if (!f) return;
+    try {
+      const grid = await readTabularFile(f);
+      if (grid.length < 2) { alert('File vuoto o senza righe dati.'); return; }
+      const header = grid[0].map((h) => h.toLowerCase());
+      const idx = (...keys: string[]) => header.findIndex((h) => keys.some((k) => h.includes(k)));
+      const iDesc = idx('descr', 'voce', 'label'); const iMacro = idx('macro', 'categoria');
+      const iUnit = idx('u.m', 'unit', 'misura'); const iPrice = idx('€', 'prezzo', 'costo', 'importo');
+      const iVal = idx('valore', '%');
+      const num = (s: any) => Number(String(s || '').replace(/[^\d,.-]/g, '').replace(',', '.')) || 0;
+      const imported: PriceItem[] = [];
+      for (let r = 1; r < grid.length; r++) {
+        const row = grid[r];
+        const label = (iDesc >= 0 ? (row[iDesc] || '') : '').trim();
+        if (!label) continue;
+        const macroRaw = (iMacro >= 0 ? (row[iMacro] || '') : '').trim().toLowerCase();
+        const macro = (Object.keys(MACRO_LABEL) as QuoteMacro[]).find((k) => k === macroRaw || MACRO_LABEL[k].toLowerCase() === macroRaw) || 'progettazione';
+        imported.push({
+          id: `pi-imp-${Date.now()}-${r}-${Math.floor(Math.random() * 900)}`, label, macro,
+          unit: iUnit >= 0 ? (row[iUnit] || null) : null,
+          unitPrice: iPrice >= 0 ? num(row[iPrice]) : 0,
+          division: scoped ? (company as PriceItem['division']) : null,
+          valuePct: iVal >= 0 && row[iVal] ? num(row[iVal]) : null,
+          createdAt: Date.now(),
+        });
+      }
+      if (imported.length) setRows((r) => [...r, ...imported]);
+      else alert('Nessuna voce riconosciuta: controlla che ci sia la colonna "Descrizione".');
+    } catch (e) { console.error(e); alert('Import non riuscito. Usa .xlsx o .csv.'); }
+  };
   return (
     <Modal title={scoped ? `Listino voci — ${socLabel}` : 'Listino voci di costo'} isOpen onClose={onClose} wide
       footer={<button onClick={() => { onSave([...hidden, ...rows.filter((x) => x.label.trim())]); onClose(); }} className="btn bg-[#1b1b1b] text-white hover:bg-black font-semibold cursor-pointer justify-center">Salva listino</button>}>
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-[12px] text-[#8a8a8a] font-semibold">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <span className="text-[12px] text-[#8a8a8a] font-semibold flex-1 min-w-[220px]">
             Voci riusabili in preventivi e stime{scoped ? ` di ${socLabel}` : ''}. <b>% valore</b> = quanto la voce
             aumenta il valore dell'immobile nel preventivo interattivo del portale.
           </span>
-          <button onClick={add} className="inline-flex items-center gap-1 text-[12px] font-bold text-[#161616] cursor-pointer bg-transparent border-none shrink-0"><Plus className="w-3.5 h-3.5" /> Voce</button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button onClick={() => fileRef.current?.click()} title="Importa listino da Excel/CSV" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Upload className="w-3.5 h-3.5" /> Importa</button>
+            <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls,text/csv" className="hidden" onChange={(e) => { onImportFile(e.target.files?.[0]); e.currentTarget.value = ''; }} />
+            <ExportMenu filename={`Listino_${scoped ? company : 'tutte'}`} title={`Listino voci${scoped ? ' — ' + socLabel : ''}`} company={scoped ? (company === 'studio' ? 'studio' : company) : undefined} columns={PL_COLS} rows={rows} compact />
+            <button onClick={add} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> Voce</button>
+          </div>
         </div>
         {rows.length === 0 && <p className="text-[13px] text-[#8a8a8a] py-6 text-center">Nessuna voce. Aggiungine una con "Voce".</p>}
         {/* Su mobile la riga scorre in orizzontale invece di schiacciare i campi */}

@@ -23,6 +23,42 @@ import {
 } from '../finance';
 import { QuotesView } from './QuotesView';
 import { StatsView } from './StatsView';
+import ExportMenu from './ExportMenu';
+import type { ExportColumn } from '../dataIO';
+
+// ── Colonne export (Excel/PDF) dei registri finanza ──────────────────────────
+const INV_ACTIVE_COLS: ExportColumn<InvoiceActive>[] = [
+  { header: 'Numero', value: (r) => r.id, width: 14 },
+  { header: 'Data', value: (r) => r.date, type: 'date', width: 12 },
+  { header: 'Cliente', value: (r) => r.clientName, width: 26 },
+  { header: 'Progetto', value: (r) => r.projectName, width: 26 },
+  { header: 'Imponibile', value: (r) => r.amount, type: 'currency', width: 14 },
+  { header: 'IVA %', value: (r) => r.taxRate || 0, type: 'number', width: 8 },
+  { header: 'Cassa %', value: (r) => r.cassaPct || 0, type: 'number', width: 9 },
+  { header: 'Totale doc.', value: (r) => invoiceTotals(r).totale, type: 'currency', width: 14 },
+  { header: 'Stato', value: (r) => r.status, width: 14 },
+  { header: 'Scadenza', value: (r) => r.dueDate, type: 'date', width: 12 },
+  { header: 'Cod. SDI', value: (r) => r.sdiCode, width: 16 },
+];
+const INV_PASSIVE_COLS: ExportColumn<InvoicePassive>[] = [
+  { header: 'Numero', value: (r) => r.id, width: 14 },
+  { header: 'Data', value: (r) => r.date, type: 'date', width: 12 },
+  { header: 'Fornitore', value: (r) => r.supplierName, width: 26 },
+  { header: 'Progetto', value: (r) => r.projectName, width: 26 },
+  { header: 'Categoria', value: (r) => r.category, width: 18 },
+  { header: 'Importo', value: (r) => r.amount, type: 'currency', width: 14 },
+  { header: 'Stato', value: (r) => r.status, width: 14 },
+  { header: 'Scadenza', value: (r) => r.dueDate, type: 'date', width: 12 },
+  { header: 'Descrizione', value: (r) => r.description, width: 34 },
+];
+const SCAD_COLS: ExportColumn<ScadenzaItem>[] = [
+  { header: 'Tipo', value: (r) => (r.kind === 'entrata' ? 'Entrata' : 'Uscita'), width: 10 },
+  { header: 'Descrizione', value: (r) => r.desc, width: 34 },
+  { header: 'Controparte', value: (r) => r.clientOrSupplier, width: 26 },
+  { header: 'Importo', value: (r) => r.amount, type: 'currency', width: 14 },
+  { header: 'Scadenza', value: (r) => r.dueDate, type: 'date', width: 12 },
+  { header: 'Stato', value: (r) => r.status, width: 14 },
+];
 
 interface FinanzeViewProps {
   finance: FinanceMovement[];
@@ -1671,6 +1707,15 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest block">SDI Registro Fatture Attive</span>
                 <h3 className="text-[17px] font-extrabold text-[#1a1a1a] tracking-tight">Fatturazione Elettronica Attiva</h3>
               </div>
+              <ExportMenu
+                filename={`Fatture_attive_${selectedSector}`}
+                title="Fatture attive"
+                subtitle={selectedSector !== 'all' ? `Società: ${selectedSector.toUpperCase()}` : 'Tutti i settori'}
+                company={selectedSector !== 'all' && selectedSector !== 'consolidato' ? selectedSector : undefined}
+                columns={INV_ACTIVE_COLS}
+                rows={filteredActiveInvoices}
+                footer={[{ label: 'TOTALE imponibile', value: eur(filteredActiveInvoices.reduce((s, i) => s + (i.amount || 0), 0)) }]}
+              />
             </div>
 
             {/* Invoices list */}
@@ -1847,9 +1892,20 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
 
           {/* Passive Invoices panel for suppliers */}
           <div className="lg:col-span-5 bg-white border border-[#e2e2e2] rounded-[28px] p-5 shadow-sm">
-            <div>
-              <span className="text-[10px] font-black text-red-600 uppercase tracking-widest block">Uscite passive e subappalti</span>
-              <h3 className="text-[17px] font-extrabold text-[#1a1a1a] tracking-tight">Fatturazione Passiva (Fornitori)</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span className="text-[10px] font-black text-red-600 uppercase tracking-widest block">Uscite passive e subappalti</span>
+                <h3 className="text-[17px] font-extrabold text-[#1a1a1a] tracking-tight">Fatturazione Passiva (Fornitori)</h3>
+              </div>
+              <ExportMenu
+                filename={`Fatture_passive_${selectedSector}`}
+                title="Fatture passive (fornitori)"
+                subtitle={selectedSector !== 'all' ? `Società: ${selectedSector.toUpperCase()}` : 'Tutti i settori'}
+                company={selectedSector !== 'all' && selectedSector !== 'consolidato' ? selectedSector : undefined}
+                columns={INV_PASSIVE_COLS}
+                rows={filteredPassiveInvoices}
+                footer={[{ label: 'TOTALE', value: eur(filteredPassiveInvoices.reduce((s, i) => s + (i.amount || 0), 0)) }]}
+              />
             </div>
 
             <div className="flex flex-col gap-3 mt-4">
@@ -1973,6 +2029,14 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
               <h2 className="text-[19px] font-extrabold text-[#161616]">Scadenziario Pagamenti (Incassi e Uscite)</h2>
               <span className="text-[12.5px] text-[#8a8a8a]">Flusso temporale dei flussi di cassa programmati ed eseguiti</span>
             </div>
+            <ExportMenu
+              filename={`Scadenziario_${selectedSector}`}
+              title="Scadenziario pagamenti"
+              subtitle={selectedSector !== 'all' ? `Società: ${selectedSector.toUpperCase()}` : 'Tutti i settori'}
+              company={selectedSector !== 'all' && selectedSector !== 'consolidato' ? selectedSector : undefined}
+              columns={SCAD_COLS}
+              rows={filteredScadenze}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">

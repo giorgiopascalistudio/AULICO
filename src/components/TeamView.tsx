@@ -28,6 +28,10 @@ import { UserProfile, Project, Task, PointEvent } from '../types';
 import { initials } from '../utils';
 import { leaderboard, tierFor, nextTier, catalogFor, POINT_CATALOG, activityValue } from '../points';
 import { TeamRegistro } from './TeamRegistro';
+import ExportMenu from './ExportMenu';
+import type { ExportColumn } from '../dataIO';
+
+const PRIO_LABEL: Record<Task['priority'], string> = { urgente: 'Urgente', alta: 'Alta', media: 'Media', bassa: 'Bassa' };
 
 interface TeamViewProps {
   users: Record<string, UserProfile>;
@@ -1197,16 +1201,31 @@ const ProductivityDashboard: React.FC<{ members: any[]; tasks: Task[] }> = ({ me
     return { open: open.length, overdue: overdue.length, completed: completed.length, urgent: urgent.length };
   };
 
+  // Export attività (Excel/PDF)
+  const nameByUid = (uid?: string | null) => (uid ? (members.find((m) => m.uid === uid)?.name || uid) : '');
+  const TASK_COLS: ExportColumn<Task>[] = [
+    { header: 'Attività', value: (t) => t.title, width: 40 },
+    { header: 'Assegnatari', value: (t) => (t.assignees && t.assignees.length ? t.assignees : t.assignee ? [t.assignee] : []).map(nameByUid).filter(Boolean).join(', '), width: 26 },
+    { header: 'Priorità', value: (t) => PRIO_LABEL[t.priority] || t.priority, width: 12 },
+    { header: 'Tipo', value: (t) => t.tipo || '', width: 18 },
+    { header: 'Scadenza', value: (t) => t.date || '', type: 'date', width: 12 },
+    { header: 'Stato', value: (t) => (t.done ? 'Completata' : 'Aperta'), width: 12 },
+    { header: 'Note', value: (t) => t.notes || '', width: 34 },
+  ];
+
   return (
     <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-4 text-left">
       <div className="flex items-center justify-between mb-3">
         <h3 className="inline-flex items-center gap-2 text-[14.5px] font-extrabold text-[#161616]"><Compass className="w-4.5 h-4.5" /> Produttività team</h3>
-        <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
-          {(['week', 'month'] as const).map((r) => (
-            <button key={r} onClick={() => setRange(r)} className={`text-[11.5px] font-bold px-3 py-1 rounded-full ${range === r ? 'bg-[#161616] text-white' : 'text-[#8a8a8a]'}`}>
-              {r === 'week' ? 'Settimana' : 'Mese'}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <ExportMenu filename="Attivita_team" title="Attività del team" columns={TASK_COLS} rows={tasks} compact />
+          <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
+            {(['week', 'month'] as const).map((r) => (
+              <button key={r} onClick={() => setRange(r)} className={`text-[11.5px] font-bold px-3 py-1 rounded-full ${range === r ? 'bg-[#161616] text-white' : 'text-[#8a8a8a]'}`}>
+                {r === 'week' ? 'Settimana' : 'Mese'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">

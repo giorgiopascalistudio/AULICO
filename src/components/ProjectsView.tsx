@@ -41,6 +41,8 @@ import {
 } from 'lucide-react';
 import { Project, UserProfile, FinanceMovement, Template, MatericoEstimate, MatericoRequest, UnicoDeal, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, ClientRecord, Quote, PriceItem, Task, MarketingEvent, Campaign, Survey, SurveyResponse, SocialPost, MktContract, MktTimeEntry, MktAsset, MktDeliverable, MktProof, MktLead, MktFlow, MktSeoItem, MktAdCampaign, MktMetric, MktInboxItem, MktConsent, MktProject, InternalOrder } from '../types';
 import { computoTotal, arrediTotals, studioParcella, quoteTotals, Computo, InvoiceActive, InvoicePassive, ScadenzaItem } from '../finance';
+import ExportMenu from './ExportMenu';
+import type { ExportColumn } from '../dataIO';
 import { QuoteEditor, emptyQuoteDraft } from './QuoteEditor';
 import { FurnishingsBoard } from './FurnishingsBoard';
 import { CantiereBoard } from './CantiereBoard';
@@ -2304,6 +2306,22 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
     return true;
   });
 
+  // Colonne export (Excel/PDF) della lista progetti (rispetta filtri/ricerca correnti).
+  const clientName = (p: Project) => (p.clientRecordId && clients[p.clientRecordId]?.name) || p.client || '';
+  const projectCols: ExportColumn<Project>[] = [
+    { header: 'Codice', value: (p) => p.code || '', width: 12 },
+    { header: 'Nome', value: (p) => p.name, width: 34 },
+    { header: 'Cliente', value: clientName, width: 26 },
+    { header: 'Committente', value: (p) => p.committente || '', width: 24 },
+    { header: 'Località', value: (p) => p.location || '', width: 20 },
+    { header: 'Indirizzo', value: (p) => p.indirizzoImmobile || '', width: 30 },
+    { header: 'Stato', value: (p) => p.status, width: 12 },
+    { header: 'Manager', value: (p) => p.manager || '', width: 20 },
+    { header: 'Inizio', value: (p) => p.startDate || '', type: 'date', width: 12 },
+    { header: 'Scadenza', value: (p) => p.dueDate || '', type: 'date', width: 12 },
+    { header: 'Divisione', value: (p) => p.division || 'studio', width: 12 },
+  ];
+
   // Materico: dentro la divisione Materico l'operatore può passare da "Progetti" all'inbox "Richieste & Offerte".
   const showMatericoInbox = divisionFilter === 'materico' && isInternalBoss && matericoTab === 'richieste';
   const matericoActionable = matericoRequests.filter(r => r.status === 'nuova' || r.status === 'offerte').length;
@@ -2479,23 +2497,33 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         </div>
 
         {!hideProjectsUI && (
-        <div className="flex items-center gap-1.5 bg-white border border-[#e2e2e2] p-1.5 rounded-2xl shadow-sm">
-          <button
-            onClick={() => setViewMode('grid')}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
-              viewMode === 'grid' ? 'bg-[#1b1b1b] text-white' : 'text-[#8a8a8a] hover:bg-[#f5f5f5]'
-            }`}
-          >
-            <Grid className="w-4.5 h-4.5" />
-          </button>
-          <button
-            onClick={() => setViewMode('list')}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
-              viewMode === 'list' ? 'bg-[#1b1b1b] text-white' : 'text-[#8a8a8a] hover:bg-[#f5f5f5]'
-            }`}
-          >
-            <List className="w-4.5 h-4.5" />
-          </button>
+        <div className="flex items-center gap-2">
+          <ExportMenu
+            filename={`Progetti_${divisionFilter}_${filter}`}
+            title="Elenco progetti"
+            subtitle={`${({ studio: 'Onirico', strategico: 'Strategico', materico: 'Materico', unico: 'Unico' } as Record<string, string>)[divisionFilter] || divisionFilter} · ${filter}`}
+            company={divisionFilter === 'studio' ? 'studio' : divisionFilter}
+            columns={projectCols}
+            rows={allList}
+          />
+          <div className="flex items-center gap-1.5 bg-white border border-[#e2e2e2] p-1.5 rounded-2xl shadow-sm">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
+                viewMode === 'grid' ? 'bg-[#1b1b1b] text-white' : 'text-[#8a8a8a] hover:bg-[#f5f5f5]'
+              }`}
+            >
+              <Grid className="w-4.5 h-4.5" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-colors ${
+                viewMode === 'list' ? 'bg-[#1b1b1b] text-white' : 'text-[#8a8a8a] hover:bg-[#f5f5f5]'
+              }`}
+            >
+              <List className="w-4.5 h-4.5" />
+            </button>
+          </div>
         </div>
         )}
       </div>

@@ -15,12 +15,23 @@ import {
 import type { Project } from '../types';
 import {
   Computo, ComputoItem, computoTotal,
-  parseCsv, guessMapping, rowsToComputoItems, ColumnMapping, ParsedSheet,
+  guessMapping, rowsToComputoItems, ColumnMapping, ParsedSheet,
 } from '../finance';
 import { watchNode, writeNode } from '../firebase';
 import { eur } from '../utils';
+import { readTabularFile, type ExportColumn } from '../dataIO';
+import ExportMenu from './ExportMenu';
 
 const CATEGORIES = ['Demolizioni', 'Murature', 'Impianti', 'Finiture', 'Allestimenti', 'Strategia', 'Altro'];
+
+/** Colonne export (Excel/PDF) delle voci di un computo. */
+const COMPUTO_EXPORT_COLS: ExportColumn<ComputoItem>[] = [
+  { header: 'Categoria', value: (r) => r.category || 'Altro', width: 18 },
+  { header: 'Descrizione', value: (r) => r.desc, width: 44 },
+  { header: 'Q.tà', value: (r) => r.quantity, type: 'number', width: 10 },
+  { header: 'Prezzo unit.', value: (r) => r.unitPrice, type: 'currency', width: 14 },
+  { header: 'Importo', value: (r) => (r.quantity || 0) * (r.unitPrice || 0), type: 'currency', width: 14 },
+];
 const inp = 'px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white disabled:bg-[#f7f7f5]';
 const toArr = (v: any): any[] => (Array.isArray(v) ? v.filter(Boolean) : v ? Object.values(v) : []);
 
@@ -197,22 +208,21 @@ const ComputoEditor: React.FC<{
     setNDesc(''); setNQty(''); setNPrice('');
   };
 
-  const onFile = (file: File) => {
+  const onFile = async (file: File) => {
     const lower = file.name.toLowerCase();
-    if (lower.endsWith('.csv') || lower.endsWith('.tsv') || lower.endsWith('.txt')) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const s = parseCsv(String(reader.result || ''));
-        if (s.headers.length === 0) { say('File vuoto o non leggibile.'); return; }
-        setSheet(s); setMapping(guessMapping(s.headers)); setFileName(file.name);
-      };
-      reader.onerror = () => say('Errore nella lettura del file.');
-      reader.readAsText(file);
-    } else {
-      // Excel/PDF: solo allegato di riferimento (per l'estrazione esporta in CSV).
+    if (lower.endsWith('.pdf')) {
+      // PDF: solo allegato di riferimento (non è un formato dati affidabile).
       onChange({ sourceFileName: file.name });
-      say('File allegato come riferimento. Per estrarre le voci esporta il computo in CSV.');
+      say('PDF allegato come riferimento. Per estrarre le voci carica un Excel o un CSV.');
+      return;
     }
+    try {
+      const grid = await readTabularFile(file); // .xlsx/.xls o .csv/.tsv/.txt → griglia
+      if (grid.length === 0) { say('File vuoto o non leggibile.'); return; }
+      const s: ParsedSheet = { headers: grid[0] || [], rows: grid.slice(1) };
+      if (s.headers.length === 0) { say('File vuoto o non leggibile.'); return; }
+      setSheet(s); setMapping(guessMapping(s.headers)); setFileName(file.name);
+    } catch (e) { console.error(e); say('Errore nella lettura del file.'); }
   };
   const confirmImport = () => {
     if (!sheet || !mapping) return;
@@ -239,10 +249,18 @@ const ComputoEditor: React.FC<{
         <div className="flex items-center gap-2">
           {canEdit && (
             <>
-              <button onClick={() => fileRef.current?.click()} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12.5px] font-bold cursor-pointer"><UploadCloud className="w-4 h-4" /> Importa CSV</button>
+              <button onClick={() => fileRef.current?.click()} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12.5px] font-bold cursor-pointer"><UploadCloud className="w-4 h-4" /> Importa Excel/CSV</button>
               <input ref={fileRef} type="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.currentTarget.value = ''; }} />
             </>
           )}
+          <ExportMenu
+            filename={`Computo_${c.title || projectName}`}
+            title={`Computo — ${c.title || projectName}`}
+            subtitle={projectName}
+            columns={COMPUTO_EXPORT_COLS}
+            rows={items}
+            footer={[{ label: 'TOTALE opere', value: eur(computoTotal(c)) }]}
+          />
           <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12.5px] font-bold cursor-pointer"><Printer className="w-4 h-4" /> Stampa</button>
           {canEdit && <button onClick={onDelete} className="p-2 rounded-xl bg-white border border-[#e2e2e2] hover:bg-rose-50 text-rose-500 cursor-pointer"><Trash2 className="w-4 h-4" /></button>}
         </div>
