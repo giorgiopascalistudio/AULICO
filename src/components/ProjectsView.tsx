@@ -38,15 +38,17 @@ import {
   ArchiveRestore,
   FileSignature,
   Receipt,
-  ClipboardList
+  ClipboardList,
+  Presentation
 } from 'lucide-react';
-import { Project, UserProfile, FinanceMovement, Template, MatericoEstimate, MatericoRequest, UnicoDeal, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, ClientRecord, Quote, PriceItem, Task, MarketingEvent, Campaign, Survey, SurveyResponse, SocialPost, MktContract, MktTimeEntry, MktAsset, MktDeliverable, MktProof, MktLead, MktFlow, MktSeoItem, MktAdCampaign, MktMetric, MktInboxItem, MktConsent, MktProject, InternalOrder, ProjectBrief } from '../types';
+import { Project, UserProfile, FinanceMovement, Template, MatericoEstimate, MatericoRequest, UnicoDeal, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, ClientRecord, Quote, PriceItem, Task, MarketingEvent, Campaign, Survey, SurveyResponse, SocialPost, MktContract, MktTimeEntry, MktAsset, MktDeliverable, MktProof, MktLead, MktFlow, MktSeoItem, MktAdCampaign, MktMetric, MktInboxItem, MktConsent, MktProject, InternalOrder, ProjectBrief, ProjectPresentation } from '../types';
 import { computoTotal, arrediTotals, studioParcella, quoteTotals, Computo, InvoiceActive, InvoicePassive, ScadenzaItem } from '../finance';
 import ExportMenu from './ExportMenu';
 import type { ExportColumn } from '../dataIO';
 import { QuoteEditor, emptyQuoteDraft } from './QuoteEditor';
 import { FurnishingsBoard } from './FurnishingsBoard';
 import { ProjectBriefForm } from './ProjectBriefForm';
+import { PresentationBuilder } from './PresentationBuilder';
 import { CantiereBoard } from './CantiereBoard';
 import { ChatDeleteButton } from './ChatDeleteButton';
 import { eur, fmtDay, isoDate, todayISO, numIt, safeUrl } from '../utils';
@@ -92,6 +94,8 @@ interface ProjectsViewProps {
   onSaveMoodboard3d?: (pid: string, elements: any[]) => void;
   projectBriefs?: Record<string, ProjectBrief>;
   onSaveProjectBrief?: (brief: ProjectBrief) => void;
+  projectPresentations?: Record<string, ProjectPresentation>;
+  onSaveProjectPresentation?: (pres: ProjectPresentation) => void;
   isInternalBoss: boolean;
   myUid: string;
   finance?: FinanceMovement[];
@@ -261,6 +265,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   onSaveMoodboard3d,
   projectBriefs = {},
   onSaveProjectBrief,
+  projectPresentations = {},
+  onSaveProjectPresentation,
   isInternalBoss,
   myUid,
   finance = [],
@@ -701,7 +707,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               ...(p.division === 'materico' ? [{ id: 'materico_prev', label: 'Preventivi & Fornitori', icon: SlidersHorizontal }] : []),
               { id: 'tecnico', label: 'Fascicolo Tecnico', icon: Layers },
               ...((!p.division || p.division === 'studio' || p.division === 'unico')
-                ? [{ id: 'brief', label: 'Questionario', icon: ClipboardList }] : []),
+                ? [{ id: 'brief', label: 'Questionario', icon: ClipboardList }, { id: 'presentazione', label: 'Presentazione', icon: Presentation }] : []),
               { id: 'arredi', label: 'Arredi & Moodboard', icon: Sofa },
               ...((!p.division || p.division === 'studio' || p.division === 'materico' || p.division === 'unico')
                 ? [{ id: 'cantiere', label: 'Cantiere', icon: HardHat }] : []),
@@ -1870,6 +1876,19 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               canEdit={true}
               color="#161616"
               onSave={onSaveProjectBrief}
+            />
+          </div>
+        )}
+
+        {projTab === 'presentazione' && (
+          <div className="mt-2 animate-[riseIn_0.3s_ease_both]">
+            <PresentationBuilder
+              project={p}
+              brief={projectBriefs[p.id]}
+              furnishings={Object.values(furnishings[p.id] || {})}
+              presentation={projectPresentations[p.id]}
+              canEdit={true}
+              onSave={onSaveProjectPresentation}
             />
           </div>
         )}

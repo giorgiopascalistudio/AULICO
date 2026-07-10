@@ -549,6 +549,21 @@ export interface ProjectBrief {
   completedAt?: number | null;
 }
 
+/**
+ * Presentazione di progetto (bozza generata dai dati: copertina, analisi sito,
+ * moodboard, materiali, arredi, conclusioni). Nodo `projectPresentations/<pid>`.
+ * Le slide di analisi hanno testo editabile (sections); le altre sono automatiche.
+ */
+export interface ProjectPresentation {
+  pid: string;
+  sections?: Record<string, string>;   // slideId → testo (slide di analisi/testo)
+  include?: Record<string, boolean>;    // slideId → includere nella presentazione
+  subtitle?: string | null;             // sottotitolo copertina (override)
+  updatedAt: number;
+  updatedBy?: string | null;
+  updatedByName?: string | null;
+}
+
 // Ricorrenza appuntamento: espansa lato client in CalendarView (apptOccursOn), non salva N record.
 export interface ApptRecurrence {
   freq: 'daily' | 'weekly' | 'monthly';

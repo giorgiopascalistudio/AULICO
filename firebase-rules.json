@@ -282,6 +282,12 @@
         ".write": "auth != null && ((root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente') || root.child('projects').child($pid).child('clientUid').val() == auth.uid)"
       }
     },
+    "projectPresentations": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
+      "$pid": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
+      }
+    },
     "projectEconomics": {
       "$pid": {
         ".read": "auth != null && (root.child('users').child(auth.uid).child('active').val() == true || root.child('projects').child($pid).child('clientUid').val() == auth.uid)",

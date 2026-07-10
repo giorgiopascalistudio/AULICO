@@ -128,6 +128,7 @@ import {
   UnicoOpportunity,
   TimeEntry,
   ProjectBrief,
+  ProjectPresentation,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -406,6 +407,7 @@ export default function App() {
   const [documents, setDocuments] = useState<Record<string, Record<string, any>>>({});
   const [furnishings, setFurnishings] = useState<Record<string, Record<string, Furnishing>>>({});
   const [projectBriefs, setProjectBriefs] = useState<Record<string, ProjectBrief>>({});
+  const [projectPresentations, setProjectPresentations] = useState<Record<string, ProjectPresentation>>({});
   // Moodboard 3D per progetto: projectMoodboard3d/<pid> = { elements: BoardElement[], updatedAt, by }
   const [moodboard3d, setMoodboard3d] = useState<Record<string, any>>({});
 
@@ -1761,6 +1763,7 @@ export default function App() {
       add('projectFurnishings', setFurnishings);
       add('projectMoodboard3d', setMoodboard3d);
       add('projectBriefs', setProjectBriefs);
+      add('projectPresentations', setProjectPresentations);
       add('estimates', setEstimates);
       // CRM (array nodes)
       const toArr = (v: any) => (Array.isArray(v) ? v : v ? Object.values(v) : []);
@@ -3467,6 +3470,16 @@ export default function App() {
       notifyStudio({ type: 'progetto', title: 'Questionario cliente compilato', body: `${currentUser?.name || 'Il cliente'} ha inviato il questionario${proj ? ` per "${proj.name}"` : ''}.`, link: `#progetto/${brief.pid}` });
     }
     showToast('Questionario salvato.');
+  };
+
+  // Presentazione di progetto (studio) — bozza slide + testi analisi.
+  const handleSaveProjectPresentation = (pres: ProjectPresentation) => {
+    const enriched: ProjectPresentation = { ...pres, updatedBy: currentUser?.uid || null, updatedByName: currentUser?.name || null };
+    setProjectPresentations((prev) => ({ ...prev, [pres.pid]: enriched }));
+    writeNode(`projectPresentations/${pres.pid}`, clean(enriched)).catch(() =>
+      showToast('Errore salvataggio presentazione (controlla le regole).', 'err')
+    );
+    showToast('Presentazione salvata.');
   };
 
   // 3c. Flag "lo Studio gestisce gli arredi mobili" (→ fee 20%) sul progetto
@@ -5437,6 +5450,8 @@ export default function App() {
             onDeleteFurnishing={handleDeleteFurnishing}
             projectBriefs={projectBriefs}
             onSaveProjectBrief={handleSaveProjectBrief}
+            projectPresentations={projectPresentations}
+            onSaveProjectPresentation={handleSaveProjectPresentation}
             moodboard3d={moodboard3d}
             onSaveMoodboard3d={handleSaveMoodboard3d}
             onToggleStudioManagesMobili={handleToggleStudioManagesMobili}
