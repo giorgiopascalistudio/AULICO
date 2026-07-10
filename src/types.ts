@@ -498,7 +498,20 @@ export interface Appointment {
   participantNames?: Record<string, string>;   // uid → nome (per render senza lookup)
   projectId?: string | null;
   private?: boolean;       // personale: visibile solo al creatore (non condiviso in agenda di società)
+  endTime?: string | null;                                                 // ora di fine → blocco proporzionale in agenda
+  area?: 'personale' | 'familiare' | 'sociale' | 'professionale' | null;   // Area del Vivere (colore riempimento blocco)
+  societa?: string | null;                                                 // slug società (pallino identità in agenda)
+  recurrence?: ApptRecurrence | null;                                      // ricorrenza (giorn./sett./mens.)
+  exceptions?: Record<string, boolean>;                                    // occorrenze saltate/eliminate (yyyy-mm-dd)
+  remindMinutes?: number | null;                                           // promemoria: minuti prima (notifica in-app)
   createdAt: number;
+}
+
+// Ricorrenza appuntamento: espansa lato client in CalendarView (apptOccursOn), non salva N record.
+export interface ApptRecurrence {
+  freq: 'daily' | 'weekly' | 'monthly';
+  interval: number;          // ogni N giorni/settimane/mesi
+  until?: string | null;     // ultima data inclusa (null = orizzonte 12 mesi)
 }
 
 // ---- Unico (lato studio): operazioni immobiliari + investitori ----

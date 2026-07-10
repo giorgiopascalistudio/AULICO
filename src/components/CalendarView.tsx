@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, Spark
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, Task, Appointment, TeamLeave } from '../types';
 import { fmtMonthYear, fmtDayLong, DOW, addDays, startOfMonth, startOfWeek, isoDate, relDay, sameDay, parseISO } from '../utils';
+import { apptOccursOn, apptFillStyle, apptSocDot, apptDurationMin, SOC_META, recurrenceLabel } from '../agenda';
 
 interface CalendarViewProps {
   tasks: Task[];
@@ -121,7 +122,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const mineTask = (t: Task) => t.assignee === myUid || (t.assignees || []).includes(myUid) || t.owner === myUid || (!t.assignee && !(t.assignees || []).length && t.createdBy === myUid);
 
   const apptsOn = (iso: string): Appointment[] =>
-    (appointments || []).filter(a => a.date === iso && (scope === 'all' || mineAppt(a))).sort((a, b) => (a.time || '99').localeCompare(b.time || '99'));
+    (appointments || []).filter(a => apptOccursOn(a, iso) && (scope === 'all' || mineAppt(a))).sort((a, b) => (a.time || '99').localeCompare(b.time || '99'));
 
   // Ferie/assenze che coprono il giorno (intervallo dateFrom..dateTo inclusivo).
   const leavesOn = (iso: string): TeamLeave[] =>
@@ -435,9 +436,14 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               const timed = tasksOnDate(iso).filter(t => !!t.time);
               const appts = apptsOn(iso).filter(a => !!a.time);
               const events = [
-                ...timed.map(t => ({ kind: 'task' as const, id: t.id, start: hhmmToMin(t.time!), title: t.title, t })),
-                ...appts.map(a => ({ kind: 'appt' as const, id: a.id, start: hhmmToMin(a.time!), title: a.title, a })),
-              ].map(e => ({ ...e, end: e.start + WK_EVENT_MIN }));
+                ...timed.map(t => { const s = hhmmToMin(t.time!); return { kind: 'task' as const, id: t.id, start: s, end: s + WK_EVENT_MIN, title: t.title, t }; }),
+                ...appts.map(a => {
+                  const s = hhmmToMin(a.time!);
+                  // fine proporzionale alla durata (endTime), clampata alla fascia visibile
+                  const end = Math.min(s + apptDurationMin(a), WK_HOUR_END * 60);
+                  return { kind: 'appt' as const, id: a.id, start: s, end: Math.max(end, s + WK_EVENT_MIN), title: a.title, a };
+                }),
+              ];
               const placed = packDay(events);
 
               return (
@@ -516,6 +522,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       const done = isTask ? taskDoneOn(t, iso) : false;
                       const isProj = isTask ? !!t._proj : false;
                       const timeLabel = isTask ? t.time : a.time;
+                      const socDot = !isTask ? apptSocDot(a) : null;
+                      const durH = Math.max(WK_EVENT_PX, ((ev.end - ev.start) / 60) * WK_HOUR_PX - 4);
                       return (
                         <button
                           key={`${ev.kind}-${ev.id}`}
@@ -525,15 +533,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                             else { onSetCalDate(c); onSetCalView('day'); }
                           }}
                           title={`${timeLabel} · ${ev.title}`}
-                          className={`absolute rounded-lg border-l-[3px] px-1.5 py-1 text-left overflow-hidden cursor-pointer shadow-3xs leading-tight z-10 ${isTask ? wkBlockClasses(t, done, isProj) : 'bg-emerald-50 border-emerald-500 text-emerald-950 hover:bg-emerald-100/90'}`}
+                          className={`absolute rounded-lg border-l-[3px] px-1.5 py-1 text-left overflow-hidden cursor-pointer shadow-3xs leading-tight z-10 ${isTask ? wkBlockClasses(t, done, isProj) : ''}`}
                           style={{
                             top: Math.max(0, top),
-                            height: Math.max(WK_EVENT_PX, WK_HOUR_PX - 4),
+                            height: durH,
                             left: `calc(${col * widthPct}% + 2px)`,
                             width: `calc(${widthPct}% - 4px)`,
+                            ...(isTask ? {} : apptFillStyle(a)),
                           }}
                         >
-                          <span className="block text-[9px] font-extrabold opacity-70 tabular-nums leading-none">{timeLabel}{!isTask && ' ·'}</span>
+                          <span className="flex items-center gap-1 text-[9px] font-extrabold opacity-70 tabular-nums leading-none">
+                            {socDot && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: socDot }} />}
+                            {timeLabel}{!isTask && a.endTime ? `–${a.endTime}` : !isTask ? ' ·' : ''}
+                          </span>
                           <span className={`block text-[10.5px] font-bold truncate ${done ? 'line-through opacity-60' : ''}`}>{ev.title}</span>
                         </button>
                       );
@@ -616,13 +628,18 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${pending || refused ? 'bg-gray-200 text-gray-600' : 'bg-emerald-100 text-emerald-700'}`}>
+                    <span
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${pending || refused ? 'bg-gray-200 text-gray-600' : a.area ? '' : 'bg-emerald-100 text-emerald-700'}`}
+                      style={!pending && !refused && a.area ? apptFillStyle(a) : undefined}
+                    >
                       {a.kind === 'nota' ? <Edit2 className="w-4 h-4" /> : <CalendarIcon className="w-4 h-4" />}
                     </span>
                     <div className="min-w-0">
-                      <b className="text-[13.5px] text-[#161616] block truncate">
-                        {a.time && <span className="font-extrabold mr-1.5 text-[12px]">{a.time}</span>}
-                        {a.title}
+                      <b className="text-[13.5px] text-[#161616] flex items-center gap-1.5 truncate">
+                        {apptSocDot(a) && <span className="w-2 h-2 rounded-full shrink-0" title={a.societa ? SOC_META[a.societa]?.label : ''} style={{ backgroundColor: apptSocDot(a)! }} />}
+                        {a.time && <span className="font-extrabold text-[12px]">{a.time}{a.endTime ? `–${a.endTime}` : ''}</span>}
+                        <span className="truncate">{a.title}</span>
+                        {a.recurrence && <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#f0f0f0] text-[#6b6b6b] shrink-0">{recurrenceLabel(a.recurrence)}</span>}
                       </b>
                       <span className="text-[11.5px] text-[#8a8a8a] truncate block">
                         {[partEntries.length === 0 ? a.withName : null, a.createdByName && a.createdBy !== myUid ? `creato da ${a.createdByName}` : null, a.note]

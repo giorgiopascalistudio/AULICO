@@ -227,6 +227,7 @@ import {
   firstAuthorizedHash, canViewSection, canOperateSection, DEFAULT_DASHBOARD, SOCIETY_COLOR, type SectionConfig, type DashboardCtx,
 } from './societyConfig';
 import type { Societa } from './types';
+import { apptOccursOn, hhmmToMinutes } from './agenda';
 import { TeamAssistant } from './components/TeamAssistant';
 import { Navbar } from './components/Navbar';
 import { Modal } from './components/Modal';
@@ -525,6 +526,13 @@ export default function App() {
   const [apptWhoFilter, setApptWhoFilter] = useState('');
   const [apptNote, setApptNote] = useState('');
   const [apptPrivate, setApptPrivate] = useState(false);
+  const [apptEndTime, setApptEndTime] = useState('');
+  const [apptArea, setApptArea] = useState<'personale' | 'familiare' | 'sociale' | 'professionale' | ''>('');
+  const [apptSoc, setApptSoc] = useState('');
+  const [apptRepeat, setApptRepeat] = useState<'none' | 'daily' | 'weekly' | 'monthly'>('none');
+  const [apptRepeatEvery, setApptRepeatEvery] = useState(1);
+  const [apptRepeatUntil, setApptRepeatUntil] = useState('');
+  const [apptRemind, setApptRemind] = useState<number | ''>('');
 
   // Elenco pubblico dei membri studio (per i portali cliente/partner)
   const [directory, setDirectory] = useState<Record<string, { name: string; role: string }>>({});
@@ -1439,6 +1447,13 @@ export default function App() {
     setApptWhoFilter('');
     setApptNote('');
     setApptPrivate(false);
+    setApptEndTime('');
+    setApptArea('');
+    setApptSoc('');
+    setApptRepeat('none');
+    setApptRepeatEvery(1);
+    setApptRepeatUntil('');
+    setApptRemind('');
     setApptOpen(true);
   };
   const handleSubmitAppointment = () => {
@@ -1474,6 +1489,11 @@ export default function App() {
       participants,
       participantNames,
       private: apptPrivate,
+      endTime: apptEndTime && apptTime && apptEndTime > apptTime ? apptEndTime : null,
+      area: apptArea || null,
+      societa: apptSoc || null,
+      recurrence: apptRepeat === 'none' ? null : { freq: apptRepeat, interval: Math.max(1, apptRepeatEvery || 1), until: apptRepeatUntil || null },
+      remindMinutes: apptRemind === '' ? null : Number(apptRemind),
       createdAt: Date.now()
     };
     handleSaveAppointment(a);
@@ -2102,6 +2122,45 @@ export default function App() {
       }
     });
   }, [currentUser?.uid, currentUser?.role, teamLeave, finScadenze, furnishings, projects, accounts]);
+
+  // Promemoria appuntamenti "X minuti prima" (per TUTTI, anche clienti/partner):
+  // best-effort mentre l'app è aperta — check ogni 60s, notifica una-tantum quando
+  // l'ora attuale entra nella finestra [inizio − remindMinutes, inizio). Dedup su ref
+  // + notifications/<uid> (id deterministico per giorno). Nessun cron: se l'app è chiusa
+  // il reminder non parte (per l'orario esatto servono le Cloud Functions §18).
+  const apptRemRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!currentUser) return;
+    const me = currentUser.uid;
+    const check = () => {
+      const now = new Date();
+      const todayI = isoDate(now);
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      Object.values(appointments).forEach((a) => {
+        if (!a || !a.time || a.remindMinutes == null || a.status === 'rifiutato') return;
+        const iAmIn = a.participants ? !!a.participants[me] : a.ownerUid === me;
+        if (!iAmIn) return;
+        if (!apptOccursOn(a, todayI)) return;
+        const start = hhmmToMinutes(a.time);
+        if (start == null) return;
+        const fireFrom = start - (a.remindMinutes || 0);
+        if (nowMin < fireFrom || nowMin >= start) return;
+        const id = `rem-appt-${a.id}-${todayI}`;
+        if (apptRemRef.current.has(id)) return;
+        apptRemRef.current.add(id);
+        getNode(`notifications/${me}/${id}`)
+          .then((existing) => {
+            if (existing) return;
+            const ntf: Notification = { id, type: 'appuntamento', title: `Tra poco: ${a.title}`, body: `Alle ${a.time}${a.endTime ? '–' + a.endTime : ''}${a.note ? ' · ' + a.note : ''}`, link: '#calendario', read: false, at: Date.now(), by: 'system', byName: 'Promemoria' };
+            writeNode(`notifications/${me}/${id}`, ntf).catch(() => {});
+          })
+          .catch(() => {});
+      });
+    };
+    check();
+    const t = setInterval(check, 60000);
+    return () => clearInterval(t);
+  }, [currentUser?.uid, appointments]);
 
   // ----------------------------------------------------
   // CESTINO (nodo trash) + DOPPIA CONFERMA ELIMINAZIONE
@@ -6727,16 +6786,81 @@ export default function App() {
             <input value={apptTitle} onChange={(e) => setApptTitle(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" placeholder="Sopralluogo, riunione…" />
           </label>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <label className="flex flex-col gap-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Data *</span>
               <input type="date" value={apptDate} onChange={(e) => setApptDate(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Ora</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Inizio</span>
               <input type="time" value={apptTime} onChange={(e) => setApptTime(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Fine</span>
+              <input type="time" value={apptEndTime} onChange={(e) => setApptEndTime(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
+            </label>
           </div>
+
+          {/* Area del Vivere (colore blocco) + Società (pallino) */}
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Area del Vivere</span>
+              <select value={apptArea} onChange={(e) => setApptArea(e.target.value as any)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
+                <option value="">— nessuna —</option>
+                <option value="personale">Personale</option>
+                <option value="familiare">Familiare</option>
+                <option value="sociale">Sociale</option>
+                <option value="professionale">Professionale</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Società (pallino)</span>
+              <select value={apptSoc} onChange={(e) => setApptSoc(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
+                <option value="">— nessuna —</option>
+                <option value="studio">Onirico</option>
+                <option value="strategico">Strategico</option>
+                <option value="materico">Materico</option>
+                <option value="unico">Unico</option>
+                <option value="fantastico">Fantastico</option>
+              </select>
+            </label>
+          </div>
+
+          {/* Ricorrenza + Promemoria */}
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Ripeti</span>
+              <select value={apptRepeat} onChange={(e) => setApptRepeat(e.target.value as any)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
+                <option value="none">Mai (singolo)</option>
+                <option value="daily">Ogni giorno</option>
+                <option value="weekly">Ogni settimana</option>
+                <option value="monthly">Ogni mese</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Promemoria</span>
+              <select value={apptRemind} onChange={(e) => setApptRemind(e.target.value === '' ? '' : Number(e.target.value))} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
+                <option value="">Nessuno</option>
+                <option value="10">10 min prima</option>
+                <option value="30">30 min prima</option>
+                <option value="60">1 ora prima</option>
+                <option value="120">2 ore prima</option>
+                <option value="1440">1 giorno prima</option>
+              </select>
+            </label>
+          </div>
+          {apptRepeat !== 'none' && (
+            <div className="grid grid-cols-2 gap-3 -mt-1">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Ogni</span>
+                <input type="number" min={1} value={apptRepeatEvery} onChange={(e) => setApptRepeatEvery(Math.max(1, Number(e.target.value) || 1))} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Fino al</span>
+                <input type="date" value={apptRepeatUntil} onChange={(e) => setApptRepeatUntil(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
+              </label>
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Con</span>
