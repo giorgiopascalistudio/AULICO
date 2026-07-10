@@ -127,6 +127,7 @@ import {
   BattleItem,
   UnicoOpportunity,
   TimeEntry,
+  ProjectBrief,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -404,6 +405,7 @@ export default function App() {
   const [projectMessages, setProjectMessages] = useState<Record<string, Record<string, ProjectMessage>>>({});
   const [documents, setDocuments] = useState<Record<string, Record<string, any>>>({});
   const [furnishings, setFurnishings] = useState<Record<string, Record<string, Furnishing>>>({});
+  const [projectBriefs, setProjectBriefs] = useState<Record<string, ProjectBrief>>({});
   // Moodboard 3D per progetto: projectMoodboard3d/<pid> = { elements: BoardElement[], updatedAt, by }
   const [moodboard3d, setMoodboard3d] = useState<Record<string, any>>({});
 
@@ -1758,6 +1760,7 @@ export default function App() {
       add('documents', setDocuments);
       add('projectFurnishings', setFurnishings);
       add('projectMoodboard3d', setMoodboard3d);
+      add('projectBriefs', setProjectBriefs);
       add('estimates', setEstimates);
       // CRM (array nodes)
       const toArr = (v: any) => (Array.isArray(v) ? v : v ? Object.values(v) : []);
@@ -1996,6 +1999,9 @@ export default function App() {
         }, () => {}));
         subs.push(watchNode(`projectMoodboard3d/${pid}`, (v) => {
           setMoodboard3d((m) => ({ ...m, [pid]: v || {} }));
+        }, () => {}));
+        subs.push(watchNode(`projectBriefs/${pid}`, (v) => {
+          setProjectBriefs((b) => ({ ...b, [pid]: v || { pid, updatedAt: 0 } }));
         }, () => {}));
       });
       // Point system: il portale legge i propri eventi punti (pointEvents/<uid>)
@@ -3445,6 +3451,22 @@ export default function App() {
     writeNode(`projectMoodboard3d/${projId}`, payload).catch((e: any) =>
       showToast('Errore salvataggio moodboard 3D: ' + (e?.message || e?.code || 'controlla regole/permessi'), 'err')
     );
+  };
+
+  // Questionario iniziale cliente (brief) — salvato da studio o dal cliente collegato.
+  const handleSaveProjectBrief = (brief: ProjectBrief) => {
+    const wasCompleted = !!projectBriefs[brief.pid]?.completedByClient;
+    const enriched: ProjectBrief = { ...brief, updatedBy: currentUser?.uid || null, updatedByName: currentUser?.name || null };
+    setProjectBriefs((prev) => ({ ...prev, [brief.pid]: enriched }));
+    writeNode(`projectBriefs/${brief.pid}`, clean(enriched)).catch(() =>
+      showToast('Errore salvataggio questionario (controlla le regole).', 'err')
+    );
+    const isClient = currentUser?.role === 'cliente' || currentUser?.role === 'partner';
+    if (isClient && brief.completedByClient && !wasCompleted) {
+      const proj: any = projects[brief.pid];
+      notifyStudio({ type: 'progetto', title: 'Questionario cliente compilato', body: `${currentUser?.name || 'Il cliente'} ha inviato il questionario${proj ? ` per "${proj.name}"` : ''}.`, link: `#progetto/${brief.pid}` });
+    }
+    showToast('Questionario salvato.');
   };
 
   // 3c. Flag "lo Studio gestisce gli arredi mobili" (→ fee 20%) sul progetto
@@ -5103,6 +5125,8 @@ export default function App() {
         furnishings={furnishings}
         onSaveFurnishing={handleSaveFurnishing}
         onDeleteFurnishing={handleDeleteFurnishing}
+        projectBriefs={projectBriefs}
+        onSaveProjectBrief={handleSaveProjectBrief}
         moodboard3d={moodboard3d}
         onSaveMoodboard3d={handleSaveMoodboard3d}
         myPoints={pointEvents}
@@ -5411,6 +5435,8 @@ export default function App() {
             furnishings={furnishings}
             onSaveFurnishing={handleSaveFurnishing}
             onDeleteFurnishing={handleDeleteFurnishing}
+            projectBriefs={projectBriefs}
+            onSaveProjectBrief={handleSaveProjectBrief}
             moodboard3d={moodboard3d}
             onSaveMoodboard3d={handleSaveMoodboard3d}
             onToggleStudioManagesMobili={handleToggleStudioManagesMobili}

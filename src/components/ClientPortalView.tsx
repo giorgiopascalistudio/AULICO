@@ -55,13 +55,14 @@ import {
   ListChecks
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Project, UserProfile, MatericoEstimate, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, UnicoShowcaseEntry, UnicoInvestorPosition, MarketingEvent, Survey, SurveyResponse, RsvpStatus, ClientRequest, PointEvent } from '../types';
+import { Project, UserProfile, MatericoEstimate, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, UnicoShowcaseEntry, UnicoInvestorPosition, MarketingEvent, Survey, SurveyResponse, RsvpStatus, ClientRequest, PointEvent, ProjectBrief } from '../types';
 import { totalPoints, tierFor, nextTier, reliabilityScore } from '../points';
 import { clientGame } from '../gamification';
 import { AiComposeButton } from './AiComposeButton';
 import { ClientProfileModal } from './ClientProfileModal';
 import { DailyQuiz } from './DailyQuiz';
 import { FurnishingsBoard } from './FurnishingsBoard';
+import { ProjectBriefForm } from './ProjectBriefForm';
 import { ClientRequestPanel } from './ClientRequestPanel';
 import { ClientQuotesPanel } from './ClientQuotesPanel';
 import { CantiereBoard } from './CantiereBoard';
@@ -114,6 +115,8 @@ interface ClientPortalViewProps {
   onDeleteFurnishing?: (pid: string, itemId: string) => void;
   moodboard3d?: Record<string, any>;
   onSaveMoodboard3d?: (pid: string, elements: any[]) => void;
+  projectBriefs?: Record<string, ProjectBrief>;
+  onSaveProjectBrief?: (brief: ProjectBrief) => void;
   /** Eventi punti dell'utente (affidabilità partner). */
   myPoints?: PointEvent[];
   onToast?: (msg: string, type?: 'ok' | 'err') => void;
@@ -180,6 +183,8 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   onDeleteFurnishing,
   moodboard3d = {},
   onSaveMoodboard3d,
+  projectBriefs = {},
+  onSaveProjectBrief,
   myPoints = [],
   onToast = () => {},
   onLogout,
@@ -612,6 +617,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
           { id: 'lavori', label: t('tab.avanzamento'), icon: ClipboardList },
           { id: 'documenti', label: t('tab.documentiChat'), icon: FileText },
+          { id: 'questionario', label: 'Questionario', icon: ClipboardList },
           { id: 'arredi', label: t('tab.arredi'), icon: Sofa },
           { id: 'finanze', label: t('tab.contabilita'), icon: DollarSign },
           { id: 'blog', label: t('tab.blogOnirico'), icon: BookOpen }
@@ -2062,6 +2068,19 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 folderName={`Onirico Impresa - ${profile.name}`}
                 onSaveEntity={(coll, item) => onSaveImpresaEntity?.(coll, profile.uid, item)}
                 onDeleteEntity={(coll, id) => onDeleteImpresaEntity?.(coll, profile.uid, id)}
+              />
+            </div>
+          )}
+
+          {currentTab === 'questionario' && (
+            <div className="animate-[riseIn_0.22s_ease_both]">
+              <ProjectBriefForm
+                pid={p.id}
+                brief={projectBriefs[p.id]}
+                canEdit={true}
+                clientMode={true}
+                color="#161616"
+                onSave={onSaveProjectBrief}
               />
             </div>
           )}

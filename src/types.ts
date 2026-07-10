@@ -532,6 +532,23 @@ export interface Appointment {
   createdAt: number;
 }
 
+/**
+ * Questionario iniziale cliente (brief di progetto). Compilabile dal cliente (portale)
+ * e dal team; le risposte alimentano moodboard, preventivi e presentazioni.
+ * Nodo `projectBriefs/<pid>`. Le risposte sono keyed per id-domanda (catalogo in
+ * src/projectBrief.ts) → estensibile senza migrazioni.
+ */
+export interface ProjectBrief {
+  pid: string;
+  answers?: Record<string, string>;   // qid → risposta
+  budget?: number | null;             // budget indicativo (comodo separato per i calcoli)
+  updatedAt: number;
+  updatedBy?: string | null;
+  updatedByName?: string | null;
+  completedByClient?: boolean;        // true quando il cliente lo invia dal portale
+  completedAt?: number | null;
+}
+
 // Ricorrenza appuntamento: espansa lato client in CalendarView (apptOccursOn), non salva N record.
 export interface ApptRecurrence {
   freq: 'daily' | 'weekly' | 'monthly';

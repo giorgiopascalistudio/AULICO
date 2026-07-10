@@ -37,14 +37,16 @@ import {
   Archive,
   ArchiveRestore,
   FileSignature,
-  Receipt
+  Receipt,
+  ClipboardList
 } from 'lucide-react';
-import { Project, UserProfile, FinanceMovement, Template, MatericoEstimate, MatericoRequest, UnicoDeal, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, ClientRecord, Quote, PriceItem, Task, MarketingEvent, Campaign, Survey, SurveyResponse, SocialPost, MktContract, MktTimeEntry, MktAsset, MktDeliverable, MktProof, MktLead, MktFlow, MktSeoItem, MktAdCampaign, MktMetric, MktInboxItem, MktConsent, MktProject, InternalOrder } from '../types';
+import { Project, UserProfile, FinanceMovement, Template, MatericoEstimate, MatericoRequest, UnicoDeal, Furnishing, Cantiere, Rapportino, Presenza, CantiereFoto, CantiereMateriale, ChecklistItem, CantiereDoc, CantiereSal, CantiereLog, CantiereRecord, CantiereMessage, ImpresaDoc, ImpresaRecord, ClientRecord, Quote, PriceItem, Task, MarketingEvent, Campaign, Survey, SurveyResponse, SocialPost, MktContract, MktTimeEntry, MktAsset, MktDeliverable, MktProof, MktLead, MktFlow, MktSeoItem, MktAdCampaign, MktMetric, MktInboxItem, MktConsent, MktProject, InternalOrder, ProjectBrief } from '../types';
 import { computoTotal, arrediTotals, studioParcella, quoteTotals, Computo, InvoiceActive, InvoicePassive, ScadenzaItem } from '../finance';
 import ExportMenu from './ExportMenu';
 import type { ExportColumn } from '../dataIO';
 import { QuoteEditor, emptyQuoteDraft } from './QuoteEditor';
 import { FurnishingsBoard } from './FurnishingsBoard';
+import { ProjectBriefForm } from './ProjectBriefForm';
 import { CantiereBoard } from './CantiereBoard';
 import { ChatDeleteButton } from './ChatDeleteButton';
 import { eur, fmtDay, isoDate, todayISO, numIt, safeUrl } from '../utils';
@@ -88,6 +90,8 @@ interface ProjectsViewProps {
   onToggleStudioManagesMobili?: (pid: string, value: boolean) => void;
   moodboard3d?: Record<string, any>;
   onSaveMoodboard3d?: (pid: string, elements: any[]) => void;
+  projectBriefs?: Record<string, ProjectBrief>;
+  onSaveProjectBrief?: (brief: ProjectBrief) => void;
   isInternalBoss: boolean;
   myUid: string;
   finance?: FinanceMovement[];
@@ -255,6 +259,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   onToggleStudioManagesMobili,
   moodboard3d = {},
   onSaveMoodboard3d,
+  projectBriefs = {},
+  onSaveProjectBrief,
   isInternalBoss,
   myUid,
   finance = [],
@@ -694,6 +700,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               ...(p.division === 'strategico' ? [{ id: 'marketing', label: 'Strumenti Marketing', icon: Briefcase }] : []),
               ...(p.division === 'materico' ? [{ id: 'materico_prev', label: 'Preventivi & Fornitori', icon: SlidersHorizontal }] : []),
               { id: 'tecnico', label: 'Fascicolo Tecnico', icon: Layers },
+              ...((!p.division || p.division === 'studio' || p.division === 'unico')
+                ? [{ id: 'brief', label: 'Questionario', icon: ClipboardList }] : []),
               { id: 'arredi', label: 'Arredi & Moodboard', icon: Sofa },
               ...((!p.division || p.division === 'studio' || p.division === 'materico' || p.division === 'unico')
                 ? [{ id: 'cantiere', label: 'Cantiere', icon: HardHat }] : []),
@@ -1854,6 +1862,18 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
         )}
 
         {/* TAB: ARREDI & MOODBOARD */}
+        {projTab === 'brief' && (
+          <div className="mt-2 animate-[riseIn_0.3s_ease_both]">
+            <ProjectBriefForm
+              pid={p.id}
+              brief={projectBriefs[p.id]}
+              canEdit={true}
+              color="#161616"
+              onSave={onSaveProjectBrief}
+            />
+          </div>
+        )}
+
         {projTab === 'arredi' && (
           <div className="mt-2 animate-[riseIn_0.3s_ease_both]">
             <FurnishingsBoard
