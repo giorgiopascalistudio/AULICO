@@ -218,6 +218,7 @@ const ComputiView = React.lazy(() => import('./components/ComputiView').then((m)
 const LegaleView = React.lazy(() => import('./components/LegaleView').then((m) => ({ default: m.LegaleView })));
 const RenderAiView = React.lazy(() => import('./components/RenderAiView').then((m) => ({ default: m.RenderAiView })));
 const RecruitingView = React.lazy(() => import('./components/RecruitingView').then((m) => ({ default: m.RecruitingView })));
+const TimeReportView = React.lazy(() => import('./components/TimeReportView').then((m) => ({ default: m.TimeReportView })));
 const FantasticoView = React.lazy(() => import('./components/FantasticoView').then((m) => ({ default: m.FantasticoView })));
 const PointOfEntryView = React.lazy(() => import('./components/PointOfEntryView').then((m) => ({ default: m.PointOfEntryView })));
 const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
@@ -5956,6 +5957,24 @@ export default function App() {
                   canEdit={isStudioRole(currentUser.role) && secOp}
                   onSave={handleSaveRecruit}
                   onDelete={handleDeleteRecruit}
+                />
+              </React.Suspense>
+            );
+          case 'time-report':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <TimeReportView
+                  tasks={Object.values(tasks)}
+                  timeEntries={Object.values(timeEntries)}
+                  members={Object.values(users).filter((u) => u.role && u.role !== 'cliente' && u.role !== 'partner' && u.status === 'approved')}
+                  color={society.color}
+                  onEditTask={handleEditTask}
+                  onNewTask={() => {
+                    setEditTaskId(null);
+                    setTTitle(''); setTDateInput(todayISO()); setTTimeInput(''); setTFreq('once'); setTPrio('media');
+                    setTTipo(''); setTActivityId(''); setTPrivate(false); setTAssignees([]); setTProjectId(''); setTNotes(''); setTEst('');
+                    setTaskEditorOpen(true);
+                  }}
                 />
               </React.Suspense>
             );
