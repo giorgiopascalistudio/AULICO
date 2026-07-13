@@ -1249,6 +1249,7 @@ export interface MktAccount {
   liberatoria?: boolean;           // consenso pubblicazione: se manca → NON PUBBLICARE NULLA
   budgetMonthly?: number | null;   // budget marketing mensile (€)
   reviewUrl?: string | null;       // link "lascia una recensione" (Google/Trustpilot…) usato in Altro→Recensioni
+  ga4PropertyId?: string | null;   // ID numerico proprietà Google Analytics 4 (sito) → KPI "Sito web" automatici
   notes?: string | null;
   createdAt: number;
   updatedAt?: number;
@@ -1322,6 +1323,8 @@ export interface MktKpiEntry {
   ym: string;                      // 'yyyy-mm'
   metrics: Record<string, number | null>;
   notes?: string | null;
+  source?: 'manuale' | 'ga4' | string | null; // provenienza: auto da API (es. GA4) vs inserimento manuale
+  syncedAt?: number;               // ultimo aggiornamento automatico via API
   updatedAt: number;
 }
 /** Nodo `mktExpenses/<id>` — spese marketing (piano finanziario di Rosa): registro

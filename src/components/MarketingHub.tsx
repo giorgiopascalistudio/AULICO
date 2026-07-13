@@ -549,6 +549,9 @@ const PanoramicaTab: React.FC<Props & { account: MktAccount }> = ({ account: acc
             <input disabled={!canEdit} value={d.tone || ''} onChange={(e) => set({ tone: e.target.value || null })} placeholder="Es. caldo, evocativo, italiano+inglese" className={inp} /></label>
           <label className="flex flex-col gap-1"><span className={lbl}>Budget marketing mensile €</span>
             <input disabled={!canEdit} type="number" value={d.budgetMonthly ?? ''} onChange={(e) => set({ budgetMonthly: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
+          <label className="flex flex-col gap-1 col-span-2"><span className={lbl}>Google Analytics · ID proprietà GA4 (sito)</span>
+            <input disabled={!canEdit} value={d.ga4PropertyId || ''} onChange={(e) => set({ ga4PropertyId: e.target.value || null })} placeholder="Es. 123456789 — solo numeri" className={inp} />
+            <span className="text-[10px] text-[#9a9a9a] font-semibold">Collegalo per aggiornare in automatico i KPI del canale "Sito web" (utenti, sessioni, % stranieri). ID numerico da GA4 → Amministrazione → Impostazioni proprietà (non il codice "G-…").</span></label>
           <label className="flex flex-col gap-1 col-span-2"><span className={lbl}>Note</span>
             <textarea disabled={!canEdit} value={d.notes || ''} onChange={(e) => set({ notes: e.target.value || null })} rows={2} className={`${inp} resize-none`} /></label>
         </div>
@@ -697,6 +700,7 @@ const KpiGrid: React.FC<{
     kpi.filter((k) => k.accountId === acc.id && k.platform === pf).forEach((k) => { m[k.ym] = k; });
     return m;
   }, [kpi, acc.id, pf]);
+  const ga4Auto = pf === 'sito' && Object.values(saved).some((k) => k?.source === 'ga4' || !!k?.syncedAt);
   const [draft, setDraft] = React.useState<Record<string, Record<string, string>>>(() => {
     const d: Record<string, Record<string, string>> = {};
     months.forEach((ym) => {
@@ -802,7 +806,15 @@ const KpiGrid: React.FC<{
           )}
         </div>
       </div>
-      <p className="text-[11.5px] text-[#9a9a9a] font-semibold">Dati mensili inseriti a mano (come nel modello Excel) — predisposti per l'aggiornamento automatico via API in una fase futura. Si salvano da soli mentre digiti; il delta è rispetto al mese precedente.</p>
+      <p className="text-[11.5px] text-[#9a9a9a] font-semibold">
+        {ga4Auto ? (
+          <span className="inline-flex items-center gap-1 font-bold text-emerald-700"><CheckCircle2 className="w-3.5 h-3.5" /> Sito web aggiornato da Google Analytics.</span>
+        ) : null}{' '}
+        {ga4Auto
+          ? 'Traffico (utenti, sessioni, % stranieri) sincronizzato in automatico; le altre voci restano manuali (una modifica manuale su quelle sincronizzate viene sovrascritta al prossimo aggiornamento). '
+          : 'Dati mensili inseriti a mano (come nel modello Excel) — predisposti per l’aggiornamento automatico via API. '}
+        Si salvano da soli mentre digiti; il delta è rispetto al mese precedente.
+      </p>
 
       {/* Grafico andamento: "Tutte" (una linea per metrica, indicizzate) o "Singola" (una metrica). */}
       <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">

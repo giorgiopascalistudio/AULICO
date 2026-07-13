@@ -23,6 +23,7 @@
  */
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getDatabase } from 'firebase-admin/database';
+import { syncGa4Kpis } from './socialKpi.mjs';
 
 const DB_URL = process.env.FIREBASE_DB_URL
   || 'https://aulico-228bd-default-rtdb.europe-west1.firebasedatabase.app';
@@ -169,6 +170,8 @@ async function main() {
   if (now.getDay() === 1) await activityReport(members, Date.now() - 7 * 86400000, 'settimanale');
   if (now.getDay() === 5) await weeklyClientReport(); // venerdì: aggiornamento ai clienti
   if (now.getDate() === 1) await activityReport(members, Date.now() - 30 * 86400000, 'mensile');
+  // KPI social automatici (fase 1: Google Analytics 4 → canale "Sito web").
+  await syncGa4Kpis(db, serviceAccount).catch((e) => console.error('GA4 sync fallito:', e?.message || e));
   console.log('Automazioni completate.');
 }
 
