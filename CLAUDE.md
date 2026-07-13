@@ -429,6 +429,29 @@ reporting/redditività, integrazioni esterne
   altrimenti chi assegna i permessi da Team→Modifica iscritto riceve "permission denied". Finché un
   utente non ha `access` esplicito, vale il **fallback dal ruolo** (`src/access.ts`), quindi il
   comportamento attuale resta invariato.
+  ⚠️ **Portale d'area raggiungibile con una sola sotto-sezione**: la sidebar mostra un GRUPPO
+  (es. Produzione, Amministrazione & Contabilità) come un unico bottone → **portale d'area**, e le
+  sotto-sezioni sono **tab** dentro il portale. `canViewSection` ora considera un gruppo visibile
+  anche se il suo livello proprio è < view ma l'utente può vedere **almeno una sua voce** (prima il
+  portale dava "Non hai accesso" e la voce concessa restava irraggiungibile). Se il gruppo è raggiunto
+  solo tramite una voce concessa, un **redirect** porta direttamente a quella voce (helper
+  `sectionSelfLevel`/`viewableChildren`/`firstViewableChild` in `societyConfig.ts`). Nessuna regola nuova.
+  ⚠️ **Permessi STAFF su Contabilità/Commerciale (`users/<uid>/caps`)**: i nodi finanza e commerciale
+  sono flat (non per-società) e le regole li tenevano ad admin/manager, quindi un collaboratore anche
+  se autorizzato dall'RBAC non poteva leggerli/scriverli. Ora, alla "Salva permessi", l'app **deriva e
+  scrive** `users/<uid>/caps = { fin?: 'read'|'write', comm?: 'read'|'write' }` (`capsFor` in App, da
+  `moduleCapability`/`capString` in `societyConfig.ts` — capability GLOBALE: Strategico controlla la
+  contabilità di tutte le società, quindi il permesso sull'area vale per tutte). Le regole dei nodi
+  finanza (`studioFinance`, `finComputi`, `finInvoices*`, `finScadenze`, `finBank`, `finTargets`,
+  `finLiquidity`, `finCostPlan`, `finBudget`, `finCicli`, `finReports`, `compliance`) accettano
+  `caps.fin`; i nodi commerciale (`quotes`, `clients`, `priceList`) accettano `caps.comm` (quotes/priceList
+  anche `caps.fin`, servono al tab Preventivi di FinanzeView). `.validate` di `caps` = solo admin/manager
+  (anti auto-promozione, come `access`). Lato render: `canFinance`/`canCommerce` (sub) e i gate di modifica
+  ora sono capability-aware (non più solo `isBoss`); `financeSectors` popolato per chi ha finanza O
+  commerciale. **RIPUBBLICARE le regole**; ripassare "Salva permessi" sui collaboratori già configurati
+  per popolare i `caps`. NB (per scelta utente): un collaboratore con finanza vede la contabilità di
+  TUTTE le società (Strategico centralizza); l'isolamento per-società a livello DB richiederebbe di
+  spezzare i nodi finanza per società (non fatto).
   ⚠️ Aggiunto il nodo **`unicoShowcase`** (vetrina Unico pubblicata, §21 — read ogni autenticato,
   write admin/manager): **ripubblicare le regole**, altrimenti la pubblicazione vetrina fallisce
   in silenzio e i clienti continuano a vedere i dati demo.
