@@ -1,28 +1,27 @@
 /**
  * Aulico AI — Cloudflare Worker (gratis, niente Blaze).
- * Endpoint POST che genera testo con Google Gemini (free tier). Sostituisce la
- * Cloud Function `aiGenerate` quando non si vuole Blaze.
+ * Endpoint POST che genera testo con Groq (preferito) o Google Gemini (ripiego).
+ * Sostituisce la Cloud Function `aiGenerate` quando non si vuole Blaze.
  *
- * Sicurezza: verifica l'ID token Firebase del chiamante (deve essere un utente
- * autenticato dell'app) prima di chiamare il modello — la chiave AI resta lato
- * server (secret del Worker), mai nel client.
+ * Sicurezza: verifica l'ID token Firebase del chiamante **localmente** (firma JWT
+ * RS256 contro le chiavi pubbliche di Google) — così NON dipende da API Firebase
+ * soggette all'enforcement di App Check (che un server non può soddisfare) e la
+ * chiave AI resta lato server (secret del Worker), mai nel client.
  *
  * Secret da impostare (wrangler secret put ...):
- *  - FIREBASE_API_KEY : la apiKey web del progetto (per verificare l'ID token)
- *  - GEMINI_KEY       : chiave Google AI Studio (free) per Gemini
- * Var opzionale (vars in wrangler.toml):
- *  - FIREBASE_DB_URL  : URL del Realtime Database (per verificare che il chiamante
- *                       sia un account onboardato: deve esistere users/<uid>).
- *
- * Sicurezza: oltre a validare l'ID token, si richiede che esista il profilo
- * users/<uid> nel DB. Così un token ottenuto creando un account "grezzo" via la
- * apiKey pubblica (senza passare dall'onboarding dell'app) NON può sfruttare la
- * quota AI. Clienti e partner (che hanno il profilo) restano abilitati.
+ *  - GROQ_KEY         : chiave Groq (https://console.groq.com/keys) — provider preferito
+ *  - GEMINI_KEY       : chiave Google AI Studio (free) — ripiego automatico
+ * Var opzionali (vars in wrangler.toml):
+ *  - FIREBASE_DB_URL       : URL del Realtime Database (per il controllo profilo)
+ *  - FIREBASE_PROJECT_ID   : project id (default 'aulico-228bd')
+ * NB: FIREBASE_API_KEY non serve più (la verifica del token è locale).
  *
  * Body atteso: { prompt: string, system?: string, maxTokens?: number }
  * Header:      Authorization: Bearer <Firebase ID token>
  */
 const DEFAULT_DB_URL = 'https://aulico-228bd-default-rtdb.europe-west1.firebasedatabase.app';
+const DEFAULT_PROJECT_ID = 'aulico-228bd';
+const JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -33,29 +32,84 @@ const cors = {
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json', ...cors } });
 
+// --- Verifica locale dell'ID token Firebase (JWT RS256) ---------------------
+function b64urlToBytes(s) {
+  s = String(s).replace(/-/g, '+').replace(/_/g, '/');
+  const pad = s.length % 4 ? 4 - (s.length % 4) : 0;
+  s += '='.repeat(pad);
+  const bin = atob(s);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+function b64urlToJson(s) {
+  return JSON.parse(new TextDecoder().decode(b64urlToBytes(s)));
+}
+
+let jwksCache = { at: 0, keys: null };
+async function getGoogleKeys() {
+  if (jwksCache.keys && Date.now() - jwksCache.at < 3600e3) return jwksCache.keys;
+  const r = await fetch(JWKS_URL);
+  const j = await r.json();
+  jwksCache = { at: Date.now(), keys: j.keys || [] };
+  return jwksCache.keys;
+}
+
+/** Ritorna l'uid se il token è valido per il progetto, altrimenti null. */
+async function verifyIdToken(token, projectId) {
+  try {
+    const parts = String(token).split('.');
+    if (parts.length !== 3) return null;
+    const header = b64urlToJson(parts[0]);
+    const payload = b64urlToJson(parts[1]);
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.aud !== projectId) return null;
+    if (payload.iss !== `https://securetoken.google.com/${projectId}`) return null;
+    if (!payload.sub) return null;
+    if (payload.exp && now >= payload.exp) return null;
+    if (payload.iat && payload.iat > now + 300) return null;
+    if (header.alg !== 'RS256') return null;
+
+    const keys = await getGoogleKeys();
+    const jwk = keys.find((k) => k.kid === header.kid);
+    if (!jwk) return null;
+    const key = await crypto.subtle.importKey(
+      'jwk',
+      { kty: jwk.kty, n: jwk.n, e: jwk.e, alg: 'RS256', ext: true },
+      { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+      false,
+      ['verify'],
+    );
+    const data = new TextEncoder().encode(parts[0] + '.' + parts[1]);
+    const ok = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, b64urlToBytes(parts[2]), data);
+    return ok ? payload.sub : null;
+  } catch {
+    return null;
+  }
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
     if (request.method !== 'POST') return json({ error: 'method-not-allowed' }, 405);
     try {
-      // 1) verifica autenticazione (ID token Firebase)
+      // 1) autenticazione: verifica LOCALE dell'ID token (niente API App-Check-gated)
       const token = (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
       if (!token) return json({ error: 'unauthenticated' }, 401);
-      const verify = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${env.FIREBASE_API_KEY}`,
-        { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ idToken: token }) }
-      );
-      if (!verify.ok) return json({ error: 'invalid-token' }, 401);
-      const vj = await verify.json().catch(() => null);
-      const uid = vj?.users?.[0]?.localId;
+      const projectId = env.FIREBASE_PROJECT_ID || DEFAULT_PROJECT_ID;
+      const uid = await verifyIdToken(token, projectId);
       if (!uid) return json({ error: 'invalid-token' }, 401);
 
-      // 1b) il chiamante deve essere un account onboardato (profilo users/<uid>).
-      //     Lettura col token dell'utente (le regole consentono auth.uid==$uid).
+      // 1b) il chiamante dovrebbe essere un account onboardato (profilo users/<uid>).
+      //     Controllo BEST-EFFORT: se la lettura è bloccata (es. App Check sul DB) NON
+      //     blocchiamo — il token JWT è già verificato e appartiene a questo progetto.
       const dbUrl = env.FIREBASE_DB_URL || DEFAULT_DB_URL;
       const prof = await fetch(`${dbUrl}/users/${uid}.json?auth=${encodeURIComponent(token)}`);
-      const profVal = prof.ok ? await prof.json().catch(() => null) : null;
-      if (!profVal) return json({ error: 'forbidden', detail: 'Account non abilitato.' }, 403);
+      if (prof.status === 200) {
+        const profVal = await prof.json().catch(() => null);
+        if (!profVal) return json({ error: 'forbidden', detail: 'Account non abilitato.' }, 403);
+      }
+      // (status 401/403 = lettura bloccata da App Check/regole → si prosegue)
 
       // 2) input
       const body = await request.json();
@@ -116,6 +170,7 @@ export default {
       }
 
       // 3b) Ripiego: Gemini (Google AI Studio). Modello override-abile (GEMINI_MODEL).
+      if (!env.GEMINI_KEY) return json({ error: 'ai-not-configured', detail: 'Nessun provider AI configurato (GROQ_KEY o GEMINI_KEY).' }, 501);
       const model = env.GEMINI_MODEL || 'gemini-2.0-flash';
       const g = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_KEY}`,
