@@ -83,8 +83,8 @@ export const TeamAssistant: React.FC<{
         maxTokens: 600,
       });
       setMsgs((m) => [...m, { role: 'assistant', content: text || 'Non ho una risposta.' }]);
-    } catch {
-      setMsgs((m) => [...m, { role: 'assistant', content: '⚠️ AI non disponibile. Verifica la configurazione del Worker (GROQ_KEY).' }]);
+    } catch (e) {
+      setMsgs((m) => [...m, { role: 'assistant', content: `⚠️ AI non disponibile — ${(e as Error)?.message || 'errore sconosciuto'}` }]);
     } finally {
       setLoading(false);
     }

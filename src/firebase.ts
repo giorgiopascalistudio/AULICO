@@ -95,7 +95,21 @@ export const callAi = async (data: { prompt: string; system?: string; maxTokens?
       headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify(data),
     });
-    if (!resp.ok) throw new Error(`AI worker error ${resp.status}`);
+    if (!resp.ok) {
+      // Superficie l'errore REALE del Worker (es. chiave AI mancante/scaduta,
+      // modello dismesso, account non abilitato) invece di un generico codice:
+      // così il messaggio in UI dice cosa sistemare.
+      let detail = '';
+      try { const e = await resp.json(); detail = e?.detail || e?.error || ''; } catch { /* body non-json */ }
+      const map: Record<number, string> = {
+        401: 'sessione non valida: esci e rientra',
+        403: 'account non abilitato all\'AI (o App Check blocca il Worker)',
+        429: 'limite AI temporaneo raggiunto: riprova tra poco',
+        501: 'funzione non configurata sul Worker',
+        502: 'il provider AI ha rifiutato la richiesta (chiave AI mancante/scaduta o modello non valido)',
+      };
+      throw new Error(`AI ${resp.status} — ${map[resp.status] || 'errore Worker'}${detail ? ` · ${String(detail).slice(0, 200)}` : ''}`);
+    }
     const j = await resp.json();
     return (j?.text || '').toString();
   }

@@ -31,8 +31,9 @@ export const AiComposeButton: React.FC<{
         maxTokens: 300,
       });
       if (out && out.trim()) onResult(out.trim());
-    } catch {
-      /* AI opzionale: in caso di errore non blocca la chat */
+    } catch (e) {
+      /* AI opzionale: in caso di errore non blocca la chat (dettaglio in console) */
+      console.warn('AI compose:', (e as Error)?.message || e);
     } finally {
       setLoading(false);
     }

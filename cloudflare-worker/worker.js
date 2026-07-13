@@ -103,10 +103,16 @@ export default {
             ],
           }),
         });
-        if (!r.ok) return json({ error: 'ai-error', detail: await r.text() }, 502);
-        const j = await r.json();
-        const text = (j.choices?.[0]?.message?.content || '').trim();
-        return json({ text });
+        if (r.ok) {
+          const j = await r.json();
+          const text = (j.choices?.[0]?.message?.content || '').trim();
+          return json({ text });
+        }
+        // Groq ha fallito (chiave scaduta/errata o modello dismesso): se c'è Gemini
+        // ci ripieghiamo automaticamente, altrimenti restituiamo il dettaglio reale.
+        const groqDetail = await r.text();
+        if (!env.GEMINI_KEY) return json({ error: 'ai-error', detail: `Groq: ${groqDetail}` }, 502);
+        // (fall-through al blocco Gemini qui sotto)
       }
 
       // 3b) Ripiego: Gemini (Google AI Studio). Modello override-abile (GEMINI_MODEL).
