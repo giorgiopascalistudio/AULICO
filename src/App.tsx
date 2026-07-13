@@ -228,8 +228,10 @@ const FiscaleView = React.lazy(() => import('./components/FiscaleView').then((m)
 const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').then((m) => ({ default: m.CredenzialiView })));
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
-  firstAuthorizedHash, canViewSection, canOperateSection, DEFAULT_DASHBOARD, SOCIETY_COLOR, type SectionConfig, type DashboardCtx,
+  firstAuthorizedHash, canViewSection, canOperateSection, sectionSelfLevel, firstViewableChild,
+  DEFAULT_DASHBOARD, SOCIETY_COLOR, type SectionConfig, type DashboardCtx,
 } from './societyConfig';
+import { atLeast } from './access';
 import type { Societa } from './types';
 import { apptOccursOn, hhmmToMinutes } from './agenda';
 import { runningEntry, avgMinutesForTipo, countForTipo, minutesForTask, fmtDuration } from './timetracking';
@@ -679,6 +681,19 @@ export default function App() {
 
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
+
+  // Portale d'area (gruppo) raggiunto SOLO grazie a una sotto-sezione concessa:
+  // se l'utente non può vedere il gruppo "di suo" (livello proprio < view) ma può
+  // vedere una sua voce, portalo direttamente a quella voce invece del cruscotto
+  // d'area (che mostrerebbe più del concesso). Vedi §permessi per-sezione.
+  useEffect(() => {
+    if (route !== 'sportal' || !currentUser) return;
+    const sec = getSociety(activeSocieta)?.sections.find((s) => s.id === activeSection);
+    if (!sec || sec.kind !== 'group') return;
+    if (atLeast(sectionSelfLevel(currentUser, activeSocieta, sec), 'view')) return;
+    const child = firstViewableChild(currentUser, activeSocieta, sec);
+    if (child) window.location.hash = `#${societaSlug(activeSocieta)}/${child.id}`;
+  }, [route, activeSocieta, activeSection, currentUser]);
 
   // Watch Firebase Google auth state (gate the whole app)
   useEffect(() => {
@@ -6432,6 +6447,11 @@ export default function App() {
         const sec = society?.sections.find((s) => s.id === activeSection);
         if (!society || !sec) return <p className="text-[13px] text-[#8a8a8a]">Sezione non trovata.</p>;
         if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
+        // Gruppo accessibile solo tramite una voce concessa (livello proprio < view):
+        // l'effetto di redirect porta alla voce; qui evitiamo il lampo del cruscotto d'area.
+        if (!atLeast(sectionSelfLevel(currentUser, activeSocieta, sec), 'view') && firstViewableChild(currentUser, activeSocieta, sec)) {
+          return <div className="text-[13px] text-[#8a8a8a] p-8 text-center">Apro la sezione…</div>;
+        }
         // Il portale "Risorse Umane" di Strategico ha come dashboard l'agenda HR dedicata.
         if (activeSection === 'hr' && activeSocieta === 'strategico') {
           const hrMembers = Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }));

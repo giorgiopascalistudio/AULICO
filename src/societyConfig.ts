@@ -522,12 +522,43 @@ function sectionLevel(profile: Parameters<typeof canView>[0], s: Societa, sec: S
   return resolveSectionAccess(profile, s, sec.id, sec.module);
 }
 
+/**
+ * Livello PROPRIO di una sezione (override sezione → gruppo padre → modulo/default),
+ * SENZA considerare la visibilità dei figli. Serve a distinguere "vedo il gruppo di
+ * mio diritto" da "vedo il gruppo solo perché mi è stata concessa una sua voce".
+ */
+export function sectionSelfLevel(profile: Parameters<typeof canView>[0], s: Societa, sec: SectionConfig): AccessLevel {
+  return sectionLevel(profile, s, sec);
+}
+
+/** I figli (voci foglia) di un gruppo che l'utente può vedere, in ordine di registry. */
+export function viewableChildren(profile: Parameters<typeof canView>[0], s: Societa, group: SectionConfig): SectionConfig[] {
+  const soc = getSociety(s);
+  if (!soc) return [];
+  return soc.sections.filter((c) => c.parent === group.id && !c.personal && atLeast(sectionLevel(profile, s, c), 'view'));
+}
+
+/** La prima voce del gruppo che l'utente può vedere (per il landing del portale d'area). */
+export function firstViewableChild(profile: Parameters<typeof canView>[0], s: Societa, group: SectionConfig): SectionConfig | undefined {
+  return viewableChildren(profile, s, group)[0];
+}
+
 /** Vero se l'utente può vedere la sezione (RBAC). */
 export function canViewSection(profile: Parameters<typeof canView>[0], s: Societa, sec: SectionConfig): boolean {
   // Dashboard/Agenda personali: sempre accessibili, MAI gated dai permessi.
   if (sec.personal) return true;
   // Override sezione → gruppo padre → modulo/default.
-  return atLeast(sectionLevel(profile, s, sec), 'view');
+  if (atLeast(sectionLevel(profile, s, sec), 'view')) return true;
+  // Un GRUPPO è accessibile anche se il suo livello proprio è < view ma l'utente può
+  // vedere ALMENO una sua voce: coerente con la sidebar (che mostra il gruppo quando ha
+  // un figlio visibile), così concedere una sola sotto-sezione ne rende raggiungibile il
+  // portale invece di bloccarlo con "non hai accesso". (Le voci non sono mai gruppi →
+  // niente ricorsione.)
+  if (sec.kind === 'group') {
+    const soc = getSociety(s);
+    return !!soc?.sections.some((c) => c.parent === sec.id && !c.personal && atLeast(sectionLevel(profile, s, c), 'view'));
+  }
+  return false;
 }
 
 /** Vero se l'utente può OPERARE sulla sezione (override sezione → gruppo → modulo). */
