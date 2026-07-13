@@ -162,7 +162,19 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
   // Al PRIMO override la mappa esplicita sostituisce in blocco il fallback dal ruolo:
   // parti dai livelli del ruolo, così le altre società non diventano 'none' a sorpresa.
   const baseMap = (prev: AccessMap): AccessMap => (Object.keys(prev).length > 0 ? { ...prev } : { ...legacyAccess(sel.role) });
-  const setLevel = (s: Societa, val: AccessLevel | '') => { setAccess((prev) => { const n = baseMap(prev); if (!val) delete n[s]; else n[s] = { ...(n[s] || { default: 'none' as AccessLevel }), default: val }; return n; }); setDirty(true); };
+  const setLevel = (s: Societa, val: AccessLevel | '') => { setAccess((prev) => {
+    const n = baseMap(prev);
+    if (!val) { delete n[s]; return n; }
+    // Il livello società ESPLICITO governa TUTTE le sue sezioni, Contabilità inclusa:
+    // togliamo l'override di modulo ereditato dal ruolo (il seed `finance:'none'`
+    // altrimenti terrebbe nascosta l'Amministrazione anche quando la società è concessa —
+    // si vedeva solo la Governance/dashboard dell'area). I permessi per-sezione restano.
+    const sa = { ...(n[s] || { default: 'none' as AccessLevel }) };
+    sa.default = val;
+    delete (sa as any).modules;
+    n[s] = sa;
+    return n;
+  }); setDirty(true); };
   // Override per-SEZIONE (3 livelli: Nascosta/Visualizza/Opera; '' = eredita dal modulo).
   const setSectionLevel = (s: Societa, secId: string, val: AccessLevel | '') => {
     setAccess((prev) => {
