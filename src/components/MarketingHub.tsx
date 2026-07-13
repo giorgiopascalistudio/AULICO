@@ -100,6 +100,8 @@ const KPI_PLATFORMS: { id: MktKpiPlatform; label: string }[] = [
   { id: 'instagram', label: 'Instagram' }, { id: 'facebook', label: 'Facebook' },
   { id: 'google', label: 'Google' }, { id: 'sito', label: 'Sito web' },
 ];
+/** Palette per il grafico multi-metrica (una serie per metrica in un unico grafico — eccezione §10: grafici). */
+const KPI_COLORS = ['#161616', '#4338ca', '#059669', '#b45309', '#e11d48', '#0891b2', '#7c3aed', '#c2410c'];
 const EXP_CATEGORIES: { id: MktExpense['category']; label: string }[] = [
   { id: 'sponsorizzata', label: 'Sponsorizzata' }, { id: 'gadget', label: 'Gadget' },
   { id: 'evento', label: 'Evento' }, { id: 'stampa', label: 'Stampa' },
@@ -704,6 +706,12 @@ const KpiGrid: React.FC<{
     return d;
   });
   const [chartMetric, setChartMetric] = React.useState(metrics[0].key);
+  const [chartMode, setChartMode] = React.useState<'tutte' | 'singola'>('tutte');
+  const [hoverIdx, setHoverIdx] = React.useState<number | null>(null);
+  const chartRef = React.useRef<HTMLDivElement>(null);
+  const [saveState, setSaveState] = React.useState<'idle' | 'saving' | 'saved'>('idle');
+  const saveTimer = React.useRef<number | undefined>(undefined);
+  const flushRef = React.useRef<() => void>(() => {});
   const dirty = months.some((ym) => metrics.some((mt) => {
     const v = saved[ym]?.metrics?.[mt.key];
     return (draft[ym]?.[mt.key] ?? '') !== (v == null ? '' : String(v));
@@ -722,6 +730,18 @@ const KpiGrid: React.FC<{
     });
   };
 
+  // Salvataggio automatico "mentre digiti" (debounce) + flush allo smontaggio (cambio piattaforma/anno).
+  React.useEffect(() => {
+    if (!canEdit || !onSave || !dirty) return;
+    setSaveState('saving');
+    window.clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(() => { save(); setSaveState('saved'); }, 700);
+    return () => window.clearTimeout(saveTimer.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft]);
+  flushRef.current = () => { if (canEdit && onSave && dirty) save(); };
+  React.useEffect(() => () => flushRef.current(), []);
+
   const valOf = (ym: string, key: string): number | null => {
     const s = (draft[ym]?.[key] ?? '').trim();
     return s === '' ? null : Number(s);
@@ -729,6 +749,33 @@ const KpiGrid: React.FC<{
   const chartVals = months.map((ym) => valOf(ym, chartMetric));
   const maxV = Math.max(1, ...chartVals.map((v) => v || 0));
   const monthShort = (ym: string) => new Date(Number(ym.slice(0, 4)), Number(ym.slice(5)) - 1, 1).toLocaleDateString('it-IT', { month: 'short' });
+
+  // Serie per il grafico "Tutte le metriche": ogni metrica indicizzata al proprio massimo dell'anno.
+  const kfmt = (v: number) => (Number.isInteger(v) ? v.toLocaleString('it-IT') : v.toLocaleString('it-IT', { maximumFractionDigits: 2 }));
+  const seriesData = metrics.map((mt, i) => {
+    const vals = months.map((ym) => valOf(ym, mt.key));
+    const mx = Math.max(0, ...vals.map((v) => v ?? 0));
+    const last = [...vals].reverse().find((v) => v != null) ?? null;
+    return { key: mt.key, label: mt.label, color: KPI_COLORS[i % KPI_COLORS.length], vals, max: mx, last };
+  });
+  const pathOf = (vals: (number | null)[], mx: number) => {
+    if (mx <= 0) return '';
+    let d = ''; let pen = false;
+    vals.forEach((v, i) => {
+      if (v == null) { pen = false; return; }
+      const x = (i / (vals.length - 1)) * 1000;
+      const y = (1 - v / mx) * 1000;
+      d += `${pen ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)} `;
+      pen = true;
+    });
+    return d.trim();
+  };
+  const onChartMove = (e: React.MouseEvent) => {
+    const el = chartRef.current; if (!el) return;
+    const r = el.getBoundingClientRect();
+    const idx = Math.round(((e.clientX - r.left) / r.width) * (months.length - 1));
+    setHoverIdx(Math.max(0, Math.min(months.length - 1, idx)));
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -742,27 +789,93 @@ const KpiGrid: React.FC<{
           <select value={year} onChange={(e) => onYear(Number(e.target.value))} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white cursor-pointer">
             {[year - 2, year - 1, year, year + 1].filter((y, i, a) => a.indexOf(y) === i).map((y) => <option key={y} value={y}>{y}</option>)}
           </select>
-          {canEdit && <button onClick={save} disabled={!dirty} className="px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none disabled:opacity-40">Salva</button>}
+          {canEdit && (
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold min-w-[92px] justify-end" title="I KPI si salvano da soli mentre digiti">
+              {saveState === 'saving' ? (
+                <><Loader2 className="w-3.5 h-3.5 animate-spin text-[#8a8a8a]" /><span className="text-[#8a8a8a]">Salvataggio…</span></>
+              ) : saveState === 'saved' ? (
+                <><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /><span className="text-emerald-600">Salvato</span></>
+              ) : (
+                <span className="text-[#b0b0b0]">Salvataggio automatico</span>
+              )}
+            </span>
+          )}
         </div>
       </div>
-      <p className="text-[11.5px] text-[#9a9a9a] font-semibold">Dati mensili inseriti a mano (come nel modello Excel) — predisposti per l'aggiornamento automatico via API in una fase futura. Il delta è rispetto al mese precedente.</p>
+      <p className="text-[11.5px] text-[#9a9a9a] font-semibold">Dati mensili inseriti a mano (come nel modello Excel) — predisposti per l'aggiornamento automatico via API in una fase futura. Si salvano da soli mentre digiti; il delta è rispetto al mese precedente.</p>
 
-      {/* Grafico semplice della metrica scelta */}
+      {/* Grafico andamento: "Tutte" (una linea per metrica, indicizzate) o "Singola" (una metrica). */}
       <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-        <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
           <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Andamento {year}</p>
-          <select value={chartMetric} onChange={(e) => setChartMetric(e.target.value)} className="px-2.5 py-1.5 rounded-lg border border-[#e2e2e2] text-[11.5px] font-bold outline-none bg-white cursor-pointer">
-            {metrics.map((mt) => <option key={mt.key} value={mt.key}>{mt.label}</option>)}
-          </select>
-        </div>
-        <div className="flex items-end gap-1.5 h-[110px]">
-          {chartVals.map((v, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0">
-              <div className="w-full rounded-t-md transition-all" style={{ height: `${v == null ? 0 : Math.max(3, (v / maxV) * 90)}px`, background: v == null ? '#f0f0f0' : '#161616', opacity: v == null ? 1 : 0.85 }} title={v == null ? '—' : String(v)} />
-              <span className="text-[9px] font-bold text-[#b0b0b0]">{monthShort(months[i])}</span>
+          <div className="flex items-center gap-2">
+            {chartMode === 'singola' && (
+              <select value={chartMetric} onChange={(e) => setChartMetric(e.target.value)} className="px-2.5 py-1.5 rounded-lg border border-[#e2e2e2] text-[11.5px] font-bold outline-none bg-white cursor-pointer">
+                {metrics.map((mt) => <option key={mt.key} value={mt.key}>{mt.label}</option>)}
+              </select>
+            )}
+            <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
+              {([['tutte', 'Tutte'], ['singola', 'Singola']] as const).map(([m, l]) => (
+                <button key={m} onClick={() => setChartMode(m)} className={`text-[11px] font-bold px-3 py-1 rounded-full cursor-pointer border-none ${chartMode === m ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{l}</button>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
+
+        {chartMode === 'singola' ? (
+          <div className="flex items-end gap-1.5 h-[110px]">
+            {chartVals.map((v, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0">
+                <div className="w-full rounded-t-md transition-all" style={{ height: `${v == null ? 0 : Math.max(3, (v / maxV) * 90)}px`, background: v == null ? '#f0f0f0' : '#161616', opacity: v == null ? 1 : 0.85 }} title={v == null ? '—' : String(v)} />
+                <span className="text-[9px] font-bold text-[#b0b0b0]">{monthShort(months[i])}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <>
+            <div ref={chartRef} onMouseMove={onChartMove} onMouseLeave={() => setHoverIdx(null)} className="relative w-full h-[180px]">
+              <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible">
+                {seriesData.map((s) => s.max > 0 && (
+                  <path key={s.key} d={pathOf(s.vals, s.max)} fill="none" stroke={s.color} strokeWidth={2} vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
+                ))}
+              </svg>
+              {hoverIdx != null && (
+                <div className="absolute top-0 bottom-0 w-px bg-[#d0d0d0] pointer-events-none" style={{ left: `${(hoverIdx / (months.length - 1)) * 100}%` }} />
+              )}
+              {hoverIdx != null && seriesData.map((s) => {
+                const v = s.vals[hoverIdx];
+                if (v == null || s.max <= 0) return null;
+                return (
+                  <div
+                    key={s.key}
+                    className="absolute w-2.5 h-2.5 rounded-full -translate-x-1/2 -translate-y-1/2 ring-2 ring-white pointer-events-none"
+                    style={{ left: `${(hoverIdx / (months.length - 1)) * 100}%`, top: `${(1 - v / s.max) * 100}%`, background: s.color }}
+                  />
+                );
+              })}
+            </div>
+            <div className="flex justify-between mt-1">
+              {months.map((ym, i) => (
+                <span key={ym} className={`text-[9px] font-bold ${hoverIdx === i ? 'text-[#161616]' : 'text-[#b0b0b0]'}`}>{monthShort(ym)}</span>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3">
+              {seriesData.map((s) => {
+                const v = hoverIdx != null ? s.vals[hoverIdx] : s.last;
+                return (
+                  <span key={s.key} className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#666]">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: s.color }} />
+                    {s.label}: <b className="text-[#161616]">{v == null ? '—' : kfmt(v)}</b>
+                  </span>
+                );
+              })}
+            </div>
+            <p className="text-[10.5px] text-[#9a9a9a] mt-2">
+              Ogni metrica è rapportata al proprio massimo dell'anno, così le tendenze sono confrontabili.{' '}
+              {hoverIdx != null ? `Valori di ${ymLabel(months[hoverIdx])}.` : 'Passa col mouse per i valori mese per mese.'}
+            </p>
+          </>
+        )}
       </div>
 
       {/* Tabella mensile editabile con delta */}

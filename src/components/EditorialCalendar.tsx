@@ -288,16 +288,15 @@ export const EditorialCalendar: React.FC<Props> = ({
                 const st = statusOf(p.status);
                 const ch = channelOf(p);
                 const cover = (p.media || []).find((m) => m.type === 'image');
+                const hasVid = (p.media || []).some((m) => m.type === 'video');
                 return (
                   <button key={p.id} onClick={() => setEditing(p)} className="text-left flex items-stretch gap-0 rounded-xl overflow-hidden border border-[#e6e6e6] bg-white hover:border-[#c0c0c0] cursor-pointer p-0">
                     <span className="w-1.5 shrink-0" style={{ background: st.color }} />
                     {cover ? (
                       <img src={imgSrc(cover.url)} alt="" className="w-14 h-14 object-cover shrink-0 bg-[#f0f0f0]" />
-                    ) : (
-                      <span className="w-14 h-14 shrink-0 bg-[#f5f5f3] flex items-center justify-center text-[#c0c0c0]">
-                        {(p.media || []).some((m) => m.type === 'video') ? <Video className="w-5 h-5" /> : <ImageIcon className="w-5 h-5" />}
-                      </span>
-                    )}
+                    ) : hasVid ? (
+                      <span className="w-14 h-14 shrink-0 bg-[#f5f5f3] flex items-center justify-center text-[#c0c0c0]"><Video className="w-5 h-5" /></span>
+                    ) : null}
                     <span className="min-w-0 flex-1 px-2.5 py-1.5 flex flex-col justify-center">
                       <b className="text-[12.5px] text-[#161616] truncate">{p.topic || p.caption || 'Senza titolo'}</b>
                       <span className="text-[10.5px] text-[#9a9a9a] truncate">{[p.time, p.platform, st.label].filter(Boolean).join(' · ')}</span>
@@ -361,11 +360,9 @@ const PostChip: React.FC<{ post: EditorialPost; canEdit: boolean; channel?: Edit
             <img src={imgSrc(cover.url)} alt="" className="w-full h-full object-cover" />
             {media.length > 1 && <span className="absolute top-0.5 right-0.5 bg-black/70 text-white text-[8px] font-bold px-1 rounded inline-flex items-center gap-0.5"><Layers className="w-2 h-2" />{media.length}</span>}
           </div>
-        ) : (
-          <div className="w-9 h-9 shrink-0 bg-[#f5f5f3] flex items-center justify-center text-[#c0c0c0]">
-            {hasVideo ? <Video className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}
-          </div>
-        )}
+        ) : hasVideo ? (
+          <div className="w-9 h-9 shrink-0 bg-[#f5f5f3] flex items-center justify-center text-[#c0c0c0]"><Video className="w-4 h-4" /></div>
+        ) : null}
         <div className="min-w-0 flex-1 px-1.5 py-1">
           <b className="block text-[10.5px] leading-tight text-[#161616] truncate">{post.topic || post.caption || 'Senza titolo'}</b>
           <span className="block text-[9px] text-[#9a9a9a] truncate">
@@ -475,7 +472,7 @@ const PostEditor: React.FC<{
               ))}
             </div>
           ) : (
-            <div className="text-center py-3 text-[#9a9a9a]"><UploadCloud className="w-7 h-7 mx-auto mb-1 opacity-50" /><p className="text-[12px] font-semibold">Trascina qui immagini o usa i pulsanti sotto</p><p className="text-[10.5px]">Più immagini = carosello · i video vanno aggiunti via link</p></div>
+            <div className="text-center py-3 text-[#9a9a9a]"><UploadCloud className="w-7 h-7 mx-auto mb-1 opacity-50" /><p className="text-[12px] font-semibold text-[#8a8a8a]">Contenuto visivo <span className="text-[#b0b0b0]">(facoltativo)</span></p><p className="text-[10.5px]">Trascina immagini o usa i pulsanti — oppure salva solo testo (idea/bozza). Più immagini = carosello · video via link.</p></div>
           )}
           {canEdit && (
             <div className="flex items-center gap-2 flex-wrap mt-1">
