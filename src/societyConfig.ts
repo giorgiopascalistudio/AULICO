@@ -29,7 +29,7 @@ import {
   Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles, Bug, ClipboardCheck,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
-import { SOCIETA_LABEL, canView, resolveSectionAccess, atLeast, sectionOverride } from './access';
+import { SOCIETA_LABEL, canView, resolveSectionAccess, resolveAccess, rankOf, atLeast, sectionOverride } from './access';
 
 /** Divisioni "operative" (società con progetti/finanza già esistenti). */
 export type Division = 'studio' | 'strategico' | 'materico' | 'unico';
@@ -541,6 +541,36 @@ export function viewableChildren(profile: Parameters<typeof canView>[0], s: Soci
 /** La prima voce del gruppo che l'utente può vedere (per il landing del portale d'area). */
 export function firstViewableChild(profile: Parameters<typeof canView>[0], s: Societa, group: SectionConfig): SectionConfig | undefined {
   return viewableChildren(profile, s, group)[0];
+}
+
+/**
+ * Capacità dell'utente su un MODULO (es. 'finance', 'commerciale') vista "in grande":
+ * il livello più alto che ha su una qualunque sezione di quel modulo, in una qualunque
+ * società (cascata override sezione → gruppo → modulo/default). Serve a derivare una
+ * capability GLOBALE per i nodi condivisi: la contabilità (e il commerciale) sono
+ * gestiti centralmente da Strategico per TUTTE le società, quindi chi ha il permesso
+ * su "Amministrazione & Contabilità" li vede per tutte (§permessi per-sezione).
+ */
+export function moduleCapability(profile: Parameters<typeof canView>[0], moduleName: string): AccessLevel {
+  let best: AccessLevel = 'none';
+  for (const soc of SOCIETY_REGISTRY) {
+    for (const sec of soc.sections) {
+      if (sec.module !== moduleName) continue;
+      const lvl = sectionLevel(profile, soc.id, sec);
+      if (rankOf(lvl) > rankOf(best)) best = lvl;
+    }
+    // Difesa: anche un override di modulo/società senza sezioni esplicite.
+    const m = resolveAccess(profile, soc.id, moduleName);
+    if (rankOf(m) > rankOf(best)) best = m;
+  }
+  return best;
+}
+
+/** Traduce un livello RBAC nella capability salvata sul profilo per le regole DB. */
+export function capString(level: AccessLevel): 'read' | 'write' | null {
+  if (atLeast(level, 'operate')) return 'write';
+  if (atLeast(level, 'view')) return 'read';
+  return null;
 }
 
 /** Vero se l'utente può vedere la sezione (RBAC). */

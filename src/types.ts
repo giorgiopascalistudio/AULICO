@@ -39,6 +39,10 @@ export interface UserProfile {
   active?: boolean;
   /** RBAC granulare per-società/modulo. Se assente, si usa il fallback dal `role`. */
   access?: AccessMap;
+  /** Capability DB derivate dai permessi (scritte da admin/manager, lette dalle regole
+   *  Firebase): aprono i nodi condivisi finanza/commerciale ai collaboratori a cui è
+   *  concessa l'area (le regole non sanno leggere l'RBAC per-sezione). Vedi `capsFor`. */
+  caps?: { fin?: 'read' | 'write'; comm?: 'read' | 'write' } | null;
   createdAt: number;
   projectIds?: Record<string, boolean>;
   telefono?: string;

@@ -18,6 +18,9 @@
         },
         "access": {
           ".validate": "root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || auth.token.email == 'giorgio.pascali990@gmail.com' || newData.val() == data.val()"
+        },
+        "caps": {
+          ".validate": "root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || auth.token.email == 'giorgio.pascali990@gmail.com' || newData.val() == data.val()"
         }
       }
     },
@@ -45,32 +48,32 @@
       ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente'"
     },
     "studioFinance": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "finComputi": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "legalDocs": {
       ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
       ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
     },
     "finInvoicesActive": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "finInvoicesPassive": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "finScadenze": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "finBank": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "crmLeads": {
       ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
@@ -82,7 +85,7 @@
     },
     "priceList": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('comm').val() == 'write' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))"
     },
     "auditLog": {
       ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
@@ -413,7 +416,7 @@
     },
     "clients": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('comm').val() == 'write'))"
     },
     "notifications": {
       "$uid": {
@@ -435,8 +438,8 @@
       }
     },
     "quotes": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('comm').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('comm').val() == 'write' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('comm').val() == 'write' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))"
     },
     "governanceOrg": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
@@ -467,28 +470,28 @@
       ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
     },
     "finTargets": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "finLiquidity": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "finCostPlan": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "finBudget": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "finCicli": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "finReports": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('caps').child('fin').val() == 'read' || root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write')))",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "battlePlan": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
@@ -514,7 +517,7 @@
     },
     "compliance": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager' || (root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('caps').child('fin').val() == 'write'))"
     },
     "societyChat": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",

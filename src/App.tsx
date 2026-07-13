@@ -229,6 +229,7 @@ const CredenzialiView = React.lazy(() => import('./components/CredenzialiView').
 import {
   SOCIETY_REGISTRY, getSociety, findSection, slugToSocieta, societaSlug,
   firstAuthorizedHash, canViewSection, canOperateSection, sectionSelfLevel, firstViewableChild,
+  moduleCapability, capString,
   DEFAULT_DASHBOARD, SOCIETY_COLOR, type SectionConfig, type DashboardCtx,
 } from './societyConfig';
 import { atLeast } from './access';
@@ -1736,9 +1737,12 @@ export default function App() {
     if (!currentUser) return;
     const role = currentUser.role;
     const studio = isStudioRole(role);
-    // RBAC: finanza = almeno "view" sul modulo finance di una società.
-    // Per gli utenti legacy (senza `access`) equivale ad admin|manager.
-    const canFinance = canAnywhere(currentUser, 'view', 'finance');
+    // RBAC: finanza/commerciale = almeno "view" sul relativo modulo, considerando
+    // anche i permessi per-GRUPPO/SEZIONE (non solo il modulo/default della società):
+    // così concedere a un collaboratore l'area "Amministrazione & Contabilità" (o
+    // "Commerciale") ne carica i dati. Per gli utenti legacy equivale ad admin|manager.
+    const canFinance = atLeast(moduleCapability(currentUser, 'finance'), 'view');
+    const canCommerce = atLeast(moduleCapability(currentUser, 'commerciale'), 'view');
     const subs: Array<() => void> = [];
     const add = (path: string, fn: (v: any) => void) =>
       subs.push(watchNode(path, (v) => fn(v || {}), () => {}));
@@ -1790,6 +1794,17 @@ export default function App() {
         subs.push(watchNode('finInvoicesActive', (v) => setFinInvoicesActive(toArr(v)), () => {}));
         subs.push(watchNode('finInvoicesPassive', (v) => setFinInvoicesPassive(toArr(v)), () => {}));
         subs.push(watchNode('finScadenze', (v) => setFinScadenze(toArr(v)), () => {}));
+        // Centro Direzione (Strategico → Amministrazione & Contabilità)
+        add('finTargets', setFinTargets);
+        add('finLiquidity', setFinLiquidity);
+        add('finCostPlan', setFinCostPlan);
+        add('finBudget', setFinBudget);
+        add('finCicli', setFinCicli);
+        add('finReports', setFinReports);
+      }
+      // Preventivi/parcelle: servono sia alla contabilità (tab Preventivi di FinanzeView)
+      // sia al Commerciale → li carichiamo per chi ha l'una O l'altra capability.
+      if (canFinance || canCommerce) {
         add('quotes', setQuotes);
         // Risposte del preventivo interattivo (portale): clientQuotes/<uid>/<qid>/choice
         subs.push(watchNode('clientQuotes', (v) => {
@@ -1801,13 +1816,6 @@ export default function App() {
           });
           setQuoteChoices(flat);
         }, () => {}));
-        // Centro Direzione (Strategico → Amministrazione & Contabilità)
-        add('finTargets', setFinTargets);
-        add('finLiquidity', setFinLiquidity);
-        add('finCostPlan', setFinCostPlan);
-        add('finBudget', setFinBudget);
-        add('finCicli', setFinCicli);
-        add('finReports', setFinReports);
       }
       subs.push(watchNode('crmLeads', (v) => setCrmLeads(toArr(v)), () => {}));
       subs.push(watchNode('crmSuppliers', (v) => setCrmSuppliers(toArr(v)), () => {}));
@@ -5241,7 +5249,7 @@ export default function App() {
       onRejectAccount={handleRejectAccount}
       onChangeRole={(uid, role) => handleChangeAccountRole(uid, role)}
       onToggleActive={(uid, active) => updateAccount(uid, { active }).catch(() => showToast('Errore di scrittura.', 'err'))}
-      onSaveAccess={(uid, access) => updateAccount(uid, { access: access && Object.keys(access).length ? access : null }).then(() => showToast('Permessi aggiornati.')).catch(() => showToast('Errore: controlla le regole.', 'err'))}
+      onSaveAccess={(uid, access) => updateAccount(uid, { access: access && Object.keys(access).length ? access : null, caps: capsFor(access || {}, users[uid]?.role) }).then(() => showToast('Permessi aggiornati.')).catch(() => showToast('Errore: controlla le regole.', 'err'))}
     />
   );
 
@@ -5251,6 +5259,33 @@ export default function App() {
   // Usato da renderView E dai bottoni "Nuovo progetto" di topbar/navbar.
   const activeSecCfg = getSociety(activeSocieta)?.sections.find((s) => s.id === activeSection);
   const activeSecOp = activeSecCfg ? canOperateSection(currentUser, activeSocieta, activeSecCfg) : true;
+
+  // Capability GLOBALE su contabilità/commerciale (Strategico le gestisce per tutte le
+  // società): guida i selettori società e i gate di modifica anche per i collaboratori
+  // a cui è concessa l'area, non solo admin/manager. Vedi §permessi per-sezione.
+  const finLevel = moduleCapability(currentUser, 'finance');
+  const commLevel = moduleCapability(currentUser, 'commerciale');
+  const canViewFinance = atLeast(finLevel, 'view');
+  const canEditFinance = atLeast(finLevel, 'operate');
+  const canViewCommerce = atLeast(commLevel, 'view');
+  const canEditCommerce = atLeast(commLevel, 'operate');
+  // FinanzeView ospita anche l'editor preventivi (Commerciale): il selettore società
+  // dev'essere popolato per chi ha finanza O commerciale.
+  const canViewFinanzeView = canViewFinance || canViewCommerce;
+
+  // Deriva le capability DB (caps.fin/caps.comm) dalla mappa dei permessi + ruolo:
+  // sono la chiave che apre i nodi finanza/commerciale nelle regole Firebase ai
+  // collaboratori a cui l'admin concede l'area (le regole non sanno leggere l'RBAC
+  // per-sezione, quindi la sintetizziamo qui). null = nessuna capability.
+  function capsFor(access: any, role: any): { fin?: 'read' | 'write'; comm?: 'read' | 'write' } | null {
+    const prof = { access, role } as any;
+    const caps: { fin?: 'read' | 'write'; comm?: 'read' | 'write' } = {};
+    const fin = capString(moduleCapability(prof, 'finance'));
+    const comm = capString(moduleCapability(prof, 'commerciale'));
+    if (fin) caps.fin = fin;
+    if (comm) caps.comm = comm;
+    return Object.keys(caps).length ? caps : null;
+  }
 
   const renderView = () => {
     switch (route) {
@@ -5619,12 +5654,12 @@ export default function App() {
             onSetQuoteStatus={handleSetQuoteStatus}
             onEmitMilestone={handleEmitMilestone}
             priceList={priceList}
-            onSavePriceList={canAnywhere(currentUser, 'operate', 'finance') ? savePriceList : undefined}
+            onSavePriceList={(canEditFinance || canEditCommerce) ? savePriceList : undefined}
             initialTab={finStartTab}
             askDelete={askDelete}
             tasks={Object.values(tasks)}
             members={Object.values(users).filter((u) => u && u.active && u.role !== 'cliente' && u.role !== 'partner')}
-            financeSectors={finLock && canView(currentUser, finLock, 'finance') ? [finLock] : (['studio', 'strategico', 'materico', 'unico'] as const).filter((s) => canView(currentUser, s, 'finance'))}
+            financeSectors={finLock && canViewFinanzeView ? [finLock] : (canViewFinanzeView ? (['studio', 'strategico', 'materico', 'unico'] as const).slice() : [])}
           />
         );
 
@@ -5901,7 +5936,9 @@ export default function App() {
             );
           }
           case 'direzione-hub': {
-            const isBoss = currentUser.role === 'admin' || currentUser.role === 'manager';
+            // Modifica consentita ad admin/manager E ai collaboratori con capability
+            // finanza in "operate" (permesso su Amministrazione & Contabilità).
+            const isBoss = currentUser.role === 'admin' || currentUser.role === 'manager' || canEditFinance;
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
                 <DirezioneHub
@@ -6086,7 +6123,7 @@ export default function App() {
                   socLabel={society.label}
                   color={society.color}
                   record={compliance[activeSocieta as string]}
-                  canEdit={(currentUser.role === 'admin' || currentUser.role === 'manager') && secOp}
+                  canEdit={(currentUser.role === 'admin' || currentUser.role === 'manager' || canEditFinance) && secOp}
                   onSave={handleSaveCompliance}
                 />
               </React.Suspense>
@@ -6328,7 +6365,7 @@ export default function App() {
                   onDeleteMatContract={handleDeleteMatericoContract}
                   onSaveMatListino={handleSaveMatericoListino}
                   onDeleteMatListino={handleDeleteMatericoListino}
-                  onSavePriceList={canAnywhere(currentUser, 'operate', 'finance') ? savePriceList : undefined}
+                  onSavePriceList={(canEditFinance || canEditCommerce) ? savePriceList : undefined}
                   stime={Object.values(stimePreliminari)}
                   onSaveStima={handleSaveStima}
                   onDeleteStima={handleDeleteStima}
@@ -8382,7 +8419,7 @@ export default function App() {
         projects={Object.values(projects)}
         clients={Object.values(clients || {})}
         financeContext={
-          canAnywhere(currentUser, 'view', 'finance')
+          canViewFinance
             ? `fatture attive ${finInvoicesActive.length}, passive ${finInvoicesPassive.length}, scadenze aperte ${finScadenze.filter((s) => s.status !== 'pagato').length}, preventivi ${Object.keys(quotes || {}).length}`
             : undefined
         }
