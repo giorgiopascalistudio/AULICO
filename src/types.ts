@@ -216,6 +216,28 @@ export interface TimeEntry {
   updatedAt?: number;
 }
 
+/**
+ * Report di profilo (nodo `profileReports/<uid>/<periodo>`) — "cosa ha fatto questa
+ * persona nella settimana/nel mese". Modello: il report settimanale di Rosa
+ * (sezioni numerate con le attività svolte + conclusione discorsiva).
+ * Lo scrive il diretto interessato (o admin/manager), lo legge lo studio.
+ */
+export interface ProfileReportSection {
+  id: string;
+  title: string;              // es. 'GESTIONE SOCIAL' (template modificabile)
+  body: string;               // una riga = una voce; riga indentata = sotto-voce
+}
+export interface ProfileReport {
+  id: string;                 // = period (unico per persona+periodo)
+  uid: string;                // persona a cui si riferisce
+  name?: string | null;       // nome alla stesura (intestazione del documento)
+  period: string;             // 'yyyy-mm' (mensile) oppure 'yyyy-Www' (settimanale) → src/period.ts
+  sections: ProfileReportSection[];
+  conclusion?: string | null;
+  updatedAt: number;
+  by?: string | null;         // chi ha scritto/aggiornato
+}
+
 /** Notifica persistente (nodo notifications/<uid>/<id>); scritta da app o Cloud Functions. */
 export interface Notification {
   id: string;

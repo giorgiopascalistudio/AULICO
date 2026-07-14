@@ -180,6 +180,12 @@
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
       ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
     },
+    "profileReports": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
+      "$uid": {
+        ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')"
+      }
+    },
     "mktAssets": {
       ".read": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'",
       ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"

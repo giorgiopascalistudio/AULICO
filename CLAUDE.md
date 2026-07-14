@@ -560,8 +560,9 @@ reporting/redditività, integrazioni esterne
   spese/report falliscono con write silenziosa. Tipi `MktAccount`/`MktKpiEntry`/`MktExpense`/
   `MktMonthlyReport` in types.ts; Cestino sezioni `mkt-account`/`mkt-spesa`.
   **Report settimanale/mensile**: sia il "Report riunione" del Centro sia il tab Report dell'account
-  hanno il selettore **Settimana | Mese** (`PeriodSelect`/`Period` in MarketingHub, settimana ISO
-  Lun–Dom). Le conclusioni sono per-periodo: `MktMonthlyReport.ym` = `yyyy-mm` **oppure** `yyyy-Www`
+  hanno il selettore **Settimana | Mese** (componente **`PeriodSelect`** + modello **`src/period.ts`**:
+  `Period`, `monthPeriod`/`weekPeriod`/`periodTitle`… — condivisi col Report di profilo; settimana ISO
+  Lun–Dom, frecce e non `input[type=week]` che su Safari/Firefox non esiste). Le conclusioni sono per-periodo: `MktMonthlyReport.ym` = `yyyy-mm` **oppure** `yyyy-Www`
   (id `<accountId>__<periodo>`, `__global__<periodo>` per la riunione). **I KPI restano MENSILI**
   (GA4 sincronizza per mese e IG/FB/Google si compilano per mese): anche nel settimanale la sezione
   performance mostra il **mese di riferimento** (`Period.ym`, regola ISO del giovedì), come le spese;
@@ -864,7 +865,19 @@ reporting/redditività, integrazioni esterne
   3) **Report & Tempi + Liste attività collaboratori** (`TimeReportView`, sezione **`hr-report`** in
   Strategico→HR, view `time-report`): report AUTOMATICI (tempo medio per tipo, distribuzione ore per
   collaboratore, storico) + liste attività per collaboratore (accordion, base delle riunioni) + Stampa.
-  Nessun nodo nuovo.
+  Nessun nodo nuovo. **2ª scheda: "Report di profilo"** (`ProfileReport`, nodo **`profileReports/<uid>/
+  <periodo>`**, tipo `ProfileReport`/`ProfileReportSection`) — "cosa ha fatto questa persona nella
+  settimana/nel mese", sul modello del PDF `28. Report_Rosa Custodero`: intestazione persona +
+  settimana/mese, **sezioni numerate** con le attività svolte (template `ARCHIVIO MARKETING ·
+  AGGIORNAMENTO SITO · GESTIONE SOCIAL · PIANIFICAZIONE`, rinominabile/riordinabile) e **CONCLUSIONE**
+  discorsiva (bottone "Scrivila con l'AI" via `callAi`). Voci = testo libero (una riga = una voce, riga
+  indentata = sotto-voce "o"), con **"Precompila dai dati"** che scrive da solo quello che l'app sa del
+  periodo: contenuti pubblicati (`editorialPosts.createdBy`, per account+piattaforma), articoli/eventi
+  (`socMkt.by`), riunioni (`appointments.participants`), attività completate (`tasks`); le ore dai
+  cronometri finiscono in fondo al documento. Editor + **Anteprima**; la stampa è un blocco
+  `hidden print:block .print-area` (pattern di `StimaPreliminareView`). Scrive **il diretto interessato**
+  (regola `auth.uid == $uid`) o admin/manager; legge lo studio. ⚠️ Nodo **`profileReports`** in
+  `firebase-rules.json`: **ripubblicare le regole**, altrimenti il salvataggio fallisce con toast di errore.
   4) **Questionario iniziale cliente** (`src/projectBrief.ts`, `ProjectBriefForm`, nodo **`projectBriefs/<pid>`**):
   `ProjectBrief.answers` (catalogo domande stile/materiali/esigenze/funzioni/budget/riferimenti) compilabile
   da studio (tab "Questionario" nel fascicolo Onirico/Unico) e dal CLIENTE (tab "Questionario" nel portale
@@ -875,8 +888,9 @@ reporting/redditività, integrazioni esterne
   (progetto + questionario + arredi), slide di analisi editabili, toggle inclusione; **anteprima 16:9 +
   Stampa/PDF interna + Export PowerPoint .pptx** (dep `pptxgenjs`, chunk lazy caricato solo all'export).
   Tab "Presentazione" nel fascicolo (Onirico/Unico). Regola: read studio, write studio non-cliente.
-  ⚠️ Nodi NUOVI **`timeEntries`**, **`projectBriefs`**, **`projectPresentations`** in `firebase-rules.json`:
-  **RIPUBBLICARE le regole**, altrimenti cronometro/questionario/presentazioni falliscono con write silenziosa.
+  ⚠️ Nodi NUOVI **`timeEntries`**, **`projectBriefs`**, **`projectPresentations`**, **`profileReports`**
+  (report di profilo) in `firebase-rules.json`: **RIPUBBLICARE le regole**, altrimenti cronometro/
+  questionario/presentazioni/report di profilo falliscono con write silenziosa.
   Dal metodo I-time il **Business Plan settimanale** resta il **Piano di Battaglia** esistente; la matrice
   di Covey a 2 assi e l'esercizio "cicli aperti" mentale NON sono stati costruiti (roadmap).
 - **Google Drive (upload file del Cantiere, opzionale)**: in Google Cloud Console del progetto

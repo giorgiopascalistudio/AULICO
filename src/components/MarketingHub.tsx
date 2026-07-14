@@ -18,7 +18,6 @@ import {
   BarChart3, Wallet, FileText, Gift, Newspaper, LayoutGrid, AlertTriangle,
   Printer, CheckCircle2, Ban, ExternalLink, UserPlus, Sparkles,
   Mail, MessageCircle, Star, Image as ImageIcon, Send, Copy, Loader2, Camera,
-  ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import type {
   MktAccount, MktKpiEntry, MktKpiPlatform, MktExpense, MktMonthlyReport,
@@ -26,100 +25,25 @@ import type {
   MktContact, MktCantierePhoto, MktOutreach, MktOutreachKind, MktOutreachRecipient,
 } from '../types';
 import HubCestino from './HubCestino';
+import { PeriodSelect } from './PeriodSelect';
 import { eur, safeUrl } from '../utils';
+import { monthPeriod, pad, periodTitle, prevYm, todayISO, ymLabel, ymNow, ymShort, type Period } from '../period';
 import { callAi } from '../firebase';
 import EditorialCalendar, { ED_PHASES, ED_STATUS, deriveStatus } from './EditorialCalendar';
 import type { EditorialImportProject } from './EditorialCalendar';
 
 // ---------------------------------------------------------------- helpers
-const pad = (n: number) => String(n).padStart(2, '0');
-const isoOf = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-const todayISO = () => isoOf(new Date());
-const ymNow = () => todayISO().slice(0, 7);
-const ymLabel = (ym: string) => {
-  const [y, m] = ym.split('-').map(Number);
-  return new Date(y, (m || 1) - 1, 1).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
-};
-const prevYm = (ym: string) => {
-  const [y, m] = ym.split('-').map(Number);
-  const d = new Date(y, (m || 1) - 2, 1);
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
-};
-const ymShort = (ym: string) => {
-  const [y, m] = ym.split('-').map(Number);
-  return new Date(y, (m || 1) - 1, 1).toLocaleDateString('it-IT', { month: 'short', year: 'numeric' });
-};
 const dISO = (s?: string | null) => (s ? new Date(s).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) : '—');
-const addDays = (d: Date, n: number) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
-/** Lunedì della settimana che contiene `d` (settimana Lun–Dom). */
-const mondayOf = (d: Date) => {
-  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  return addDays(x, -((x.getDay() + 6) % 7));
-};
-/** Numero di settimana ISO: il giovedì della settimana decide l'anno. */
-const isoWeek = (d: Date) => {
-  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
-  const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
-  return { year: t.getUTCFullYear(), week: Math.ceil(((+t - +y0) / 86400000 + 1) / 7) };
-};
-
-/**
- * Periodo di un report: mese ('yyyy-mm') o settimana ISO ('yyyy-Www', Lun–Dom).
- * `ym` è SEMPRE il mese di riferimento: i KPI restano mensili (GA4 sincronizza per
- * mese e IG/FB/Google si inseriscono per mese), quindi anche il report settimanale
- * li mostra sul mese in corso; a cambiare è il perimetro di contenuti e conclusioni.
- */
-interface Period { mode: 'mese' | 'settimana'; key: string; from: string; to: string; ym: string; label: string }
-const monthPeriod = (ym: string): Period => {
-  const [y, m] = ym.split('-').map(Number);
-  const last = new Date(y, m || 1, 0).getDate();
-  return { mode: 'mese', key: ym, from: `${ym}-01`, to: `${ym}-${pad(last)}`, ym, label: ymLabel(ym) };
-};
-const weekPeriod = (day: Date): Period => {
-  const mon = mondayOf(day);
-  const sun = addDays(mon, 6);
-  const { year, week } = isoWeek(mon);
-  const head = mon.getMonth() === sun.getMonth() ? String(mon.getDate()) : mon.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
-  return {
-    mode: 'settimana',
-    key: `${year}-W${pad(week)}`,
-    from: isoOf(mon),
-    to: isoOf(sun),
-    ym: isoOf(addDays(mon, 3)).slice(0, 7),   // regola ISO: il mese è quello del giovedì
-    label: `${head} – ${sun.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })}`,
-  };
-};
-/** Passando da mese a settimana: la settimana di oggi se il mese è quello corrente, altrimenti la prima del mese. */
-const weekIn = (ym: string) => (ym === ymNow() ? new Date() : new Date(`${ym}-01T12:00:00`));
-const periodTitle = (p: Period) => (p.mode === 'settimana' ? `settimana ${p.label}` : p.label);
-
-/** Selettore Settimana | Mese condiviso dai report (riunione + account). */
-const PeriodSelect: React.FC<{ value: Period; onChange: (p: Period) => void }> = ({ value, onChange }) => (
-  <div className="flex items-center gap-2">
-    <div className="inline-flex bg-[#f1f1f1] rounded-xl p-0.5">
-      {(['settimana', 'mese'] as const).map((m) => (
-        <button
-          key={m}
-          onClick={() => onChange(m === 'mese' ? monthPeriod(value.ym) : weekPeriod(weekIn(value.ym)))}
-          className={`px-3 py-1.5 rounded-[10px] text-[11.5px] font-bold capitalize cursor-pointer border-none ${value.mode === m ? 'bg-white text-[#161616] shadow-sm' : 'bg-transparent text-[#8a8a8a]'}`}
-        >{m}</button>
-      ))}
-    </div>
-    {value.mode === 'mese' ? (
-      <input type="month" value={value.key} onChange={(e) => onChange(monthPeriod(e.target.value || ymNow()))} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white" />
-    ) : (
-      <div className="inline-flex items-center gap-0.5 bg-white border border-[#e2e2e2] rounded-xl px-1 py-1">
-        <button onClick={() => onChange(weekPeriod(addDays(new Date(`${value.from}T12:00:00`), -7)))} className="w-7 h-7 rounded-lg hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer bg-transparent border-none" title="Settimana precedente"><ChevronLeft className="w-4 h-4" /></button>
-        <span className="text-[12.5px] font-bold text-[#161616] px-1 min-w-[130px] text-center">{value.label}</span>
-        <button onClick={() => onChange(weekPeriod(addDays(new Date(`${value.from}T12:00:00`), 7)))} className="w-7 h-7 rounded-lg hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer bg-transparent border-none" title="Settimana successiva"><ChevronRight className="w-4 h-4" /></button>
-      </div>
-    )}
-  </div>
-);
 const daysAgo = (dateISO: string) => Math.floor((Date.now() - new Date(dateISO).getTime()) / 86400000);
 const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white disabled:bg-[#f7f7f5]';
 const lbl = 'text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]';
+
+/**
+ * Pallino dell'account: le società del gruppo tengono il colore d'identità (§10),
+ * i clienti terzi sono TUTTI grigi — non sono società del gruppo e un colore
+ * proprio li farebbe leggere come tali.
+ */
+const dotOf = (acc: MktAccount) => (acc.kind === 'cliente' ? '#8a8a8a' : acc.color || '#8a8a8a');
 
 /** Post dell'account: match per id (nuovo) o per nome (legacy label). */
 const postsOf = (acc: MktAccount, posts: EditorialPost[]) =>
@@ -406,7 +330,7 @@ const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void; onOp
       <div className="border-t border-[#e6e6e6] pt-4">
         <EditorialCalendar
           posts={posts}
-          channels={accounts.map((a) => ({ key: a.id, label: a.name, color: a.color || undefined }))}
+          channels={accounts.map((a) => ({ key: a.id, label: a.name, color: dotOf(a) }))}
           color={color}
           canEdit={false}
           initialChannel="Tutti"
@@ -447,7 +371,7 @@ const AccountCard: React.FC<{ acc: MktAccount; h?: ReturnType<typeof healthOf>; 
     >
       <div className="flex items-center justify-between gap-2">
         <span className="inline-flex items-center gap-2 min-w-0">
-          <span className="w-3 h-3 rounded-full shrink-0" style={{ background: acc.color || '#8a8a8a' }} />
+          <span className="w-3 h-3 rounded-full shrink-0" style={{ background: dotOf(acc) }} />
           <b className="text-[14.5px] text-[#161616] truncate">{acc.name}</b>
         </span>
         <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0" style={{ color: st.color, background: st.bg }}>{st.label}</span>
@@ -480,7 +404,7 @@ const NewClientModal: React.FC<{
     if (!nm) return;
     onCreate({
       id: `acc-${Date.now().toString(36)}`, kind: 'cliente', name: nm,
-      clientRecordId: rec?.id || null, color: '#0d9488', active: true,
+      clientRecordId: rec?.id || null, color: null, active: true,   // pallino grigio: vedi dotOf
       liberatoria: false, createdAt: Date.now(),
     });
   };
@@ -517,7 +441,7 @@ const Workspace: React.FC<Props & { account: MktAccount; tab: WsTab; onTab: (t: 
   const h = healthOf(acc, posts);
   const st = HEALTH[h.state];
   const noLib = acc.kind === 'cliente' && !acc.liberatoria;
-  const accChannel = [{ key: acc.id, label: acc.name, color: acc.color || undefined }];
+  const accChannel = [{ key: acc.id, label: acc.name, color: dotOf(acc) }];
   const accPosts = postsOf(acc, posts);
 
   return (
@@ -530,7 +454,7 @@ const Workspace: React.FC<Props & { account: MktAccount; tab: WsTab; onTab: (t: 
           </button>
           <div className="min-w-0">
             <h2 className="text-[20px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2 truncate">
-              <span className="w-3 h-3 rounded-full shrink-0" style={{ background: acc.color || color }} />
+              <span className="w-3 h-3 rounded-full shrink-0" style={{ background: dotOf(acc) }} />
               {acc.name}
             </h2>
             <p className="text-[11.5px] text-[#8a8a8a] font-semibold">
@@ -1044,9 +968,7 @@ const SpeseTab: React.FC<{
       </div>
 
       {canEdit && (
-        <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 grid grid-cols-2 md:grid-cols-[140px_150px_1fr_110px_auto] gap-2 items-end">
-          <div className="flex flex-col gap-1"><span className={lbl}>Mese</span>
-            <p className="px-3 py-2 rounded-lg bg-[#f5f5f3] text-[13px] font-bold text-[#161616] capitalize truncate">{ymLabel(ym)}</p></div>
+        <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 grid grid-cols-2 md:grid-cols-[150px_1fr_110px_auto] gap-2 items-end">
           <label className="flex flex-col gap-1"><span className={lbl}>Categoria</span>
             <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as MktExpense['category'] }))} className={inp}>{EXP_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}</select></label>
           <label className="flex flex-col gap-1 col-span-2 md:col-span-1"><span className={lbl}>Descrizione</span><input value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Es. campagna IG giugno" className={inp} /></label>

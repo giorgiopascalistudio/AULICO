@@ -127,6 +127,7 @@ import {
   BattleItem,
   UnicoOpportunity,
   TimeEntry,
+  ProfileReport,
   ProjectBrief,
   ProjectPresentation,
 } from './types';
@@ -530,6 +531,8 @@ export default function App() {
   // Agenda condivisa (appuntamenti / note tra utenti)
   const [appointments, setAppointments] = useState<Record<string, Appointment>>({});
   const [timeEntries, setTimeEntries] = useState<Record<string, TimeEntry>>({});
+  // Report di profilo (HR → Report & Tempi): uid → periodo ('yyyy-mm' | 'yyyy-Www') → report
+  const [profileReports, setProfileReports] = useState<Record<string, Record<string, ProfileReport>>>({});
   const [apptOpen, setApptOpen] = useState(false);
   const [apptDate, setApptDate] = useState('');
   const [apptTitle, setApptTitle] = useState('');
@@ -1885,6 +1888,7 @@ export default function App() {
       subs.push(watchNode('mktProjects', (v) => setMktProjects(v || {}), () => {}));
       subs.push(watchNode('appointments', (v) => setAppointments(v || {}), () => {}));
       subs.push(watchNode('timeEntries', (v) => setTimeEntries(v || {}), () => {}));
+      subs.push(watchNode('profileReports', (v) => setProfileReports(v || {}), () => {}));
       subs.push(watchNode('directory', (v) => setDirectory(v || {}), () => {}));
       subs.push(watchNode('matericoRequests', (v) => {
         const all = (v || {}) as Record<string, MatericoRequest>;
@@ -2962,6 +2966,14 @@ export default function App() {
   const handleToggleTimer = (task: Task) => {
     if (myRunning && myRunning.taskId === task.id) { handleStopTimer(); return; }
     handleStartTimer({ taskId: task.id, taskTitle: task.title, tipo: task.tipo || task.title, projectId: task.projectId || null });
+  };
+
+  // Report di profilo: lo scrive il diretto interessato (regole: `auth.uid == $uid`)
+  // oppure admin/manager; il nodo è annidato per uid come `notifications`.
+  const handleSaveProfileReport = (r: ProfileReport) => {
+    setProfileReports((prev) => ({ ...prev, [r.uid]: { ...(prev[r.uid] || {}), [r.period]: r } }));
+    writeNode(`profileReports/${r.uid}/${r.period}`, r)
+      .catch(() => showToast('Errore salvataggio report (controlla le regole).', 'err'));
   };
 
   const handleDeleteTask = () => {
@@ -6101,7 +6113,13 @@ export default function App() {
                 />
               </React.Suspense>
             );
-          case 'time-report':
+          case 'time-report': {
+            // Account marketing (nomi dei canali nel Report di profilo): le 5 società
+            // sono sempre presenti, i clienti terzi vivono solo in `mktAccounts`.
+            const reportAccounts = [
+              ...(['strategico', 'studio', 'materico', 'unico', 'fantastico'] as const).map((s) => ({ id: s, name: (SOCIETA_LABEL as any)[s] || s })),
+              ...Object.values(mktAccounts).filter((a) => a.kind === 'cliente').map((a) => ({ id: a.id, name: a.name })),
+            ];
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
                 <TimeReportView
@@ -6109,6 +6127,14 @@ export default function App() {
                   timeEntries={Object.values(timeEntries)}
                   members={Object.values(users).filter((u) => u.role && u.role !== 'cliente' && u.role !== 'partner' && u.status === 'approved')}
                   color={society.color}
+                  me={{ uid: currentUser.uid, name: currentUser.name }}
+                  isBoss={currentUser.role === 'admin' || currentUser.role === 'manager'}
+                  appointments={Object.values(appointments)}
+                  posts={Object.values(editorialPosts)}
+                  extras={Object.values(socMkt)}
+                  accounts={reportAccounts}
+                  profileReports={profileReports}
+                  onSaveProfileReport={handleSaveProfileReport}
                   onEditTask={handleEditTask}
                   onNewTask={() => {
                     setEditTaskId(null);
@@ -6119,6 +6145,7 @@ export default function App() {
                 />
               </React.Suspense>
             );
+          }
           case 'render-ai':
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>

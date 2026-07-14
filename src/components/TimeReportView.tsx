@@ -2,19 +2,22 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  *
- * Report & Tempi — cruscotto direzionale AUTOMATICO (nessuna compilazione manuale):
- * · tempo medio per tipo attività (dai cronometri)
- * · distribuzione ore per collaboratore, totali settimana/mese
- * · storico rilevazioni
- * · LISTE ATTIVITÀ DEI COLLABORATORI (il responsabile entra nella lista di ciascuno,
- *   la usa in riunione, apre/riassegna le attività). Ogni dato è calcolato dai
- *   `tasks` e dai `timeEntries` già presenti.
+ * Report & Tempi — due schede:
+ * 1) TEMPI & ATTIVITÀ — cruscotto AUTOMATICO (nessuna compilazione manuale):
+ *    tempo medio per tipo attività, distribuzione ore per collaboratore, storico
+ *    rilevazioni, liste attività dei collaboratori (base delle riunioni). Ogni dato
+ *    è calcolato dai `tasks` e dai `timeEntries` già presenti.
+ * 2) REPORT DI PROFILO (`ProfileReport`) — il report settimanale/mensile della singola
+ *    persona nel formato del modello: attività svolte + conclusione, da stampare.
  */
 import React from 'react';
-import { Clock, BarChart3, Users, Printer, ChevronDown, Play, Timer, ListChecks } from 'lucide-react';
-import type { Task, TimeEntry, UserProfile } from '../types';
+import { Clock, BarChart3, Users, Printer, ChevronDown, Play, Timer, ListChecks, FileText } from 'lucide-react';
+import type {
+  Appointment, EditorialPost, ProfileReport as TProfileReport, SocMktItem, Task, TimeEntry, UserProfile,
+} from '../types';
 import { initials } from '../utils';
 import { aggregate, fmtDuration } from '../timetracking';
+import { ProfileReport } from './ProfileReport';
 
 interface Props {
   tasks: Task[];
@@ -23,6 +26,15 @@ interface Props {
   color?: string;
   onEditTask?: (id: string) => void;
   onNewTask?: () => void;
+  // --- Report di profilo ---
+  me?: { uid: string; name?: string | null };
+  isBoss?: boolean;
+  appointments?: Appointment[];
+  posts?: EditorialPost[];
+  extras?: SocMktItem[];
+  accounts?: { id: string; name: string }[];
+  profileReports?: Record<string, Record<string, TProfileReport>>;
+  onSaveProfileReport?: (r: TProfileReport) => void;
 }
 
 type Range = 'week' | 'month' | 'all';
@@ -37,7 +49,22 @@ const rangeStartMs = (r: Range): number => {
 
 const fmtWhen = (ms?: number | null) => (ms ? new Date(ms).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
 
-export const TimeReportView: React.FC<Props> = ({ tasks, timeEntries, members, color = '#161616', onEditTask, onNewTask }) => {
+/** Interruttore tra le due schede della sezione. */
+const TabSwitch: React.FC<{ tab: 'tempi' | 'profilo'; onTab: (t: 'tempi' | 'profilo') => void }> = ({ tab, onTab }) => (
+  <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] no-print">
+    {([['tempi', 'Tempi & attività'], ['profilo', 'Report di profilo']] as const).map(([id, label]) => (
+      <button key={id} onClick={() => onTab(id)} className={`text-[11.5px] font-bold px-3 py-1 rounded-full cursor-pointer border-none whitespace-nowrap ${tab === id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent'}`}>
+        {label}
+      </button>
+    ))}
+  </div>
+);
+
+export const TimeReportView: React.FC<Props> = ({
+  tasks, timeEntries, members, color = '#161616', onEditTask, onNewTask,
+  me, isBoss = false, appointments = [], posts = [], extras = [], accounts = [], profileReports = {}, onSaveProfileReport,
+}) => {
+  const [tab, setTab] = React.useState<'tempi' | 'profilo'>('tempi');
   const [range, setRange] = React.useState<Range>('week');
   const [openUid, setOpenUid] = React.useState<string | null>(null);
   const fromMs = rangeStartMs(range);
@@ -77,6 +104,37 @@ export const TimeReportView: React.FC<Props> = ({ tasks, timeEntries, members, c
 
   const rangeLabel = range === 'week' ? 'questa settimana' : range === 'month' ? 'questo mese' : 'sempre';
 
+  // Scheda "Report di profilo": vive qui perché ha già collaboratori, attività e cronometri.
+  if (tab === 'profilo' && me) {
+    return (
+      <div className="flex flex-col gap-5 text-left">
+        <div className="flex items-center justify-between gap-3 flex-wrap no-print">
+          <div>
+            <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616] flex items-center gap-2">
+              <FileText className="w-5 h-5" /> Report di profilo
+            </h2>
+            <p className="text-[12.5px] text-[#8a8a8a] font-medium">Cosa ha fatto una persona nella settimana o nel mese: attività svolte + conclusione, da stampare.</p>
+          </div>
+          <TabSwitch tab={tab} onTab={setTab} />
+        </div>
+        <ProfileReport
+          me={me}
+          isBoss={isBoss}
+          members={members}
+          tasks={tasks}
+          timeEntries={timeEntries}
+          appointments={appointments}
+          posts={posts}
+          extras={extras}
+          accounts={accounts}
+          reports={profileReports}
+          onSave={onSaveProfileReport}
+          color={color}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-5 text-left print-area">
       {/* Header */}
@@ -87,7 +145,8 @@ export const TimeReportView: React.FC<Props> = ({ tasks, timeEntries, members, c
           </h2>
           <p className="text-[12.5px] text-[#8a8a8a] font-medium">Report automatici dai cronometri e dalle attività — nessuna compilazione manuale.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          {me && <TabSwitch tab={tab} onTab={setTab} />}
           <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
             {(['week', 'month', 'all'] as const).map((r) => (
               <button key={r} onClick={() => setRange(r)} className={`text-[11.5px] font-bold px-3 py-1 rounded-full cursor-pointer border-none ${range === r ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent'}`}>
