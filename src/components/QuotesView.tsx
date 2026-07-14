@@ -54,9 +54,11 @@ interface QuotesViewProps {
   onDeleteQuote: (id: string) => void;
   onSetStatus: (id: string, status: Quote['status']) => void;
   onEmitMilestone: (quoteId: string, milestoneId: string) => void;
+  /** Mansioni suggerite (MANSIONI + funzioni del team) per il campo mansione per riga. */
+  mansioni?: string[];
 }
 
-export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, projects, myUid, company = 'all', priceList = [], onSavePriceList, onSaveQuote, onDeleteQuote, onSetStatus, onEmitMilestone }) => {
+export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, projects, myUid, company = 'all', priceList = [], onSavePriceList, onSaveQuote, onDeleteQuote, onSetStatus, onEmitMilestone, mansioni }) => {
   const [editorOpen, setEditorOpen] = useState(false);
   const [draft, setDraft] = useState<Quote>(emptyQuoteDraft());
   const [filter, setFilter] = useState<'all' | Quote['status']>('all');
@@ -268,6 +270,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
           clients={clients}
           projects={projects}
           priceList={priceList}
+          mansioni={mansioni}
           onSave={(q) => onSaveQuote({ ...q, createdBy: q.createdBy || myUid })}
           onClose={() => setEditorOpen(false)}
         />

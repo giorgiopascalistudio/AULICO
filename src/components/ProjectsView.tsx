@@ -59,6 +59,7 @@ import { AiComposeButton } from './AiComposeButton';
 import { StrategicoView } from './StrategicoView';
 import type { Supplier } from './CrmView';
 import { interventoLabel, titoloLabel } from '../studioConfig';
+import { MANSIONI } from '../constants';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ProjectsViewProps {
@@ -2272,6 +2273,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 projects={[p]}
                 priceList={priceList}
                 lockProject={p}
+                mansioni={Array.from(new Set([...MANSIONI, ...Object.values(users).flatMap((u) => u.functions || [])])).filter(Boolean)}
                 onSave={(q) => onSaveQuote?.(q)}
                 onClose={() => setQuoteDraft(null)}
               />

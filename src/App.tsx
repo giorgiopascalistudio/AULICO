@@ -2705,7 +2705,10 @@ export default function App() {
   const [nuRole, setNuRole] = useState<UserRole>('staff');
   const [nuTitle, setNuTitle] = useState('');
   const [nuFns, setNuFns] = useState<string[]>([]);
+  const [nuFnCustom, setNuFnCustom] = useState('');
   const [nuActive, setNuActive] = useState(true);
+  // Modale "Genera attività" dal preventivo/contratto accettato: assegnatario suggerito (per mansione + carico) + data inizio, editabili.
+  const [taskGenModal, setTaskGenModal] = useState<{ quoteId: string; pid: string | null; rows: { key: string; title: string; role: string | null; assignee: string | null; date: string }[] } | null>(null);
   // RBAC granulare per-società (vuoto ⇒ usa il fallback dal ruolo)
   const [nuAccess, setNuAccess] = useState<AccessMap>({});
 
@@ -4856,22 +4859,68 @@ export default function App() {
     return pid;
   };
 
-  // All'accettazione, le righe del preventivo diventano ATTIVITÀ ASSEGNATE al tecnico di riferimento.
-  const createTasksFromQuote = (q: Quote, pid: string | null) => {
-    const rec = q.clientRecordId ? clients[q.clientRecordId] : null;
-    const tecnico = q.tecnicoUid || (rec?.responsabili ? Object.keys(rec.responsabili).filter((u) => rec.responsabili![u])[0] : null) || null;
+  // Conteggio task aperti per membro attivo (per suggerire l'assegnatario meno carico).
+  const computeOpenCount = (): Record<string, number> => {
+    const openCount: Record<string, number> = {};
+    Object.values(users).forEach((u: any) => {
+      if (!u || !u.active || u.role === 'cliente' || u.role === 'partner') return;
+      let n = 0;
+      Object.values(projects).forEach((pr: any) =>
+        Object.values(pr.phases || {}).forEach((ph: any) =>
+          Object.values(ph.tasks || {}).forEach((t: any) => { if (!t.done && t.assignee === u.uid) n++; })
+        )
+      );
+      Object.values(tasks).forEach((t: any) => { if (!t.done && (t.assignee === u.uid || (t.assignees || []).includes(u.uid))) n++; });
+      openCount[u.uid] = n;
+    });
+    return openCount;
+  };
+  // Suggerisce il membro con la mansione richiesta e MENO carico; incrementa openCount per bilanciare i task successivi.
+  const suggestAssignee = (role: string | null | undefined, openCount: Record<string, number>): string | null => {
+    const r = (role || '').trim().toLowerCase();
+    if (!r) return null;
+    const cands = Object.values(users).filter(
+      (u: any) => u && u.active && u.role !== 'cliente' && u.role !== 'partner' &&
+        ((u.functions || []).some((f: string) => (f || '').toLowerCase() === r) || (u.title || '').toLowerCase() === r)
+    );
+    if (!cands.length) return null;
+    cands.sort((a: any, b: any) => (openCount[a.uid] || 0) - (openCount[b.uid] || 0));
+    const chosen: any = cands[0];
+    openCount[chosen.uid] = (openCount[chosen.uid] || 0) + 1;
+    return chosen.uid;
+  };
+  // All'accettazione: apre il modale "Genera attività" con assegnatario suggerito (per mansione + carico) e data inizio editabili.
+  const openTaskGen = (q: Quote, pid: string | null) => {
     const lines = q.lines || [];
     if (!lines.length) return;
+    const openCount = computeOpenCount();
+    const rec = q.clientRecordId ? clients[q.clientRecordId] : null;
+    const fallbackTecnico = q.tecnicoUid || (rec?.responsabili ? Object.keys(rec.responsabili).filter((u) => rec.responsabili![u])[0] : null) || null;
+    const rows = lines.map((l, i) => {
+      const suggested = suggestAssignee(l.role, openCount);
+      return { key: `${q.id}-${i}`, title: l.desc || MACRO_PHASE[l.macro] || 'Attività', role: l.role || null, assignee: suggested || fallbackTecnico || null, date: todayISO() };
+    });
+    setTaskGenModal({ quoteId: q.id, pid: pid || q.projectId || null, rows });
+  };
+  // Conferma del modale: crea le attività con assegnatario + data scelti e notifica gli assegnatari.
+  const confirmTaskGen = () => {
+    if (!taskGenModal) return;
+    const { quoteId, pid, rows } = taskGenModal;
+    const q = quotes[quoteId];
     setTasks((prev) => {
       const next: any = { ...prev };
-      lines.forEach((l, i) => {
-        const tId = `task-q-${q.id}-${i}`;
-        next[tId] = { id: tId, title: l.desc || MACRO_PHASE[l.macro] || 'Attività', date: todayISO(), time: null, frequency: 'once', priority: 'media', tipo: MACRO_PHASE[l.macro] || null, assignee: tecnico, assignees: tecnico ? [tecnico] : null, projectId: pid || q.projectId || null, notes: `Da preventivo ${q.number}`, done: false, createdAt: Date.now(), updatedAt: Date.now(), createdBy: currentUser?.uid || '' };
+      rows.forEach((row, i) => {
+        const tId = `task-q-${quoteId}-${i}`;
+        next[tId] = { id: tId, title: row.title || 'Attività', date: row.date || todayISO(), time: null, frequency: 'once', priority: 'media', tipo: row.role || null, assignee: row.assignee || null, assignees: row.assignee ? [row.assignee] : null, projectId: pid || null, notes: `Da preventivo ${q?.number || ''}`, done: false, createdAt: Date.now(), updatedAt: Date.now(), createdBy: currentUser?.uid || '' };
       });
       syncState('tasks', next);
       return next;
     });
-    if (tecnico) pushNotification(tecnico, { type: 'task', title: `Nuove attività dal preventivo ${q.number}`, body: `${lines.length} attività · ${q.clientName}`, link: '#calendario' });
+    const perUser: Record<string, number> = {};
+    rows.forEach((r) => { if (r.assignee) perUser[r.assignee] = (perUser[r.assignee] || 0) + 1; });
+    Object.entries(perUser).forEach(([uid, n]) => pushNotification(uid, { type: 'task', title: `Nuove attività dal preventivo ${q?.number || ''}`, body: `${n} attività · ${q?.clientName || ''}`, link: '#calendario' }));
+    setTaskGenModal(null);
+    showToast('Attività create e assegnate.', 'ok');
   };
   const handleSetQuoteStatus = (id: string, status: Quote['status']) => {
     const q = quotes[id];
@@ -4880,16 +4929,15 @@ export default function App() {
     if (status === 'accettato' && q.docKind !== 'parcella' && !q.projectId) {
       const pid = generateProjectFromQuote(q);
       handleSaveQuote({ ...q, status, projectId: pid });
-      createTasksFromQuote(q, pid);
+      openTaskGen(q, pid);
       notifyStudio({ type: 'preventivo', title: `Preventivo accettato: ${q.number}`, body: `${q.clientName} · ${eur(q.total)} · commessa creata`, link: `#progetto/${pid}` });
-      showToast('Preventivo accettato: commessa creata + attività assegnate al tecnico.', 'ok');
+      showToast('Preventivo accettato: commessa creata. Assegna le attività.', 'ok');
       return;
     }
     handleSaveQuote({ ...q, status });
     if (status === 'accettato') {
-      createTasksFromQuote(q, q.projectId || null);
+      openTaskGen(q, q.projectId || null);
       notifyStudio({ type: 'preventivo', title: `Preventivo accettato: ${q.number}`, body: `${q.clientName} · ${eur(q.total)}`, link: '#preventivi' });
-      showToast('Preventivo accettato: attività assegnate al tecnico.', 'ok');
     }
   };
   const handleArchiveQuote = (id: string, archived: boolean) => {
@@ -5230,7 +5278,7 @@ export default function App() {
       onSetPeopleTab={setPeopleTab}
       onManageAccess={canManageAccess ? () => setAccessOpen(true) : undefined}
       pendingCount={pendingAccounts.length + deletionAccounts.length}
-      onNewUser={() => { setNuName(''); setNuEmail(''); setNuPass(''); setNuRole('staff'); setNuTitle(''); setNuFns([]); setNewUserOpen(true); }}
+      onNewUser={() => { setNuName(''); setNuEmail(''); setNuPass(''); setNuRole('staff'); setNuTitle(''); setNuFns([]); setNuFnCustom(''); setNewUserOpen(true); }}
       onNewClient={() => { setNuName(''); setNuEmail(''); setNuPass(''); setNuRole('cliente'); setNuTitle('studio'); setNewClientOpen(true); }}
       onEditUser={(uid) => { const u = users[uid]; if (!u) return; setEditUserId(uid); setNuName(u.name); setNuEmail(u.email); setNuPhone(u.telefono || ''); setNuRole(u.role); setNuTitle(u.title || ''); setNuFns(u.functions || []); setNuActive(u.active !== false); setNuAccess(u.access || {}); setEditUserOpen(true); }}
       onUserMenu={(uid) => { const u = users[uid]; if (!u) return; setEditUserId(uid); setNuName(u.name); setNuEmail(u.email); setNuPhone(u.telefono || ''); setNuRole(u.role); setNuTitle(u.title || ''); setNuFns(u.functions || []); setNuActive(u.active !== false); setNuAccess(u.access || {}); setEditUserOpen(true); }}
@@ -8190,7 +8238,7 @@ export default function App() {
           <div className="flex flex-col gap-1.5">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Mansioni (per l'assegnazione automatica dei task)</span>
             <div className="flex flex-wrap gap-1.5">
-              {MANSIONI.map((m) => {
+              {Array.from(new Set([...MANSIONI, ...nuFns])).map((m) => {
                 const on = nuFns.includes(m);
                 return (
                   <button
@@ -8203,6 +8251,16 @@ export default function App() {
                   </button>
                 );
               })}
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              <input
+                value={nuFnCustom}
+                onChange={(e) => setNuFnCustom(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const v = nuFnCustom.trim(); if (v && !nuFns.includes(v)) setNuFns((p) => [...p, v]); setNuFnCustom(''); } }}
+                placeholder="Mansione personalizzata (es. Modellazione 3D, Render, Video)…"
+                className="flex-1 min-w-0 border border-[#e2e2e2] rounded-xl h-9 px-3 text-[13px]"
+              />
+              <button type="button" onClick={() => { const v = nuFnCustom.trim(); if (v && !nuFns.includes(v)) setNuFns((p) => [...p, v]); setNuFnCustom(''); }} className="shrink-0 px-3 h-9 rounded-xl bg-[#161616] text-white text-[12px] font-bold cursor-pointer border-none hover:bg-black">Aggiungi</button>
             </div>
           </div>
 
@@ -8405,6 +8463,39 @@ export default function App() {
 
       {/* Doppia conferma eliminazione (condivisa da tutte le sezioni) */}
       {confirmDel && <ConfirmDeleteModal request={confirmDel} onClose={() => setConfirmDel(null)} />}
+
+      {/* Genera attività dal preventivo/contratto: assegnatario suggerito + data inizio editabili */}
+      <Modal title="Genera attività dal preventivo" isOpen={!!taskGenModal} onClose={() => setTaskGenModal(null)} wide>
+        {taskGenModal && (() => {
+          const members = Object.values(users).filter((u) => u && u.active && u.role !== 'cliente' && u.role !== 'partner');
+          const setRow = (key: string, patch: Partial<{ assignee: string | null; date: string }>) =>
+            setTaskGenModal((m) => (m ? { ...m, rows: m.rows.map((r) => (r.key === key ? { ...r, ...patch } : r)) } : m));
+          return (
+            <div className="flex flex-col gap-3">
+              <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Il software ha suggerito l'assegnatario in base alla mansione e al carico di lavoro. Puoi cambiarlo e scegliere la data di inizio per ogni attività.</p>
+              <div className="flex flex-col gap-2 max-h-[52vh] overflow-y-auto pr-1">
+                {taskGenModal.rows.map((r) => (
+                  <div key={r.key} className="rounded-xl border border-[#e2e2e2] bg-white p-3 flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-bold text-[#161616] truncate">{r.title}</p>
+                      {r.role && <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#9a9a9a]">Mansione: {r.role}</span>}
+                    </div>
+                    <select value={r.assignee || ''} onChange={(e) => setRow(r.key, { assignee: e.target.value || null })} className="shrink-0 px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white cursor-pointer sm:w-[190px]">
+                      <option value="">Non assegnato</option>
+                      {members.map((u) => <option key={u.uid} value={u.uid}>{u.name}{(u.functions || []).length ? ` · ${(u.functions || []).join(', ')}` : ''}</option>)}
+                    </select>
+                    <input type="date" value={r.date} onChange={(e) => setRow(r.key, { date: e.target.value })} className="shrink-0 px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white cursor-pointer" />
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button onClick={() => setTaskGenModal(null)} className="px-4 py-2 rounded-xl border border-[#e2e2e2] text-[13px] font-bold text-[#555] cursor-pointer bg-white hover:border-[#b0b0b0]">Salta</button>
+                <button onClick={confirmTaskGen} className="px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Crea {taskGenModal.rows.length} attività</button>
+              </div>
+            </div>
+          );
+        })()}
+      </Modal>
 
       {/* Segnala ad Aulico (bug/richieste/errori — periodo di test) */}
       {feedback && <FeedbackModal prefill={feedback} onClose={() => setFeedback(null)} onSubmit={handleSubmitDevReport} />}

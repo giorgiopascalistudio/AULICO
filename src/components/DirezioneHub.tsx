@@ -101,8 +101,12 @@ export function bepRows(soc: string, year: number, piani: Record<string, PianoFi
   const cf = z12(); const cv = z12();
   let fromPiano = false;
   if (piano?.rows?.length) {
+    // La natura della riga viene dalla sua sezione (custom o base); fallback all'id per i piani legacy.
+    const natureOf = (secId: string) => piano.sections?.find((s) => s.id === secId)?.nature
+      || (secId === 'ricavi' || secId === 'costi_fissi' || secId === 'costi_variabili' ? secId : 'costi_fissi');
     piano.rows.forEach((r) => {
-      const dst = r.section === 'costi_fissi' ? cf : r.section === 'costi_variabili' ? cv : null;
+      const nat = natureOf(r.section);
+      const dst = nat === 'costi_fissi' ? cf : nat === 'costi_variabili' ? cv : null;
       if (dst) (r.values || []).forEach((v, i) => { if (i < 12) dst[i] += Number(v) || 0; });
     });
     fromPiano = sum(cf) + sum(cv) > 0;

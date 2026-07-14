@@ -22,6 +22,7 @@ import {
   invoiceTotals, CASSA_PCT_DEFAULT
 } from '../finance';
 import { QuotesView } from './QuotesView';
+import { MANSIONI } from '../constants';
 import { StatsView } from './StatsView';
 import ExportMenu from './ExportMenu';
 import type { ExportColumn } from '../dataIO';
@@ -1058,6 +1059,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
           onDeleteQuote={onDeleteQuote || (() => {})}
           onSetStatus={onSetQuoteStatus || (() => {})}
           onEmitMilestone={onEmitMilestone || (() => {})}
+          mansioni={Array.from(new Set([...MANSIONI, ...members.flatMap((m) => m.functions || [])])).filter(Boolean)}
         />
       )}
 

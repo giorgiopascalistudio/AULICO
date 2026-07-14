@@ -241,6 +241,9 @@ export interface QuoteLine {
   amount: number;            // qty * unitPrice
   locked?: boolean;          // voce obbligatoria: il cliente NON può escluderla dal portale
   benefits?: string | null;  // vantaggi mostrati al cliente se esclude la voce (fallback: catalogo serviceBenefits)
+  /** Mansione richiesta per l'attività generata da questa riga (es. 'Render', 'Architetto'):
+   *  il software propone il membro con questa funzione e meno carico di lavoro. */
+  role?: string | null;
   /** Incremento % del valore dell'immobile portato da questa voce (dal listino, editabile). */
   valuePct?: number | null;
 }
@@ -1371,19 +1374,31 @@ export interface FatturazionePlanItem {
 }
 /** Piano Finanziario per società/anno (nodo `pianoFinanziario/<soc>-<anno>`, Contabilità & Amm.).
  * Modello del foglio Excel: righe per sezione × 12 mesi, budget (preventivo) vs consuntivo. */
-export type PianoSection = 'ricavi' | 'costi_fissi' | 'costi_variabili';
+/** Natura di una sezione: guida il calcolo Utile/Progressivo. */
+export type PianoNature = 'ricavi' | 'costi_fissi' | 'costi_variabili';
+export type PianoSection = PianoNature;   // legacy: le sezioni base usano l'id = natura
+/** Sezione (macro-voce) del piano: rinominabile, riordinabile, aggiungibile.
+ *  Le 3 sezioni base hanno id === natura ('ricavi'|'costi_fissi'|'costi_variabili'). */
+export interface PianoSectionDef {
+  id: string;
+  label: string;
+  nature: PianoNature;   // natura per il calcolo (le custom la scelgono alla creazione)
+  order: number;
+}
 export interface PianoRow {
   id: string;
-  section: PianoSection;
+  section: string;       // id della sezione di appartenenza (natura per le 3 base)
   label: string;
   values: number[];      // consuntivo per mese (len 12), IVA esclusa
   budget?: number[];     // preventivo/budget per mese (len 12)
+  order?: number;        // ordinamento della riga dentro la sezione
 }
 export interface PianoFinanziario {
   id: string;            // `${soc}-${year}`
   soc: string;
   year: number;
   rows: PianoRow[];
+  sections?: PianoSectionDef[];  // se assente → le 3 sezioni base di default
   updatedAt?: number;
   by?: string | null;
 }

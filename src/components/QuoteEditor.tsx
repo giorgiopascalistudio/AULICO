@@ -13,6 +13,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { Quote, QuoteLine, QuoteMacro, PaymentMilestone, ClientRecord, Project, PriceItem } from '../types';
 import { eur } from '../utils';
 import { quoteTotals, quoteValue, VAT_PCT_DEFAULT, CASSA_PCT_DEFAULT } from '../finance';
+import { MANSIONI } from '../constants';
 import { Modal } from './Modal';
 
 export const MACRO_LABEL: Record<QuoteMacro, string> = {
@@ -46,11 +47,14 @@ interface QuoteEditorProps {
   priceList?: PriceItem[];
   /** Se valorizzato (fascicolo progetto): progetto e divisione bloccati. */
   lockProject?: Project | null;
+  /** Elenco mansioni suggerite (MANSIONI + funzioni reali del team). Per il campo "Mansione" per riga. */
+  mansioni?: string[];
   onSave: (q: Quote) => void;
   onClose: () => void;
 }
 
-export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, clients, projects, priceList = [], lockProject, onSave, onClose }) => {
+export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, clients, projects, priceList = [], lockProject, mansioni, onSave, onClose }) => {
+  const mansioniList = React.useMemo(() => Array.from(new Set([...(mansioni && mansioni.length ? mansioni : MANSIONI)])).filter(Boolean), [mansioni]);
   const [draft, setDraft] = useState<Quote>({ ...initial, lines: [...(initial.lines || [])], paymentPlan: [...(initial.paymentPlan || [])] });
 
   const totals = quoteTotals(draft);
@@ -155,6 +159,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
             </div>
           </div>
           <div className="flex flex-col gap-2">
+            <datalist id="qe-mansioni">{mansioniList.map((m) => <option key={m} value={m} />)}</datalist>
             {(draft.lines || []).map((l) => (
               <div key={l.id} className="rounded-xl border border-[#e2e2e2] bg-white p-2.5 flex flex-col gap-2">
                 <div className="flex items-center gap-2">
@@ -162,6 +167,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
                     {(Object.keys(MACRO_LABEL) as QuoteMacro[]).map((m) => <option key={m} value={m}>{MACRO_LABEL[m]}</option>)}
                   </select>
                   <input value={l.desc} onChange={(e) => updLine(l.id, { desc: e.target.value })} placeholder="Descrizione voce" className="qi flex-1 min-w-0" />
+                  <input list="qe-mansioni" value={l.role || ''} onChange={(e) => updLine(l.id, { role: e.target.value || null })} placeholder="Mansione" title="Mansione richiesta: il software proporrà il membro con questa funzione e meno carico" className="qi w-[130px] shrink-0" />
                   <button onClick={() => delLine(l.id)} className="text-rose-600 shrink-0 cursor-pointer bg-transparent border-none"><Trash2 className="w-4 h-4" /></button>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">

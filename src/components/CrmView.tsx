@@ -17,6 +17,7 @@ import {
 import { initials, eur } from '../utils';
 import { ClientImportModal } from './CrmImport';
 import { ClientRecord, Project, UserProfile, Quote } from '../types';
+import type { HistItem } from './CrmRegistro';
 
 // Dashboard CRM (grafici recharts) — lazy: il chunk recharts si carica solo all'apertura.
 const CrmDashboard = React.lazy(() => import('./CrmDashboard'));
@@ -322,6 +323,20 @@ export const CrmView: React.FC<CrmViewProps> = ({
     const scadOpen = sca.filter((s: any) => s.status !== 'pagato');
     return { inv, fatturato, incassato, daIncassare, scadOpen };
   };
+  // Storico unificato del contatto: pratiche · preventivi · contratti firmati · pagamenti (cronologico decrescente).
+  const QSTAT: Record<string, string> = { elaborato: 'elaborato', in_attesa: 'in attesa', accettato: 'accettato', rifiutato: 'rifiutato' };
+  const historyOfClient = (rec: ClientRecord): HistItem[] => {
+    const items: HistItem[] = [];
+    const projs = projectsOfClient(rec);
+    const pids = new Set(projs.map((p) => p.id));
+    projs.forEach((p) => items.push({ id: `pr-${p.id}`, date: p.createdAt || 0, kind: 'progetto', label: p.name, status: p.status || null, link: `#progetto/${p.id}` }));
+    quotes.filter((q) => q.clientRecordId === rec.id || (!!rec.accountUid && q.clientUid === rec.accountUid)).forEach((q) => {
+      items.push({ id: `qt-${q.id}`, date: q.createdAt || 0, kind: 'preventivo', label: `${q.number || 'Preventivo'}${q.docKind === 'parcella' ? ' · parcella' : ''}`, status: QSTAT[q.status] || q.status, amount: q.total || null, link: '#preventivi' });
+      if (q.signedAt) items.push({ id: `ct-${q.id}`, date: q.signedAt, kind: 'contratto', label: `Contratto ${q.number || ''}`.trim(), amount: q.total || null, link: '#preventivi' });
+    });
+    finInvoicesActive.filter((i: any) => i.projectId && pids.has(i.projectId)).forEach((i: any) => items.push({ id: `iv-${i.id}`, date: i.date ? new Date(i.date).getTime() : 0, kind: 'pagamento', label: `Fattura ${i.number || ''}`.trim() || 'Fattura', status: i.status === 'pagata' ? 'incassata' : 'da incassare', amount: Number(i.amount) || null }));
+    return items.sort((a, b) => (b.date || 0) - (a.date || 0));
+  };
   const memberName = (uid: string) => members.find((m) => m.uid === uid)?.name || uid;
   // Codice referral univoco: iniziali/nome + anno (2 cifre) + suffisso casuale finché non è unico.
   const genRefCode = (nameLike: string): string => {
@@ -521,6 +536,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
             onNew={openNewFornitore}
             paymentStatus={(rec) => { const p = paymentsOfClient(rec); return { ok: p.daIncassare <= 0.5, daIncassare: p.daIncassare }; }}
             projectsOf={(rec) => projectsOfClient(rec).map((p) => ({ id: p.id, name: p.name, status: p.status, manager: p.manager || null }))}
+            historyOf={historyOfClient}
             memberName={memberName}
           />
         </React.Suspense>
@@ -541,6 +557,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
             onImport={canEdit && onImportClients ? () => setImportOpen(true) : undefined}
             paymentStatus={(rec) => { const p = paymentsOfClient(rec); return { ok: p.daIncassare <= 0.5, daIncassare: p.daIncassare }; }}
             projectsOf={(rec) => projectsOfClient(rec).map((p) => ({ id: p.id, name: p.name, status: p.status, manager: p.manager || null }))}
+            historyOf={historyOfClient}
             memberName={memberName}
             consentsOf={consentsOf}
             duplicatesOf={duplicatesOf}

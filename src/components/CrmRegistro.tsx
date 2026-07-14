@@ -12,7 +12,7 @@ import React from 'react';
 import {
   Users, Plus, Search, Mail, Phone, MapPin, FileText, Lock, AlertTriangle,
   Clock, CheckCircle2, XCircle, Eye, EyeOff, Edit2, Trash2, Share2, Calendar,
-  Gift, Megaphone, Target, ChevronDown, FolderOpen, Hash, UserCog, Upload, Download, FileDown, Star,
+  Gift, Megaphone, Target, ChevronDown, FolderOpen, Hash, UserCog, Upload, Download, FileDown, Star, Euro,
 } from 'lucide-react';
 import type { ClientRecord, BrandAsset, ContactCredential, ContactInteraction } from '../types';
 import { exportXlsx as ioExportXlsx, type ExportColumn } from '../dataIO';
@@ -22,6 +22,7 @@ interface Role { id: string; label: string; }
 interface PayInfo { ok: boolean; daIncassare: number; }
 
 interface ProjRef { id: string; name: string; status?: string; manager?: string | null; }
+export interface HistItem { id: string; date: number; kind: 'preventivo' | 'progetto' | 'contratto' | 'pagamento'; label: string; status?: string | null; amount?: number | null; link?: string | null; }
 interface Props {
   clients: ClientRecord[];
   societies: Soc[];
@@ -33,6 +34,8 @@ interface Props {
   onImport?: () => void;
   paymentStatus: (rec: ClientRecord) => PayInfo;
   projectsOf?: (rec: ClientRecord) => ProjRef[];
+  /** Cronologia unificata del contatto: progetti, preventivi, contratti firmati, pagamenti. */
+  historyOf?: (rec: ClientRecord) => HistItem[];
   memberName?: (uid: string) => string;
   consentsOf?: (rec: ClientRecord) => { hasAccount: boolean; privacy: boolean; newsletter: boolean };
   duplicatesOf?: (rec: ClientRecord) => ClientRecord[];
@@ -72,7 +75,7 @@ const tierStyle = (t?: number | null) => (t === 1 ? 'bg-rose-50 text-rose-700' :
 const INT_ICON = { riunione: FileText, evento: Calendar, campagna: Megaphone, regalo: Gift } as const;
 const INT_LABEL = { riunione: 'Riunione / Nota', evento: 'Evento', campagna: 'Campagna', regalo: 'Pensiero / Gadget' } as const;
 
-export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, onImport, paymentStatus, projectsOf, memberName, consentsOf, duplicatesOf, onMerge, restrictRoles, variant = 'clienti', title, canEdit = true }) => {
+export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave, onDelete, onEdit, onNew, onImport, paymentStatus, projectsOf, historyOf, memberName, consentsOf, duplicatesOf, onMerge, restrictRoles, variant = 'clienti', title, canEdit = true }) => {
   const isFornitori = variant === 'fornitori';
   const [selId, setSelId] = React.useState<string | null>(null);
   const [search, setSearch] = React.useState('');
@@ -311,7 +314,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
               <div className="flex-1 overflow-y-auto p-5">
                 {/* Sola consultazione: il fieldset disabilita nativamente input/bottoni dei pannelli */}
                 <fieldset disabled={!canEdit} className="contents">
-                  {detTab === 'anagrafica' && <AnagraficaPane sel={sel} pay={pay} societies={societies} roles={roles} onPatch={patch} projectsOf={projectsOf} memberName={memberName} isFornitori={isFornitori} consents={consentsOf ? consentsOf(sel) : undefined} duplicates={duplicatesOf ? duplicatesOf(sel) : []} onMerge={canEdit ? onMerge : undefined} />}
+                  {detTab === 'anagrafica' && <AnagraficaPane sel={sel} pay={pay} societies={societies} roles={roles} onPatch={patch} projectsOf={projectsOf} historyOf={historyOf} memberName={memberName} isFornitori={isFornitori} consents={consentsOf ? consentsOf(sel) : undefined} duplicates={duplicatesOf ? duplicatesOf(sel) : []} onMerge={canEdit ? onMerge : undefined} />}
                   {detTab === 'brand' && <BrandPane sel={sel} onSave={(b) => patch({ brandAsset: b })} />}
                   {detTab === 'credenziali' && <CredenzialiPane sel={sel} pwShown={pwShown} setPwShown={setPwShown} onSave={(cr) => patch({ credentials: cr })} />}
                   {detTab === 'storia' && <StoriaPane sel={sel} onSave={(it) => patch({ interactions: it })} />}
@@ -332,7 +335,14 @@ const Info: React.FC<{ icon: any; label: string; children: React.ReactNode }> = 
 const Box: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-4 flex flex-col gap-3.5"><h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[#666]">{title}</h4>{children}</div>
 );
-const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc[]; roles: Role[]; onPatch: (c: Partial<ClientRecord>) => void; projectsOf?: (rec: ClientRecord) => ProjRef[]; memberName?: (uid: string) => string; isFornitori?: boolean; consents?: { hasAccount: boolean; privacy: boolean; newsletter: boolean }; duplicates?: ClientRecord[]; onMerge?: (survivor: ClientRecord, dupIds: string[]) => void }> = ({ sel, pay, roles, onPatch, projectsOf, memberName, isFornitori, consents, duplicates = [], onMerge }) => {
+// Meta per-tipo dello storico (colori semantici come KIND_META, non colori società).
+const HIST_META: Record<HistItem['kind'], { label: string; color: string; icon: any }> = {
+  progetto: { label: 'Pratica', color: '#4338ca', icon: FolderOpen },
+  preventivo: { label: 'Preventivo', color: '#b45309', icon: FileText },
+  contratto: { label: 'Contratto', color: '#059669', icon: CheckCircle2 },
+  pagamento: { label: 'Pagamento', color: '#161616', icon: Euro },
+};
+const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc[]; roles: Role[]; onPatch: (c: Partial<ClientRecord>) => void; projectsOf?: (rec: ClientRecord) => ProjRef[]; historyOf?: (rec: ClientRecord) => HistItem[]; memberName?: (uid: string) => string; isFornitori?: boolean; consents?: { hasAccount: boolean; privacy: boolean; newsletter: boolean }; duplicates?: ClientRecord[]; onMerge?: (survivor: ClientRecord, dupIds: string[]) => void }> = ({ sel, pay, roles, onPatch, projectsOf, historyOf, memberName, isFornitori, consents, duplicates = [], onMerge }) => {
   const roleLabel = (id: string) => roles.find((r) => r.id === id)?.label || id;
   const onTogglePrivacy = (v: boolean) => onPatch({ privacyLiberatoria: v });
   const [ref, setRef] = React.useState(sel.codiceReferenza || '');
@@ -407,6 +417,32 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
           )}
         </div>
       </Box>
+
+      {/* Storico unificato: pratiche · preventivi · contratti firmati · pagamenti */}
+      {historyOf && (() => {
+        const items = historyOf(sel);
+        return (
+          <Box title="Storico (pratiche · preventivi · contratti · pagamenti)">
+            {items.length === 0 ? <p className="text-[12px] text-[#9a9a9a]">Nessuna attività registrata per questo contatto.</p> : (
+              <div className="flex flex-col gap-1.5">
+                {items.map((it) => {
+                  const M = HIST_META[it.kind];
+                  return (
+                    <div key={it.id} className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-white border border-[#f0f0f0]">
+                      <M.icon className="w-3.5 h-3.5 shrink-0" style={{ color: M.color }} />
+                      <span className="text-[9.5px] font-bold uppercase tracking-wider shrink-0 w-[74px]" style={{ color: M.color }}>{M.label}</span>
+                      <span className="text-[12.5px] font-medium text-[#161616] truncate flex-1">{it.link ? <a href={it.link} className="hover:underline">{it.label}</a> : it.label}</span>
+                      {it.status && <span className="text-[10px] font-bold text-[#8a8a8a] uppercase shrink-0">{it.status}</span>}
+                      {it.amount != null && it.amount > 0 && <span className="text-[12px] font-black text-[#161616] shrink-0">€ {Math.round(it.amount).toLocaleString('it-IT')}</span>}
+                      <span className="text-[10.5px] text-[#b0b0b0] shrink-0 w-[58px] text-right">{it.date ? new Date(it.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: '2-digit' }) : ''}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Box>
+        );
+      })()}
 
       {/* Pratica & registro (campi Registro Clienti, editabili inline) */}
       <Box title="Pratica & registro">
