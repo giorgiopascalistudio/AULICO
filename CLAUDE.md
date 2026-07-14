@@ -551,13 +551,21 @@ reporting/redditività, integrazioni esterne
   NULLA"**), Calendario (EditorialCalendar bloccato sul canale), Workflow 9 fasi (tabella pallini
   rosso/verde), KPI mensili manuali per piattaforma IG/FB/Google/Sito (delta vs mese precedente +
   grafico, predisposti per API future), Spese & budget (ponte `handleRegisterMktExpense` → fattura
-  passiva `sector:'strategico'`), Report mensile stampabile (performance/programmazione/spese/
-  conclusioni persistite), Eventi & gadget e Blog (riuso nodo `socMkt` con `soc`=accountId), Altro
+  passiva `sector:'strategico'`; la spesa vive a livello di **MESE**: niente giorno, si salva su
+  `<ym>-01` — la data piena resta solo perché la fattura passiva la richiede), Report stampabile
+  **settimanale o mensile** (performance/programmazione/spese/conclusioni persistite), Eventi & gadget e Blog (riuso nodo `socMkt` con `soc`=accountId), Altro
   (newsletters/messaggi automatici/recensioni/foto cantieri/archivio idee = "in preparazione").
   Nuovi nodi: **`mktAccounts`**, **`mktKpi`**, **`mktExpenses`**, **`mktReports`** (tutti read/write
   studio attivo non-cliente/non-partner): **ripubblicare le regole**, altrimenti scheda account/KPI/
   spese/report falliscono con write silenziosa. Tipi `MktAccount`/`MktKpiEntry`/`MktExpense`/
-  `MktMonthlyReport` in types.ts; Cestino sezioni `mkt-account`/`mkt-spesa`. Gli account delle 5
+  `MktMonthlyReport` in types.ts; Cestino sezioni `mkt-account`/`mkt-spesa`.
+  **Report settimanale/mensile**: sia il "Report riunione" del Centro sia il tab Report dell'account
+  hanno il selettore **Settimana | Mese** (`PeriodSelect`/`Period` in MarketingHub, settimana ISO
+  Lun–Dom). Le conclusioni sono per-periodo: `MktMonthlyReport.ym` = `yyyy-mm` **oppure** `yyyy-Www`
+  (id `<accountId>__<periodo>`, `__global__<periodo>` per la riunione). **I KPI restano MENSILI**
+  (GA4 sincronizza per mese e IG/FB/Google si compilano per mese): anche nel settimanale la sezione
+  performance mostra il **mese di riferimento** (`Period.ym`, regola ISO del giovedì), come le spese;
+  a cambiare col periodo sono contenuti/programmazione e conclusioni. Gli account delle 5
   società sono **sempre presenti** (id = slug società, merge con `mktAccounts` se salvati); i clienti
   terzi vivono solo in `mktAccounts` (`acc-…`, opzionale `clientRecordId` dalla rubrica).
   **PULIZIA doppioni**: ritirate dalla UI `MarketingSection` (nodo mktSocial, "Marketing operativo"),

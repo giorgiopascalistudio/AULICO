@@ -18,6 +18,7 @@ import {
   BarChart3, Wallet, FileText, Gift, Newspaper, LayoutGrid, AlertTriangle,
   Printer, CheckCircle2, Ban, ExternalLink, UserPlus, Sparkles,
   Mail, MessageCircle, Star, Image as ImageIcon, Send, Copy, Loader2, Camera,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import type {
   MktAccount, MktKpiEntry, MktKpiPlatform, MktExpense, MktMonthlyReport,
@@ -44,7 +45,78 @@ const prevYm = (ym: string) => {
   const d = new Date(y, (m || 1) - 2, 1);
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
 };
+const ymShort = (ym: string) => {
+  const [y, m] = ym.split('-').map(Number);
+  return new Date(y, (m || 1) - 1, 1).toLocaleDateString('it-IT', { month: 'short', year: 'numeric' });
+};
 const dISO = (s?: string | null) => (s ? new Date(s).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) : '—');
+const addDays = (d: Date, n: number) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+/** Lunedì della settimana che contiene `d` (settimana Lun–Dom). */
+const mondayOf = (d: Date) => {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return addDays(x, -((x.getDay() + 6) % 7));
+};
+/** Numero di settimana ISO: il giovedì della settimana decide l'anno. */
+const isoWeek = (d: Date) => {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  t.setUTCDate(t.getUTCDate() + 4 - (t.getUTCDay() || 7));
+  const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  return { year: t.getUTCFullYear(), week: Math.ceil(((+t - +y0) / 86400000 + 1) / 7) };
+};
+
+/**
+ * Periodo di un report: mese ('yyyy-mm') o settimana ISO ('yyyy-Www', Lun–Dom).
+ * `ym` è SEMPRE il mese di riferimento: i KPI restano mensili (GA4 sincronizza per
+ * mese e IG/FB/Google si inseriscono per mese), quindi anche il report settimanale
+ * li mostra sul mese in corso; a cambiare è il perimetro di contenuti e conclusioni.
+ */
+interface Period { mode: 'mese' | 'settimana'; key: string; from: string; to: string; ym: string; label: string }
+const monthPeriod = (ym: string): Period => {
+  const [y, m] = ym.split('-').map(Number);
+  const last = new Date(y, m || 1, 0).getDate();
+  return { mode: 'mese', key: ym, from: `${ym}-01`, to: `${ym}-${pad(last)}`, ym, label: ymLabel(ym) };
+};
+const weekPeriod = (day: Date): Period => {
+  const mon = mondayOf(day);
+  const sun = addDays(mon, 6);
+  const { year, week } = isoWeek(mon);
+  const head = mon.getMonth() === sun.getMonth() ? String(mon.getDate()) : mon.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+  return {
+    mode: 'settimana',
+    key: `${year}-W${pad(week)}`,
+    from: isoOf(mon),
+    to: isoOf(sun),
+    ym: isoOf(addDays(mon, 3)).slice(0, 7),   // regola ISO: il mese è quello del giovedì
+    label: `${head} – ${sun.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })}`,
+  };
+};
+/** Passando da mese a settimana: la settimana di oggi se il mese è quello corrente, altrimenti la prima del mese. */
+const weekIn = (ym: string) => (ym === ymNow() ? new Date() : new Date(`${ym}-01T12:00:00`));
+const periodTitle = (p: Period) => (p.mode === 'settimana' ? `settimana ${p.label}` : p.label);
+
+/** Selettore Settimana | Mese condiviso dai report (riunione + account). */
+const PeriodSelect: React.FC<{ value: Period; onChange: (p: Period) => void }> = ({ value, onChange }) => (
+  <div className="flex items-center gap-2">
+    <div className="inline-flex bg-[#f1f1f1] rounded-xl p-0.5">
+      {(['settimana', 'mese'] as const).map((m) => (
+        <button
+          key={m}
+          onClick={() => onChange(m === 'mese' ? monthPeriod(value.ym) : weekPeriod(weekIn(value.ym)))}
+          className={`px-3 py-1.5 rounded-[10px] text-[11.5px] font-bold capitalize cursor-pointer border-none ${value.mode === m ? 'bg-white text-[#161616] shadow-sm' : 'bg-transparent text-[#8a8a8a]'}`}
+        >{m}</button>
+      ))}
+    </div>
+    {value.mode === 'mese' ? (
+      <input type="month" value={value.key} onChange={(e) => onChange(monthPeriod(e.target.value || ymNow()))} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white" />
+    ) : (
+      <div className="inline-flex items-center gap-0.5 bg-white border border-[#e2e2e2] rounded-xl px-1 py-1">
+        <button onClick={() => onChange(weekPeriod(addDays(new Date(`${value.from}T12:00:00`), -7)))} className="w-7 h-7 rounded-lg hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer bg-transparent border-none" title="Settimana precedente"><ChevronLeft className="w-4 h-4" /></button>
+        <span className="text-[12.5px] font-bold text-[#161616] px-1 min-w-[130px] text-center">{value.label}</span>
+        <button onClick={() => onChange(weekPeriod(addDays(new Date(`${value.from}T12:00:00`), 7)))} className="w-7 h-7 rounded-lg hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer bg-transparent border-none" title="Settimana successiva"><ChevronRight className="w-4 h-4" /></button>
+      </div>
+    )}
+  </div>
+);
 const daysAgo = (dateISO: string) => Math.floor((Date.now() - new Date(dateISO).getTime()) / 86400000);
 const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white disabled:bg-[#f7f7f5]';
 const lbl = 'text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]';
@@ -938,21 +1010,23 @@ const SpeseTab: React.FC<{
   onSave?: (e: MktExpense) => void; onDelete?: (id: string) => void; onRegister?: (e: MktExpense) => void;
 }> = ({ acc, expenses, canEdit, onSave, onDelete, onRegister }) => {
   const [ym, setYm] = React.useState(ymNow());
-  const [form, setForm] = React.useState<{ date: string; category: MktExpense['category']; description: string; amount: string }>({ date: todayISO(), category: 'sponsorizzata', description: '', amount: '' });
+  const [form, setForm] = React.useState<{ category: MktExpense['category']; description: string; amount: string }>({ category: 'sponsorizzata', description: '', amount: '' });
   const mine = expenses.filter((e) => e.accountId === acc.id).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   const monthRows = mine.filter((e) => (e.date || '').slice(0, 7) === ym);
   const monthTot = monthRows.reduce((s, e) => s + (e.amount || 0), 0);
   const yearTot = mine.filter((e) => (e.date || '').slice(0, 4) === ym.slice(0, 4)).reduce((s, e) => s + (e.amount || 0), 0);
+  // La spesa vive a livello di MESE: si salva sul primo del mese selezionato in alto,
+  // così i filtri per `slice(0,7)` e la fattura passiva in Contabilità restano validi.
   const add = () => {
     const amount = Number(form.amount);
-    if (!amount || !form.date) return;
-    onSave?.({ id: mkExpId(), accountId: acc.id, date: form.date, category: form.category, description: form.description.trim() || null, amount, createdAt: Date.now() });
-    setForm({ date: form.date, category: form.category, description: '', amount: '' });
+    if (!amount) return;
+    onSave?.({ id: mkExpId(), accountId: acc.id, date: `${ym}-01`, category: form.category, description: form.description.trim() || null, amount, createdAt: Date.now() });
+    setForm({ category: form.category, description: '', amount: '' });
   };
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Piano finanziario marketing: registra sponsorizzate, gadget, eventi… senza perdere di vista il budget. "Registra in Contabilità" crea la fattura passiva in Finanza (Strategico).</p>
+        <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Piano finanziario marketing: registra sponsorizzate, gadget, eventi… senza perdere di vista il budget. Le spese si contano per mese: quello selezionato qui a fianco. "Registra in Contabilità" crea la fattura passiva in Finanza (Strategico).</p>
         <input type="month" value={ym} onChange={(e) => setYm(e.target.value || ymNow())} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white" />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -971,7 +1045,8 @@ const SpeseTab: React.FC<{
 
       {canEdit && (
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 grid grid-cols-2 md:grid-cols-[140px_150px_1fr_110px_auto] gap-2 items-end">
-          <label className="flex flex-col gap-1"><span className={lbl}>Data</span><input type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} className={inp} /></label>
+          <div className="flex flex-col gap-1"><span className={lbl}>Mese</span>
+            <p className="px-3 py-2 rounded-lg bg-[#f5f5f3] text-[13px] font-bold text-[#161616] capitalize truncate">{ymLabel(ym)}</p></div>
           <label className="flex flex-col gap-1"><span className={lbl}>Categoria</span>
             <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as MktExpense['category'] }))} className={inp}>{EXP_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}</select></label>
           <label className="flex flex-col gap-1 col-span-2 md:col-span-1"><span className={lbl}>Descrizione</span><input value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} placeholder="Es. campagna IG giugno" className={inp} /></label>
@@ -987,13 +1062,13 @@ const SpeseTab: React.FC<{
           <table className="w-full text-left border-collapse min-w-[560px]">
             <thead>
               <tr className="border-b border-[#eee] bg-[#f7f6f4]">
-                {['Data', 'Categoria', 'Descrizione', 'Importo', ''].map((h, i) => <th key={i} className={`px-3 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i >= 3 ? 'text-right' : ''}`}>{h}</th>)}
+                {['Mese', 'Categoria', 'Descrizione', 'Importo', ''].map((h, i) => <th key={i} className={`px-3 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i >= 3 ? 'text-right' : ''}`}>{h}</th>)}
               </tr>
             </thead>
             <tbody>
               {monthRows.map((e) => (
                 <tr key={e.id} className="border-b border-[#f3f3f3] last:border-none">
-                  <td className="px-3 py-2.5 text-[12px] font-semibold text-[#555]">{dISO(e.date)}</td>
+                  <td className="px-3 py-2.5 text-[12px] font-semibold text-[#555] capitalize">{ymShort((e.date || '').slice(0, 7))}</td>
                   <td className="px-3 py-2.5"><span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{EXP_CATEGORIES.find((c) => c.id === e.category)?.label || e.category}</span></td>
                   <td className="px-3 py-2.5 text-[12.5px] text-[#161616]">{e.description || '—'}</td>
                   <td className="px-3 py-2.5 text-right text-[13px] font-extrabold text-[#161616]">{eur(e.amount)}</td>
@@ -1020,12 +1095,13 @@ const ReportTab: React.FC<{
   acc: MktAccount; posts: EditorialPost[]; kpi: MktKpiEntry[]; expenses: MktExpense[]; reports: MktMonthlyReport[];
   canEdit: boolean; onSaveReport?: (r: MktMonthlyReport) => void;
 }> = ({ acc, posts, kpi, expenses, reports, canEdit, onSaveReport }) => {
-  const [ym, setYm] = React.useState(ymNow());
-  const repId = `${acc.id}__${ym}`;
+  const [period, setPeriod] = React.useState<Period>(() => monthPeriod(ymNow()));
+  const ym = period.ym;                                   // mese di riferimento (KPI e spese)
+  const repId = `${acc.id}__${period.key}`;
   const savedRep = reports.find((r) => r.id === repId);
   const [conclusions, setConclusions] = React.useState(savedRep?.conclusions || '');
   React.useEffect(() => setConclusions(savedRep?.conclusions || ''), [repId]); // eslint-disable-line
-  const monthPosts = posts.filter((p) => p.dateISO.slice(0, 7) === ym).sort((a, b) => a.dateISO.localeCompare(b.dateISO));
+  const periodPosts = posts.filter((p) => p.dateISO >= period.from && p.dateISO <= period.to).sort((a, b) => a.dateISO.localeCompare(b.dateISO));
   const monthExp = expenses.filter((e) => e.accountId === acc.id && (e.date || '').slice(0, 7) === ym);
   const expTot = monthExp.reduce((s, e) => s + (e.amount || 0), 0);
   const pYm = prevYm(ym);
@@ -1049,22 +1125,22 @@ const ReportTab: React.FC<{
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2 flex-wrap no-print">
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Report mensile in stile riunione: performance, programmazione, spese, conclusioni. "Stampa" genera il PDF.</p>
-        <div className="flex items-center gap-2">
-          <input type="month" value={ym} onChange={(e) => setYm(e.target.value || ymNow())} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white" />
+        <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Report in stile riunione, settimanale o mensile: performance, programmazione, spese, conclusioni. "Stampa" genera il PDF.</p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <PeriodSelect value={period} onChange={setPeriod} />
           <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Printer className="w-4 h-4" /> Stampa / PDF</button>
         </div>
       </div>
 
       <div className="print-area bg-white border border-[#e2e2e2] rounded-[22px] p-6 flex flex-col gap-5">
         <div>
-          <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: '#b45309' }}>Strategico · Report marketing</p>
-          <h3 className="text-[22px] font-black text-[#161616] capitalize">{acc.name} — {ymLabel(ym)}</h3>
+          <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: '#b45309' }}>Strategico · Report marketing {period.mode === 'settimana' ? 'settimanale' : 'mensile'}</p>
+          <h3 className="text-[22px] font-black text-[#161616] capitalize">{acc.name} — {periodTitle(period)}</h3>
         </div>
 
-        {/* 1. Performance */}
+        {/* 1. Performance — i KPI sono mensili: anche nel settimanale si guarda il mese di riferimento. */}
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">1 · Analisi performance digital</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">1 · Analisi performance digital <span className="normal-case tracking-normal font-bold text-[#c0c0c0]">— dati del mese di {ymLabel(ym)}</span></p>
           {perfRows.length === 0 ? (
             <p className="text-[12.5px] text-[#9a9a9a]">Nessun dato KPI inserito per {ymLabel(ym)} (tab KPI).</p>
           ) : perfRows.map((r) => (
@@ -1084,10 +1160,10 @@ const ReportTab: React.FC<{
 
         {/* 2. Programmazione */}
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">2 · Programmazione {ymLabel(ym)}</p>
-          {monthPosts.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Nessun contenuto in calendario.</p> : (
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">2 · Programmazione {periodTitle(period)}</p>
+          {periodPosts.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Nessun contenuto in calendario.</p> : (
             <div className="flex flex-col gap-1">
-              {monthPosts.map((p) => {
+              {periodPosts.map((p) => {
                 const st = ED_STATUS.find((s) => s.id === p.status) || ED_STATUS[0];
                 return (
                   <div key={p.id} className="flex items-center gap-2 text-[12.5px]">
@@ -1105,7 +1181,7 @@ const ReportTab: React.FC<{
 
         {/* 3. Spese */}
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">3 · Spese marketing del mese</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">3 · Spese marketing di {ymLabel(ym)}</p>
           {monthExp.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Nessuna spesa registrata.</p> : (
             <div className="flex flex-col gap-0.5">
               {monthExp.map((e) => (
@@ -1123,9 +1199,9 @@ const ReportTab: React.FC<{
             disabled={!canEdit}
             value={conclusions}
             onChange={(e) => setConclusions(e.target.value)}
-            onBlur={() => { if (canEdit && conclusions !== (savedRep?.conclusions || '')) onSaveReport?.({ id: repId, accountId: acc.id, ym, conclusions: conclusions || null, updatedAt: Date.now() }); }}
+            onBlur={() => { if (canEdit && conclusions !== (savedRep?.conclusions || '')) onSaveReport?.({ id: repId, accountId: acc.id, ym: period.key, conclusions: conclusions || null, updatedAt: Date.now() }); }}
             rows={4}
-            placeholder="Sintesi del mese, decisioni, strategia per il mese prossimo…"
+            placeholder={period.mode === 'settimana' ? 'Sintesi della settimana, decisioni, cosa fare la prossima…' : 'Sintesi del mese, decisioni, strategia per il mese prossimo…'}
             className={`${inp} resize-none`}
           />
         </div>
@@ -1139,8 +1215,9 @@ const MeetingReport: React.FC<{
   accounts: MktAccount[]; posts: EditorialPost[]; expenses: MktExpense[]; quotes: Quote[]; reports: MktMonthlyReport[];
   canEdit: boolean; onSaveReport?: (r: MktMonthlyReport) => void; onClose: () => void;
 }> = ({ accounts, posts, expenses, quotes, reports, canEdit, onSaveReport, onClose }) => {
-  const [ym, setYm] = React.useState(ymNow());
-  const repId = `__global__${ym}`;
+  const [period, setPeriod] = React.useState<Period>(() => monthPeriod(ymNow()));
+  const ym = period.ym;                                   // mese di riferimento (spese)
+  const repId = `__global__${period.key}`;
   const savedRep = reports.find((r) => r.id === repId);
   const [conclusions, setConclusions] = React.useState(savedRep?.conclusions || '');
   React.useEffect(() => setConclusions(savedRep?.conclusions || ''), [repId]); // eslint-disable-line
@@ -1153,8 +1230,8 @@ const MeetingReport: React.FC<{
       <div className="bg-white rounded-[24px] w-full max-w-3xl my-4 p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4 no-print">
           <h3 className="text-[17px] font-extrabold text-[#161616]">Report riunione marketing</h3>
-          <div className="flex items-center gap-2">
-            <input type="month" value={ym} onChange={(e) => setYm(e.target.value || ymNow())} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white" />
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <PeriodSelect value={period} onChange={setPeriod} />
             <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Printer className="w-4 h-4" /> Stampa</button>
             <button onClick={onClose} className="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button>
           </div>
@@ -1162,8 +1239,8 @@ const MeetingReport: React.FC<{
 
         <div className="print-area flex flex-col gap-5">
           <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: '#b45309' }}>Strategico · Riunione marketing</p>
-            <h3 className="text-[22px] font-black text-[#161616] capitalize">{ymLabel(ym)}</h3>
+            <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: '#b45309' }}>Strategico · Riunione marketing {period.mode === 'settimana' ? 'settimanale' : 'mensile'}</p>
+            <h3 className="text-[22px] font-black text-[#161616] capitalize">{periodTitle(period)}</h3>
           </div>
 
           <div>
@@ -1172,10 +1249,10 @@ const MeetingReport: React.FC<{
               {accounts.filter((a) => a.active !== false).map((a) => {
                 const h = healthOf(a, posts);
                 const st = HEALTH[h.state];
-                const monthCount = postsOf(a, posts).filter((p) => p.dateISO.slice(0, 7) === ym).length;
+                const count = postsOf(a, posts).filter((p) => p.dateISO >= period.from && p.dateISO <= period.to).length;
                 return (
                   <p key={a.id} className="text-[12.5px] text-[#555]">
-                    <b className="text-[#161616]">{a.name}</b> — <span style={{ color: st.color }} className="font-extrabold">{st.label}</span> · {monthCount} contenuti nel mese · ultimo post {h.lastPub ? dISO(h.lastPub) : '—'} · prossima {h.nextPub ? dISO(h.nextPub) : '—'}
+                    <b className="text-[#161616]">{a.name}</b> — <span style={{ color: st.color }} className="font-extrabold">{st.label}</span> · {count} contenuti {period.mode === 'settimana' ? 'nella settimana' : 'nel mese'} · ultimo post {h.lastPub ? dISO(h.lastPub) : '—'} · prossima {h.nextPub ? dISO(h.nextPub) : '—'}
                     {a.kind === 'cliente' && !a.liberatoria ? <span className="text-rose-600 font-extrabold"> · MANCA LIBERATORIA</span> : null}
                   </p>
                 );
@@ -1184,7 +1261,7 @@ const MeetingReport: React.FC<{
           </div>
 
           <div>
-            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">2 · Spese marketing del mese</p>
+            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">2 · Spese marketing di {ymLabel(ym)}</p>
             <p className="text-[13px] font-extrabold text-[#161616]">{eur(monthExpTot)}</p>
           </div>
 
@@ -1200,9 +1277,9 @@ const MeetingReport: React.FC<{
               disabled={!canEdit}
               value={conclusions}
               onChange={(e) => setConclusions(e.target.value)}
-              onBlur={() => { if (canEdit && conclusions !== (savedRep?.conclusions || '')) onSaveReport?.({ id: repId, accountId: '__global__', ym, conclusions: conclusions || null, updatedAt: Date.now() }); }}
+              onBlur={() => { if (canEdit && conclusions !== (savedRep?.conclusions || '')) onSaveReport?.({ id: repId, accountId: '__global__', ym: period.key, conclusions: conclusions || null, updatedAt: Date.now() }); }}
               rows={4}
-              placeholder="Decisioni della riunione, strategia del mese prossimo…"
+              placeholder={period.mode === 'settimana' ? 'Decisioni della riunione, priorità della prossima settimana…' : 'Decisioni della riunione, strategia del mese prossimo…'}
               className={`${inp} resize-none`}
             />
           </div>

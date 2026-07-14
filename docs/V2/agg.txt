@@ -1,0 +1,205 @@
+Ciao Giorgio,
+ti mando questa bozza che ho preparato per riassumere alcune idee sullo sviluppo del CRM. Non è un elenco definitivo, ma una linea guida per capire la direzione che vorrei prendere.
+
+Fammi sapere se è fattibile.
+
+*1. Agenda*
+L’agenda deve essere uno degli strumenti principali del software.
+
+Vorrei una visualizzazione giornaliera che parta dalle 7:00 e arrivi alle 22:00, con gli appuntamenti rappresentati come blocchi che occupano lo spazio in funzione della loro durata (es. dalle 8:00 alle 12:00 compare un rettangolo di quattro ore).
+
+Ogni appuntamento dovrà essere associato ad un colore in base all’Area del Vivere.
+Le aree sono 4 personale, familiare, sociale e professionale.
+
+Noi potremmo definirle con questi colori:
+
+* *PERSONALE* → Blu
+* *FAMILIARE* → Azzurro
+* *SOCIALE* → Celeste
+
+Dell’Area professionale abbiamo più società quindi ognuna potrebbe avere un colore
+
+*STRATEGICO*
+(Scala del Rosso)
+* HR
+* Amministrazione
+* Contabilità
+* Marketing
+* Produzione
+
+Tutte queste attività avranno tonalità della scala del rosso.
+
+Inoltre ogni appuntamento potrà essere associato anche ad una società:
+
+* *UNICO* → Giallo
+* *ONIRICO* → Verde
+* *MATERICO* → Arancione
+* *FANTASTICO* → Viola
+
+Dovremo trovare il modo migliore per far convivere il colore della categoria con quello della società (ad esempio bordo, etichetta o altro).
+
+Vorrei inoltre poter creare attività:
+
+* singole;
+* ricorrenti giornalmente;
+* settimanalmente;
+* mensilmente;
+* con qualsiasi altra periodicità.
+
+L’obiettivo è avere un’agenda molto interattiva e veloce da usare veramente che possa anche ricordarti degli appuntamenti tramite una notifica.
+
+⸻
+
+*2. Cronometro delle attività* (Time Tracking)
+
+Ogni attività dovrebbe poter essere avviata con un pulsante tipo:
+
+Inizia attività
+
+e terminata con
+
+Fine attività
+
+Durante il lavoro parte un cronometro che registra automaticamente il tempo realmente impiegato.
+
+Alla fine avremo:
+
+* ora di inizio;
+* ora di fine;
+* durata effettiva;
+* collaboratore;
+* cliente;
+* progetto;
+* tipo di attività.
+
+Questa funzione è fondamentale.
+
+Serve per:
+
+* costruire automaticamente il report settimanale;
+* costruire il report mensile;
+* creare statistiche automatiche;
+* capire quanto tempo richiede realmente ogni attività;
+* migliorare la pianificazione futura;
+* conoscere i tempi medi delle varie lavorazioni.
+
+In prospettiva potrebbe essere utilizzata anche per capire:
+
+* quando una persona è in studio;
+* quando lavora da casa;
+* quando è assente;
+* quando è realmente operativa.
+
+Non come sistema di controllo, ma come conseguenza naturale delle attività svolte.
+
+⸻
+
+*1. Liste attività dei collaboratori**
+
+Questa è una funzione molto importante.
+
+Ogni collaboratore avrà la propria lista attività (liste cicli).
+
+Io però, come responsabile, devo poter entrare nella lista di qualsiasi collaboratore.
+
+Ad esempio:
+
+* vedere la lista attività di Giorgio;
+* vedere la lista attività di Raffaele;
+* vedere la lista attività di Claudia;
+* ecc.
+
+Inoltre devo poter:
+
+* assegnare nuove attività;
+* modificare attività;
+* spostarle;
+* controllarne lo stato;
+* utilizzarle durante le riunioni tecniche.
+
+Di fatto le riunioni dovranno basarsi direttamente su queste liste, senza dover preparare altro materiale.
+
+⸻
+
+*1. Report automatici*
+
+Tutto il sistema deve produrre automaticamente:
+
+* report settimanali;
+* report mensili;
+* statistiche;
+* tempo medio delle attività;
+* distribuzione del lavoro;
+* storico delle lavorazioni.
+
+L’obiettivo è eliminare il più possibile la compilazione manuale dei report.
+
+⸻
+
+*5.Presentazioni*
+
+Questo secondo me è uno dei punti più interessanti da valutare.
+
+Noi realizziamo moltissime presentazioni PowerPoint.
+
+Vorrei capire se conviene sviluppare una funzione interna oppure se è meglio generarle esternamente e poi importarle.
+
+L’idea ideale sarebbe questa.
+
+Il software conosce già:
+
+* cliente;
+* immobile;
+* progetto;
+* materiali scelti;
+* moodboard;
+* arredi;
+* immagini;
+* riferimenti.
+
+Di conseguenza potrebbe costruire automaticamente una presentazione già impaginata.
+
+Ad esempio:
+
+* copertina;
+* inquadramento territoriale;
+* analisi del sito;
+* esposizione solare;
+* venti;
+* privacy;
+* distanze dai confini;
+* vincoli;
+* moodboard;
+* materiali;
+* arredi;
+* immagini di riferimento;
+* conclusioni.
+
+Noi oggi queste presentazioni hanno quasi sempre la stessa struttura.
+
+La parte grafica è praticamente standard; cambiano solo i contenuti.
+
+Se riuscissimo ad automatizzare anche solo il 60-70% della loro costruzione, risparmieremmo moltissimo tempo.
+
+⸻
+
+*6. Questionario iniziale cliente*
+
+Il questionario che oggi facciamo all’inizio del progetto dovrebbe diventare parte integrante del software.
+
+Le risposte raccolte dovrebbero alimentare automaticamente tutto il resto del progetto:
+
+* preferenze;
+* stile;
+* materiali;
+* esigenze;
+* budget;
+* funzioni;
+* moodboard;
+* presentazioni.
+
+L’obiettivo è inserire le informazioni una sola volta e riutilizzarle ovunque, evitando di riscrivere gli stessi dati in più punti.
+
+⸻
+
+Questa è la direzione che immagino per il CRM. L’obiettivo non è semplicemente creare un gestionale, ma costruire uno strumento che accompagni tutto il flusso di lavoro delle varie società: dalla pianificazione delle attività, al controllo operativo, fino alla produzione automatica di report e presentazioni, riducendo il più possibile il lavoro ripetitivo e aumentando l’efficienza del team.

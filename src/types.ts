@@ -1335,7 +1335,10 @@ export interface MktKpiEntry {
 export interface MktExpense {
   id: string;
   accountId: string;               // account di riferimento (o 'generale')
-  date: string;                    // yyyy-mm-dd
+  date: string;                    // yyyy-mm-dd, ma la spesa vive a livello di MESE:
+                                   // le nuove si salvano sul primo del mese (`yyyy-mm-01`)
+                                   // e la UI mostra solo mese/anno. Resta una data piena
+                                   // perché la fattura passiva in Contabilità la richiede.
   category: 'sponsorizzata' | 'gadget' | 'evento' | 'stampa' | 'software' | 'altro';
   description?: string | null;
   amount: number;
@@ -1343,12 +1346,14 @@ export interface MktExpense {
   createdAt: number;
   updatedAt?: number;
 }
-/** Nodo `mktReports/<id>` — conclusioni/commento del report mensile per account
- * (id deterministico `<accountId>__<yyyy-mm>`); il resto del report è calcolato. */
+/** Nodo `mktReports/<id>` — conclusioni/commento del report per account
+ * (id deterministico `<accountId>__<periodo>`); il resto del report è calcolato.
+ * Il periodo è il mese `yyyy-mm` oppure la settimana ISO `yyyy-Www`: il report
+ * si può fare settimanale o mensile e le conclusioni restano separate per periodo. */
 export interface MktMonthlyReport {
   id: string;
   accountId: string;
-  ym: string;
+  ym: string;                      // 'yyyy-mm' (mensile) oppure 'yyyy-Www' (settimanale)
   conclusions?: string | null;
   updatedAt: number;
 }
