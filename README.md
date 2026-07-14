@@ -7,7 +7,7 @@ controllo accessi** e **tutti i dati condivisi sul Realtime Database** del proge
 ## Accesso e ruoli
 - Si entra solo con **account Google**.
 - Il **primo** che accede diventa **admin**. La tua email
-  (`giorgio.pascali990@gmail.com`) e gia impostata come admin garantito.
+  (`@gmail.com`) e gia impostata come admin garantito.
 - Ogni nuovo accesso resta **in attesa**: lo approvi tu dal pulsante **Accessi**
   (icona persone, in alto a destra e nel profilo), assegnando un **ruolo**.
 - Ruoli e accesso ai dati (secondo le regole del Database):
