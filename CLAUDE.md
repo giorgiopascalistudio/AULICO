@@ -870,14 +870,24 @@ reporting/redditività, integrazioni esterne
   settimana/nel mese", sul modello del PDF `28. Report_Rosa Custodero`: intestazione persona +
   settimana/mese, **sezioni numerate** con le attività svolte (template `ARCHIVIO MARKETING ·
   AGGIORNAMENTO SITO · GESTIONE SOCIAL · PIANIFICAZIONE`, rinominabile/riordinabile) e **CONCLUSIONE**
-  discorsiva (bottone "Scrivila con l'AI" via `callAi`). Voci = testo libero (una riga = una voce, riga
-  indentata = sotto-voce "o"), con **"Precompila dai dati"** che scrive da solo quello che l'app sa del
-  periodo: contenuti pubblicati (`editorialPosts.createdBy`, per account+piattaforma), articoli/eventi
-  (`socMkt.by`), riunioni (`appointments.participants`), attività completate (`tasks`); le ore dai
-  cronometri finiscono in fondo al documento. Editor + **Anteprima**; la stampa è un blocco
+  discorsiva (bottone "Scrivila con l'AI" via `callAi`). **Il report SI AUTOCOMPILA** (richiesta esplicita
+  utente): all'apertura di un periodo senza report salvato il draft nasce già pieno (`autoReport`/
+  `fillSections`) con quello che l'app sa: contenuti pubblicati (`editorialPosts.createdBy`, per
+  account+piattaforma), articoli/eventi (`socMkt.by`), riunioni (`appointments.participants`), attività
+  completate (`tasks`); le ore dai cronometri chiudono il documento. Appena esiste una versione salvata
+  è quella a comandare (dep `savedRep?.updatedAt` nell'effetto: serve anche al primo load, la sub Firebase
+  arriva dopo il primo render); **"Aggiorna dai dati"** riporta dentro le voci nuove (dedup). Le voci
+  restano testo libero (una riga = una voce, riga indentata = sotto-voce "o") perché riunioni/shooting/
+  archivio l'app non li conosce; le **sezioni vuote non si stampano** (il template è tarato sul marketing,
+  chi fa altro non deve stampare titoli vuoti). Editor + **Anteprima**; la stampa è un blocco
   `hidden print:block .print-area` (pattern di `StimaPreliminareView`). Scrive **il diretto interessato**
-  (regola `auth.uid == $uid`) o admin/manager; legge lo studio. ⚠️ Nodo **`profileReports`** in
-  `firebase-rules.json`: **ripubblicare le regole**, altrimenti il salvataggio fallisce con toast di errore.
+  (regola `auth.uid == $uid`) o admin/manager; legge lo studio.
+  **Due porte**: 1) HR → Report & Tempi (scheda, con selettore persona: l'HR li vede tutti); 2) **"Il mio
+  profilo" → "Il mio report settimanale / mensile"** (stato `myReportOpen` in App → `ProfileReportOverlay`,
+  `lockUid`) — sta lì perché **non tutti hanno accesso alla sezione HR**. L'overlay è in portal su body e
+  NON un `Modal`: il Modal ha un'area a scroll con `max-h` e la stampa taglierebbe il documento.
+  ⚠️ Nodo **`profileReports`** in `firebase-rules.json`: **ripubblicare le regole**, altrimenti il
+  salvataggio fallisce con toast di errore.
   4) **Questionario iniziale cliente** (`src/projectBrief.ts`, `ProjectBriefForm`, nodo **`projectBriefs/<pid>`**):
   `ProjectBrief.answers` (catalogo domande stile/materiali/esigenze/funzioni/budget/riferimenti) compilabile
   da studio (tab "Questionario" nel fascicolo Onirico/Unico) e dal CLIENTE (tab "Questionario" nel portale

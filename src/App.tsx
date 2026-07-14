@@ -22,7 +22,8 @@ import {
   Check,
   X,
   LayoutGrid,
-  CalendarDays
+  CalendarDays,
+  FileText
 } from 'lucide-react';
 
 import {
@@ -222,6 +223,7 @@ const LegaleView = React.lazy(() => import('./components/LegaleView').then((m) =
 const RenderAiView = React.lazy(() => import('./components/RenderAiView').then((m) => ({ default: m.RenderAiView })));
 const RecruitingView = React.lazy(() => import('./components/RecruitingView').then((m) => ({ default: m.RecruitingView })));
 const TimeReportView = React.lazy(() => import('./components/TimeReportView').then((m) => ({ default: m.TimeReportView })));
+const MyProfileReport = React.lazy(() => import('./components/ProfileReport').then((m) => ({ default: m.ProfileReportOverlay })));
 const FantasticoView = React.lazy(() => import('./components/FantasticoView').then((m) => ({ default: m.FantasticoView })));
 const PointOfEntryView = React.lazy(() => import('./components/PointOfEntryView').then((m) => ({ default: m.PointOfEntryView })));
 const PianoIncentivanteView = React.lazy(() => import('./components/PianoIncentivanteView').then((m) => ({ default: m.PianoIncentivanteView })));
@@ -2592,6 +2594,7 @@ export default function App() {
   // MODAL SWITCH CONTROLS
   // ----------------------------------------------------
   const [profileOpen, setProfileOpen] = useState(false);
+  const [myReportOpen, setMyReportOpen] = useState(false);   // il proprio report di profilo
   // Il mio profilo: campi modificabili (nome, telefono, residenza)
   const [profName, setProfName] = useState('');
   const [profPhone, setProfPhone] = useState('');
@@ -7017,6 +7020,15 @@ export default function App() {
             Salva dati personali
           </button>
 
+          {/* Il proprio report settimanale/mensile: sta QUI perché non tutti hanno
+              accesso a Risorse Umane → Report & Tempi (dove l'HR li vede tutti). */}
+          <button
+            onClick={() => { setProfileOpen(false); setMyReportOpen(true); }}
+            className="py-2.5 rounded-xl bg-white hover:bg-[#f5f5f3] border border-[#e2e2e2] text-[#161616] font-bold text-[13px] cursor-pointer w-full inline-flex items-center justify-center gap-2"
+          >
+            <FileText className="w-4 h-4" /> Il mio report settimanale / mensile
+          </button>
+
           {/* Gestione accessi spostata in Risorse Umane → Team & Permessi */}
 
           <button onClick={handleLogout} className="py-2.5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-800 font-bold text-[13px] cursor-pointer w-full mt-2">
@@ -7024,6 +7036,30 @@ export default function App() {
           </button>
         </div>
       </Modal>
+
+      {/* 1a-bis. Il mio report di profilo (dal proprio profilo: nessun permesso di sezione richiesto) */}
+      {myReportOpen && (
+        <React.Suspense fallback={null}>
+          <MyProfileReport
+            onClose={() => setMyReportOpen(false)}
+            me={{ uid: currentUser.uid, name: currentUser.name }}
+            isBoss={false}
+            lockUid
+            members={Object.values(users).filter((u) => u.uid === currentUser.uid)}
+            tasks={Object.values(tasks)}
+            timeEntries={Object.values(timeEntries)}
+            appointments={Object.values(appointments)}
+            posts={Object.values(editorialPosts)}
+            extras={Object.values(socMkt)}
+            accounts={[
+              ...(['strategico', 'studio', 'materico', 'unico', 'fantastico'] as const).map((s) => ({ id: s, name: (SOCIETA_LABEL as any)[s] || s })),
+              ...Object.values(mktAccounts).filter((a) => a.kind === 'cliente').map((a) => ({ id: a.id, name: a.name })),
+            ]}
+            reports={profileReports}
+            onSave={handleSaveProfileReport}
+          />
+        </React.Suspense>
+      )}
 
       {/* 1b. Gestione Accessi (admin e manager) */}
       {canManageAccess && (

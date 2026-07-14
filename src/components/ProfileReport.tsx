@@ -17,8 +17,9 @@
  * manager), lo legge lo studio.
  */
 import React from 'react';
+import { createPortal } from 'react-dom';
 import {
-  Printer, Plus, Trash2, ChevronUp, ChevronDown, Sparkles, Loader2, Wand2, Eye, PencilLine,
+  Printer, Plus, Trash2, ChevronUp, ChevronDown, Sparkles, Loader2, Wand2, Eye, PencilLine, FileText, X,
 } from 'lucide-react';
 import type {
   Appointment, EditorialPost, ProfileReport as TProfileReport, ProfileReportSection,
@@ -41,21 +42,54 @@ interface Props {
   accounts: { id: string; name: string }[];          // account marketing (per i nomi)
   reports: Record<string, Record<string, TProfileReport>>;  // uid → periodo → report
   onSave?: (r: TProfileReport) => void;
+  /** Profilo personale: report del solo utente collegato (niente selettore persona). */
+  lockUid?: boolean;
   color?: string;
 }
 
-/** Template di partenza (dal modello): rinominabile e modificabile per ogni report. */
+/** Template di partenza (dal modello): rinominabile e modificabile per ogni report.
+ *  Le sezioni che restano vuote non finiscono nella stampa. */
 const DEFAULT_SECTIONS = ['ARCHIVIO MARKETING', 'AGGIORNAMENTO SITO', 'GESTIONE SOCIAL', 'PIANIFICAZIONE'];
 
 const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white';
 const sid = () => `s-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
 
-const blankReport = (uid: string, name: string | null, period: Period): TProfileReport => ({
+/** Voci che l'app ricava dal periodo, già smistate per sezione. */
+interface Derived { social: string[]; sito: string[]; pian: string[] }
+
+/** Righe non vuote del corpo; l'indentazione segna la sotto-voce. */
+const linesOf = (body: string) =>
+  body.split('\n').filter((l) => l.trim()).map((l) => ({ text: l.trim(), sub: /^[\s\t]/.test(l) }));
+
+/**
+ * Scrive le voci derivate nella sezione più adatta (per parola chiave del titolo),
+ * saltando quelle già presenti: usata sia per l'auto-compilazione all'apertura sia
+ * per "Aggiorna dai dati" su un report già salvato.
+ */
+const fillSections = (sections: ProfileReportSection[], derived: Derived): ProfileReportSection[] => {
+  const out = sections.map((s) => ({ ...s }));
+  const already = new Set(out.flatMap((s) => linesOf(s.body).map((l) => l.text.toLowerCase())));
+  const push = (kw: string, items: string[]) => {
+    const fresh = items.filter((t) => !already.has(t.toLowerCase()));
+    if (!fresh.length) return;
+    let i = out.findIndex((s) => s.title.toUpperCase().includes(kw));
+    if (i < 0) { out.push({ id: sid(), title: 'ALTRE ATTIVITÀ', body: '' }); i = out.length - 1; }
+    out[i].body = [out[i].body.replace(/\s+$/, ''), ...fresh].filter(Boolean).join('\n');
+    fresh.forEach((t) => already.add(t.toLowerCase()));
+  };
+  push('SOCIAL', derived.social);
+  push('SITO', derived.sito);
+  push('PIANIFIC', derived.pian);
+  return out;
+};
+
+/** Report di partenza: template + tutto quello che l'app sa del periodo (auto-compilazione). */
+const autoReport = (uid: string, name: string | null, period: Period, derived: Derived): TProfileReport => ({
   id: period.key,
   uid,
   name,
   period: period.key,
-  sections: DEFAULT_SECTIONS.map((t) => ({ id: sid(), title: t, body: '' })),
+  sections: fillSections(DEFAULT_SECTIONS.map((t) => ({ id: sid(), title: t, body: '' })), derived),
   conclusion: '',
   updatedAt: 0,
 });
@@ -67,14 +101,11 @@ const longRange = (p: Period) => {
   const fmt = (d: Date) => d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long' });
   return `${fmt(f)} – ${fmt(t)} ${t.getFullYear()}`;
 };
-/** Righe non vuote del corpo; l'indentazione segna la sotto-voce. */
-const linesOf = (body: string) =>
-  body.split('\n').filter((l) => l.trim()).map((l) => ({ text: l.trim(), sub: /^[\s\t]/.test(l) }));
-
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 export const ProfileReport: React.FC<Props> = ({
-  me, isBoss, members, tasks, timeEntries, appointments, posts, extras, accounts, reports, onSave, color = '#161616',
+  me, isBoss, members, tasks, timeEntries, appointments, posts, extras, accounts, reports, onSave,
+  lockUid = false, color = '#161616',
 }) => {
   const [uid, setUid] = React.useState(me.uid);
   const [period, setPeriod] = React.useState<Period>(() => monthPeriod(ymNow()));
@@ -85,26 +116,12 @@ export const ProfileReport: React.FC<Props> = ({
   const personName = person?.name || me.name || '';
   const canEdit = !!onSave && (isBoss || uid === me.uid);
 
-  const [draft, setDraft] = React.useState<TProfileReport>(() => blankReport(uid, personName, period));
-  // Il draft si riallinea quando cambi persona o periodo (non a ogni salvataggio:
-  // stai scrivendo, non deve saltarti sotto le dita).
-  React.useEffect(() => {
-    setDraft(reports[uid]?.[period.key] || blankReport(uid, person?.name || null, period));
-  }, [uid, period.key]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const persist = (next: TProfileReport) => {
-    setDraft(next);
-    if (canEdit) onSave?.({ ...next, uid, id: period.key, period: period.key, name: person?.name || personName || null, updatedAt: Date.now(), by: me.uid });
-  };
-  const patchSection = (id: string, patch: Partial<ProfileReportSection>) =>
-    setDraft((d) => ({ ...d, sections: d.sections.map((s) => (s.id === id ? { ...s, ...patch } : s)) }));
-
   // ---------------------------------------------------------------- dati del periodo
   const inRange = (iso?: string | null) => !!iso && iso >= period.from && iso <= period.to;
   const accName = (ch: string) => accounts.find((a) => a.id === ch || a.name === ch)?.name || ch;
 
   /** Quello che l'app SA di questa persona nel periodo, già in forma di voci. */
-  const derived = React.useMemo(() => {
+  const derived = React.useMemo<Derived>(() => {
     const social: string[] = [];
     const sito: string[] = [];
     const pian: string[] = [];
@@ -151,28 +168,25 @@ export const ProfileReport: React.FC<Props> = ({
     [timeEntries, uid, period.key] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  /** Aggiunge le voci derivate nella sezione più adatta, saltando quelle già scritte. */
-  const precompile = () => {
-    const sections = draft.sections.length ? [...draft.sections] : DEFAULT_SECTIONS.map((t) => ({ id: sid(), title: t, body: '' }));
-    const already = new Set(sections.flatMap((s) => linesOf(s.body).map((l) => l.text.toLowerCase())));
-    const target = (kw: string) => {
-      const i = sections.findIndex((s) => s.title.toUpperCase().includes(kw));
-      if (i >= 0) return i;
-      sections.push({ id: sid(), title: 'ALTRE ATTIVITÀ', body: '' });
-      return sections.length - 1;
-    };
-    const push = (kw: string, items: string[]) => {
-      const fresh = items.filter((t) => !already.has(t.toLowerCase()));
-      if (!fresh.length) return;
-      const i = target(kw);
-      sections[i] = { ...sections[i], body: [sections[i].body.replace(/\s+$/, ''), ...fresh].filter(Boolean).join('\n') };
-      fresh.forEach((t) => already.add(t.toLowerCase()));
-    };
-    push('SOCIAL', derived.social);
-    push('SITO', derived.sito);
-    push('PIANIFIC', derived.pian);
-    persist({ ...draft, sections });
+  // Il report NASCE compilato con quello che l'app sa del periodo; appena esiste una
+  // versione salvata è quella a comandare (le correzioni a mano non si perdono).
+  // La dipendenza da `updatedAt` serve anche al primo caricamento: la sottoscrizione
+  // Firebase arriva dopo il primo render, e senza di essa resteresti sulla bozza automatica.
+  const savedRep = reports[uid]?.[period.key];
+  const [draft, setDraft] = React.useState<TProfileReport>(() => autoReport(uid, personName, period, derived));
+  React.useEffect(() => {
+    setDraft(savedRep || autoReport(uid, person?.name || null, period, derived));
+  }, [uid, period.key, savedRep?.updatedAt]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const persist = (next: TProfileReport) => {
+    setDraft(next);
+    if (canEdit) onSave?.({ ...next, uid, id: period.key, period: period.key, name: person?.name || personName || null, updatedAt: Date.now(), by: me.uid });
   };
+  const patchSection = (id: string, patch: Partial<ProfileReportSection>) =>
+    setDraft((d) => ({ ...d, sections: d.sections.map((s) => (s.id === id ? { ...s, ...patch } : s)) }));
+
+  /** Riporta dentro le voci nuove del periodo (utile su un report già salvato). */
+  const refresh = () => persist({ ...draft, sections: fillSections(draft.sections.length ? draft.sections : DEFAULT_SECTIONS.map((t) => ({ id: sid(), title: t, body: '' })), derived) });
 
   const aiConclusion = async () => {
     const testo = draft.sections
@@ -202,13 +216,15 @@ Riassumi in prosa scorrevole, in 3-4 paragrafi, SOLO le attività elencate qui s
       {/* Barra comandi */}
       <div className="flex items-center justify-between gap-2 flex-wrap no-print">
         <div className="flex items-center gap-2 flex-wrap">
-          <select
-            value={uid}
-            onChange={(e) => setUid(e.target.value)}
-            className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white"
-          >
-            {members.map((m) => <option key={m.uid} value={m.uid}>{m.name}{m.uid === me.uid ? ' (tu)' : ''}</option>)}
-          </select>
+          {!lockUid && (
+            <select
+              value={uid}
+              onChange={(e) => setUid(e.target.value)}
+              className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white"
+            >
+              {members.map((m) => <option key={m.uid} value={m.uid}>{m.name}{m.uid === me.uid ? ' (tu)' : ''}</option>)}
+            </select>
+          )}
           <PeriodSelect value={period} onChange={setPeriod} />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -232,16 +248,19 @@ Riassumi in prosa scorrevole, in 3-4 paragrafi, SOLO le attività elencate qui s
         <div className="flex flex-col gap-3 no-print">
           <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 flex items-center justify-between gap-3 flex-wrap">
             <div>
-              <p className="text-[12.5px] font-bold text-[#161616]">Una riga = una voce. Una riga che inizia con uno spazio diventa una sotto-voce.</p>
-              <p className="text-[11.5px] text-[#9a9a9a] font-semibold mt-0.5">
+              <p className="text-[12.5px] font-bold text-[#161616]">
                 {derivedCount > 0
-                  ? `Dai dati del periodo l'app può scrivere ${plural(derivedCount, 'voce', 'voci')} (contenuti, articoli, riunioni, attività completate).`
+                  ? `Il report si è compilato da solo con ${plural(derivedCount, 'voce trovata', 'voci trovate')} nel periodo: contenuti pubblicati, articoli, riunioni, attività completate.`
                   : 'Per questo periodo l\'app non trova contenuti, riunioni o attività da attribuirti: scrivi le voci a mano.'}
+              </p>
+              <p className="text-[11.5px] text-[#9a9a9a] font-semibold mt-0.5">
+                Correggi e aggiungi quello che l'app non sa (riunioni, sopralluoghi, archivio…). Una riga = una voce;
+                una riga che inizia con uno spazio diventa una sotto-voce. Le sezioni vuote non finiscono nella stampa.
               </p>
             </div>
             {canEdit && derivedCount > 0 && (
-              <button onClick={precompile} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[12px] font-bold cursor-pointer shrink-0">
-                <Wand2 className="w-4 h-4" /> Precompila dai dati
+              <button onClick={refresh} title="Riporta dentro le voci nuove del periodo" className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[12px] font-bold cursor-pointer shrink-0">
+                <Wand2 className="w-4 h-4" /> Aggiorna dai dati
               </button>
             )}
           </div>
@@ -317,18 +336,18 @@ Riassumi in prosa scorrevole, in 3-4 paragrafi, SOLO le attività elencate qui s
           {period.mode === 'settimana' ? <>Settimana {period.week} · {longRange(period)}</> : <span className="capitalize">{period.label}</span>}
         </p>
 
+        {/* Solo le sezioni con voci: un template pensato per il marketing non deve
+            stampare quattro titoli vuoti nel report di chi fa altro. */}
         <div className="flex flex-col gap-4 mt-6">
-          {draft.sections.filter((s) => s.title.trim() || s.body.trim()).map((s, i) => (
+          {draft.sections.filter((s) => linesOf(s.body).length > 0).map((s, i) => (
             <div key={s.id}>
               <p className="text-[13px] font-black text-[#161616] uppercase tracking-wide">{i + 1}. {s.title}</p>
               <div className="mt-1 flex flex-col gap-0.5">
-                {linesOf(s.body).length === 0
-                  ? <p className="text-[12.5px] italic text-[#b0b0b0]">—</p>
-                  : linesOf(s.body).map((l, k) => (
-                    <p key={k} className={`text-[12.5px] text-[#333] leading-relaxed ${l.sub ? 'pl-9' : 'pl-4'}`}>
-                      <span className="text-[#9a9a9a] mr-1.5">{l.sub ? 'o' : '-'}</span>{l.text}
-                    </p>
-                  ))}
+                {linesOf(s.body).map((l, k) => (
+                  <p key={k} className={`text-[12.5px] text-[#333] leading-relaxed ${l.sub ? 'pl-9' : 'pl-4'}`}>
+                    <span className="text-[#9a9a9a] mr-1.5">{l.sub ? 'o' : '-'}</span>{l.text}
+                  </p>
+                ))}
               </div>
             </div>
           ))}
@@ -352,5 +371,29 @@ Riassumi in prosa scorrevole, in 3-4 paragrafi, SOLO le attività elencate qui s
     </div>
   );
 };
+
+/**
+ * Il proprio report a tutto schermo, aperto da "Il mio profilo": ci arriva chiunque,
+ * anche chi non ha accesso a Risorse Umane → Report & Tempi (dove invece l'HR li vede tutti).
+ * Overlay in portal su body (§9-bis) e non un `Modal`: quello ha un'area a scroll con
+ * altezza massima e la stampa taglierebbe il documento.
+ */
+export const ProfileReportOverlay: React.FC<Props & { onClose: () => void }> = ({ onClose, ...rest }) =>
+  createPortal(
+    <div className="fixed inset-0 z-[200] bg-[#F5F5F3] overflow-y-auto">
+      <div className="max-w-[920px] mx-auto p-4 sm:p-6 flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-3 no-print">
+          <h2 className="text-[20px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
+            <FileText className="w-5 h-5" /> Il mio report
+          </h2>
+          <button onClick={onClose} className="w-9 h-9 rounded-xl border border-[#e2e2e2] bg-white hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer" title="Chiudi">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <ProfileReport {...rest} />
+      </div>
+    </div>,
+    document.body
+  );
 
 export default ProfileReport;
