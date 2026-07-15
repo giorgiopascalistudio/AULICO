@@ -1471,14 +1471,18 @@ export default function App() {
     });
   };
 
-  /** Apre l'editor "Nuovo impegno" pulito (unico punto di reset dei campi task). */
-  const openNewTaskEditor = (presetDate?: string, presetTitle?: string) => {
+  /**
+   * Apre l'editor "Nuovo impegno" pulito (unico punto di reset dei campi task).
+   * `presetSoc`: società di riferimento preimpostata — dall'agenda di una società, così
+   * la voce creata resta visibile nell'agenda in cui la si sta creando (che è filtrata).
+   */
+  const openNewTaskEditor = (presetDate?: string, presetTitle?: string, presetSoc?: string) => {
     setEditTaskId(null);
     setTTitle(presetTitle || '');
     setTDateInput(presetDate || todayISO());
     setTTimeInput('');
     setTEndInput('');
-    setTSoc('');
+    setTSoc(presetSoc || '');
     setTFreq('once');
     setTPrio('media');
     setTTipo('');
@@ -1492,7 +1496,7 @@ export default function App() {
     setEditApptId(null);
     setTaskEditorOpen(true);
   };
-  const handleOpenNewAppointment = (presetDate?: string) => {
+  const handleOpenNewAppointment = (presetDate?: string, presetSoc?: string) => {
     setApptDate(presetDate || todayISO());
     setApptTitle('');
     setApptTime('');
@@ -1502,7 +1506,7 @@ export default function App() {
     setApptPrivate(false);
     setApptEndTime('');
     setApptArea('');
-    setApptSoc('');
+    setApptSoc(presetSoc || '');
     setApptRepeat('none');
     setApptRepeatEvery(1);
     setApptRepeatUntil('');
@@ -1522,11 +1526,12 @@ export default function App() {
       if (apptOpen) return;
       const title = tTitle;
       const date = tDateInput;
-      handleOpenNewAppointment(date || undefined);
+      const soc = tSoc;
+      handleOpenNewAppointment(date || undefined, soc || undefined);
       if (title.trim()) setApptTitle(title);
     } else {
       if (!apptOpen) return;
-      openNewTaskEditor(apptDate || undefined, apptTitle.trim() || undefined);
+      openNewTaskEditor(apptDate || undefined, apptTitle.trim() || undefined, apptSoc || undefined);
     }
   };
   /** Prefill del form appuntamento per la modifica (matita nella vista giorno dell'agenda). */
@@ -5485,12 +5490,20 @@ export default function App() {
         const myUidC = currentUser.uid;
         const mineTask = (t: any) => t.assignee === myUidC || (t.assignees || []).includes(myUidC) || t.createdBy === myUidC || t.owner === myUidC;
         const mineAppt = (a: any) => (a.participants ? !!a.participants[myUidC] : a.ownerUid === myUidC);
+        /* Agenda di SOCIETÀ: solo le voci di quella società (niente cross-società, vedi §10/§12).
+           L'agenda personale di Aulico (holding) resta l'unica che le mostra tutte.
+           Società della voce: campo esplicito, o dedotta dalla divisione della pratica collegata. */
+        const socScope = (activeSocieta as string) !== 'holding' ? (activeSocieta as string) : null;
+        const projDiv = (pid?: string | null) => (pid ? ((projects[pid]?.division as string) || null) : null);
+        const taskInSoc = (t: Task) => !socScope || (t.societa || projDiv(t.projectId)) === socScope;
+        const apptInSoc = (a: Appointment) => !socScope || a.societa === socScope;
         return (
           <CalendarView
             /* Agenda personale: società-wide (voci condivise) + le proprie voci private */
-            tasks={Object.values(tasks).filter((t) => (t.private ? mineTask(t) : true))}
-            projects={Object.values(projects)}
-            appointments={Object.values(appointments).filter((a) => (a.private ? mineAppt(a) : true))}
+            tasks={Object.values(tasks).filter((t) => (t.private ? mineTask(t) : true)).filter(taskInSoc)}
+            /* projects: alimenta i task di fascicolo (projTasksOn) e il nome-pratica → va filtrato con lo stesso criterio */
+            projects={Object.values(projects).filter((p) => !socScope || (p.division as string) === socScope)}
+            appointments={Object.values(appointments).filter((a) => (a.private ? mineAppt(a) : true)).filter(apptInSoc)}
             calView={calView}
             calDate={calDate}
             onSetCalView={setCalView}
@@ -5501,7 +5514,9 @@ export default function App() {
             onConfirmAppointment={handleConfirmAppointment}
             onDeclineAppointment={handleDeclineAppointment}
             onDeleteAppointment={handleDeleteAppointment}
-            onNewTask={(pDate) => openNewTaskEditor(pDate)}
+            /* Dall'agenda di una società la nuova voce nasce già di quella società (altrimenti
+               sparirebbe subito dall'agenda in cui la si sta creando). */
+            onNewTask={(pDate) => openNewTaskEditor(pDate, undefined, socScope || undefined)}
             myUid={currentUser.uid}
             myName={currentUser.name}
             teamLeave={Object.values(teamLeave)}
@@ -5509,6 +5524,7 @@ export default function App() {
             onDeleteLeave={handleDeleteLeave}
             /* Ferie & assenze SOLO nell'agenda personale (Aulico), non nelle agende delle società */
             showLeave={(activeSocieta as string) === 'holding'}
+            socFilter={socScope}
             onToggleTimer={handleToggleTimer}
             runningTaskId={myRunning?.taskId || null}
           />

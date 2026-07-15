@@ -330,6 +330,18 @@ regole** e ricordare all'utente di ripubblicarle.
   "Urgenza" nel form appuntamento). Vale su settimana, mese (striscette) e vista giorno
   (riquadro icona + bordo sinistro riga = società, pallino/badge = urgenza).
   Niente più indigo "cantiere" né colori-priorità come sfondo blocchi. Nessuna regola nuova.
+  **AGENDA DI SOCIETÀ = SOLO le sue voci (15 lug)**: nella route `calendario` App calcola
+  `socScope = activeSocieta !== 'holding' ? activeSocieta : null` e filtra ciò che passa a
+  `CalendarView` — task (`t.societa` **o** `division` della pratica collegata), appuntamenti
+  (`a.societa`) e **anche `projects`** (alimenta `projTasksOn`/nome-pratica: senza filtro
+  i task di fascicolo di altre società rientrerebbero dalla finestra). Coerente con
+  "nessun rimando cross-società" (§12): l'**agenda personale di Aulico (holding) resta
+  l'unica che mostra tutto**. Le voci **senza società e senza pratica** vivono solo lì.
+  Dall'agenda di una società la creazione **preimposta la società** (`openNewTaskEditor(date,
+  title, presetSoc)` / `handleOpenNewAppointment(date, presetSoc)`, conservata anche dal
+  selettore Impegno|Appuntamento) — senza, la voce appena creata sparirebbe dall'agenda in
+  cui la si sta creando. Badge neutro "Solo <Società>" + pallino accanto al titolo del
+  periodo (prop `socFilter`). Nessuna regola nuova.
 - **Nuovo progetto**: divisione dedotta dal tab attivo (niente select);
   indirizzo strutturato `via/civico/cap/comune/provincia` (compone
   `indirizzoImmobile`, helper `composeAddress`); **catastali multipli**

@@ -34,6 +34,8 @@ interface CalendarViewProps {
   onDeleteLeave?: (id: string) => void;
   /** Pannello Ferie & assenze: solo nell'agenda personale (Aulico), non nelle agende società. */
   showLeave?: boolean;
+  /** Agenda di società: slug della società mostrata (le voci arrivano già filtrate da App). */
+  socFilter?: string | null;
   /** Cronometro attività: avvia/ferma il timer sul task; runningTaskId = task col timer attivo. */
   onToggleTimer?: (task: Task) => void;
   runningTaskId?: string | null;
@@ -120,6 +122,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   onSaveLeave,
   onDeleteLeave,
   showLeave = true,
+  socFilter = null,
   onToggleTimer,
   runningTaskId = null
 }) => {
@@ -843,8 +846,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           </button>
         </div>
 
-        <div className="font-extrabold text-[22px] tracking-tight text-[#161616] leading-none capitalize font-sans">
-          {calHeadLabel()}
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="font-extrabold text-[22px] tracking-tight text-[#161616] leading-none capitalize font-sans">
+            {calHeadLabel()}
+          </div>
+          {/* Agenda di società: badge neutro + pallino (chiarisce perché si vedono solo le sue voci) */}
+          {socFilter && SOC_META[socFilter] && (
+            <span
+              title={`Agenda di ${SOC_META[socFilter].label}: mostra solo le voci di questa società. L'agenda personale di Aulico le mostra tutte.`}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f1f1f1] text-[#555] text-[11px] font-bold shrink-0"
+            >
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: SOC_META[socFilter].color }} />
+              Solo {SOC_META[socFilter].label}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
