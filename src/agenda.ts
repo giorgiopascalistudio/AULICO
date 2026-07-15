@@ -46,6 +46,26 @@ export const apptFillStyle = (a: Pick<Appointment, 'area'>): { backgroundColor: 
 export const apptSocDot = (a: Pick<Appointment, 'societa'>): string | null =>
   a.societa && SOC_META[a.societa] ? SOC_META[a.societa].color : null;
 
+/**
+ * Riempimento blocco agenda per SOCIETÀ (scelta utente 15 lug: colore blocco = società,
+ * pallino = urgenza — inversione dello schema precedente area/pallino-società).
+ * Senza società → neutro grigio.
+ */
+export const socFillStyle = (societa?: string | null): { backgroundColor: string; borderColor: string; color: string } => {
+  const m = societa ? SOC_META[societa] : null;
+  return m
+    ? { backgroundColor: `${m.color}1c`, borderColor: m.color, color: '#161616' }
+    : { backgroundColor: '#f3f4f6', borderColor: '#9ca3af', color: '#161616' };
+};
+
+/** Colore del pallino URGENZA (priorità di task e appuntamenti) in agenda. */
+export const PRIO_COLOR: Record<string, string> = {
+  urgente: '#e11d48',
+  alta: '#f97316',
+  media: '#f59e0b',
+  bassa: '#10b981',
+};
+
 /** Minuti dell'ora "hh:mm" (0..1440), senza clamp. */
 export const hhmmToMinutes = (hhmm?: string | null): number | null => {
   if (!hhmm) return null;

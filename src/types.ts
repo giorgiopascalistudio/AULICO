@@ -177,6 +177,7 @@ export interface Task {
   frequency: 'once' | 'daily' | 'weekly' | 'monthly';
   priority: 'urgente' | 'alta' | 'media' | 'bassa';
   tipo?: string | null;          // tipologia attività (rilievo, progetto 3D, computo…)
+  societa?: string | null;       // slug società → COLORE del blocco in agenda (fallback: division della pratica collegata)
   activityId?: string | null;    // attività del catalogo punti (auto-punteggio al completamento)
   private?: boolean;             // personale: visibile solo al creatore/assegnatario (non in agenda società)
   assignee?: string | null;      // primo assegnatario (compat: filtri/regole esistenti)
@@ -554,8 +555,9 @@ export interface Appointment {
   projectId?: string | null;
   private?: boolean;       // personale: visibile solo al creatore (non condiviso in agenda di società)
   endTime?: string | null;                                                 // ora di fine → blocco proporzionale in agenda
-  area?: 'personale' | 'familiare' | 'sociale' | 'professionale' | null;   // Area del Vivere (colore riempimento blocco)
-  societa?: string | null;                                                 // slug società (pallino identità in agenda)
+  area?: 'personale' | 'familiare' | 'sociale' | 'professionale' | null;   // Area del Vivere (metadato; il colore blocco ora è la società)
+  societa?: string | null;                                                 // slug società → COLORE del blocco in agenda
+  priority?: 'urgente' | 'alta' | 'media' | 'bassa' | null;                // urgenza → PALLINO in agenda
   recurrence?: ApptRecurrence | null;                                      // ricorrenza (giorn./sett./mens.)
   exceptions?: Record<string, boolean>;                                    // occorrenze saltate/eliminate (yyyy-mm-dd)
   remindMinutes?: number | null;                                           // promemoria: minuti prima (notifica in-app)

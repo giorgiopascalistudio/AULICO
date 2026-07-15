@@ -550,6 +550,7 @@ export default function App() {
   const [apptRepeatEvery, setApptRepeatEvery] = useState(1);
   const [apptRepeatUntil, setApptRepeatUntil] = useState('');
   const [apptRemind, setApptRemind] = useState<number | ''>('');
+  const [apptPrio, setApptPrio] = useState<'urgente' | 'alta' | 'media' | 'bassa' | ''>('');   // urgenza → pallino in agenda
   const [editApptId, setEditApptId] = useState<string | null>(null);   // modifica appuntamento (matita in agenda)
 
   // Elenco pubblico dei membri studio (per i portali cliente/partner)
@@ -1477,6 +1478,7 @@ export default function App() {
     setTDateInput(presetDate || todayISO());
     setTTimeInput('');
     setTEndInput('');
+    setTSoc('');
     setTFreq('once');
     setTPrio('media');
     setTTipo('');
@@ -1505,6 +1507,7 @@ export default function App() {
     setApptRepeatEvery(1);
     setApptRepeatUntil('');
     setApptRemind('');
+    setApptPrio('');
     setEditApptId(null);
     setTaskEditorOpen(false);
     setApptOpen(true);
@@ -1545,6 +1548,7 @@ export default function App() {
     setApptRepeatEvery(a.recurrence?.interval || 1);
     setApptRepeatUntil(a.recurrence?.until || '');
     setApptRemind(a.remindMinutes ?? '');
+    setApptPrio(a.priority || '');
     setEditApptId(id);
     setTaskEditorOpen(false);
     setApptOpen(true);
@@ -1598,6 +1602,7 @@ export default function App() {
       endTime,
       area: apptArea || null,
       societa: apptSoc || null,
+      priority: apptPrio || null,
       recurrence,
       exceptions: prev?.exceptions,
       remindMinutes: apptRemind === '' ? null : Number(apptRemind),
@@ -2695,6 +2700,7 @@ export default function App() {
   const [tDateInput, setTDateInput] = useState('');
   const [tTimeInput, setTTimeInput] = useState('');
   const [tEndInput, setTEndInput] = useState('');   // ora di fine opzionale (blocco proporzionale in agenda)
+  const [tSoc, setTSoc] = useState('');             // società di riferimento → colore del blocco in agenda
   const [tFreq, setTFreq] = useState<'once' | 'daily' | 'weekly' | 'monthly'>('once');
   const [tPrio, setTPrio] = useState<'urgente' | 'alta' | 'media' | 'bassa'>('media');
   const [tTipo, setTTipo] = useState('');
@@ -2911,6 +2917,7 @@ export default function App() {
     setTDateInput(t.date);
     setTTimeInput(t.time || '');
     setTEndInput(t.endTime || '');
+    setTSoc(t.societa || '');
     setTFreq(t.frequency);
     setTPrio(t.priority);
     setTTipo(t.tipo || '');
@@ -2959,6 +2966,7 @@ export default function App() {
           frequency: tFreq,
           priority: tPrio,
           tipo: tTipo.trim() || null,
+          societa: tSoc || null,
           activityId: tActivityId || null,
           private: tPrivate,
           assignee: tAssignees[0] || null,
@@ -2980,6 +2988,7 @@ export default function App() {
           frequency: tFreq,
           priority: tPrio,
           tipo: tTipo.trim() || null,
+          societa: tSoc || null,
           activityId: tActivityId || null,
           private: tPrivate,
           assignee: tAssignees[0] || null,
@@ -7183,8 +7192,29 @@ export default function App() {
             </label>
           </div>
 
-          {/* Area del Vivere (colore blocco) + Società (pallino) */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Società (colore blocco) + Urgenza (pallino) + Area del Vivere (metadato) */}
+          <div className="grid grid-cols-3 gap-3">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Società (colore)</span>
+              <select value={apptSoc} onChange={(e) => setApptSoc(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
+                <option value="">— nessuna —</option>
+                <option value="studio">Onirico</option>
+                <option value="strategico">Strategico</option>
+                <option value="materico">Materico</option>
+                <option value="unico">Unico</option>
+                <option value="fantastico">Fantastico</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Urgenza (pallino)</span>
+              <select value={apptPrio} onChange={(e) => setApptPrio(e.target.value as any)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
+                <option value="">— nessuna —</option>
+                <option value="urgente">Urgente</option>
+                <option value="alta">Alta</option>
+                <option value="media">Media</option>
+                <option value="bassa">Bassa</option>
+              </select>
+            </label>
             <label className="flex flex-col gap-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Area del Vivere</span>
               <select value={apptArea} onChange={(e) => setApptArea(e.target.value as any)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
@@ -7193,17 +7223,6 @@ export default function App() {
                 <option value="familiare">Familiare</option>
                 <option value="sociale">Sociale</option>
                 <option value="professionale">Professionale</option>
-              </select>
-            </label>
-            <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Società (pallino)</span>
-              <select value={apptSoc} onChange={(e) => setApptSoc(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
-                <option value="">— nessuna —</option>
-                <option value="studio">Onirico</option>
-                <option value="strategico">Strategico</option>
-                <option value="materico">Materico</option>
-                <option value="unico">Unico</option>
-                <option value="fantastico">Fantastico</option>
               </select>
             </label>
           </div>
@@ -7371,6 +7390,18 @@ export default function App() {
               ))}
             </div>
           </div>
+
+          <label className="flex flex-col gap-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Società di riferimento (colore in agenda)</span>
+            <select value={tSoc} onChange={(e) => setTSoc(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
+              <option value="">— dalla pratica collegata / nessuna —</option>
+              <option value="studio">Onirico</option>
+              <option value="strategico">Strategico</option>
+              <option value="materico">Materico</option>
+              <option value="unico">Unico</option>
+              <option value="fantastico">Fantastico</option>
+            </select>
+          </label>
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5">

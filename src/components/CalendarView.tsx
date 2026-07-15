@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, Spark
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, Task, Appointment, TeamLeave } from '../types';
 import { fmtMonthYear, fmtDayLong, DOW, addDays, startOfMonth, startOfWeek, isoDate, relDay, sameDay, parseISO } from '../utils';
-import { apptOccursOn, apptFillStyle, apptSocDot, apptDurationMin, SOC_META, recurrenceLabel } from '../agenda';
+import { apptOccursOn, apptDurationMin, SOC_META, recurrenceLabel, socFillStyle, PRIO_COLOR } from '../agenda';
 
 interface CalendarViewProps {
   tasks: Task[];
@@ -55,17 +55,11 @@ const hhmmToMin = (hhmm: string): number => {
   return Math.min(Math.max(mins, WK_HOUR_START * 60), WK_HOUR_END * 60 - WK_EVENT_MIN);
 };
 
-// classi colore blocco task (riusa la logica priorità/cantiere)
-const wkBlockClasses = (t: Task, done: boolean, isProj: boolean): string =>
-  done
-    ? 'bg-gray-100/80 border-gray-300 text-gray-400 opacity-70'
-    : isProj
-    ? 'bg-indigo-50 border-indigo-500 text-indigo-950 hover:bg-indigo-100/90'
-    : t.priority === 'urgente' || t.priority === 'alta'
-    ? 'bg-rose-50 border-rose-500 text-rose-950 hover:bg-rose-100/90'
-    : t.priority === 'media'
-    ? 'bg-amber-50 border-amber-550 text-amber-950 hover:bg-amber-100/90'
-    : 'bg-emerald-50 border-emerald-500 text-emerald-950 hover:bg-emerald-100/90';
+// Colori blocco agenda (scelta utente): riempimento = SOCIETÀ di riferimento, pallino = URGENZA.
+// Completato → grigio neutro qualunque sia la società.
+const DONE_FILL = { backgroundColor: '#f3f4f6', borderColor: '#d1d5db', color: '#9ca3af' };
+const blockFill = (societa: string | null, done: boolean) => (done ? DONE_FILL : socFillStyle(societa));
+const prioDotColor = (priority?: string | null): string => PRIO_COLOR[priority || ''] || '#9ca3af';
 
 // impaginazione eventi sovrapposti: assegna colonne affiancate (col/ncol) per cluster.
 // `cluster` = indice del gruppo di sovrapposti (serve al badge "+N" oltre WK_MAX_COLS).
@@ -134,6 +128,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const [scope, setScope] = React.useState<'all' | 'mine'>('all');
   const mineAppt = (a: Appointment) => (a.participants ? !!a.participants[myUid] : a.ownerUid === myUid);
   const mineTask = (t: Task) => t.assignee === myUid || (t.assignees || []).includes(myUid) || t.owner === myUid || (!t.assignee && !(t.assignees || []).length && t.createdBy === myUid);
+  // Società di riferimento del task → colore blocco (esplicita, o dedotta dalla pratica collegata)
+  const taskSoc = (t: Task): string | null =>
+    t.societa || (t.projectId ? ((projects.find(p => p.id === t.projectId)?.division as string) || null) : null);
 
   const apptsOn = (iso: string): Appointment[] =>
     (appointments || []).filter(a => apptOccursOn(a, iso) && (scope === 'all' || mineAppt(a))).sort((a, b) => (a.time || '99').localeCompare(b.time || '99'));
@@ -329,25 +326,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   ))}
                   {list.slice(0, taskMax).map(t => {
                     const done = taskDoneOn(t, iso);
-                    const isProj = !!t._proj;
-
-                    const bgStyle = done
-                      ? 'bg-gray-100/70 border-gray-300 text-gray-400 line-through/50 opacity-60'
-                      : isProj
-                      ? 'bg-indigo-50 border-indigo-500 text-indigo-950 hover:bg-indigo-100/90'
-                      : t.priority === 'alta'
-                      ? 'bg-rose-50 border-rose-500 text-rose-950 hover:bg-rose-100/90'
-                      : t.priority === 'media'
-                      ? 'bg-amber-50 border-amber-550 text-amber-950 hover:bg-amber-100/90'
-                      : 'bg-emerald-50 border-emerald-500 text-emerald-950 hover:bg-emerald-100/90';
 
                     return (
                       <div
                         key={t.id}
-                        className={`text-[9.5px] font-bold py-0.5 px-1 rounded truncate text-left border-l-2 select-none transition-all duration-150 hover:translate-x-0.5 shadow-3xs leading-none ${bgStyle}`}
+                        className="text-[9.5px] font-bold py-0.5 px-1 rounded text-left border-l-2 select-none transition-all duration-150 hover:translate-x-0.5 shadow-3xs leading-none flex items-center gap-1 min-w-0"
+                        style={blockFill(taskSoc(t), done)}
                         title={t.title}
                       >
-                        <span className="truncate flex-1">
+                        {!done && <span className="w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: prioDotColor(t.priority) }} />}
+                        <span className={`truncate flex-1 ${done ? 'line-through opacity-60' : ''}`}>
                           {t.time && <span className="font-extrabold mr-0.5 text-[8.5px] opacity-75">{t.time}</span>}
                           {t.title}
                         </span>
@@ -503,15 +491,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     ))}
                     {untimed.slice(0, 1).map(t => {
                       const done = taskDoneOn(t, iso);
-                      const isProj = !!t._proj;
                       return (
                         <button
                           key={t.id}
                           onClick={(e) => { e.stopPropagation(); onSetCalDate(c); onSetCalView('day'); }}
                           title={t.title}
-                          className={`text-[10px] font-bold py-0.5 px-1.5 rounded-md truncate text-left border-l-2 cursor-pointer ${wkBlockClasses(t, done, isProj)}`}
+                          className="text-[10px] font-bold py-0.5 px-1.5 rounded-md text-left border-l-2 cursor-pointer inline-flex items-center gap-1 min-w-0"
+                          style={blockFill(taskSoc(t), done)}
                         >
-                          {t.title}
+                          {!done && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: prioDotColor(t.priority) }} />}
+                          <span className={`truncate ${done ? 'line-through opacity-60' : ''}`}>{t.title}</span>
                         </button>
                       );
                     })}
@@ -547,29 +536,29 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       const t = isTask ? (ev as any).t : null;
                       const a = !isTask ? (ev as any).a : null;
                       const done = isTask ? taskDoneOn(t, iso) : false;
-                      const isProj = isTask ? !!t._proj : false;
                       const timeLabel = isTask ? t.time : a.time;
                       const endLabel = isTask ? t.endTime : a.endTime;
-                      const socDot = !isTask ? apptSocDot(a) : null;
+                      const soc = isTask ? taskSoc(t) : (a.societa || null);
+                      const prio: string | null = isTask ? t.priority : (a.priority || null);
                       // NB: `start` è destrutturato fuori da `ev` — ev.start non esiste (era il bug del blocco sempre basso: NaN → height scartata)
                       const durH = Math.max(WK_EVENT_PX, ((ev.end - start) / 60) * WK_HOUR_PX - 4);
                       return (
                         <button
                           key={`${ev.kind}-${ev.id}`}
                           onClick={(e) => { e.stopPropagation(); onSetCalDate(c); onSetCalView('day'); }}
-                          title={`${timeLabel}${endLabel ? `–${endLabel}` : ''} · ${ev.title}`}
-                          className={`absolute rounded-lg border-l-[3px] px-1.5 py-1 text-left overflow-hidden cursor-pointer shadow-3xs leading-tight z-10 ring-1 ring-white ${isTask ? wkBlockClasses(t, done, isProj) : ''}`}
+                          title={`${timeLabel}${endLabel ? `–${endLabel}` : ''} · ${ev.title}${soc && SOC_META[soc] ? ` · ${SOC_META[soc].label}` : ''}`}
+                          className="absolute rounded-lg border-l-[3px] px-1.5 py-1 text-left overflow-hidden cursor-pointer shadow-3xs leading-tight z-10 ring-1 ring-white"
                           style={{
                             top: Math.max(0, top),
                             height: durH,
                             left: `calc(${col * widthPct}% + 2px)`,
                             width: `calc(${widthPct}% - 4px)`,
-                            ...(isTask ? {} : apptFillStyle(a)),
+                            ...blockFill(soc, done),
                           }}
                         >
                           <span className="flex items-center gap-1 text-[9px] font-extrabold opacity-70 tabular-nums leading-none">
-                            {socDot && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: socDot }} />}
-                            {timeLabel}{endLabel ? `–${endLabel}` : isTask ? '' : ' ·'}
+                            {prio && !done && <span title={`Urgenza: ${prio}`} className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: prioDotColor(prio) }} />}
+                            {timeLabel}{endLabel ? `–${endLabel}` : ''}
                           </span>
                           <span className={`block text-[10.5px] font-bold truncate ${done ? 'line-through opacity-60' : ''}`}>{ev.title}</span>
                         </button>
@@ -648,17 +637,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       ? 'bg-gray-50 border-[#f0f0f0] opacity-60'
                       : 'bg-emerald-50/60 border-emerald-200'
                   }`}
+                  style={a.societa && SOC_META[a.societa] ? { borderLeft: `4px solid ${SOC_META[a.societa].color}` } : undefined}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <span
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${pending || refused ? 'bg-gray-200 text-gray-600' : a.area ? '' : 'bg-emerald-100 text-emerald-700'}`}
-                      style={!pending && !refused && a.area ? apptFillStyle(a) : undefined}
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${pending || refused ? 'bg-gray-200 text-gray-600' : a.societa ? '' : 'bg-emerald-100 text-emerald-700'}`}
+                      style={!pending && !refused && a.societa ? socFillStyle(a.societa) : undefined}
+                      title={a.societa ? SOC_META[a.societa]?.label : undefined}
                     >
                       {a.kind === 'nota' ? <Edit2 className="w-4 h-4" /> : <CalendarIcon className="w-4 h-4" />}
                     </span>
                     <div className="min-w-0">
                       <b className="text-[13.5px] text-[#161616] flex items-center gap-1.5 truncate">
-                        {apptSocDot(a) && <span className="w-2 h-2 rounded-full shrink-0" title={a.societa ? SOC_META[a.societa]?.label : ''} style={{ backgroundColor: apptSocDot(a)! }} />}
+                        {a.priority && <span className="w-2 h-2 rounded-full shrink-0" title={`Urgenza: ${a.priority}`} style={{ backgroundColor: prioDotColor(a.priority) }} />}
                         {a.time && <span className="font-extrabold text-[12px]">{a.time}{a.endTime ? `–${a.endTime}` : ''}</span>}
                         <span className="truncate">{a.title}</span>
                         {a.recurrence && <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#f0f0f0] text-[#6b6b6b] shrink-0">{recurrenceLabel(a.recurrence)}</span>}
@@ -732,6 +723,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   className={`flex items-center justify-between gap-3.5 py-4 px-4 bg-gray-50/40 border border-[#f0f0f0] rounded-2xl transition-all duration-200 hover:border-gray-300 hover:bg-white ${
                     done ? 'opacity-65' : ''
                   }`}
+                  style={(() => { const s = taskSoc(t); return s && SOC_META[s] ? { borderLeft: `4px solid ${SOC_META[s].color}` } : undefined; })()}
                 >
                   <div className="flex items-center gap-3.5 flex-1 min-w-0">
                     <button

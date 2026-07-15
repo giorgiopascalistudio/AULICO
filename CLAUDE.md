@@ -317,6 +317,19 @@ regole** e ricordare all'utente di ripubblicarle.
   di separazione; oltre la terza colonna gli extra diventano un badge nero **"+N"**
   (dettaglio nella vista giorno). Il chip orario del giorno mostra la fascia
   `time–endTime`. Nessuna regola nuova.
+  **COLORI AGENDA (15 lug, scelta utente — ECCEZIONE alla regola §10, come i grafici)**:
+  riempimento del blocco = **SOCIETÀ di riferimento** (palette agenda `SOC_META`:
+  Onirico verde · Strategico rosso · Materico arancio · Unico giallo · Fantastico viola;
+  helper **`socFillStyle`** in agenda.ts, tinta 11% + bordo sinistro pieno; senza società
+  → grigio neutro; completato → `DONE_FILL` grigio) e pallino = **URGENZA**
+  (**`PRIO_COLOR`**: urgente rosa · alta arancio · media ambra · bassa smeraldo).
+  Inversione dello schema precedente (era: area=colore, società=pallino; l'Area del
+  Vivere resta solo come campo del form). Campi nuovi: **`Task.societa`** (select
+  "Società di riferimento" nel form impegno; fallback = `division` della pratica
+  collegata, helper `taskSoc` in CalendarView) e **`Appointment.priority`** (select
+  "Urgenza" nel form appuntamento). Vale su settimana, mese (striscette) e vista giorno
+  (riquadro icona + bordo sinistro riga = società, pallino/badge = urgenza).
+  Niente più indigo "cantiere" né colori-priorità come sfondo blocchi. Nessuna regola nuova.
 - **Nuovo progetto**: divisione dedotta dal tab attivo (niente select);
   indirizzo strutturato `via/civico/cap/comune/provincia` (compone
   `indirizzoImmobile`, helper `composeAddress`); **catastali multipli**
@@ -883,9 +896,8 @@ reporting/redditività, integrazioni esterne
   per-società via campo `StimaPreliminare.soc` (App filtra e timbra; legacy senza soc = Onirico).
   ⚠️ **CRM V2 — Agenda/Cronometro/Report/Questionario/Presentazioni (docs/V2 agg.txt + metodo I-time)**:
   1) **Agenda V2** (`src/agenda.ts`): `Appointment` esteso con `endTime` (blocco proporzionale alla
-  durata), `area` (Area del Vivere personale/familiare/sociale/professionale → colore RIEMPIMENTO del
-  blocco), `societa` (identità → PALLINO, scelta utente coerente con la regola §10; colori da
-  COMPANY_COLOR + viola per Fantastico), `recurrence` (daily/weekly/monthly + ogni N + until, espansa
+  durata), `area` (Area del Vivere personale/familiare/sociale/professionale — ora solo metadato nel
+  form), `societa`, `recurrence` (daily/weekly/monthly + ogni N + until, espansa
   client-side da `apptOccursOn`, nessun record extra), `exceptions`, `remindMinutes` (promemoria "X min
   prima": effetto in App best-effort ad app aperta, dedup su `notifications/<uid>`; per l'orario esatto
   servono le Cloud Functions §18). Modale nuovo appuntamento e viste giorno/settimana aggiornate.
