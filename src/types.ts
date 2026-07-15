@@ -559,6 +559,7 @@ export interface Appointment {
   exceptions?: Record<string, boolean>;                                    // occorrenze saltate/eliminate (yyyy-mm-dd)
   remindMinutes?: number | null;                                           // promemoria: minuti prima (notifica in-app)
   createdAt: number;
+  updatedAt?: number;                                                      // ultima modifica (matita in agenda)
 }
 
 /**

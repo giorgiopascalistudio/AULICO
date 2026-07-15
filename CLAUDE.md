@@ -290,6 +290,22 @@ regole** e ricordare all'utente di ripubblicarle.
 - Il popup **"Nuovo impegno"** supporta più assegnatari e suggerisce il
   collegamento a una pratica; i task collegati (`projectId`) compaiono anche
   nel fascicolo tecnico ("Impegni agenda collegati").
+- **Popup UNICO "Nuovo impegno"** (richiesta 15 lug): impegno e appuntamento si
+  creano da un SOLO Modal in App con selettore a pillola **Impegno | Appuntamento**
+  (`switchNewEntryKind`: il cambio tab conserva titolo+data; stati `taskEditorOpen`/
+  `apptOpen` mutuamente esclusivi, aggiornati nello stesso handler → niente flash).
+  In `CalendarView` il bottone nero "Nuovo impegno" è **UNICO e sta nella barra
+  controlli in alto** (tutte le viste, data preimpostata sul giorno visualizzato):
+  è l'**unico punto di creazione** — click su un giorno (mese E settimana, anche
+  sugli spazi vuoti della griglia oraria) apre la **vista giornaliera**, mai
+  l'editor. Nella vista giorno ogni riga ha la **matita**: i task l'avevano già,
+  gli appuntamenti aprono il popup in **modifica** (`editApptId` +
+  `handleEditAppointment`/`handleSubmitAppointment` edit-aware: cambi *pesanti*
+  data/ora/durata/ricorrenza → partecipanti (tranne l'autore della modifica)
+  tornano `pending` + notifica di riconferma; modifiche innocue → conferme intatte,
+  notifica di aggiornamento; nuovi invitati → invito). Reset campi task centralizzato
+  in `openNewTaskEditor(presetDate?, presetTitle?)` (usato da Dashboard/Agenda/
+  TimeReportView). `Appointment.updatedAt` nuovo campo opzionale. Nessuna regola nuova.
 - **Nuovo progetto**: divisione dedotta dal tab attivo (niente select);
   indirizzo strutturato `via/civico/cap/comune/provincia` (compone
   `indirizzoImmobile`, helper `composeAddress`); **catastali multipli**

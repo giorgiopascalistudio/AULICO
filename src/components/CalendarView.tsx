@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, Sparkles, Edit2, Check, X, UserPlus, CalendarPlus, Play, Square } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, Clock, Sparkles, Edit2, Check, X, UserPlus, Play, Square } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Project, Task, Appointment, TeamLeave } from '../types';
 import { fmtMonthYear, fmtDayLong, DOW, addDays, startOfMonth, startOfWeek, isoDate, relDay, sameDay, parseISO } from '../utils';
@@ -20,8 +20,10 @@ interface CalendarViewProps {
   onSetCalDate: (date: Date) => void;
   onToggleTask: (taskId: string, date: string) => void;
   onEditTask: (taskId: string) => void;
+  /** Apre il popup unico "Nuovo impegno" (impegno | appuntamento). UNICO punto di creazione. */
   onNewTask: (presetDate?: string) => void;
-  onNewAppointment: (presetDate?: string) => void;
+  /** Matita sugli appuntamenti nella vista giorno (apre il popup in modifica). */
+  onEditAppointment?: (id: string) => void;
   onConfirmAppointment: (id: string) => void;
   onDeclineAppointment: (id: string) => void;
   onDeleteAppointment: (id: string) => void;
@@ -107,7 +109,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   onToggleTask,
   onEditTask,
   onNewTask,
-  onNewAppointment,
+  onEditAppointment,
   onConfirmAppointment,
   onDeclineAppointment,
   onDeleteAppointment,
@@ -465,9 +467,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     </span>
                   </button>
 
-                  {/* Fascia "senza orario" (+ ferie/assenze del giorno) */}
+                  {/* Fascia "senza orario" (+ ferie/assenze del giorno) — click: apre la vista giorno */}
                   <div
-                    onClick={() => onNewTask(iso)}
+                    onClick={() => { onSetCalDate(c); onSetCalView('day'); }}
                     className="border-t border-[#f0f0f0] px-1 py-1 flex flex-col gap-0.5 overflow-hidden cursor-pointer hover:bg-gray-50/60"
                     style={{ height: alldayPx }}
                   >
@@ -501,9 +503,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     )}
                   </div>
 
-                  {/* Corpo orario */}
+                  {/* Corpo orario — click: apre la vista giorno */}
                   <div
-                    onClick={() => onNewTask(iso)}
+                    onClick={() => { onSetCalDate(c); onSetCalView('day'); }}
                     className={`relative border-t border-[#f0f0f0] cursor-pointer ${isToday ? 'bg-orange-50/10' : 'hover:bg-gray-50/40'}`}
                     style={{
                       height: gridH,
@@ -574,25 +576,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
     return (
       <div className="bg-white border border-[#e2e2e2] rounded-[26px] p-6 shadow-xs text-left">
-        <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
-          <div>
-            <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616] capitalize">{relDay(iso)}</h2>
-            <span className="text-[12.5px] text-[#8a8a8a] font-medium">{list.length + dayAppts.length} impegni in agenda</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => onNewAppointment(iso)}
-              className="btn btn-sm bg-white hover:bg-gray-50 border border-[#e2e2e2] hover:border-black text-[#161616] font-bold py-2 px-4 rounded-xl flex items-center gap-1.5 cursor-pointer transition-all"
-            >
-              <CalendarPlus className="w-4 h-4" /> Appuntamento
-            </button>
-            <button
-              onClick={() => onNewTask(iso)}
-              className="btn btn-sm bg-[#161616] hover:bg-black border-none text-white font-bold py-2 px-4 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs transition-all hover:scale-[1.01]"
-            >
-              <Plus className="w-4 h-4" /> Nuovo impegno
-            </button>
-          </div>
+        {/* Il bottone "Nuovo impegno" è UNICO e vive nella barra dei controlli in alto. */}
+        <div className="mb-6">
+          <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616] capitalize">{relDay(iso)}</h2>
+          <span className="text-[12.5px] text-[#8a8a8a] font-medium">{list.length + dayAppts.length} impegni in agenda</span>
         </div>
 
         {/* Ferie/assenze del giorno */}
@@ -686,6 +673,11 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                           <X className="w-4 h-4" />
                         </button>
                       </>
+                    )}
+                    {onEditAppointment && (
+                      <button onClick={() => onEditAppointment(a.id)} title="Modifica appuntamento" className="w-8 h-8 rounded-lg bg-white border border-[#e2e2e2] hover:bg-gray-50 hover:border-black text-gray-500 hover:text-[#161616] flex items-center justify-center cursor-pointer">
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
                     )}
                     <button onClick={() => onDeleteAppointment(a.id)} title="Annulla appuntamento" className="w-8 h-8 rounded-lg bg-white border border-[#e2e2e2] hover:bg-red-50 hover:border-red-200 text-gray-400 hover:text-red-600 flex items-center justify-center cursor-pointer">
                       <X className="w-3.5 h-3.5" />
@@ -795,8 +787,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           ) : (
             <div className="text-center py-[72px] px-5 text-[#8a8a8a] bg-gray-50/20 border border-dashed border-gray-200 rounded-3xl">
               <CalendarIcon className="w-12 h-12 opacity-30 mx-auto mb-3 text-gray-400" />
-              <b className="block text-[#161616] text-[15.5px] font-bold mb-1">Crea un nuovo impegno</b>
-              <p className="text-[13px] text-gray-400 max-w-[340px] mx-auto leading-relaxed">Nessun evento in agenda registrato per questo giorno.</p>
+              <b className="block text-[#161616] text-[15.5px] font-bold mb-1">Giornata libera</b>
+              <p className="text-[13px] text-gray-400 max-w-[340px] mx-auto leading-relaxed">Nessun impegno per questo giorno. Usa il bottone "Nuovo impegno" in alto per aggiungerne uno.</p>
             </div>
           )}
         </div>
@@ -857,6 +849,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               </button>
             ))}
           </div>
+          {/* UNICO punto di creazione (impegno | appuntamento): la data si preimposta sul giorno visualizzato */}
+          <button
+            onClick={() => onNewTask(isoDate(calDate))}
+            className="btn bg-[#161616] hover:bg-black border-none text-white font-bold text-[12.5px] py-2.5 px-4 rounded-2xl flex items-center gap-1.5 cursor-pointer shadow-xs transition-all hover:scale-[1.01]"
+          >
+            <Plus className="w-4 h-4" /> Nuovo impegno
+          </button>
         </div>
       </div>
 

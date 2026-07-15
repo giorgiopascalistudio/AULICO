@@ -550,6 +550,7 @@ export default function App() {
   const [apptRepeatEvery, setApptRepeatEvery] = useState(1);
   const [apptRepeatUntil, setApptRepeatUntil] = useState('');
   const [apptRemind, setApptRemind] = useState<number | ''>('');
+  const [editApptId, setEditApptId] = useState<string | null>(null);   // modifica appuntamento (matita in agenda)
 
   // Elenco pubblico dei membri studio (per i portali cliente/partner)
   const [directory, setDirectory] = useState<Record<string, { name: string; role: string }>>({});
@@ -1469,6 +1470,25 @@ export default function App() {
     });
   };
 
+  /** Apre l'editor "Nuovo impegno" pulito (unico punto di reset dei campi task). */
+  const openNewTaskEditor = (presetDate?: string, presetTitle?: string) => {
+    setEditTaskId(null);
+    setTTitle(presetTitle || '');
+    setTDateInput(presetDate || todayISO());
+    setTTimeInput('');
+    setTFreq('once');
+    setTPrio('media');
+    setTTipo('');
+    setTActivityId('');
+    setTPrivate(false);
+    setTAssignees([]);
+    setTProjectId('');
+    setTNotes('');
+    setTEst('');
+    setApptOpen(false);
+    setEditApptId(null);
+    setTaskEditorOpen(true);
+  };
   const handleOpenNewAppointment = (presetDate?: string) => {
     setApptDate(presetDate || todayISO());
     setApptTitle('');
@@ -1484,6 +1504,48 @@ export default function App() {
     setApptRepeatEvery(1);
     setApptRepeatUntil('');
     setApptRemind('');
+    setEditApptId(null);
+    setTaskEditorOpen(false);
+    setApptOpen(true);
+  };
+  /**
+   * Selettore del popup unico "Nuovo impegno": passa da Impegno ad Appuntamento
+   * (e viceversa) conservando titolo e data già digitati; gli altri campi si azzerano.
+   * Gli aggiornamenti di stato sono nello stesso handler → il Modal resta montato (niente flash).
+   */
+  const switchNewEntryKind = (kind: 'task' | 'appt') => {
+    if (kind === 'appt') {
+      if (apptOpen) return;
+      const title = tTitle;
+      const date = tDateInput;
+      handleOpenNewAppointment(date || undefined);
+      if (title.trim()) setApptTitle(title);
+    } else {
+      if (!apptOpen) return;
+      openNewTaskEditor(apptDate || undefined, apptTitle.trim() || undefined);
+    }
+  };
+  /** Prefill del form appuntamento per la modifica (matita nella vista giorno dell'agenda). */
+  const handleEditAppointment = (id: string) => {
+    const a = appointments[id];
+    if (!a) return;
+    setApptDate(a.date);
+    setApptTitle(a.title);
+    setApptTime(a.time || '');
+    const who = Object.keys(a.participants || {});
+    setApptWho(who.length ? who : currentUser ? [currentUser.uid] : []);
+    setApptWhoFilter('');
+    setApptNote(a.note || '');
+    setApptPrivate(!!a.private);
+    setApptEndTime(a.endTime || '');
+    setApptArea(a.area || '');
+    setApptSoc(a.societa || '');
+    setApptRepeat(a.recurrence?.freq || 'none');
+    setApptRepeatEvery(a.recurrence?.interval || 1);
+    setApptRepeatUntil(a.recurrence?.until || '');
+    setApptRemind(a.remindMinutes ?? '');
+    setEditApptId(id);
+    setTaskEditorOpen(false);
     setApptOpen(true);
   };
   const handleSubmitAppointment = () => {
@@ -1493,46 +1555,69 @@ export default function App() {
     }
     const me = currentUser!.uid;
     const who = apptPrivate ? [me] : (apptWho.length ? apptWho : [me]);
+    const prev = editApptId ? appointments[editApptId] : null;
+    const endTime = apptEndTime && apptTime && apptEndTime > apptTime ? apptEndTime : null;
+    const recurrence = apptRepeat === 'none' ? null : { freq: apptRepeat, interval: Math.max(1, apptRepeatEvery || 1), until: apptRepeatUntil || null };
+    // Modifica "pesante" (data/ora/durata/ricorrenza) → i partecipanti devono riconfermare;
+    // modifiche innocue (titolo, nota…) non toccano le conferme già date.
+    const critical = !!prev && (
+      prev.date !== apptDate ||
+      (prev.time || null) !== (apptTime || null) ||
+      (prev.endTime || null) !== endTime ||
+      JSON.stringify(prev.recurrence || null) !== JSON.stringify(recurrence)
+    );
     // Partecipanti: il creatore (se coinvolto) è auto-confermato, gli altri in attesa
-    const participants: Record<string, 'pending' | 'confermato'> = {};
+    const participants: Record<string, 'pending' | 'confermato' | 'rifiutato'> = {};
     const participantNames: Record<string, string> = {};
     who.forEach((uid) => {
-      participants[uid] = uid === me ? 'confermato' : 'pending';
-      participantNames[uid] = uid === me ? currentUser!.name : users[uid]?.name || '';
+      const prevState = prev?.participants?.[uid];
+      participants[uid] = uid === me ? 'confermato' : !prevState || critical ? 'pending' : prevState;
+      participantNames[uid] = uid === me ? currentUser!.name : users[uid]?.name || prev?.participantNames?.[uid] || '';
     });
     const allConfirmed = Object.values(participants).every((s) => s === 'confermato');
-    const otherNames = who.filter((u) => u !== me).map((u) => users[u]?.name).filter(Boolean);
+    const otherNames = who.filter((u) => u !== me).map((u) => users[u]?.name || prev?.participantNames?.[u]).filter(Boolean);
     const a: Appointment = {
-      id: `appt-${Date.now()}`,
+      id: prev ? prev.id : `appt-${Date.now()}`,
       title: apptTitle.trim(),
       date: apptDate,
       time: apptTime || null,
-      ownerUid: me,
-      ownerName: currentUser!.name,
-      createdBy: me,
-      createdByName: currentUser!.name,
+      ownerUid: prev?.ownerUid || me,
+      ownerName: prev?.ownerName || currentUser!.name,
+      createdBy: prev?.createdBy || me,
+      createdByName: prev?.createdByName || currentUser!.name,
       withName: otherNames.length ? otherNames.join(', ') : undefined,
       note: apptNote.trim() || undefined,
-      kind: 'appuntamento',
+      kind: prev?.kind || 'appuntamento',
       // grigio (pending) finché tutti i partecipanti non confermano → verde (confermato)
       status: allConfirmed ? 'confermato' : 'pending',
       participants,
       participantNames,
+      projectId: prev?.projectId ?? null,
       private: apptPrivate,
-      endTime: apptEndTime && apptTime && apptEndTime > apptTime ? apptEndTime : null,
+      endTime,
       area: apptArea || null,
       societa: apptSoc || null,
-      recurrence: apptRepeat === 'none' ? null : { freq: apptRepeat, interval: Math.max(1, apptRepeatEvery || 1), until: apptRepeatUntil || null },
+      recurrence,
+      exceptions: prev?.exceptions,
       remindMinutes: apptRemind === '' ? null : Number(apptRemind),
-      createdAt: Date.now()
+      createdAt: prev?.createdAt || Date.now(),
+      ...(prev ? { updatedAt: Date.now() } : {})
     };
     handleSaveAppointment(a);
-    // invito in-app agli altri partecipanti
-    who.filter((uid) => uid !== me).forEach((uid) =>
-      pushNotification(uid, { type: 'appuntamento', title: 'Invito appuntamento', body: `${currentUser!.name} ti ha invitato: "${a.title}" il ${a.date}${a.time ? ' alle ' + a.time : ''}. Conferma dal calendario.`, link: '#calendario' })
-    );
+    // notifiche in-app agli altri partecipanti: invito (nuovi), riconferma (modifica pesante) o aggiornamento
+    who.filter((uid) => uid !== me).forEach((uid) => {
+      const isNew = !prev || !prev.participants?.[uid];
+      if (!isNew && !critical) {
+        pushNotification(uid, { type: 'appuntamento', title: 'Appuntamento aggiornato', body: `${currentUser!.name} ha aggiornato "${a.title}" (${a.date}${a.time ? ' alle ' + a.time : ''}).`, link: '#calendario' });
+      } else if (!isNew && critical) {
+        pushNotification(uid, { type: 'appuntamento', title: 'Appuntamento modificato — riconferma', body: `${currentUser!.name} ha modificato "${a.title}": ora è il ${a.date}${a.time ? ' alle ' + a.time : ''}. Riconferma dal calendario.`, link: '#calendario' });
+      } else {
+        pushNotification(uid, { type: 'appuntamento', title: 'Invito appuntamento', body: `${currentUser!.name} ti ha invitato: "${a.title}" il ${a.date}${a.time ? ' alle ' + a.time : ''}. Conferma dal calendario.`, link: '#calendario' });
+      }
+    });
     setApptOpen(false);
-    showToast(otherNames.length ? 'Appuntamento creato. Partecipanti avvisati.' : 'Aggiunto in agenda.');
+    setEditApptId(null);
+    showToast(prev ? 'Appuntamento aggiornato.' : otherNames.length ? 'Appuntamento creato. Partecipanti avvisati.' : 'Aggiunto in agenda.');
   };
 
   // Richiesta appuntamento dai portali cliente/partner (resta "in attesa")
@@ -2832,6 +2917,8 @@ export default function App() {
     setTProjectId(t.projectId || '');
     setTNotes(t.notes || '');
     setTEst(t.estMinutes != null ? String(t.estMinutes) : '');
+    setApptOpen(false);
+    setEditApptId(null);
     setTaskEditorOpen(true);
   };
 
@@ -5376,22 +5463,7 @@ export default function App() {
             }}
             onToggleTask={handleToggleTask}
             onEditTask={handleEditTask}
-            onNewTask={() => {
-              setEditTaskId(null);
-              setTTitle('');
-              setTDateInput(todayISO());
-              setTTimeInput('');
-              setTFreq('once');
-              setTPrio('media');
-              setTTipo('');
-              setTActivityId('');
-              setTPrivate(false);
-              setTAssignees([]);
-              setTProjectId('');
-              setTNotes('');
-              setTEst('');
-              setTaskEditorOpen(true);
-            }}
+            onNewTask={() => openNewTaskEditor()}
           />
         );
 
@@ -5411,26 +5483,11 @@ export default function App() {
             onSetCalDate={setCalDate}
             onToggleTask={handleToggleTask}
             onEditTask={handleEditTask}
-            onNewAppointment={handleOpenNewAppointment}
+            onEditAppointment={handleEditAppointment}
             onConfirmAppointment={handleConfirmAppointment}
             onDeclineAppointment={handleDeclineAppointment}
             onDeleteAppointment={handleDeleteAppointment}
-            onNewTask={(pDate) => {
-              setEditTaskId(null);
-              setTTitle('');
-              setTDateInput(pDate || todayISO());
-              setTTimeInput('');
-              setTFreq('once');
-              setTPrio('media');
-              setTTipo('');
-              setTActivityId('');
-              setTPrivate(false);
-              setTAssignees([]);
-              setTProjectId('');
-              setTNotes('');
-              setTEst('');
-              setTaskEditorOpen(true);
-            }}
+            onNewTask={(pDate) => openNewTaskEditor(pDate)}
             myUid={currentUser.uid}
             myName={currentUser.name}
             teamLeave={Object.values(teamLeave)}
@@ -6139,12 +6196,7 @@ export default function App() {
                   profileReports={profileReports}
                   onSaveProfileReport={handleSaveProfileReport}
                   onEditTask={handleEditTask}
-                  onNewTask={() => {
-                    setEditTaskId(null);
-                    setTTitle(''); setTDateInput(todayISO()); setTTimeInput(''); setTFreq('once'); setTPrio('media');
-                    setTTipo(''); setTActivityId(''); setTPrivate(false); setTAssignees([]); setTProjectId(''); setTNotes(''); setTEst('');
-                    setTaskEditorOpen(true);
-                  }}
+                  onNewTask={() => openNewTaskEditor()}
                 />
               </React.Suspense>
             );
@@ -7079,10 +7131,32 @@ export default function App() {
         </Modal>
       )}
 
-      {/* 1c. Nuovo appuntamento (multi-partecipante: team + clienti + partner) */}
+      {/* 1c+2. "Nuovo impegno" UNIFICATO: un solo popup con selettore Impegno | Appuntamento
+          (in modifica il selettore sparisce: si edita ciò che si è aperto). */}
       <RunningTimerPill entry={myRunning} onStop={handleStopTimer} />
 
-      <Modal title="Nuovo appuntamento" isOpen={apptOpen} onClose={() => setApptOpen(false)}>
+      <Modal
+        title={editTaskId ? 'Modifica impegno' : editApptId ? 'Modifica appuntamento' : 'Nuovo impegno'}
+        isOpen={taskEditorOpen || apptOpen}
+        onClose={() => { setTaskEditorOpen(false); setApptOpen(false); setEditApptId(null); }}
+      >
+        {!editTaskId && !editApptId && (
+          <div className="pillbar flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-2xl gap-[2px] mb-4">
+            {([['task', 'Impegno'], ['appt', 'Appuntamento']] as const).map(([k, lbl]) => {
+              const active = k === 'appt' ? apptOpen : !apptOpen;
+              return (
+                <button
+                  key={k}
+                  onClick={() => switchNewEntryKind(k)}
+                  className={`flex-1 text-[12.5px] font-bold px-3 py-2 rounded-xl cursor-pointer border-none transition-colors ${active ? 'bg-white text-[#161616] font-extrabold shadow-2xs' : 'bg-transparent text-[#8a8a8a] hover:text-[#161616]'}`}
+                >
+                  {lbl}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {apptOpen ? (
         <div className="flex flex-col gap-3 text-left">
           <label className="flex flex-col gap-1.5">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Titolo *</span>
@@ -7233,18 +7307,21 @@ export default function App() {
             Personale (solo io) — impegno privato, non condiviso in agenda
           </label>
 
-          <button onClick={handleSubmitAppointment} className="mt-1 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[13px] cursor-pointer border-none">
-            Crea appuntamento
-          </button>
+          <div className="flex justify-between gap-2 mt-1">
+            {editApptId && (
+              <button
+                onClick={() => { const id = editApptId; setApptOpen(false); setEditApptId(null); handleDeleteAppointment(id); }}
+                className="py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-800 font-bold text-[13px] cursor-pointer"
+              >
+                Rimuovi
+              </button>
+            )}
+            <button onClick={handleSubmitAppointment} className="flex-1 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[13px] cursor-pointer border-none">
+              {editApptId ? 'Salva modifiche' : 'Crea appuntamento'}
+            </button>
+          </div>
         </div>
-      </Modal>
-
-      {/* 2. Agenda Task Editor Modal */}
-      <Modal
-        title={editTaskId ? 'Modifica impegno' : 'Nuovo impegno'}
-        isOpen={taskEditorOpen}
-        onClose={() => setTaskEditorOpen(false)}
-      >
+        ) : (
         <div className="flex flex-col gap-3 text-left">
           <label className="flex flex-col gap-1.5">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Titolo *</span>
@@ -7448,6 +7525,7 @@ export default function App() {
             </button>
           </div>
         </div>
+        )}
       </Modal>
 
       {/* 3. New Project Creator Modal */}
