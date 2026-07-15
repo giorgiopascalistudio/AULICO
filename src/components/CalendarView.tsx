@@ -551,7 +551,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       const timeLabel = isTask ? t.time : a.time;
                       const endLabel = isTask ? t.endTime : a.endTime;
                       const socDot = !isTask ? apptSocDot(a) : null;
-                      const durH = Math.max(WK_EVENT_PX, ((ev.end - ev.start) / 60) * WK_HOUR_PX - 4);
+                      // NB: `start` è destrutturato fuori da `ev` — ev.start non esiste (era il bug del blocco sempre basso: NaN → height scartata)
+                      const durH = Math.max(WK_EVENT_PX, ((ev.end - start) / 60) * WK_HOUR_PX - 4);
                       return (
                         <button
                           key={`${ev.kind}-${ev.id}`}
