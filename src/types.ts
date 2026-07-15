@@ -173,6 +173,7 @@ export interface Task {
   title: string;
   date: string;
   time?: string | null;
+  endTime?: string | null;       // ora di fine opzionale → il blocco copre la fascia in agenda
   frequency: 'once' | 'daily' | 'weekly' | 'monthly';
   priority: 'urgente' | 'alta' | 'media' | 'bassa';
   tipo?: string | null;          // tipologia attività (rilievo, progetto 3D, computo…)

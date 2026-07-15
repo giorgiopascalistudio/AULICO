@@ -306,6 +306,17 @@ regole** e ricordare all'utente di ripubblicarle.
   notifica di aggiornamento; nuovi invitati → invito). Reset campi task centralizzato
   in `openNewTaskEditor(presetDate?, presetTitle?)` (usato da Dashboard/Agenda/
   TimeReportView). `Appointment.updatedAt` nuovo campo opzionale. Nessuna regola nuova.
+  **Estensione (stessa consegna)**: il click su QUALSIASI blocco evento/task (vista
+  settimana E striscette della vista mese) apre la **vista giornaliera** — mai l'editor;
+  la modifica passa dalle matite del giorno. I blocchi della griglia settimanale coprono
+  la **fascia oraria reale**: appuntamenti = `time→endTime`; task = nuovo campo
+  **`Task.endTime`** (input "Fine" nel form, opzionale) oppure fallback `estMinutes`,
+  altrimenti 45' standard. Sovrapposti ("Tutta la squadra"): affiancati stile Google
+  Calendar con **max 3 colonne** (`WK_MAX_COLS`, `packDay` ritorna anche `cluster`) —
+  ogni blocco tiene il SUO colore (scelta utente: no blocco fuso) + `ring-1 ring-white`
+  di separazione; oltre la terza colonna gli extra diventano un badge nero **"+N"**
+  (dettaglio nella vista giorno). Il chip orario del giorno mostra la fascia
+  `time–endTime`. Nessuna regola nuova.
 - **Nuovo progetto**: divisione dedotta dal tab attivo (niente select);
   indirizzo strutturato `via/civico/cap/comune/provincia` (compone
   `indirizzoImmobile`, helper `composeAddress`); **catastali multipli**

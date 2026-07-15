@@ -67,12 +67,14 @@ const wkBlockClasses = (t: Task, done: boolean, isProj: boolean): string =>
     ? 'bg-amber-50 border-amber-550 text-amber-950 hover:bg-amber-100/90'
     : 'bg-emerald-50 border-emerald-500 text-emerald-950 hover:bg-emerald-100/90';
 
-// impaginazione eventi sovrapposti: assegna colonne affiancate (col/ncol) per cluster
-const packDay = <E extends { start: number; end: number }>(evs: E[]): (E & { col: number; ncol: number })[] => {
+// impaginazione eventi sovrapposti: assegna colonne affiancate (col/ncol) per cluster.
+// `cluster` = indice del gruppo di sovrapposti (serve al badge "+N" oltre WK_MAX_COLS).
+const packDay = <E extends { start: number; end: number }>(evs: E[]): (E & { col: number; ncol: number; cluster: number })[] => {
   const sorted = [...evs].sort((a, b) => a.start - b.start || a.end - b.end);
-  const out: (E & { col: number; ncol: number })[] = [];
+  const out: (E & { col: number; ncol: number; cluster: number })[] = [];
   let cluster: (E & { col: number })[] = [];
   let clusterEnd = -1;
+  let clusterIdx = 0;
 
   const flush = () => {
     const colEnds: number[] = []; // fine ultimo evento per colonna
@@ -84,7 +86,8 @@ const packDay = <E extends { start: number; end: number }>(evs: E[]): (E & { col
       if (!placed) { item.col = colEnds.length; colEnds.push(item.end); }
     });
     const ncol = colEnds.length || 1;
-    cluster.forEach(item => out.push({ ...item, ncol }));
+    cluster.forEach(item => out.push({ ...item, ncol, cluster: clusterIdx }));
+    clusterIdx++;
     cluster = [];
     clusterEnd = -1;
   };
@@ -97,6 +100,10 @@ const packDay = <E extends { start: number; end: number }>(evs: E[]): (E & { col
   flush();
   return out;
 };
+
+// Massimo di colonne affiancate in griglia: oltre, gli eventi extra diventano un badge "+N"
+// (il dettaglio completo è nella vista giorno, che si apre cliccando ovunque sul giorno).
+const WK_MAX_COLS = 3;
 
 export const CalendarView: React.FC<CalendarViewProps> = ({
   tasks,
@@ -337,10 +344,6 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     return (
                       <div
                         key={t.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onEditTask(t.id);
-                        }}
                         className={`text-[9.5px] font-bold py-0.5 px-1 rounded truncate text-left border-l-2 select-none transition-all duration-150 hover:translate-x-0.5 shadow-3xs leading-none ${bgStyle}`}
                         title={t.title}
                       >
@@ -443,7 +446,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               const timed = tasksOnDate(iso).filter(t => !!t.time);
               const appts = apptsOn(iso).filter(a => !!a.time);
               const events = [
-                ...timed.map(t => { const s = hhmmToMin(t.time!); return { kind: 'task' as const, id: t.id, start: s, end: s + WK_EVENT_MIN, title: t.title, t }; }),
+                ...timed.map(t => {
+                  const s = hhmmToMin(t.time!);
+                  // durata: ora di fine esplicita → fascia reale; altrimenti durata stimata; altrimenti standard
+                  const dur = apptDurationMin({ time: t.time, endTime: t.endTime }, t.estMinutes && t.estMinutes > 0 ? t.estMinutes : WK_EVENT_MIN);
+                  const end = Math.min(s + dur, WK_HOUR_END * 60);
+                  return { kind: 'task' as const, id: t.id, start: s, end: Math.max(end, s + WK_EVENT_MIN), title: t.title, t };
+                }),
                 ...appts.map(a => {
                   const s = hhmmToMin(a.time!);
                   // fine proporzionale alla durata (endTime), clampata alla fascia visibile
@@ -452,6 +461,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 }),
               ];
               const placed = packDay(events);
+              // Oltre WK_MAX_COLS sovrapposti: gli extra spariscono dalla griglia e resta un badge "+N"
+              const overflow = new Map<number, { n: number; top: number }>();
+              placed.forEach(p => {
+                if (p.col >= WK_MAX_COLS) {
+                  const o = overflow.get(p.cluster) || { n: 0, top: Infinity };
+                  o.n++;
+                  o.top = Math.min(o.top, p.start);
+                  overflow.set(p.cluster, o);
+                }
+              });
 
               return (
                 <div key={di} className={`flex-1 min-w-[104px] flex flex-col rounded-2xl border overflow-hidden bg-white ${isToday ? 'border-orange-300 ring-1 ring-orange-300/40' : 'border-[#ececec]'}`}>
@@ -488,7 +507,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       return (
                         <button
                           key={t.id}
-                          onClick={(e) => { e.stopPropagation(); onEditTask(t.id); }}
+                          onClick={(e) => { e.stopPropagation(); onSetCalDate(c); onSetCalView('day'); }}
                           title={t.title}
                           className={`text-[10px] font-bold py-0.5 px-1.5 rounded-md truncate text-left border-l-2 cursor-pointer ${wkBlockClasses(t, done, isProj)}`}
                         >
@@ -520,27 +539,25 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                       </div>
                     )}
 
-                    {placed.map(({ start, col, ncol, ...ev }) => {
+                    {placed.filter(p => p.col < WK_MAX_COLS).map(({ start, col, ncol, cluster: _cl, ...ev }) => {
                       const top = ((start - WK_HOUR_START * 60) / 60) * WK_HOUR_PX;
-                      const widthPct = 100 / ncol;
+                      const effN = Math.min(ncol, WK_MAX_COLS);
+                      const widthPct = 100 / effN;
                       const isTask = ev.kind === 'task';
                       const t = isTask ? (ev as any).t : null;
                       const a = !isTask ? (ev as any).a : null;
                       const done = isTask ? taskDoneOn(t, iso) : false;
                       const isProj = isTask ? !!t._proj : false;
                       const timeLabel = isTask ? t.time : a.time;
+                      const endLabel = isTask ? t.endTime : a.endTime;
                       const socDot = !isTask ? apptSocDot(a) : null;
                       const durH = Math.max(WK_EVENT_PX, ((ev.end - ev.start) / 60) * WK_HOUR_PX - 4);
                       return (
                         <button
                           key={`${ev.kind}-${ev.id}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (isTask) onEditTask(ev.id);
-                            else { onSetCalDate(c); onSetCalView('day'); }
-                          }}
-                          title={`${timeLabel} · ${ev.title}`}
-                          className={`absolute rounded-lg border-l-[3px] px-1.5 py-1 text-left overflow-hidden cursor-pointer shadow-3xs leading-tight z-10 ${isTask ? wkBlockClasses(t, done, isProj) : ''}`}
+                          onClick={(e) => { e.stopPropagation(); onSetCalDate(c); onSetCalView('day'); }}
+                          title={`${timeLabel}${endLabel ? `–${endLabel}` : ''} · ${ev.title}`}
+                          className={`absolute rounded-lg border-l-[3px] px-1.5 py-1 text-left overflow-hidden cursor-pointer shadow-3xs leading-tight z-10 ring-1 ring-white ${isTask ? wkBlockClasses(t, done, isProj) : ''}`}
                           style={{
                             top: Math.max(0, top),
                             height: durH,
@@ -551,12 +568,24 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         >
                           <span className="flex items-center gap-1 text-[9px] font-extrabold opacity-70 tabular-nums leading-none">
                             {socDot && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: socDot }} />}
-                            {timeLabel}{!isTask && a.endTime ? `–${a.endTime}` : !isTask ? ' ·' : ''}
+                            {timeLabel}{endLabel ? `–${endLabel}` : isTask ? '' : ' ·'}
                           </span>
                           <span className={`block text-[10.5px] font-bold truncate ${done ? 'line-through opacity-60' : ''}`}>{ev.title}</span>
                         </button>
                       );
                     })}
+
+                    {/* badge "+N": eventi oltre la terza colonna affiancata (dettaglio nella vista giorno) */}
+                    {[...overflow.values()].map((o, oi) => (
+                      <span
+                        key={`ov-${oi}`}
+                        title={`${o.n} altri — apri il giorno per il dettaglio`}
+                        className="absolute right-0.5 z-20 inline-flex items-center justify-center min-w-[22px] h-[18px] px-1 rounded-full bg-[#161616] text-white text-[9px] font-extrabold shadow-sm pointer-events-none"
+                        style={{ top: Math.max(0, ((o.top - WK_HOUR_START * 60) / 60) * WK_HOUR_PX + 2) }}
+                      >
+                        +{o.n}
+                      </span>
+                    ))}
                   </div>
                 </div>
               );
@@ -753,7 +782,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   <div className="flex items-center gap-2">
                     {t.time && (
                       <span className="bg-[#f0f0f0] text-[#161616] font-mono text-[11.5px] font-bold px-3 py-1.5 rounded-xl border border-gray-200 select-none flex items-center gap-1">
-                        <Clock className="w-3 h-3 opacity-60" /> {t.time}
+                        <Clock className="w-3 h-3 opacity-60" /> {t.time}{t.endTime ? `–${t.endTime}` : ''}
                       </span>
                     )}
 

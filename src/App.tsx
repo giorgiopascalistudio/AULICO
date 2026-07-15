@@ -1476,6 +1476,7 @@ export default function App() {
     setTTitle(presetTitle || '');
     setTDateInput(presetDate || todayISO());
     setTTimeInput('');
+    setTEndInput('');
     setTFreq('once');
     setTPrio('media');
     setTTipo('');
@@ -2693,6 +2694,7 @@ export default function App() {
   const [tTitle, setTTitle] = useState('');
   const [tDateInput, setTDateInput] = useState('');
   const [tTimeInput, setTTimeInput] = useState('');
+  const [tEndInput, setTEndInput] = useState('');   // ora di fine opzionale (blocco proporzionale in agenda)
   const [tFreq, setTFreq] = useState<'once' | 'daily' | 'weekly' | 'monthly'>('once');
   const [tPrio, setTPrio] = useState<'urgente' | 'alta' | 'media' | 'bassa'>('media');
   const [tTipo, setTTipo] = useState('');
@@ -2908,6 +2910,7 @@ export default function App() {
     setTTitle(t.title);
     setTDateInput(t.date);
     setTTimeInput(t.time || '');
+    setTEndInput(t.endTime || '');
     setTFreq(t.frequency);
     setTPrio(t.priority);
     setTTipo(t.tipo || '');
@@ -2952,6 +2955,7 @@ export default function App() {
           title: tTitle.trim(),
           date,
           time: tTimeInput || null,
+          endTime: tEndInput && tTimeInput && tEndInput > tTimeInput ? tEndInput : null,
           frequency: tFreq,
           priority: tPrio,
           tipo: tTipo.trim() || null,
@@ -2972,6 +2976,7 @@ export default function App() {
           title: tTitle.trim(),
           date,
           time: tTimeInput || null,
+          endTime: tEndInput && tTimeInput && tEndInput > tTimeInput ? tEndInput : null,
           frequency: tFreq,
           priority: tPrio,
           tipo: tTipo.trim() || null,
@@ -7333,14 +7338,18 @@ export default function App() {
             />
           </label>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <label className="flex flex-col gap-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Data *</span>
               <input type="date" value={tDateInput} onChange={(e) => setTDateInput(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Ora</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Inizio</span>
               <input type="time" value={tTimeInput} onChange={(e) => setTTimeInput(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Fine</span>
+              <input type="time" value={tEndInput} onChange={(e) => setTEndInput(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
           </div>
 
