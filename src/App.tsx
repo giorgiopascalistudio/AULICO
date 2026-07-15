@@ -6572,7 +6572,7 @@ export default function App() {
           const hrMembers = Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }));
           return (
             <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico l'agenda…</div>}>
-              <HrAgendaView events={hrEvents} members={hrMembers} canEdit={currentUser.role === 'admin' || currentUser.role === 'manager'} color={society.color} onSave={handleSaveHrEvent} onDelete={handleDeleteHrEvent} />
+              <HrAgendaView events={hrEvents} members={hrMembers} teamLeave={Object.values(teamLeave)} canEdit={currentUser.role === 'admin' || currentUser.role === 'manager'} color={society.color} onSave={handleSaveHrEvent} onDelete={handleDeleteHrEvent} onDeleteLeave={handleDeleteLeave} />
             </React.Suspense>
           );
         }

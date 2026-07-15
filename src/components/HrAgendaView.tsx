@@ -5,21 +5,27 @@
  * HrAgendaView — Agenda Risorse Umane (nodo `hrEvents`). Gestione di riunioni (1:1,
  * tecniche, amministrative, marketing), team building, formazione, viaggi, assenze e
  * vacanze. Vista calendario mensile + lista prossimi eventi + editor CRUD (admin/manager).
+ *
+ * Le ferie/assenze che i collaboratori dichiarano dalla propria agenda (nodo `teamLeave`)
+ * confluiscono QUI in sola lettura: stesso calendario, chip con bordo colorato invece che
+ * pieno. Restano di proprietà del collaboratore — da qui admin/manager può solo eliminarle.
  */
 import React from 'react';
 import {
-  CalendarDays, Plus, X, ChevronLeft, ChevronRight, Trash2, MapPin, Users2, ChevronDown,
+  CalendarDays, Plus, X, ChevronLeft, ChevronRight, Trash2, MapPin, Users2, ChevronDown, User,
 } from 'lucide-react';
-import type { HrEvent, HrEventCategory } from '../types';
+import type { HrEvent, HrEventCategory, TeamLeave } from '../types';
 
 interface Member { uid: string; name: string; }
 interface Props {
   events: Record<string, HrEvent>;
   members: Member[];
+  teamLeave?: TeamLeave[];
   canEdit?: boolean;
   color?: string;
   onSave?: (e: HrEvent) => void;
   onDelete?: (id: string) => void;
+  onDeleteLeave?: (id: string) => void;
 }
 
 export const CAT_META: Record<HrEventCategory, { label: string; short: string; color: string }> = {
@@ -42,18 +48,43 @@ const CAT_GROUPS: { label: string; cats: HrEventCategory[] }[] = [
   { label: 'Assenze', cats: ['assenza', 'vacanza'] },
 ];
 
+// Ferie/assenze dichiarate dal team (nodo `teamLeave`): come si mappano sulle categorie HR.
+const LEAVE_CAT: Record<TeamLeave['type'], HrEventCategory> = { ferie: 'vacanza', permesso: 'assenza', malattia: 'assenza' };
+const LEAVE_LABEL: Record<TeamLeave['type'], string> = { ferie: 'Ferie', permesso: 'Permesso', malattia: 'Malattia' };
+
+/** Voce d'agenda: evento HR creato qui, oppure ferie/assenza dichiarata dal collaboratore. */
+interface AgendaItem {
+  id: string;
+  title: string;
+  category: HrEventCategory;
+  date: string;
+  endDate?: string | null;
+  time?: string | null;
+  ev?: HrEvent;
+  leave?: TeamLeave;
+}
+
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const parseIso = (s: string) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); };
 const MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const WD = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 const fmtLong = (s: string) => parseIso(s).toLocaleDateString('it-IT', { weekday: 'short', day: '2-digit', month: 'short' });
 
-export const HrAgendaView: React.FC<Props> = ({ events, members, canEdit = false, color = '#b45309', onSave, onDelete }) => {
+export const HrAgendaView: React.FC<Props> = ({ events, members, teamLeave = [], canEdit = false, color = '#b45309', onSave, onDelete, onDeleteLeave }) => {
   const [cursor, setCursor] = React.useState(() => { const n = new Date(); return { y: n.getFullYear(), m: n.getMonth() }; });
   const [filter, setFilter] = React.useState<'all' | HrEventCategory>('all');
   const [editing, setEditing] = React.useState<HrEvent | null>(null);
+  const [viewLeave, setViewLeave] = React.useState<TeamLeave | null>(null);
 
-  const list = React.useMemo(() => Object.values(events).filter((e) => filter === 'all' || e.category === filter), [events, filter]);
+  const list = React.useMemo<AgendaItem[]>(() => {
+    const evs: AgendaItem[] = Object.values(events).map((e) => ({
+      id: e.id, title: e.title || CAT_META[e.category].label, category: e.category, date: e.date, endDate: e.endDate, time: e.time, ev: e,
+    }));
+    const lvs: AgendaItem[] = teamLeave.map((l) => ({
+      id: `leave-${l.id}`, title: `${l.name} · ${LEAVE_LABEL[l.type]}`, category: LEAVE_CAT[l.type], date: l.dateFrom, endDate: l.dateTo, time: null, leave: l,
+    }));
+    return [...evs, ...lvs].filter((i) => filter === 'all' || i.category === filter);
+  }, [events, teamLeave, filter]);
   const onDay = (dayIso: string) => list.filter((e) => { const s = e.date; const en = e.endDate || e.date; return dayIso >= s && dayIso <= en; })
     .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
@@ -74,7 +105,7 @@ export const HrAgendaView: React.FC<Props> = ({ events, members, canEdit = false
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><CalendarDays className="w-5.5 h-5.5" /> Agenda Risorse Umane</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Riunioni, team building, formazione, viaggi, assenze e vacanze del team.</p>
+          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Riunioni, team building, formazione, viaggi, assenze e vacanze del team. Le ferie e le assenze dichiarate dai collaboratori dalla loro agenda compaiono qui automaticamente (chip con bordo).</p>
         </div>
         {canEdit && <button onClick={() => setEditing(blank())} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuovo evento</button>}
       </div>
@@ -126,8 +157,17 @@ export const HrAgendaView: React.FC<Props> = ({ events, members, canEdit = false
               return (
                 <div key={i} onClick={() => canEdit && setEditing({ ...blank(), date: di })} className={`min-h-[74px] rounded-lg border p-1 flex flex-col gap-0.5 ${canEdit ? 'cursor-pointer' : ''} ${inMonth ? 'bg-white border-[#eee]' : 'bg-gray-50/60 border-transparent'} ${isToday ? 'ring-2 ring-[#161616]/70' : ''} hover:border-[#d5d5d5]`}>
                   <span className={`text-[11px] font-bold ${inMonth ? 'text-[#444]' : 'text-[#c0c0c0]'} ${isToday ? 'text-[#161616]' : ''}`}>{d.getDate()}</span>
-                  {evs.slice(0, 3).map((e) => { const m = CAT_META[e.category]; return (
-                    <button key={e.id} onClick={(ev) => { ev.stopPropagation(); setEditing(e); }} title={`${m.label} — ${e.title}`} className="text-left text-[9.5px] font-bold text-white truncate rounded px-1 py-0.5 cursor-pointer border-none" style={{ background: m.color }}>{e.time ? `${e.time} ` : ''}{e.title || m.short}</button>
+                  {evs.slice(0, 3).map((e) => { const m = CAT_META[e.category]; return e.leave ? (
+                    // Ferie/assenza dichiarata dal collaboratore: chip con bordo (non è un evento HR).
+                    <button
+                      key={e.id}
+                      onClick={(ev) => { ev.stopPropagation(); setViewLeave(e.leave!); }}
+                      title={`${LEAVE_LABEL[e.leave.type]} — ${e.leave.name} (dichiarata dal team)`}
+                      className="text-left text-[9.5px] font-bold truncate rounded px-1 py-0.5 cursor-pointer bg-white"
+                      style={{ color: m.color, border: `1px solid ${m.color}` }}
+                    >{e.title}</button>
+                  ) : (
+                    <button key={e.id} onClick={(ev) => { ev.stopPropagation(); setEditing(e.ev!); }} title={`${m.label} — ${e.title}`} className="text-left text-[9.5px] font-bold text-white truncate rounded px-1 py-0.5 cursor-pointer border-none" style={{ background: m.color }}>{e.time ? `${e.time} ` : ''}{e.title || m.short}</button>
                   ); })}
                   {evs.length > 3 && <span className="text-[9px] font-bold text-[#9a9a9a]">+{evs.length - 3}</span>}
                 </div>
@@ -142,11 +182,11 @@ export const HrAgendaView: React.FC<Props> = ({ events, members, canEdit = false
           {upcoming.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a] py-6 text-center">Nessun evento in programma.</p> : (
             <div className="flex flex-col gap-2">
               {upcoming.map((e) => { const m = CAT_META[e.category]; return (
-                <button key={e.id} onClick={() => setEditing(e)} className="text-left flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-gray-50 cursor-pointer bg-transparent border border-[#f0f0f0]">
-                  <span className="w-2.5 h-2.5 rounded-full mt-1 shrink-0" style={{ background: m.color }} />
+                <button key={e.id} onClick={() => e.leave ? setViewLeave(e.leave) : setEditing(e.ev!)} className="text-left flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-gray-50 cursor-pointer bg-transparent border border-[#f0f0f0]">
+                  <span className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${e.leave ? 'border-2 bg-transparent' : ''}`} style={e.leave ? { borderColor: m.color } : { background: m.color }} />
                   <div className="min-w-0 flex-1">
                     <p className="text-[12.5px] font-bold text-[#161616] truncate">{e.title || m.label}</p>
-                    <p className="text-[11px] text-[#8a8a8a] truncate">{m.label} · {fmtLong(e.date)}{e.endDate && e.endDate !== e.date ? ` → ${fmtLong(e.endDate)}` : ''}{e.time ? ` · ${e.time}` : ''}</p>
+                    <p className="text-[11px] text-[#8a8a8a] truncate">{e.leave ? LEAVE_LABEL[e.leave.type] : m.label} · {fmtLong(e.date)}{e.endDate && e.endDate !== e.date ? ` → ${fmtLong(e.endDate)}` : ''}{e.time ? ` · ${e.time}` : ''}</p>
                   </div>
                 </button>
               ); })}
@@ -156,6 +196,44 @@ export const HrAgendaView: React.FC<Props> = ({ events, members, canEdit = false
       </div>
 
       {editing && <HrEventEditor ev={editing} members={members} canEdit={canEdit} color={color} onClose={() => setEditing(null)} onSave={(e) => { onSave?.(e); setEditing(null); }} onDelete={onDelete ? (id) => { onDelete(id); setEditing(null); } : undefined} />}
+      {viewLeave && (
+        <LeaveDetail
+          leave={viewLeave}
+          canEdit={canEdit}
+          onClose={() => setViewLeave(null)}
+          onDelete={onDeleteLeave ? (id) => { onDeleteLeave(id); setViewLeave(null); } : undefined}
+        />
+      )}
+    </div>
+  );
+};
+
+/**
+ * Dettaglio in sola lettura di una ferie/assenza: vive sul nodo `teamLeave`, la dichiara il
+ * collaboratore dalla propria agenda. Da qui admin/manager può solo eliminarla (doppia
+ * conferma + Cestino a monte, come ovunque).
+ */
+const LeaveDetail: React.FC<{ leave: TeamLeave; canEdit: boolean; onClose: () => void; onDelete?: (id: string) => void }> = ({ leave, canEdit, onClose, onDelete }) => {
+  const m = CAT_META[LEAVE_CAT[leave.type]];
+  return (
+    <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-[24px] w-full max-w-sm p-5 shadow-2xl text-left" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-[16px] font-extrabold text-[#161616] inline-flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: m.color }} /> {LEAVE_LABEL[leave.type]}
+          </h3>
+          <div className="flex items-center gap-1">
+            {canEdit && onDelete && <button onClick={() => onDelete(leave.id)} className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-4 h-4" /></button>}
+            <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button>
+          </div>
+        </div>
+        <p className="text-[13.5px] font-bold text-[#161616] inline-flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-[#9a9a9a]" /> {leave.name}</p>
+        <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1.5">
+          {leave.dateFrom === leave.dateTo ? fmtLong(leave.dateFrom) : `${fmtLong(leave.dateFrom)} → ${fmtLong(leave.dateTo)}`}
+        </p>
+        {leave.note && <p className="text-[12.5px] text-[#6b6b6b] mt-2 p-2.5 rounded-xl bg-[#fafafa] border border-[#eee]">{leave.note}</p>}
+        <p className="text-[11px] text-[#9a9a9a] mt-3">Dichiarata dal collaboratore nella sua agenda.</p>
+      </div>
     </div>
   );
 };

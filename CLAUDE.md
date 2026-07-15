@@ -845,8 +845,13 @@ reporting/redditività, integrazioni esterne
   `hr-governance` reparent `amm`, id invariato per link/permessi; nelle altre società resta in HR);
   4) **Mappa operativa ridisegnata** (`MatericoMappaView`): KPI per tipo, `KIND_META` con
   colore+icona per tipo di sito, card con ring colorato, barra colore + azioni con icone nel
-  pannello mappa; 5) **Ferie & assenze SOLO nell'agenda personale** (prop `showLeave` di
-  `CalendarView`, App la passa `true` solo per `activeSocieta==='holding'`); 6) **Stima Preliminare
+  pannello mappa; 5) **Ferie & assenze: pannello di inserimento solo nell'agenda personale**
+  (prop `showLeave` di `CalendarView`, App la passa `true` solo per `activeSocieta==='holding'`)
+  — ma le assenze dichiarate **compaiono anche nell'Agenda HR** (`HrAgendaView`, prop `teamLeave`):
+  in sola lettura, mappate sulle categorie HR (`ferie→vacanza`, `permesso|malattia→assenza`) con chip
+  a bordo colorato invece che pieno, dettaglio in overlay e delete per admin/manager
+  (`onDeleteLeave` → `handleDeleteLeave`, doppia conferma + Cestino). Stesso nodo `teamLeave`,
+  nessuna duplicazione; 6) **Stima Preliminare
   spostata nel gruppo Commerciale** di TUTTE le società (`comm-stime`, via da Produzione Onirico):
   per-società via campo `StimaPreliminare.soc` (App filtra e timbra; legacy senza soc = Onirico).
   ⚠️ **CRM V2 — Agenda/Cronometro/Report/Questionario/Presentazioni (docs/V2 agg.txt + metodo I-time)**:
