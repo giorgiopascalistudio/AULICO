@@ -122,6 +122,9 @@ function greetingFor(name?: string | null): string {
  * (contatore + anteprima) che apre il contenuto in un bottom-sheet — la home
  * sta in una schermata, niente pila di card da scorrere.
  */
+/** Riquadri "di oggi": in cima e larghi nella dashboard desktop. */
+const TODAY_IDS = ['oggi', 'task-oggi'];
+
 export const SocietyDashboard: React.FC<Props> = ({ spec, ctx, societyLabel, color }) => {
   const isPersonal = ctx.societa === 'holding';
   const dateLabel = new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -212,9 +215,12 @@ export const SocietyDashboard: React.FC<Props> = ({ spec, ctx, societyLabel, col
       </div>
 
       {/* ---------- DESKTOP: griglia di card come sempre ---------- */}
+      {/* Gerarchia: "cosa devo fare oggi" per primo e a tutta larghezza, il resto sotto */}
       <div className="hidden md:grid grid-cols-1 md:grid-cols-2 gap-4">
-        {computed.map(({ w, data }) => (
-          <WidgetCard key={w.id} w={w} data={data} color={color} go={ctx.go} />
+        {[...computed].sort((a, b) => Number(TODAY_IDS.includes(b.w.id)) - Number(TODAY_IDS.includes(a.w.id))).map(({ w, data }) => (
+          <div key={w.id} className={TODAY_IDS.includes(w.id) ? 'md:col-span-2' : ''}>
+            <WidgetCard w={w} data={data} color={color} go={ctx.go} />
+          </div>
         ))}
       </div>
 

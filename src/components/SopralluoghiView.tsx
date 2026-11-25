@@ -87,7 +87,8 @@ export const SopralluoghiView: React.FC<Props> = (p) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* Pagina vuota: niente riga di zeri, resta solo l'invito sotto */}
+      <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 ${p.items.length ? '' : 'hidden'}`}>
         {kpis.map((k, i) => (
           <motion.div key={k.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="bg-white border border-[#e2e2e2] rounded-[22px] px-4 py-3">
             <div className="text-[20px] font-black text-[#161616]">{k.value}</div>

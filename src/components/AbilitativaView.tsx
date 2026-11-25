@@ -129,7 +129,39 @@ export const AbilitativaView: React.FC<Props> = ({ projects, cells, tasks, team,
       {cols.length === 0 ? (
         <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center text-[13px] text-[#767676]">Nessuna pratica Onirico attiva.</div>
       ) : (
-        <div className="bg-white border border-[#e2e2e2] rounded-[22px] overflow-x-auto">
+        <>
+        {/* Tablet/telefono: una scheda per pratica (la tabella larga scorrerebbe di lato) */}
+        <div className="md:hidden flex flex-col gap-3">
+          {visibleCols.map((p) => {
+            const pct = colPct(p.id);
+            return (
+              <div key={p.id} className="bg-white border border-[#e2e2e2] rounded-[22px] p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <a href={`#progetto/${p.id}`} className="text-[15px] font-black text-[#161616] truncate">{p.name}</a>
+                  <span className="text-[12px] font-bold text-[#6b6b6b]">{pct}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-[#f0f0ee] mt-2 overflow-hidden"><motion.div className="h-full rounded-full bg-emerald-500" initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.6 }} /></div>
+                <div className="flex flex-col gap-1.5 mt-3">
+                  {ABIL_VOCI.map((v) => {
+                    const c = cellOf(p.id, v.id);
+                    const m = statoMeta(c.stato);
+                    const who = nameOf(c.assignee);
+                    return (
+                      <button key={v.id} type="button" disabled={!canEdit} onClick={() => setEdit({ pid: p.id, voce: v.id })}
+                        className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left ${m.cls} ${canEdit ? 'cursor-pointer' : 'cursor-default'}`}
+                        style={c.stato === 'non_serve' ? HATCH : undefined}>
+                        <m.icon className="w-4 h-4 shrink-0" />
+                        <span className="flex-1 text-[13.5px] font-bold text-[#161616]">{v.label}</span>
+                        <span className="text-[12px] font-semibold">{c.stato === 'non_serve' ? 'Non serve' : who || m.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="hidden md:block bg-white border border-[#e2e2e2] rounded-[22px] overflow-x-auto">
           <table className="border-separate border-spacing-0 w-max">
             <thead>
               <tr>
@@ -192,6 +224,7 @@ export const AbilitativaView: React.FC<Props> = ({ projects, cells, tasks, team,
             </tbody>
           </table>
         </div>
+        </>
       )}
 
       {edit && (

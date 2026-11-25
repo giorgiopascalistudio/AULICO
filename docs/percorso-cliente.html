@@ -1,0 +1,331 @@
+<title>Percorso cliente Aulico</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: colonna unica di lettura; per ogni società una linea del tempo verticale di passaggi,
+   ogni passaggio con il suo riquadro "correzioni". Tinte neutre leggermente calde come Aulico. */
+:root {
+  --bg: #f5f5f3; --surface: #ffffff; --ink: #161616; --muted: #5f5f5b; --line: #e2e2de; --soft: #efefeb;
+  --ok: #157347; --ok-bg: #e7f4ec; --warn: #9a5b00; --warn-bg: #fbf1e0; --idea: #3d4fb8; --idea-bg: #eceefb;
+  --onirico: #16a34a; --materico: #ea580c; --unico: #ca9a04; --strategico: #dc2626; --fantastico: #7c3aed; --tutti: #161616;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif; --body: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #131312; --surface: #1c1c1a; --ink: #ecebe6; --muted: #a3a29b; --line: #2f2f2c; --soft: #252523;
+  --ok: #5fcf8f; --ok-bg: #16301f; --warn: #f0b45a; --warn-bg: #33270f; --idea: #9aa8ff; --idea-bg: #1f2340; --tutti: #ecebe6; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #131312; --surface: #1c1c1a; --ink: #ecebe6; --muted: #a3a29b; --line: #2f2f2c; --soft: #252523;
+  --ok: #5fcf8f; --ok-bg: #16301f; --warn: #f0b45a; --warn-bg: #33270f; --idea: #9aa8ff; --idea-bg: #1f2340; --tutti: #ecebe6; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 860px; margin: 0 auto; padding-block: 28px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-family: var(--display); font-size: clamp(28px, 5vw, 40px); line-height: 1.1; margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+.lead { color: var(--muted); margin: 10px 0 0; max-width: 62ch; }
+.status { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 18px; font-size: 13px; color: var(--muted); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--soft); font-weight: 600; font-size: 12.5px; color: var(--ink); }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none; }
+nav.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); margin: 22px -4px 0; padding: 10px 4px; display: flex; gap: 6px; overflow-x: auto; border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+nav.tabs a { flex: none; display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: 999px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: 14px; border: 1px solid var(--line); background: var(--surface); }
+nav.tabs a[aria-current="page"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+nav.tabs .n { font-size: 11.5px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--soft); color: var(--ink); }
+nav.tabs a[aria-current="page"] .n { background: color-mix(in srgb, var(--bg) 22%, transparent); color: var(--bg); }
+.intro { margin: 26px 0 8px; }
+.intro h2 { font-family: var(--display); font-size: 26px; margin: 0; display: flex; align-items: center; gap: 10px; }
+.intro p { color: var(--muted); margin: 6px 0 0; max-width: 64ch; }
+ol.steps { list-style: none; margin: 18px 0 0; padding: 0; position: relative; }
+ol.steps::before { content: ""; position: absolute; left: 17px; top: 8px; bottom: 8px; width: 2px; background: var(--line); }
+.step { position: relative; padding-left: 50px; margin-bottom: 18px; }
+.num { position: absolute; left: 0; top: 2px; width: 36px; height: 36px; border-radius: 50%; background: var(--surface); border: 2px solid var(--soc, var(--ink)); display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; min-width: 0; }
+.card h3 { margin: 0; font-size: 17px; font-family: var(--display); letter-spacing: -0.01em; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; font-size: 13px; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 600; }
+.card p.what { margin: 10px 0 0; }
+.auto { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.auto li { font-size: 13.5px; padding-left: 20px; position: relative; }
+.auto li::before { content: "→"; position: absolute; left: 2px; color: var(--muted); }
+.state { display: inline-flex; font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; margin-left: 8px; vertical-align: 2px; }
+.state.fatto { background: var(--ok-bg); color: var(--ok); }
+.state.parziale { background: var(--warn-bg); color: var(--warn); }
+.state.manca { background: var(--soft); color: var(--muted); }
+.gap { margin-top: 10px; font-size: 13px; color: var(--warn); background: var(--warn-bg); border-radius: 10px; padding: 7px 10px; }
+.fb { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.verdicts { display: flex; gap: 6px; flex-wrap: wrap; }
+.verdicts button { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.verdicts button[aria-pressed="true"][data-v="ok"] { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }
+.verdicts button[aria-pressed="true"][data-v="correggere"] { background: var(--warn-bg); border-color: var(--warn); color: var(--warn); }
+.verdicts button[aria-pressed="true"][data-v="idea"] { background: var(--idea-bg); border-color: var(--idea); color: var(--idea); }
+.fb textarea { font: inherit; font-size: 14px; width: 100%; box-sizing: border-box; min-height: 64px; resize: vertical; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.fb .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.save { font: inherit; font-weight: 700; font-size: 13.5px; padding: 8px 16px; border-radius: 10px; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; }
+.save:disabled { opacity: 0.4; cursor: default; }
+.saved { font-size: 12.5px; color: var(--muted); }
+button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 2px solid var(--idea); outline-offset: 2px; }
+.notice { margin-top: 14px; font-size: 13px; color: var(--warn); background: var(--warn-bg); border-radius: 12px; padding: 9px 12px; }
+.legend { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+@media (max-width: 520px) { .step { padding-left: 44px; } ol.steps::before { left: 15px; } .num { width: 32px; height: 32px; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Il percorso di un cliente in Aulico, dalla A alla Z</h1>
+    <p class="lead">Per ogni società: cosa succede, chi lo fa, in quale sezione dell'app e cosa parte in automatico. Su ogni passaggio scegli <b>Va bene</b>, <b>Da correggere</b> o <b>Idea</b> e scrivi la nota: resta salvata e la leggo io per fare le modifiche.</p>
+    <div class="legend">
+      <span class="chip"><span class="state fatto" style="margin:0">Fatto</span> funziona così oggi</span>
+      <span class="chip"><span class="state parziale" style="margin:0">Parziale</span> c'è, con dei limiti</span>
+      <span class="chip"><span class="state manca" style="margin:0">Manca</span> previsto ma non c'è</span>
+    </div>
+    <div class="status" id="status"><span>Caricamento delle note…</span></div>
+  </header>
+  <nav class="tabs" id="tabs" aria-label="Società"></nav>
+  <main id="view"></main>
+</div>
+
+<script>
+const S = {
+  tutti: { label: 'Comune a tutti', color: 'var(--tutti)', intro: "Il modo in cui un contatto entra in Aulico, come il cliente segue il lavoro e cosa gira da solo, uguale per tutte le società." },
+  onirico: { label: 'Onirico', color: 'var(--onirico)', intro: "Studio di progettazione: dal primo contatto al sopralluogo, al preventivo, alla pratica fino all'agibilità." },
+  materico: { label: 'Materico', color: 'var(--materico)', intro: "General contractor: richieste di lavori, imprese partner, contratti, cantiere e margini." },
+  unico: { label: 'Unico', color: 'var(--unico)', intro: "Investimenti immobiliari: dalla ricerca dell'immobile alla vendita e alla divisione degli utili con gli investitori." },
+  strategico: { label: 'Strategico', color: 'var(--strategico)', intro: "Marketing e direzione: lavora per le società del gruppo e per clienti esterni." },
+  fantastico: { label: 'Fantastico', color: 'var(--fantastico)', intro: "Gestione immobiliare: manutenzioni e servizi tramite partner." },
+};
+
+const STEPS = {
+  tutti: [
+    { id: 'tutti-1', t: 'Il contatto entra', who: 'Cliente o staff', where: 'Portale clienti · Strategico → Point of Entry', s: 'fatto',
+      what: "Il cliente si registra dal sito (privato o azienda, approvato in automatico) e invia \"Raccontaci il tuo sogno\" per Onirico, Materico o Strategico. I contatti commerciali arrivano nel Point of Entry di Strategico.",
+      auto: ['Lo staff riceve una notifica', 'Dal Point of Entry un tasto smista il contatto alla società giusta', 'La richiesta si può convertire direttamente in progetto'] },
+    { id: 'tutti-2', t: 'Anagrafica unica', who: 'Staff', where: 'Commerciale → Registro clienti', s: 'fatto',
+      what: "Clienti, imprese, agenzie e investitori stanno in un'unica rubrica, con fascia, responsabili, WhatsApp e storico pagamenti.",
+      auto: ['Pratiche, preventivi, sopralluoghi e contratti si compilano dalla rubrica', "Se il contatto ha un account, si collega al portale"] },
+    { id: 'tutti-3', t: 'Il cliente segue dal portale', who: 'Cliente', where: 'Portale clienti', s: 'fatto',
+      what: "Avanzamento delle pratiche, documenti, questionario, arredi e moodboard, preventivi interattivi (sceglie le voci e vede totale e valore dell'immobile), contabilità, eventi e sondaggi.",
+      auto: ['Avvisi a ogni fase completata e a pratica conclusa', 'Avvisi su agibilità, APE e DOCFA', 'Promemoria giornalieri sulle scelte di arredo in scadenza'] },
+    { id: 'tutti-4', t: 'Automazioni giornaliere', who: 'Automatico, ogni mattina alle 7', where: 'GitHub Actions (riattivate oggi)', s: 'fatto',
+      what: "Promemoria ferie e scadenze, avvisi documenti e contratti in scadenza, consegne Materico in ritardo, report settimanale al cliente il venerdì.",
+      auto: ['Tutto arriva come notifica in Aulico'], gap: "Le email partono solo se è configurato SendGrid: oggi gli avvisi sono solo dentro l'app." },
+    { id: 'tutti-5', t: 'Soldi e chiusura', who: 'Amministrazione', where: 'Strategico → Centro Direzione / Contabilità operativa', s: 'fatto',
+      what: "Rate dei preventivi diventano fatture e scadenze, i SAL di cantiere diventano bozze di fattura, tutto confluisce nel consolidato di gruppo con punto di pareggio e obiettivi.",
+      auto: ['Le pratiche completate escono dalle liste e vanno in archivio', 'Il tempo speso alimenta report di profilo e punti del team'] },
+  ],
+  onirico: [
+    { id: 'oni-1', t: 'Sopralluogo', who: 'Tecnico', where: 'Onirico → Commerciale → Sopralluoghi & Rilievi', s: 'fatto',
+      what: "Cliente dalla rubrica o nuovo, indirizzo dell'immobile, data, ora e chi ci va.",
+      auto: ['Il cliente nuovo entra in rubrica', "Il sopralluogo compare nell'agenda del tecnico con notifica"] },
+    { id: 'oni-2', t: 'Stima sul posto', who: 'Tecnico', where: 'Stessa scheda del sopralluogo', s: 'fatto',
+      what: "Tipologia, mq, dettaglio (base/medio/alto) e servizi del rilievo, oppure un pacchetto: solo rilievo, rilievo + restituzione, completo. Per il costo dei lavori c'è la Stima preliminare a simulatore.",
+      auto: ['Il prezzo si calcola mentre scrivi'], gap: "Le tariffe dei rilievi sono valori di partenza: vanno sostituite con quelle di Onirico (tasto Tariffe)." },
+    { id: 'oni-3', t: 'Preventivo', who: 'Tecnico o direzione', where: 'Crea il preventivo → Strategico → Centro Commerciale', s: 'fatto',
+      what: "Preventivo con IVA 22%, cassa 4%, validità 3 giorni, stampabile su carta intestata, inviabile al portale, firmabile con codice OTP.",
+      auto: ['Ogni riga porta con sé le attività che genererà', 'Il cliente può togliere o aggiungere voci dal portale'] },
+    { id: 'oni-4', t: 'Accettato: nasce la commessa', who: 'Automatico', where: 'Progetti', s: 'fatto',
+      what: "Pratica \"Cliente — Località\" con fasi e attività già scritte, cliente collegato e avvisato. Una finestra propone chi fa cosa (per mansione e carico di lavoro) e le date.",
+      auto: ["Le attività assegnate compaiono nelle agende", 'Il sopralluogo passa allo stato Commessa'] },
+    { id: 'oni-5', t: 'Pratica creata a mano', who: 'Staff', where: 'Progetti → Nuovo progetto', s: 'fatto',
+      what: "In alternativa al preventivo: processo a 4 fasi o categorie dalla libreria attività, indirizzo e dati catastali.",
+      auto: ['Date e assegnazioni automatiche dalla data di inizio', 'Nome vuoto = "Cliente — Comune"'] },
+    { id: 'oni-6', t: 'Progettazione', who: 'Architetti', where: 'Dentro la pratica', s: 'fatto',
+      what: "Questionario del cliente, Arredi & Moodboard 3D, presentazione esportabile in PowerPoint, render AI, computo.",
+      auto: ['Spuntare in agenda = spuntare nella pratica', 'Scelte vincolanti con 60 giorni di tempo: promemoria al cliente e avviso di blocco cantiere'] },
+    { id: 'oni-7', t: 'Fase abilitativa', who: 'Tecnici', where: 'Onirico → Produzione → Fase abilitativa', s: 'fatto',
+      what: "Tabella pratiche × documenti (collaudo, idoneità statica, tipo mappale, DOCFA, scarico, conformità, APE, AQE, agibilità, variante): stato e assegnatario.",
+      auto: ["La casella assegnata va nell'agenda della persona", 'Fatta = attività omonima della pratica chiusa', 'Agibilità, APE e DOCFA avvisano il cliente'] },
+    { id: 'oni-8', t: 'Lavori', who: 'Materico + direzione lavori', where: 'Pratica → Cantiere', s: 'parziale',
+      what: "I lavori passano da Materico (vedi la sua scheda); lo studio segue il cantiere come direzione lavori dalla scheda Cantiere della pratica.",
+      auto: ['Giornale lavori, SAL, verbali visibili allo studio'], gap: "Il passaggio da pratica Onirico a commessa Materico è manuale: non c'è un tasto \"manda in esecuzione a Materico\"." },
+    { id: 'oni-9', t: 'Parcella e pagamenti', who: 'Amministrazione', where: 'Pratica → Contabilità di commessa', s: 'fatto',
+      what: "Parcella al 15% sul costo delle opere (+20% sugli arredi mobili se gestiti), piano rate, fatture e scadenze.",
+      auto: ['Le rate emesse diventano fatture e scadenze nel consolidato'] },
+    { id: 'oni-10', t: 'Chiusura', who: 'Automatico + staff', where: 'Pratica', s: 'fatto',
+      what: "Tutte le attività fatte: la pratica diventa completata, poi saldo e archivio.",
+      auto: ['Messaggio di ringraziamento al cliente'] },
+  ],
+  materico: [
+    { id: 'mat-1', t: 'Richiesta di lavori', who: 'Cliente', where: 'Portale → Richieste / Preventivi', s: 'fatto',
+      what: "Il cliente descrive il lavoro (tipo, quantità, link, note).", auto: ["Arriva nell'inbox Materico"] },
+    { id: 'mat-2', t: 'Offerte dalle imprese', who: 'Operatore Materico', where: 'Materico → hub richieste', s: 'fatto',
+      what: "Il sistema suggerisce le imprese adatte; l'operatore inoltra, le imprese offrono dal loro portale, si sceglie la migliore e si applica il margine.",
+      auto: ['Offerte ordinate per prezzo', 'Bozza di contratto generata per il cliente, che accetta dal portale'] },
+    { id: 'mat-3', t: 'Potenziale cantiere', who: 'Direzione / responsabile', where: 'Materico → Produzione → Potenziale Cantiere', s: 'fatto',
+      what: "Per le commesse più grandi: analisi tecnica ed economica, disciplina (edile, impianti, misto) e responsabile di produzione.",
+      auto: ['Compare in "Le mie commesse" del responsabile'] },
+    { id: 'mat-4', t: 'Computo e preventivo', who: 'Responsabile', where: 'Potenziale Cantiere → Genera preventivo', s: 'fatto',
+      what: "Computo dal listino interno (costo imprese, materiali, prezzo di mercato, margine minimo e applicato), poi preventivo al cliente.",
+      auto: ['Preventivo generato dal computo, gestito nel Centro Commerciale'] },
+    { id: 'mat-5', t: "Contratto con l'impresa", who: 'Direzione', where: 'Centro Commerciale → Contratti imprese', s: 'fatto',
+      what: "Contratto compilato con lavorazioni, importo, date, pagamenti, penale per giorno di ritardo. Controllo del margine prima della firma. Firma OTP.",
+      auto: ['Alla firma nasce il cantiere: pratica se manca, impresa assegnata, lavorazione nel cronoprogramma, responsabile avvisato'] },
+    { id: 'mat-6', t: 'Cantiere', who: 'Responsabile + impresa', where: 'Pratica → Cantiere · portale impresa', s: 'fatto',
+      what: "Giornale di cantiere, foto con data e posizione, presenze, materiali, documenti di sicurezza con scadenza, chat con l'impresa.",
+      auto: ["Rapportini dell'impresa da approvare", 'Cronoprogramma che si aggiorna con le date'] },
+    { id: 'mat-7', t: 'Avanzamento e ritardi', who: 'Responsabile', where: 'Cantiere → SAL · Contratti', s: 'fatto',
+      what: "SAL approvati, penale calcolata oltre la fine prevista.",
+      auto: ['SAL approvato = bozza di fattura', 'Penale applicata avvisa impresa e direzione'], gap: "Nel Centro Commerciale la penale non sa se il cantiere è già concluso." },
+    { id: 'mat-8', t: 'Chiusura', who: 'Direzione', where: 'Cantiere · Commerciale → Valutazione imprese', s: 'parziale',
+      what: "Cantiere concluso, valutazione dell'impresa su 7 criteri, punti di affidabilità.",
+      auto: [], gap: "La valutazione dell'impresa non viene chiesta in automatico alla chiusura del cantiere." },
+  ],
+  unico: [
+    { id: 'uni-1', t: "Trovare l'immobile", who: 'Responsabile investimenti', where: 'Unico → Produzione → Ricerca Opportunità', s: 'fatto',
+      what: "Scheda dell'immobile: contatto (agenzia o proprietario), Google Earth, foto, documenti, prezzo richiesto e nostra valutazione.",
+      auto: ['Ogni passo spuntato crea in agenda il passo successivo'] },
+    { id: 'uni-2', t: 'Sopralluogo, documenti, analisi', who: 'Responsabile', where: 'Stessa scheda', s: 'fatto', what: "Tre passi obbligatori in ordine.", auto: [] },
+    { id: 'uni-3', t: 'Due diligence', who: 'Responsabile', where: 'Stessa scheda', s: 'fatto',
+      what: "Checklist di 9 verifiche (urbanistica, catastale, ipotecaria, paesaggistica…) con PDF allegato.", auto: ['Finché non è completa, il passo dopo resta bloccato'] },
+    { id: 'uni-4', t: "Manifestazione d'interesse", who: 'Responsabile', where: 'Stessa scheda → Genera', s: 'fatto',
+      what: "Generata dal modello con i dati della scheda.", auto: ['Tasti Email e WhatsApp con il messaggio pronto (il PDF si allega)'] },
+    { id: 'uni-5', t: 'Trattativa, preliminare, atto', who: 'Direzione', where: 'Stessa scheda', s: 'fatto',
+      what: "All'atto: \"Crea l'investimento\".", auto: ["Nasce l'operazione in Operazioni & Investitori"] },
+    { id: 'uni-6', t: 'Scenario economico', who: 'Direzione', where: 'Operazioni & Investitori → operazione', s: 'fatto',
+      what: "Acquisto, agenzia, notaio, oneri, opere + IVA, progettazione, marketing, commercializzazione, imprevisti, vendita prevista.",
+      auto: ['Ricalcolo di capitale necessario, raccolto e mancante, utile, ROE, quota investitori e quota Unico'] },
+    { id: 'uni-7', t: 'Investitori', who: 'Direzione', where: 'Operazione → cap table · Documenti', s: 'parziale',
+      what: "Società veicolo, quote, conferimenti; contratto con l'investitore dal modello.",
+      auto: ['Ogni investitore collegato vede la sua posizione nel portale'], gap: "Il contratto con l'investitore si stampa ma non ha ancora la firma OTP." },
+    { id: 'uni-8', t: 'Lavori dal gruppo', who: 'Automatico', where: 'Operazione → Commesse interne', s: 'fatto',
+      what: "Progettazione a Onirico, opere a Materico, marketing a Strategico.", auto: ['Commesse interne generate al salvataggio, confermate passano in contabilità come intercompany'] },
+    { id: 'uni-9', t: 'Vetrina e vendita', who: 'Direzione + Strategico', where: 'Operazione → Vetrina', s: 'fatto',
+      what: "Pagina con video e scene, pubblicata nel portale clienti.", auto: ['Solo dati divulgabili: niente costi né nomi degli investitori'] },
+    { id: 'uni-10', t: "L'investitore segue", who: 'Investitore', where: 'Portale → I miei investimenti', s: 'fatto',
+      what: "Otto fasi con percentuale, responsabile, date, note e link a foto e documenti; aggiornamenti e distribuzioni.", auto: ['Ogni aggiornamento manda una notifica'] },
+    { id: 'uni-11', t: 'Rendiconto finale', who: 'Direzione', where: 'Operazione → Rendiconto', s: 'fatto',
+      what: "Rientro del capitale, poi divisione dell'utile secondo la quota; distribuzioni registrate.", auto: [] },
+  ],
+  strategico: [
+    { id: 'str-1', t: 'Nuovo cliente marketing', who: 'Marketing', where: 'Strategico → Marketing → Centro Marketing', s: 'fatto',
+      what: "Account del cliente dalla rubrica: obiettivi, target, tono di voce, canali social, budget, liberatoria.",
+      auto: ['Senza liberatoria compare il blocco "Non pubblicare nulla"', 'La scheda si salva da sola'] },
+    { id: 'str-2', t: 'Preventivo e contratto', who: 'Direzione', where: 'Centro Commerciale → Strategico', s: 'parziale',
+      what: "Preventivo come le altre società, firma OTP.", auto: [], gap: "I contratti ricorrenti (retainer mensili con emissione fattura) erano nella vecchia vista: oggi non sono raggiungibili dal Centro Marketing." },
+    { id: 'str-3', t: 'Produzione dei contenuti', who: 'Marketing', where: 'Account → Calendario · Workflow', s: 'fatto',
+      what: "Calendario editoriale per account, anche su più piattaforme insieme; workflow a 9 fasi per contenuto.", auto: ['I contenuti pubblicati finiscono nel report di profilo di chi li ha fatti'] },
+    { id: 'str-4', t: 'Risultati e spese', who: 'Marketing', where: 'Account → KPI · Spese', s: 'fatto',
+      what: "KPI mensili per piattaforma (sito da Google Analytics in automatico), spese per mese.", auto: ['Ogni spesa diventa una fattura passiva in contabilità'] },
+    { id: 'str-5', t: 'Report al cliente', who: 'Marketing', where: 'Account → Report · Report riunione', s: 'fatto',
+      what: "Report settimanale o mensile stampabile: performance, programmazione, spese, conclusioni.", auto: ['Se i KPI sono di un altro mese il report lo segnala'] },
+  ],
+  fantastico: [
+    { id: 'fan-1', t: 'Immobile in gestione', who: 'Staff', where: 'Fantastico → Produzione → Immobili & Servizi', s: 'fatto',
+      what: "Immobile con proprietario dalla rubrica, canone mensile, foto e documenti.", auto: [] },
+    { id: 'fan-2', t: 'Richiesta di servizio', who: 'Staff', where: 'Stessa sezione', s: 'parziale',
+      what: "Manutenzione, giardinaggio, pulizie, trasporti, ospiti, con priorità.", auto: [], gap: "Il proprietario non può aprire richieste dal portale: oggi le inserisce lo staff." },
+    { id: 'fan-3', t: 'Assegnazione al partner', who: 'Staff', where: 'Stessa sezione', s: 'fatto',
+      what: "Partner dal registro, costo del partner e prezzo al cliente.", auto: ["Il partner con account riceve una notifica", 'Margine calcolato da solo'] },
+    { id: 'fan-4', t: 'Esecuzione e chiusura', who: 'Partner + staff', where: 'Stessa sezione', s: 'parziale',
+      what: "Board richiesta → assegnato → in corso → completato; KPI del mese.", auto: [], gap: "Il servizio completato non genera ancora la fattura al proprietario né il costo del partner in contabilità." },
+  ],
+};
+
+const ORDER = ['tutti', 'onirico', 'materico', 'unico', 'strategico', 'fantastico'];
+const notes = {};        // stepId -> {verdict, text, updatedAt}
+let db = null, userId = null, dbReady = false, dbError = null;
+
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const current = () => { const h = (location.hash || '').slice(1); return ORDER.includes(h) ? h : 'tutti'; };
+
+function renderTabs() {
+  const cur = current();
+  document.getElementById('tabs').innerHTML = ORDER.map((k) => {
+    const n = STEPS[k].filter((st) => notes[st.id] && (notes[st.id].verdict || notes[st.id].text)).length;
+    return `<a href="#${k}" ${k === cur ? 'aria-current="page"' : ''}><span class="dot" style="background:${S[k].color}"></span>${esc(S[k].label)}${n ? `<span class="n">${n}</span>` : ''}</a>`;
+  }).join('');
+}
+
+function renderStatus() {
+  const el = document.getElementById('status');
+  const all = Object.values(notes).filter((x) => x.verdict || x.text);
+  const c = (v) => all.filter((x) => x.verdict === v).length;
+  if (dbError) { el.innerHTML = `<span>Le note non si possono salvare qui: ${esc(dbError)}</span>`; return; }
+  if (!dbReady) { el.innerHTML = '<span>Caricamento delle note…</span>'; return; }
+  el.innerHTML = all.length
+    ? `<span class="chip">${all.length} note</span><span class="chip" style="color:var(--ok)">${c('ok')} va bene</span><span class="chip" style="color:var(--warn)">${c('correggere')} da correggere</span><span class="chip" style="color:var(--idea)">${c('idea')} idee</span>`
+    : '<span>Nessuna nota ancora: inizia dal passaggio che conosci meglio.</span>';
+}
+
+function stepHtml(k, st, i) {
+  const n = notes[st.id] || {};
+  const label = { fatto: 'Fatto', parziale: 'Parziale', manca: 'Manca' }[st.s];
+  return `<li class="step" style="--soc:${S[k].color}">
+    <span class="num" aria-hidden="true">${i + 1}</span>
+    <article class="card" data-step="${st.id}">
+      <h3>${esc(st.t)}<span class="state ${st.s}">${label}</span></h3>
+      <div class="meta"><span>Chi: <b>${esc(st.who)}</b></span><span>Dove: <b>${esc(st.where)}</b></span></div>
+      <p class="what">${esc(st.what)}</p>
+      ${st.auto.length ? `<ul class="auto">${st.auto.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>` : ''}
+      ${st.gap ? `<div class="gap">${esc(st.gap)}</div>` : ''}
+      <div class="fb">
+        <div class="verdicts" role="group" aria-label="Giudizio">
+          ${[['ok', 'Va bene'], ['correggere', 'Da correggere'], ['idea', 'Idea']].map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${n.verdict === v}">${l}</button>`).join('')}
+        </div>
+        <textarea id="t-${st.id}" placeholder="Cosa cambieresti in questo passaggio?">${esc(n.text || '')}</textarea>
+        <div class="row"><button type="button" class="save" ${db ? '' : 'disabled'}>Salva nota</button><span class="saved">${n.updatedAt ? 'Salvata il ' + new Date(n.updatedAt).toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}</span></div>
+      </div>
+    </article>
+  </li>`;
+}
+
+function render() {
+  const k = current();
+  // Conserva le bozze non salvate mentre si ridisegna
+  const drafts = {};
+  document.querySelectorAll('.card').forEach((c) => {
+    const ta = c.querySelector('textarea'); const pressed = c.querySelector('.verdicts [aria-pressed="true"]');
+    drafts[c.dataset.step] = { text: ta.value, verdict: pressed ? pressed.dataset.v : null, focus: document.activeElement === ta };
+  });
+  document.getElementById('view').innerHTML = `
+    <section class="intro"><h2><span class="dot" style="background:${S[k].color};width:12px;height:12px"></span>${esc(S[k].label)}</h2><p>${esc(S[k].intro)}</p>
+    ${db ? '' : '<div class="notice">Per salvare le note apri la pagina da claude.ai con il tuo account.</div>'}</section>
+    <ol class="steps">${STEPS[k].map((st, i) => stepHtml(k, st, i)).join('')}</ol>`;
+  Object.entries(drafts).forEach(([id, d]) => {
+    const c = document.querySelector(`.card[data-step="${id}"]`); if (!c) return;
+    const saved = notes[id] || {};
+    if (d.text !== (saved.text || '')) c.querySelector('textarea').value = d.text;
+    if (d.verdict !== (saved.verdict || null)) c.querySelectorAll('.verdicts button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === d.verdict)));
+    if (d.focus) c.querySelector('textarea').focus();
+  });
+  renderTabs(); renderStatus();
+}
+
+document.getElementById('view').addEventListener('click', async (e) => {
+  const card = e.target.closest('.card'); if (!card) return;
+  const vb = e.target.closest('.verdicts button');
+  if (vb) {
+    const on = vb.getAttribute('aria-pressed') === 'true';
+    card.querySelectorAll('.verdicts button').forEach((b) => b.setAttribute('aria-pressed', 'false'));
+    vb.setAttribute('aria-pressed', String(!on));
+    return;
+  }
+  const sv = e.target.closest('.save');
+  if (sv && db) {
+    const id = card.dataset.step;
+    const pressed = card.querySelector('.verdicts [aria-pressed="true"]');
+    const body = { stepId: id, verdict: pressed ? pressed.dataset.v : null, text: card.querySelector('textarea').value.trim(), updatedAt: Date.now(), by: userId };
+    sv.disabled = true; const lab = card.querySelector('.saved'); lab.textContent = 'Salvataggio…';
+    try { await db.collection('note').doc(id).set(body); lab.textContent = 'Salvata'; }
+    catch (err) { lab.textContent = 'Non salvata: ' + (err && err.code === 'not_granted' ? 'non hai il permesso di scrivere su questa pagina' : 'riprova tra poco'); }
+    finally { sv.disabled = false; }
+  }
+});
+window.addEventListener('hashchange', () => { render(); window.scrollTo({ top: 0 }); });
+
+render();
+(async () => {
+  try {
+    const [d, u] = await Promise.all([window.claude?.use('db'), window.claude?.use('user')]);
+    if (u) { try { userId = await u.id(); } catch (_) {} }
+    if (!d) { dbError = 'la pagina va aperta da claude.ai con il tuo account'; render(); return; }
+    db = d;
+    const timer = setTimeout(() => { if (!dbReady) { dbError = 'il salvataggio non risponde, riprova più tardi'; renderStatus(); } }, 10000);
+    db.collection('note').onSnapshot((snap) => {
+      for (const k of Object.keys(notes)) delete notes[k];
+      snap.docs.forEach((doc) => { const v = doc.data(); if (v) notes[doc.id] = { verdict: v.verdict || null, text: v.text || '', updatedAt: v.updatedAt || 0 }; });
+      if (!snap.metadata.fromCache) { clearTimeout(timer); dbError = null; }
+      dbReady = true; render();
+    }, (err) => { clearTimeout(timer); dbError = 'errore di collegamento (' + (err && err.code || 'sconosciuto') + ')'; renderStatus(); });
+    render();
+  } catch (_) { dbError = 'la pagina va aperta da claude.ai con il tuo account'; render(); }
+})();
+</script>

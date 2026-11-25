@@ -66,7 +66,7 @@ export const MieCommesseView: React.FC<Props> = (p) => {
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 ${mineDeals.length + myCantieri.length + late.length + todo.length ? '' : 'hidden'}`}>
         {[
           { l: 'Commesse', v: mineDeals.length },
           { l: 'Cantieri aperti', v: myCantieri.length },
