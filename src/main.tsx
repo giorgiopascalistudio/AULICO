@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import { MobileHomeHint } from './components/MobileHomeHint';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { SplashScreen } from './components/SplashScreen';
 import './index.css';
 
 // ---- Zoom disabilitato anche su desktop/Safari (il viewport meta copre il mobile) ----
@@ -26,6 +27,7 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <App />
       <MobileHomeHint />
+      <SplashScreen />
     </ErrorBoundary>
   </StrictMode>,
 );
