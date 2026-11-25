@@ -246,6 +246,8 @@ import { Modal } from './components/Modal';
 import { AppleSwitch } from './components/AppleSwitch';
 import { injectSmartTextStyles } from './components/SmartText';
 import { AuthFlow } from './components/AuthFlow';
+import { MaintenanceScreen } from './components/MaintenanceScreen';
+import { isMaintenanceBlocked } from './maintenance';
 import { LangProvider } from './i18n';
 import { AccessRequests } from './components/AccessRequests';
 import type { Lead, Supplier } from './components/CrmView';
@@ -5187,6 +5189,11 @@ export default function App() {
         </div>
       </div>
     );
+  }
+
+  // Modalità manutenzione (src/maintenance.ts): tutti fuori tranne il proprietario.
+  if (isMaintenanceBlocked(gUser?.email)) {
+    return <MaintenanceScreen email={gUser?.email} onLogout={handleLogout} />;
   }
 
   if (!gUser) {
