@@ -12,6 +12,7 @@
 
 import React, { useState } from 'react';
 import { HowToBox } from './HowToBox';
+import { PianoCantiere, type PlanTask } from './cantiere/PianoCantiere';
 import {
   HardHat, Plus, Trash2, Check, Clock, Users, ImageIcon, Boxes, ListChecks,
   FileText, TrendingUp, History, MapPin, Calendar as CalIcon,
@@ -41,7 +42,9 @@ export interface CantiereBoardProps {
   myUid: string;
   myName: string;
   myRole: string;
-  project?: { id: string; name: string; division?: string; client?: string | null; committente?: string | null; location?: string | null }; // studio: progetto corrente
+  project?: { id: string; name: string; division?: string; client?: string | null; committente?: string | null; location?: string | null; tipoIntervento?: string | null }; // studio: progetto corrente
+  /** Piano di cantiere: crea/aggiorna le attività in agenda (tasks/pc-<cid>-<voce>). */
+  onPlanTasks?: (tasks: PlanTask[]) => void;
   cantieri: Cantiere[];                                       // già filtrati a monte
   rapportini?: Record<string, Record<string, Rapportino>>;
   presenze?: Record<string, Record<string, Presenza>>;
@@ -219,7 +222,7 @@ const AREAS: { id: AreaId; label: string }[] = [
 ];
 
 type SectionRender =
-  | { t: 'comp'; name: 'panoramica' | 'diario' | 'presenze' | 'foto' | 'materiali' | 'checklist' | 'sal' | 'storico' | 'chat' | 'dati' | 'localizzazione' | 'cliente' }
+  | { t: 'comp'; name: 'piano' | 'panoramica' | 'diario' | 'presenze' | 'foto' | 'materiali' | 'checklist' | 'sal' | 'storico' | 'chat' | 'dati' | 'localizzazione' | 'cliente' }
   | { t: 'cantdoc'; section: string; categories?: string[]; withExpiry?: boolean; partnerWrite?: boolean }
   | { t: 'cantrec'; section: string; columns: RecordColumn[]; statuses?: string[]; partnerWrite?: boolean }
   | { t: 'impdoc'; categories?: string[] }
@@ -241,6 +244,7 @@ const SECTIONS: SectionDef[] = [
   { area: 'shared', id: 'chat', label: 'Comunicazioni', icon: MessageSquare, render: { t: 'comp', name: 'chat' } },
 
   // ---- Area Tecnici (direzione lavori / progettazione / sicurezza / qualità / doc tecnica) ----
+  { area: 'tecnici', id: 'piano', label: 'Piano di cantiere', icon: ListChecks, render: { t: 'comp', name: 'piano' } },
   { area: 'tecnici', id: 'sal', label: 'SAL & Avanzamento', icon: TrendingUp, render: { t: 'comp', name: 'sal' } },
   { area: 'tecnici', id: 'cronoprogramma', label: 'Cronoprogramma', icon: CalIcon, render: { t: 'cantrec', section: 'cronoprogramma', statuses: ['Pianificata', 'In corso', 'Completata'], columns: [{ key: 'title', label: 'Lavorazione / fase' }, { key: 'date', label: 'Inizio', type: 'date' }, { key: 'dateEnd', label: 'Fine', type: 'date' }, { key: 'status', label: 'Stato' }] } },
   { area: 'tecnici', id: 'verifiche', label: 'Verifica lavorazioni', icon: CheckCircle2, render: { t: 'cantrec', section: 'verifiche', statuses: ['Conforme', 'Non conforme', 'In attesa'], columns: [{ key: 'title', label: 'Lavorazione verificata' }, { key: 'date', label: 'Data', type: 'date' }, { key: 'status', label: 'Esito' }] } },
@@ -315,6 +319,18 @@ const CantiereDetail: React.FC<CantiereBoardProps & {
     const r = def.render;
     if (r.t === 'comp') {
       switch (r.name) {
+        case 'piano': return (
+          <PianoCantiere
+            cantiere={c}
+            projectTipo={p.project?.tipoIntervento || null}
+            records={vals(p.records?.[cid])}
+            isStudio={isStudio}
+            myUid={myUid}
+            myName={myName}
+            saveEntity={saveEntity}
+            onPlanTasks={p.onPlanTasks}
+          />
+        );
         case 'panoramica': return (
           <CantierePanoramica
             cantiere={c}

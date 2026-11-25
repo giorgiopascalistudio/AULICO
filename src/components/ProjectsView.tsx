@@ -235,6 +235,7 @@ interface ProjectsViewProps {
   onDeleteImpresaEntity?: (coll: string, uid: string, id: string) => void;
   onApproveRapportino?: (cid: string, id: string, approve: boolean) => void;
   onApproveSal?: (cid: string, id: string) => void;
+  onPlanTasks?: (projectId: string, tasks: { id: string; title: string; date: string; notes?: string | null; done?: boolean; weekly?: boolean }[]) => void;
 }
 
 export const ProjectsView: React.FC<ProjectsViewProps> = ({
@@ -394,7 +395,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   onSaveImpresaEntity,
   onDeleteImpresaEntity,
   onApproveRapportino,
-  onApproveSal
+  onApproveSal,
+  onPlanTasks
 }) => {
   const [search, setSearch] = useState('');
   const [showSearchInput, setShowSearchInput] = useState(false);
@@ -1937,7 +1939,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               myUid={myUid}
               myName={users[myUid]?.name || 'Studio'}
               myRole={users[myUid]?.role || 'staff'}
-              project={{ id: p.id, name: p.name, division: p.division, client: (p.clientRecordId && clients[p.clientRecordId]?.name) || p.client, committente: p.committente, location: p.location }}
+              project={{ id: p.id, name: p.name, division: p.division, client: (p.clientRecordId && clients[p.clientRecordId]?.name) || p.client, committente: p.committente, location: p.location, tipoIntervento: p.tipoIntervento }}
+              onPlanTasks={onPlanTasks ? (list) => onPlanTasks(p.id, list) : undefined}
               cantieri={Object.values(cantieri).filter((c) => c.projectId === p.id)}
               rapportini={cantRapportini}
               presenze={cantPresenze}

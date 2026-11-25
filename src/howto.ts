@@ -233,6 +233,7 @@ export const HOWTO: Record<string, HowTo> = {
     title: 'Come funziona il cantiere',
     steps: [
       'Si apre dalla pratica, scheda "Cantiere": crea il cantiere e assegna l’impresa, che lo vede dal suo portale.',
+      'Area Tecnici → Piano di cantiere: genera in un clic i punti di fermo prima di entrare, le visite della DL, gli ordini da anticipare e il registro dei getti con le scadenze di legge. Tutto finisce in agenda.',
       'Ogni giorno: "Giornale di cantiere" con meteo, operai, lavorazioni e foto. L’impresa invia i rapportini, lo studio li approva.',
       'Avanzamento: un SAL approvato diventa una bozza di fattura in contabilità.',
       'Documenti e sicurezza con scadenza avvisano da soli prima che scadano.',

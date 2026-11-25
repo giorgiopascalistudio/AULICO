@@ -4061,6 +4061,26 @@ export default function App() {
       removeNode(`matericoDeals/${id}`).catch(() => {});
     });
   };
+  // ---- Piano di cantiere → agenda (tasks/pc-<cid>-<voce>, id stabili: rigenerare aggiorna) ----
+  const handlePlanTasks = (projectId: string, list: { id: string; title: string; date: string; notes?: string | null; done?: boolean; weekly?: boolean }[]) => {
+    const proj = projects[projectId];
+    const soc = proj?.division || 'studio';
+    const next: Record<string, any> = {};
+    list.forEach((t) => {
+      const old: any = tasks[t.id];
+      const owner = old?.assignee || currentUser?.uid || null;
+      next[t.id] = {
+        ...(old || {}), id: t.id, title: t.title, date: t.date, time: old?.time || null,
+        frequency: t.weekly ? 'weekly' : 'once', priority: old?.priority || 'alta', tipo: 'Cantiere', societa: soc,
+        assignee: owner, assignees: owner ? [owner] : null, projectId, notes: t.notes ?? old?.notes ?? null,
+        done: t.done ?? old?.done ?? false, createdAt: old?.createdAt || Date.now(), updatedAt: Date.now(), createdBy: old?.createdBy || currentUser?.uid || '',
+      };
+    });
+    setTasks((prev) => ({ ...prev, ...next }));
+    updateNode('tasks', clean(next)).catch(() => showToast('Errore attività di cantiere in agenda.', 'err'));
+    if (list.length > 1) showToast(`${list.length} attività di cantiere in agenda.`, 'ok');
+  };
+
   // ---- Onirico → Materico: "Invia a Materico" (nota utente bb-15/bb-16) ----
   // Crea la commessa di esecuzione con cliente, indirizzo, pratica collegata e il COMPUTO
   // già fatto da Onirico (nodo finComputi): Materico ci mette solo prezzi e margini.
@@ -6145,6 +6165,7 @@ export default function App() {
             onDeleteImpresaEntity={handleDeleteImpresaEntity}
             onApproveRapportino={handleApproveRapportino}
             onApproveSal={handleApproveSal}
+            onPlanTasks={handlePlanTasks}
           />
         );
 
