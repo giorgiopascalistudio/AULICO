@@ -131,6 +131,7 @@ import {
   ProfileReport,
   ProjectBrief,
   ProjectPresentation,
+  Proposta, PropostaRisposta,
 } from './types';
 import { activityById, activityValue, PRIORITY_POINTS, catalogFor } from './points';
 
@@ -250,6 +251,8 @@ import { AppleSwitch } from './components/AppleSwitch';
 import { injectSmartTextStyles } from './components/SmartText';
 import { AuthFlow } from './components/AuthFlow';
 import { ABIL_VOCI, abilPhaseTasks } from './abilitativa';
+import { SOC_NAME } from './smistamento';
+import { ProposteView } from './components/ProposteView';
 import { type Sopralluogo, type RilievoTariffe, DEFAULT_TARIFFE, stimaRighe, righeToQuoteLines } from './sopralluogo';
 import { MaintenanceScreen } from './components/MaintenanceScreen';
 import { HowToBox } from './components/HowToBox';
@@ -474,6 +477,10 @@ export default function App() {
   const [finReports, setFinReports] = useState<Record<string, FinReport>>({});
   // Preventivo interattivo (portale): snapshot propri (cliente) + scelte per qid (studio)
   const [myClientQuotes, setMyClientQuotes] = useState<Record<string, any>>({});
+  // Proposte tra società (studio: proposte/<id>; risposte del portale: clientProposte/<uid>/<id>/risposta)
+  const [proposte, setProposte] = useState<Record<string, Proposta>>({});
+  const [proposteRisposte, setProposteRisposte] = useState<Record<string, PropostaRisposta>>({});
+  const [myProposte, setMyProposte] = useState<Record<string, Proposta>>({});
   const [quoteChoices, setQuoteChoices] = useState<Record<string, QuoteClientChoice>>({});
   // Piano di Battaglia (HOME società) + Ricerca Opportunità Unico + Stime Preliminari Onirico
   const [battlePlan, setBattlePlan] = useState<Record<string, BattleItem>>({});
@@ -1826,10 +1833,78 @@ export default function App() {
       saveClientRequest({ ...routed, status: 'presa_in_carico' });
     }
     const label = ({ studio: 'Onirico', materico: 'Materico', strategico: 'Strategico', unico: 'Unico', fantastico: 'Fantastico' } as Record<string, string>)[soc] || soc;
+    // Le ALTRE società toccate dalla richiesta ricevono un potenziale cliente: una proposta da preparare
+    (req.suggested || []).map((x) => x.soc).filter((s) => s !== soc).forEach((s, i) => {
+      const pr: Proposta = { id: `prop-${Date.now().toString(36)}-${i}`, soc: s, title: `Proposta per: ${req.title}`, testo: '', punti: [], clientUid: req.clientUid || null, clientName: req.clientName, origineRequestId: req.id, status: 'da_preparare', createdAt: Date.now(), by: currentUser?.uid || null };
+      handleSaveProposta(pr, true);
+      notifyStudio({ type: 'lead', title: `Potenziale cliente per ${SOC_NAME[s as keyof typeof SOC_NAME] || s}`, body: `${req.clientName}: ${req.title}`, link: `#${s === 'studio' ? 'onirico' : s}/comm-proposte` }, currentUser?.uid);
+    });
     notifyStudio({ type: 'lead', title: `Richiesta assegnata a ${label}`, body: `${req.clientName}: ${req.title}`, link: '#strategico/point-of-entry' }, currentUser?.uid);
     logAudit('update', 'richieste', `${req.title} → ${label}`, 'smistamento');
     showToast(`Richiesta assegnata a ${label}.`, 'ok');
   };
+  // ---- Proposte tra società (proposte/<id> + copia nel portale clientProposte/<uid>/<id>) ----
+  const handleSaveProposta = (p: Proposta, quiet = false) => {
+    const enriched: Proposta = { ...p, punti: (p.punti || []).map((x) => x.trim()).filter(Boolean), updatedAt: Date.now(), by: p.by || currentUser?.uid || null };
+    setProposte((prev) => ({ ...prev, [enriched.id]: enriched }));
+    writeNode(`proposte/${enriched.id}`, clean(enriched)).then(() => { if (!quiet) showToast('Proposta salvata.', 'ok'); }).catch(() => showToast('Errore proposta (controlla regole).', 'err'));
+    // Già inviata: tiene allineata la copia del portale (senza toccare la risposta del cliente)
+    if (enriched.clientUid && enriched.sentAt) {
+      const { risposta, ...shared } = enriched as any;
+      updateNode(`clientProposte/${enriched.clientUid}/${enriched.id}`, clean(shared)).catch(() => {});
+    }
+  };
+  const handleSendProposta = (p: Proposta) => {
+    if (!p.clientUid) { showToast('Il cliente non ha un account nel portale.', 'err'); return; }
+    const sent: Proposta = { ...p, status: 'inviata', sentAt: Date.now() };
+    handleSaveProposta(sent, true);
+    pushNotification(p.clientUid, { type: 'proposta', title: `Una proposta per te da ${SOC_NAME[p.soc as keyof typeof SOC_NAME] || p.soc}`, body: p.title, link: '#portale' });
+    showToast('Proposta inviata al portale del cliente.', 'ok');
+  };
+  const handleDeleteProposta = (id: string) => {
+    const p = proposte[id];
+    askDelete('Eliminare la proposta?', p ? `"${p.title}"` : null, () => {
+      if (p) moveToTrash('proposta', p.title || 'Proposta', p, undefined, p.clientName);
+      setProposte((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`proposte/${id}`).catch(() => {});
+      if (p?.clientUid && p.sentAt) removeNode(`clientProposte/${p.clientUid}/${id}`).catch(() => {});
+    });
+  };
+  // Accettata dal cliente → preventivo della società (bozza nel Centro Commerciale)
+  const handleCreateQuoteFromProposta = (p: Proposta) => {
+    const yr = new Date().getFullYear();
+    const pref = ({ studio: 'ONI', materico: 'MAT', strategico: 'STR', unico: 'UNI', fantastico: 'FAN' } as Record<string, string>)[p.soc] || 'PRV';
+    const n = Object.values(quotes).filter((q) => (q.number || '').startsWith(`PRV-${pref}-${yr}`)).length + 1;
+    const qid = `q-${Date.now().toString(36)}`;
+    const lines = (p.punti || []).map((t, i) => ({ id: `ql-${qid}-${i}`, macro: 'consulenza' as const, desc: t, qty: 1, unitPrice: 0, amount: 0 }));
+    const rec = p.clientRecordId ? clients[p.clientRecordId] : Object.values(clients).find((c) => c.accountUid && c.accountUid === p.clientUid);
+    const q: Quote = {
+      id: qid, number: `PRV-${pref}-${yr}-${String(n).padStart(3, '0')}`, docKind: 'preventivo', clientRecordId: rec?.id || null, clientName: p.clientName,
+      division: p.soc as any, status: 'elaborato' as any, lines, total: 0, vatEnabled: true, vatPct: 22, clientUid: p.clientUid || null,
+      notes: [p.title, p.testo].filter(Boolean).join(' — '), projectId: p.projectId || null, createdAt: Date.now(), createdBy: currentUser?.uid,
+    } as Quote;
+    handleSaveQuote(q);
+    handleSaveProposta({ ...p, status: 'preventivo', quoteId: qid }, true);
+    logAudit('create', 'preventivi', q.number, `da proposta accettata (${p.clientName})`);
+    showToast(`Preventivo ${q.number} creato: completalo con i prezzi nel Centro Commerciale.`, 'ok');
+  };
+  // Portale: risposta del cliente (scrittura granulare della sola risposta)
+  const handleAnswerProposta = (id: string, accepted: boolean, comment: string) => {
+    if (!currentUser) return;
+    const risposta: PropostaRisposta = { accepted, comment: comment.trim() || null, at: Date.now() };
+    writeNode(`clientProposte/${currentUser.uid}/${id}/risposta`, clean(risposta)).catch(() => showToast('Errore invio risposta.', 'err'));
+    setMyProposte((prev) => ({ ...prev, [id]: { ...(prev[id] || {}), risposta } as Proposta }));
+    const p = myProposte[id];
+    notifyStudio({ type: 'proposta', title: accepted ? 'Proposta accettata: richiesta di preventivo' : 'Proposta: il cliente risponde "non ora"', body: `${currentUser.name}: ${p?.title || ''}${comment.trim() ? ` — "${comment.trim()}"` : ''}`, link: `#${p?.soc === 'studio' ? 'onirico' : p?.soc || 'strategico'}/comm-proposte` }, currentUser.uid);
+    showToast(accepted ? 'Grazie! Ti prepariamo un preventivo.' : 'Risposta inviata.', 'ok');
+  };
+  // Stato effettivo lato studio: la risposta del cliente prevale su "inviata"
+  const proposteEff: Proposta[] = Object.values(proposte).map((p) => {
+    const r = proposteRisposte[p.id];
+    if (!r || p.status === 'preventivo') return r ? { ...p, risposta: r } : p;
+    return { ...p, risposta: r, status: r.accepted ? 'accettata' : 'rifiutata' };
+  });
+
   const handleConvertClientRequest = (req: ClientRequest) => {
     const pid = `p-${Date.now()}`;
     const proj: Project = {
@@ -1994,6 +2069,12 @@ export default function App() {
       add('stimePreliminari', setStimePreliminari);
       add('abilitativa', setAbilitativa);
       add('sopralluoghi', setSopralluoghi);
+      add('proposte', setProposte);
+      subs.push(watchNode('clientProposte', (v) => {
+        const flat: Record<string, PropostaRisposta> = {};
+        Object.values((v || {}) as Record<string, any>).forEach((byUid: any) => Object.entries(byUid || {}).forEach(([id, snap]: [string, any]) => { if (snap?.risposta) flat[id] = snap.risposta; }));
+        setProposteRisposte(flat);
+      }, () => {}));
       subs.push(watchNode('rilievoTariffe', (v) => setRilievoTariffe(v || null), () => {}));
       add('recruiting', setRecruiting);
       add('fantImmobili', setFantImmobili);
@@ -2135,6 +2216,7 @@ export default function App() {
       subs.push(watchNode(`clientRequests/${currentUser.uid}`, (v) => setClientRequests(v || {}), () => {}));
       // Preventivi condivisi dallo studio (preventivo interattivo)
       subs.push(watchNode(`clientQuotes/${currentUser.uid}`, (v) => setMyClientQuotes(v || {}), () => {}));
+      subs.push(watchNode(`clientProposte/${currentUser.uid}`, (v) => setMyProposte(v || {}), () => {}));
       // Vetrina Unico pubblicata (snapshot pubblici, leggibili da ogni autenticato)
       subs.push(watchNode('unicoShowcase', (v) => setUnicoShowcase(v || {}), () => {}));
       // Le mie posizioni da investitore (sola lettura, scritte dallo studio)
@@ -2523,6 +2605,10 @@ export default function App() {
         case 'sopralluogo':
           setSopralluoghi((prev) => ({ ...prev, [id]: pl }));
           writeNode(`sopralluoghi/${id}`, pl).catch(() => {});
+          break;
+        case 'proposta':
+          setProposte((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`proposte/${id}`, pl).catch(() => {});
           break;
         case 'recruiting':
           setRecruiting((prev) => ({ ...prev, [id]: pl }));
@@ -5734,6 +5820,8 @@ export default function App() {
         onCreateClientRequest={handleCreateClientRequest}
         clientQuotes={Object.values(myClientQuotes).sort((a: any, b: any) => (b.sharedAt || 0) - (a.sharedAt || 0))}
         onQuoteChoice={handleClientQuoteChoice}
+        proposte={Object.values(myProposte).filter((x: any) => x && x.title).sort((a: any, b: any) => (b.sentAt || 0) - (a.sentAt || 0))}
+        onAnswerProposta={handleAnswerProposta}
         unicoShowcase={Object.values(unicoShowcase)}
         unicoPositions={Object.values(unicoPositions)}
         mktEvents={Object.values(mktEvents)}
@@ -6815,6 +6903,22 @@ export default function App() {
                   onTrashItem={moveToTrash}
                 />
               </React.Suspense>
+            );
+          }
+          case 'proposte': {
+            const ps = activeSocieta as string;
+            return (
+              <ProposteView
+                soc={ps}
+                socLabel={society.label}
+                items={proposteEff.filter((x) => x.soc === ps)}
+                rubrica={Object.values(clients)}
+                canEdit={isStudioRole(currentUser.role) && secOp}
+                onSave={(x) => handleSaveProposta(x)}
+                onSend={handleSendProposta}
+                onCreateQuote={handleCreateQuoteFromProposta}
+                onDelete={handleDeleteProposta}
+              />
             );
           }
           case 'stima-preliminare': {

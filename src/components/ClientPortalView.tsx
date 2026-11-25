@@ -65,6 +65,7 @@ import { FurnishingsBoard } from './FurnishingsBoard';
 import { ProjectBriefForm } from './ProjectBriefForm';
 import { ClientRequestPanel } from './ClientRequestPanel';
 import { ClientQuotesPanel } from './ClientQuotesPanel';
+import { ClientProposteBox } from './ClientProposteBox';
 import { CantiereBoard } from './CantiereBoard';
 import { ChatDeleteButton } from './ChatDeleteButton';
 import { ImpresaArea } from './cantiere/ImpresaArea';
@@ -96,6 +97,9 @@ interface ClientPortalViewProps {
   /** Preventivo interattivo: snapshot condivisi dallo studio + invio scelta voci. */
   clientQuotes?: any[];
   onQuoteChoice?: (qid: string, choice: any) => void;
+  /** Proposte delle società del gruppo (clientProposte/<uid>). */
+  proposte?: any[];
+  onAnswerProposta?: (id: string, accepted: boolean, comment: string) => void;
   onAcceptMatericoOffer?: (reqId: string, accept: boolean) => void;
   onSubmitMatericoOffer?: (reqId: string, amount: number, note: string) => void;
   /** Vetrina Unico pubblicata (snapshot dal nodo `unicoShowcase`; vuoto → demo). */
@@ -169,6 +173,8 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   onCreateClientRequest,
   clientQuotes = [],
   onQuoteChoice,
+  proposte = [],
+  onAnswerProposta,
   unicoShowcase,
   unicoPositions,
   mktEvents,
@@ -224,7 +230,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   const [showcaseView, setShowcaseView] = useState<'studio' | 'materico' | 'strategico' | 'unico' | undefined>(undefined); // vista iniziale (es. 'unico')
   const [profileOpen, setProfileOpen] = useState(false); // modale profilo cliente
   // Overlay aperto dai widget della Dashboard cliente (così la home non scorre).
-  const [dashModal, setDashModal] = useState<null | 'sogno' | 'avvisi' | 'quiz' | 'percorso' | 'preventivi'>(null);
+  const [dashModal, setDashModal] = useState<null | 'sogno' | 'avvisi' | 'quiz' | 'percorso' | 'preventivi' | 'proposte'>(null);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [blogSearch, setBlogSearch] = useState('');
   const [blogFilter, setBlogFilter] = useState('all'); // chiave categoria stabile (indip. lingua)
@@ -1050,6 +1056,16 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 {/* Griglia widget */}
                 <div className="grid grid-cols-2 gap-3">
                   <Tile icon={Lightbulb} label="Raccontaci il tuo sogno" sub="Nuova idea / richiesta" onClick={() => setDashModal('sogno')} accent="#b45309" />
+                  {proposte.length > 0 && (
+                    <Tile
+                      icon={Lightbulb}
+                      label="Proposte per te"
+                      sub={(() => { const da = proposte.filter((x: any) => !x.risposta).length; return da ? `${da} da guardare` : 'Tutte viste'; })()}
+                      badge={proposte.filter((x: any) => !x.risposta).length || undefined}
+                      onClick={() => setDashModal('proposte')}
+                      accent="#161616"
+                    />
+                  )}
                   {clientQuotes.length > 0 && (
                     <Tile
                       icon={FileText}
@@ -2607,7 +2623,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
         <div className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setDashModal(null)}>
           <div className="bg-white w-full sm:max-w-[540px] max-h-[85vh] overflow-y-auto rounded-t-[26px] sm:rounded-[26px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#ececec] sticky top-0 bg-white z-10">
-              <b className="text-[15px] tracking-tight">{dashModal === 'sogno' ? 'Raccontaci il tuo sogno' : dashModal === 'avvisi' ? 'Avvisi' : dashModal === 'quiz' ? 'Quiz del giorno' : dashModal === 'preventivi' ? 'I tuoi preventivi' : 'Completa il tuo profilo'}</b>
+              <b className="text-[15px] tracking-tight">{dashModal === 'sogno' ? 'Raccontaci il tuo sogno' : dashModal === 'avvisi' ? 'Avvisi' : dashModal === 'quiz' ? 'Quiz del giorno' : dashModal === 'preventivi' ? 'I tuoi preventivi' : dashModal === 'proposte' ? 'Proposte per te' : 'Completa il tuo profilo'}</b>
               <button onClick={() => setDashModal(null)} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
             </div>
             <div className="p-5">
@@ -2646,6 +2662,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               {dashModal === 'quiz' && <DailyQuiz profile={profile} projects={projects} embedded />}
 
               {dashModal === 'preventivi' && <ClientQuotesPanel quotes={clientQuotes as any} onChoice={onQuoteChoice} />}
+              {dashModal === 'proposte' && <ClientProposteBox items={proposte as any} onAnswer={(id, a, c) => onAnswerProposta?.(id, a, c)} />}
 
               {dashModal === 'percorso' && (
                 <div className="flex flex-col gap-3">

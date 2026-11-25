@@ -26,7 +26,7 @@ import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
   Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
-  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles, Bug, ClipboardCheck, MapPinned, HardHat,
+  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles, Bug, ClipboardCheck, MapPinned, HardHat, Lightbulb,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
 import { SOCIETA_LABEL, canView, resolveSectionAccess, resolveAccess, rankOf, atLeast, sectionOverride } from './access';
@@ -414,6 +414,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   // Sopralluoghi: strumento OPERATIVO per chi va dal cliente (modulo produzione → accessibile ai tecnici);
   // il preventivo che ne nasce richiede comunque il permesso Commerciale (regole quotes).
   if (soc === 'studio') s.push({ id: 'comm-sopralluoghi', label: 'Sopralluoghi & Rilievi', icon: MapPinned, parent: 'commerciale', module: 'produzione', view: 'sopralluoghi', note: 'Dal cliente al preventivo: sopralluogo in agenda, parametri del rilievo con stima automatica, preventivo con un tasto; firmato = commessa con le attività.' });
+  s.push({ id: 'comm-proposte', label: 'Proposte', icon: Lightbulb, parent: 'commerciale', module: 'commerciale', view: 'proposte', note: 'Cosa possiamo fare per il cliente, senza prezzi: va al portale; se accetta diventa una richiesta di preventivo.' });
   s.push({ id: 'comm-preventivi', label: 'Preventivi & Contratti', icon: FileText, parent: 'commerciale', module: 'commerciale', view: 'commerciale', note: 'Consultazione dei preventivi della società — la gestione (nuovi preventivi, firma, portale, documenti) è in Strategico → Centro Commerciale.' });
   s.push({ id: 'comm-stime', label: 'Stima Preliminare', icon: Calculator, parent: 'commerciale', module: 'commerciale', view: 'stima-preliminare', note: 'Le stime della società in sola consultazione — la gestione è in Strategico → Centro Commerciale → Stime.' });
   s.push({ id: 'comm-clienti', label: isMat ? 'Imprese & Fornitori' : 'Registro clienti', icon: isMat ? Truck : BookUser, parent: 'commerciale', module: 'crm', legacyRoute: 'crm', preset: { crmTab: isMat ? 'fornitori' : 'clienti' } });
@@ -460,6 +461,7 @@ export const SOCIETY_REGISTRY: SocietyConfig[] = [
       { id: 'mkt-centro', label: 'Centro Marketing', icon: Megaphone, parent: 'marketing', module: 'marketing', view: 'marketing-hub', note: 'Salute di tutti gli account gestiti (5 società + clienti terzi); ogni account ha il SUO workspace: scheda/liberatoria, calendario editoriale, workflow 9 fasi, KPI, spese & budget, report mensile, eventi & gadget, blog.' },
       // === SOTTO-CATEGORIA: Commerciale (Centro Commerciale: la parte commerciale di TUTTE le società) ===
       { id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', kind: 'group' },
+      { id: 'comm-proposte', label: 'Proposte', icon: Lightbulb, parent: 'commerciale', module: 'commerciale', view: 'proposte', note: 'Proposte di Strategico ai clienti del gruppo: senza prezzi, accettate dal portale diventano richieste di preventivo.' },
       { id: 'comm-centro', label: 'Centro Commerciale', icon: Target, parent: 'commerciale', module: 'commerciale', view: 'commerciale-hub', note: 'Pipeline di tutte le società → workspace per società: preventivi interattivi (il cliente sceglie le voci dal portale col totale live), firma OTP, sconti/maggiorazioni, documenti da modello (contratti Arredi Fissi/FF&E, accordo imprese, manifestazione d\'interesse), listino.' },
       { id: 'comm-clienti', label: 'Registro clienti', icon: BookUser, parent: 'commerciale', module: 'crm', legacyRoute: 'crm', preset: { crmTab: 'clienti' } },
       // === SOTTO-CATEGORIA: Amministrazione & Contabilità (Centro Direzione: amministra TUTTE le società) ===

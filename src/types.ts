@@ -2321,3 +2321,31 @@ export interface MktTimeEntry {
   createdAt: number;
   updatedAt?: number;
 }
+
+/**
+ * Proposta commerciale tra società (nota utente bb-1): "cosa si potrebbe fare e come",
+ * SENZA prezzi. Nasce quando una richiesta tocca altre società del gruppo (smistamento) o a mano.
+ * Studio: `proposte/<id>`. Portale: copia in `clientProposte/<uid>/<id>` con la `risposta` del cliente.
+ * Accettata → diventa una richiesta di preventivo della società → preventivo → contratto.
+ */
+export type PropostaStatus = 'da_preparare' | 'bozza' | 'inviata' | 'accettata' | 'rifiutata' | 'preventivo';
+export interface PropostaRisposta { accepted: boolean; comment?: string | null; at: number }
+export interface Proposta {
+  id: string;
+  soc: string;                      // società che propone (slug: studio/materico/strategico/unico/fantastico)
+  title: string;
+  testo?: string | null;            // cosa si potrebbe fare e come
+  punti?: string[] | null;          // servizi proposti, uno per riga
+  clientRecordId?: string | null;
+  clientUid?: string | null;
+  clientName: string;
+  origineRequestId?: string | null; // richiesta da cui è nata
+  projectId?: string | null;        // pratica collegata (es. il progetto Onirico)
+  quoteId?: string | null;          // preventivo creato dopo l'accettazione
+  status: PropostaStatus;
+  risposta?: PropostaRisposta | null;
+  sentAt?: number | null;
+  createdAt: number;
+  updatedAt?: number;
+  by?: string | null;
+}
