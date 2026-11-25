@@ -229,6 +229,15 @@ export const HOWTO: Record<string, HowTo> = {
       'A destra le attività da fare: spuntale da qui.',
     ],
   },
+  portale: {
+    title: 'Il tuo spazio',
+    steps: [
+      'Avanzamento progetti: apri un progetto per vedere fasi, documenti, scelte di arredo e pagamenti.',
+      '"Raccontaci il tuo sogno": scrivi cosa ti serve, al resto pensiamo noi.',
+      'Proposte e preventivi arrivano qui: scegli cosa ti interessa e accetta quando sei pronto.',
+      'Avvisi: ti scriviamo noi a ogni passo avanti.',
+    ],
+  },
   cantiere: {
     title: 'Come funziona il cantiere',
     steps: [

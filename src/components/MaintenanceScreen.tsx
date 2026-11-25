@@ -9,7 +9,7 @@ import { motion } from 'motion/react';
 import { Wrench, LogOut } from 'lucide-react';
 import { loginWithGoogle } from '../firebase';
 
-export const MaintenanceScreen: React.FC<{ email?: string | null; onLogout?: () => void }> = ({ email, onLogout }) => (
+export const MaintenanceScreen: React.FC<{ email?: string | null; onLogout?: () => void; onTeamLogin?: () => void }> = ({ email, onLogout, onTeamLogin }) => (
   <div className="min-h-screen bg-[#F5F5F3] p-8 flex flex-col justify-center items-center select-none font-sans overflow-hidden">
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -46,8 +46,8 @@ export const MaintenanceScreen: React.FC<{ email?: string | null; onLogout?: () 
             </button>
           </>
         ) : (
-          <button onClick={() => { loginWithGoogle().catch(() => {}); }} className="mt-3 text-[11.5px] font-bold text-stone-500 hover:text-[#161616] bg-transparent border-none cursor-pointer">
-            Accesso amministratore
+          <button onClick={() => { if (onTeamLogin) onTeamLogin(); else loginWithGoogle().catch(() => {}); }} className="mt-3 text-[12px] font-bold text-stone-500 hover:text-[#161616] bg-transparent border-none cursor-pointer">
+            {onTeamLogin ? 'Accesso team e account di prova' : 'Accesso amministratore'}
           </button>
         )}
       </div>

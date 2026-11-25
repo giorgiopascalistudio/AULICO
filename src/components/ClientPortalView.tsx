@@ -66,6 +66,8 @@ import { ProjectBriefForm } from './ProjectBriefForm';
 import { ClientRequestPanel } from './ClientRequestPanel';
 import { ClientQuotesPanel } from './ClientQuotesPanel';
 import { ClientProposteBox } from './ClientProposteBox';
+import { ABIL_VOCI } from '../abilitativa';
+import { HowToBox } from './HowToBox';
 import { CantiereBoard } from './CantiereBoard';
 import { ChatDeleteButton } from './ChatDeleteButton';
 import { ImpresaArea } from './cantiere/ImpresaArea';
@@ -99,6 +101,8 @@ interface ClientPortalViewProps {
   onQuoteChoice?: (qid: string, choice: any) => void;
   /** Proposte delle società del gruppo (clientProposte/<uid>). */
   proposte?: any[];
+  /** Fase abilitativa per pratica (pid → voce → cella): documenti di fine lavori. */
+  abilitativa?: Record<string, Record<string, any>>;
   onAnswerProposta?: (id: string, accepted: boolean, comment: string) => void;
   onAcceptMatericoOffer?: (reqId: string, accept: boolean) => void;
   onSubmitMatericoOffer?: (reqId: string, amount: number, note: string) => void;
@@ -175,6 +179,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   onQuoteChoice,
   proposte = [],
   onAnswerProposta,
+  abilitativa = {},
   unicoShowcase,
   unicoPositions,
   mktEvents,
@@ -1039,6 +1044,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             return (
               <div className="flex flex-col gap-3 animate-[riseIn_0.22s_ease_both]">
                 <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616] px-1">{profile.name ? `Ciao, ${profile.name.split(' ')[0]}` : 'Benvenuto'}</h2>
+                <HowToBox id="portale" />
 
                 {/* Avanzamento progetti (largo) */}
                 <button onClick={() => setActiveSubTab('progetti')} className="bg-white border border-[#e5e5e5] rounded-[20px] p-4 text-left cursor-pointer transition-all active:scale-[0.99] hover:border-[#161616] flex items-center gap-4">
@@ -1142,6 +1148,32 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
           {currentTab === 'lavori' && (
             <div className="flex flex-col gap-6 animate-[riseIn_0.22s_ease_both]">
+              {/* Documenti di fine lavori (Fase abilitativa dello studio): cosa è fatto e cosa è in corso */}
+              {p && (() => {
+                const cells = abilitativa[p.id] || {};
+                const voci = ABIL_VOCI.filter((v) => cells[v.id] && cells[v.id].stato !== 'non_serve');
+                if (!voci.length) return null;
+                const fatte = voci.filter((v) => cells[v.id].stato === 'fatto').length;
+                return (
+                  <div className="bg-white border border-[#e5e5e5] rounded-[22px] p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <b className="text-[14px] text-[#161616]">Documenti di fine lavori</b>
+                      <span className="text-[12px] font-bold text-[#6b6b6b]">{fatte}/{voci.length} pronti</span>
+                    </div>
+                    <div className="flex flex-col gap-1.5 mt-3">
+                      {voci.map((v) => {
+                        const st = cells[v.id].stato;
+                        return (
+                          <div key={v.id} className="flex items-center justify-between gap-2 text-[13px]">
+                            <span className="text-[#333]">{v.label}</span>
+                            <span className={`text-[12px] font-bold ${st === 'fatto' ? 'text-emerald-700' : st === 'in_corso' ? 'text-amber-700' : 'text-[#8a8a8a]'}`}>{st === 'fatto' ? 'Pronto' : st === 'in_corso' ? 'In corso' : 'Da fare'}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               {/* Gamification: pratica completata / agibilità → congratulazioni al cliente */}
               {(isAllDone || p?.status === 'completato') && (
                 <div className="rounded-[22px] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 text-center">

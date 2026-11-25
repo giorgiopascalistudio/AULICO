@@ -257,7 +257,7 @@ import { type Sopralluogo, type RilievoTariffe, DEFAULT_TARIFFE, stimaRighe, rig
 import { MaintenanceScreen } from './components/MaintenanceScreen';
 import { HowToBox } from './components/HowToBox';
 import { BrandLoader } from './components/BrandLoader';
-import { isMaintenanceBlocked } from './maintenance';
+import { isMaintenanceBlocked, MAINTENANCE, TEAM_OPEN } from './maintenance';
 import { LangProvider } from './i18n';
 import { AccessRequests } from './components/AccessRequests';
 import type { Lead, Supplier } from './components/CrmView';
@@ -488,7 +488,8 @@ export default function App() {
   const [stimePreliminari, setStimePreliminari] = useState<Record<string, any>>({});
   const [sopralluoghi, setSopralluoghi] = useState<Record<string, Sopralluogo>>({});
   const [rilievoTariffe, setRilievoTariffe] = useState<RilievoTariffe | null>(null);
-  const projectsServerRef = useRef<Record<string, any>>({}); // ultimo stato `projects` dal DB (diff in syncState)
+  const projectsServerRef = useRef<Record<string, any>>({});
+  const [showTeamLogin, setShowTeamLogin] = useState(false); // manutenzione: accesso del team alla pagina di login // ultimo stato `projects` dal DB (diff in syncState)
   const [abilitativa, setAbilitativa] = useState<Record<string, any>>({}); // Onirico · Fase abilitativa (pid → voce → cella)
   const [recruiting, setRecruiting] = useState<Record<string, any>>({});
   const [fantImmobili, setFantImmobili] = useState<Record<string, any>>({});
@@ -2277,6 +2278,8 @@ export default function App() {
         subs.push(watchNode(`projectBriefs/${pid}`, (v) => {
           setProjectBriefs((b) => ({ ...b, [pid]: v || { pid, updatedAt: 0 } }));
         }, () => {}));
+        // Fase abilitativa della propria pratica (regola abilitativa/$pid: cliente collegato)
+        subs.push(watchNode(`abilitativa/${pid}`, (v) => setAbilitativa((a) => ({ ...a, [pid]: v || {} })), () => {}));
       });
       // Point system: il portale legge i propri eventi punti (pointEvents/<uid>)
       subs.push(watchNode(`pointEvents/${currentUser.uid}`, (v) => setPointEvents(Object.values(v || {}) as PointEvent[]), () => {}));
@@ -5695,9 +5698,11 @@ export default function App() {
     return <BrandLoader full />;
   }
 
-  // Modalità manutenzione (src/maintenance.ts): tutti fuori tranne il proprietario.
-  if (isMaintenanceBlocked(gUser?.email)) {
-    return <MaintenanceScreen email={gUser?.email} onLogout={handleLogout} />;
+  // Modalità manutenzione (src/maintenance.ts): senza login si vede la schermata "in aggiornamento"
+  // (con l'accesso per il team); dopo il login decide il ruolo: in "solo team" passano admin,
+  // manager e staff approvati e gli account di prova (+prova), i clienti veri restano fuori.
+  if (MAINTENANCE && !gUser && !showTeamLogin) {
+    return <MaintenanceScreen onTeamLogin={TEAM_OPEN ? () => setShowTeamLogin(true) : undefined} />;
   }
 
   if (!gUser) {
@@ -5711,6 +5716,12 @@ export default function App() {
   // Account creato ma non ancora caricato/approvato
   if (!accountsReady) {
     return <BrandLoader full label="Verifica accesso…" />;
+  }
+
+  if (MAINTENANCE && isMaintenanceBlocked(gUser.email, ownProfile as any)) {
+    // Registrazione di un nuovo account del team in corso: lascia completare il profilo (resterà in attesa di approvazione)
+    const completing = !ownProfile || !(ownProfile as any).profileComplete;
+    if (!completing) return <MaintenanceScreen email={gUser.email} onLogout={handleLogout} />;
   }
 
   // Sessione non ancora attiva (currentUser = profilo approvato CON ruolo).
@@ -5822,6 +5833,7 @@ export default function App() {
         onQuoteChoice={handleClientQuoteChoice}
         proposte={Object.values(myProposte).filter((x: any) => x && x.title).sort((a: any, b: any) => (b.sentAt || 0) - (a.sentAt || 0))}
         onAnswerProposta={handleAnswerProposta}
+        abilitativa={abilitativa}
         unicoShowcase={Object.values(unicoShowcase)}
         unicoPositions={Object.values(unicoPositions)}
         mktEvents={Object.values(mktEvents)}
