@@ -125,7 +125,7 @@ export const AbilitativaView: React.FC<Props> = ({ projects, cells, tasks, team,
         <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center text-[13px] text-[#9a9a9a]">Nessuna pratica Onirico attiva.</div>
       ) : (
         <div className="bg-white border border-[#e2e2e2] rounded-[22px] overflow-x-auto">
-          <table className="border-separate border-spacing-0 min-w-full">
+          <table className="border-separate border-spacing-0 w-max">
             <thead>
               <tr>
                 <th className="sticky left-0 z-10 bg-white text-left px-4 py-3 text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] border-b border-[#efefef] min-w-[190px]">Documento</th>
@@ -134,7 +134,7 @@ export const AbilitativaView: React.FC<Props> = ({ projects, cells, tasks, team,
                     const pct = colPct(p.id);
                     return (
                       <motion.th key={p.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="px-2 py-3 border-b border-[#efefef] align-bottom min-w-[104px]">
+                        className="px-2 py-3 border-b border-[#efefef] align-bottom w-[120px]">
                         <a href={`#progetto/${p.id}`} className="block text-[12px] font-black text-[#161616] hover:underline truncate max-w-[120px] mx-auto" title={p.name}>{p.name}</a>
                         <div className="h-1 rounded-full bg-[#f0f0ee] mt-2 overflow-hidden">
                           <motion.div className="h-full rounded-full bg-emerald-500" initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} />
