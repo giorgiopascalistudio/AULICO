@@ -1,0 +1,251 @@
+<title>Prova pratica Aulico</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: una colonna; in alto preparazione e regole, poi i ruoli, poi le schede-scenario
+   con i passi numerati e l'esito (completato / bloccato) salvato per il giro di tavolo. */
+:root {
+  --bg: #f5f5f3; --surface: #ffffff; --ink: #161616; --muted: #5f5f5b; --line: #e2e2de; --soft: #efefeb;
+  --ok: #157347; --ok-bg: #e7f4ec; --warn: #9a5b00; --warn-bg: #fbf1e0; --bad: #b42318; --bad-bg: #fdecea; --accent: #3d4fb8;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif; --body: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #131312; --surface: #1c1c1a; --ink: #ecebe6; --muted: #a3a29b; --line: #2f2f2c; --soft: #252523;
+  --ok: #5fcf8f; --ok-bg: #16301f; --warn: #f0b45a; --warn-bg: #33270f; --bad: #ff8a80; --bad-bg: #3a1714; --accent: #9aa8ff; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #131312; --surface: #1c1c1a; --ink: #ecebe6; --muted: #a3a29b; --line: #2f2f2c; --soft: #252523;
+  --ok: #5fcf8f; --ok-bg: #16301f; --warn: #f0b45a; --warn-bg: #33270f; --bad: #ff8a80; --bad-bg: #3a1714; --accent: #9aa8ff; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 880px; margin: 0 auto; padding-block: 28px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-family: var(--display); font-size: clamp(28px, 5vw, 40px); line-height: 1.1; margin: 0; letter-spacing: -0.02em; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: 22px; margin: 36px 0 10px; letter-spacing: -0.01em; }
+.lead { color: var(--muted); margin: 10px 0 0; max-width: 64ch; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; min-width: 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+ol.list, ul.list { margin: 6px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.time { display: grid; grid-template-columns: 64px 1fr; gap: 6px 14px; font-variant-numeric: tabular-nums; }
+.time b { font-family: var(--display); }
+.role h3, .scen h3 { margin: 0; font-family: var(--display); font-size: 17px; }
+.role p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+.tag { display: inline-flex; font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; background: var(--soft); color: var(--muted); }
+.scen { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.scen .head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.scen .who { font-size: 13px; color: var(--muted); }
+.scen ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 7px; }
+.scen li span.w { font-weight: 700; }
+.expect { font-size: 13.5px; background: var(--soft); border-radius: 12px; padding: 9px 12px; }
+.esito { border-top: 1px dashed var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.esito .btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.esito button { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.esito button[aria-pressed="true"][data-v="ok"] { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }
+.esito button[aria-pressed="true"][data-v="parziale"] { background: var(--warn-bg); border-color: var(--warn); color: var(--warn); }
+.esito button[aria-pressed="true"][data-v="bloccato"] { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.esito textarea { font: inherit; font-size: 14px; width: 100%; box-sizing: border-box; min-height: 60px; resize: vertical; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.save { font: inherit; font-weight: 700; font-size: 13.5px; padding: 8px 16px; border-radius: 10px; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; }
+.save:disabled { opacity: 0.4; cursor: default; }
+.small { font-size: 12.5px; color: var(--muted); }
+.note { font-size: 13.5px; background: var(--warn-bg); color: var(--warn); border-radius: 12px; padding: 10px 12px; }
+.summary { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.chip { display: inline-flex; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-size: 13px; font-weight: 600; }
+code { font-size: 13px; background: var(--soft); padding: 1px 6px; border-radius: 6px; }
+button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Prova pratica di Aulico</h1>
+    <p class="lead">Simuliamo clienti e pratiche veri per scoprire dove il gestionale si blocca, cosa non si capisce e cosa manca. Ognuno ha un ruolo e uno scenario: ogni problema si segnala subito con <b>"Segnala un problema"</b> dalla pagina in cui succede. Alla fine di ogni scenario segnate qui com'è andata.</p>
+    <div class="summary" id="summary"></div>
+  </header>
+
+  <h2>Prima della prova</h2>
+  <div class="grid">
+    <div class="card">
+      <h3 style="margin:0;font-family:var(--display)">Giorgio, entro stasera</h3>
+      <ol class="list">
+        <li>Firebase → Realtime Database → Regole: premere <b>Pubblica</b> (le regole sono già pronte).</li>
+        <li>Firebase → Realtime Database → Dati → menu ⋮ → <b>Esporta JSON</b>: è il backup per tornare a prima della prova.</li>
+        <li>Team & permessi: ogni persona approvata con le sue <b>mansioni</b> (servono per assegnare le attività in automatico) e il permesso <b>Commerciale "Opera"</b> a chi fa preventivi.</li>
+        <li>Onirico → Sopralluoghi → <b>Tariffe</b>: inserire le tariffe vere dei rilievi.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3 style="margin:0;font-family:var(--display)">Chi fa il cliente o l'impresa</h3>
+      <ol class="list">
+        <li>Il sito è aperto solo al team e agli account di prova.</li>
+        <li>Registrarsi con email e password usando il proprio indirizzo con <code>+prova</code>: es. <code>mario.rossi+prova1@gmail.com</code>. La posta arriva comunque alla vostra casella.</li>
+        <li>Chi fa l'impresa sceglie l'account "Team / partner": Giorgio lo approva come <b>partner</b>.</li>
+        <li>Tutti i nomi inventati iniziano con <b>PROVA</b> (es. "PROVA Marco Bianchi"): così dopo si ripulisce tutto in un colpo.</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>Come si svolge</h2>
+  <div class="card time">
+    <b>15'</b><span>Presentazione: obiettivo, ruoli, come si segnala un problema.</span>
+    <b>90'</b><span>Scenari in parallelo, a coppie (chi fa il cliente + chi fa lo staff). Ogni problema: "Segnala un problema", subito.</span>
+    <b>30'</b><span>Giro di tavolo: per ogni scenario, dove ci si è bloccati e cosa non si è capito.</span>
+    <b>15'</b><span>Le 5 cose da sistemare per prime.</span>
+  </div>
+
+  <h2>Cosa osservare</h2>
+  <div class="card">
+    <ul class="list">
+      <li><b>Dove ti blocchi</b>: un pulsante che non c'è, un errore, un salvataggio che non resta.</li>
+      <li><b>Cosa non capisci</b> senza chiedere: se serve una spiegazione, va segnalato.</li>
+      <li><b>Doppio lavoro</b>: dati che riscrivi due volte, passaggi che dovrebbero essere automatici.</li>
+      <li><b>Cosa manca</b> rispetto a come lavorate davvero oggi.</li>
+      <li><b>Cosa vede il cliente</b>: chi fa il cliente controlla che avvisi, proposte e avanzamento siano chiari.</li>
+    </ul>
+  </div>
+
+  <h2>Ruoli</h2>
+  <div class="grid">
+    <div class="card role"><span class="tag">Direzione</span><h3>Point of Entry</h3><p>Conferma lo smistamento delle richieste, approva gli accessi, segue il quadro generale.</p></div>
+    <div class="card role"><span class="tag">Onirico</span><h3>Tecnico e architetto</h3><p>Sopralluoghi, preventivi, pratiche, Fase abilitativa, piano di cantiere come direzione lavori.</p></div>
+    <div class="card role"><span class="tag">Materico</span><h3>Responsabili di produzione</h3><p>Commesse, computo e listino, contratti con le imprese, cantiere, "Le mie commesse".</p></div>
+    <div class="card role"><span class="tag">Strategico</span><h3>Marketing e commerciale</h3><p>Proposte ai clienti, Centro Commerciale, Centro Marketing.</p></div>
+    <div class="card role"><span class="tag">Unico</span><h3>Investimenti</h3><p>Ricerca opportunità, scenario economico, investitori.</p></div>
+    <div class="card role"><span class="tag">Amministrazione</span><h3>Contabilità</h3><p>Rate dei preventivi, fatture, SAL, Centro Direzione.</p></div>
+    <div class="card role"><span class="tag">Fuori dallo studio</span><h3>Clienti, imprese, investitori</h3><p>Con gli account +prova: usano solo il portale, come farebbe una persona esterna.</p></div>
+  </div>
+
+  <h2>Scenari</h2>
+  <div id="scenari"></div>
+
+  <h2>Dopo la prova</h2>
+  <div class="card">
+    <ol class="list">
+      <li>Leggo le segnalazioni e gli esiti di questa pagina e preparo l'elenco delle correzioni, in ordine di importanza.</li>
+      <li>Con il vostro ok cancello tutti i dati "PROVA" (o si ripristina il backup fatto prima).</li>
+      <li>Si sistemano i problemi e si fa un secondo giro breve, poi si riapre il sito ai clienti veri.</li>
+    </ol>
+  </div>
+</div>
+
+<script>
+const SCEN = [
+  { id: 'sc-bb', t: '1 · B&B da ristrutturare, dall\'inizio alla fine', tag: 'Tutte le società', who: 'Cliente +prova, Direzione, Tecnico e architetto Onirico, Materico, Strategico, Amministrazione',
+    steps: [
+      ['Cliente', 'Dal portale, "Raccontaci il tuo sogno": fabbricato rurale di 180 mq da ristrutturare, ampliamento di 60 mq, piscina, B&B da 6 camere, sito e prenotazioni. Compilare anche il questionario.'],
+      ['Direzione', 'Point of Entry: controllare cosa propone Aulico e confermare Onirico.'],
+      ['Strategico', 'Commerciale → Proposte: completare la proposta "da preparare" (sito, social, prenotazioni) e inviarla.'],
+      ['Cliente', 'Portale → "Proposte per te": rispondere "Mi interessa".'],
+      ['Tecnico', 'Onirico → Sopralluoghi: creare il sopralluogo, pacchetto "Rilievo + restituzione", creare il preventivo.'],
+      ['Direzione', 'Centro Commerciale: completare il preventivo di progettazione, inviarlo al portale, farlo firmare con il codice.'],
+      ['Cliente', 'Portale: scegliere le voci e accettare.'],
+      ['Direzione', 'Segnare il preventivo accettato: controllare che nasca la commessa e assegnare le attività.'],
+      ['Architetto', 'Agenda: spuntare 2-3 attività e controllare che risultino fatte nella pratica.'],
+      ['Architetto', 'Pratica → "Invia a Materico".'],
+      ['Materico', 'Potenziale Cantiere: prezzare il computo, creare e firmare un contratto con un\'impresa: controllare che nasca il cantiere.'],
+      ['Tecnico', 'Cantiere → Area Tecnici → Piano di cantiere: generarlo (ristrutturazione + strutture + scavi + piscina), registrare un getto.'],
+      ['Tecnico', 'Fase abilitativa: assegnare APE e agibilità, segnarle fatte.'],
+      ['Cliente', 'Portale: controllare avvisi, avanzamento e documenti di fine lavori.'],
+    ],
+    expect: 'Alla fine: commessa Onirico e Materico collegate, cantiere con piano e agenda piena, cliente che vede tutto dal portale, proposta Strategico diventata richiesta di preventivo.' },
+  { id: 'sc-bagno', t: '2 · Rifare il bagno (solo lavori)', tag: 'Materico', who: 'Cliente +prova, Direzione, Materico, Impresa +prova',
+    steps: [
+      ['Cliente', 'Portale: "Vorrei rifare il bagno, circa 6 mq, con doccia a filo pavimento".'],
+      ['Direzione', 'Point of Entry: Aulico dovrebbe proporre Materico. Confermare.'],
+      ['Materico', 'Inoltrare la richiesta all\'impresa di prova.'],
+      ['Impresa', 'Dal portale impresa: inviare un\'offerta.'],
+      ['Materico', 'Scegliere l\'offerta, applicare il margine, inviare al cliente.'],
+      ['Cliente', 'Accettare dal portale.'],
+    ],
+    expect: 'Il cliente non ha mai dovuto scegliere la società; l\'impresa ha visto solo ciò che la riguarda.' },
+  { id: 'sc-docfa', t: '3 · Solo rilievo e accatastamento', tag: 'Onirico', who: 'Tecnico Onirico, Amministrazione (cliente senza portale)',
+    steps: [
+      ['Tecnico', 'Il cliente ha telefonato: creare il sopralluogo con un cliente nuovo (finisce in rubrica).'],
+      ['Tecnico', 'Pacchetto "Solo rilievo" + voce extra "DOCFA", creare il preventivo.'],
+      ['Amministrazione', 'Stampare il documento su carta intestata, segnarlo accettato.'],
+      ['Tecnico', 'Fase abilitativa: DOCFA assegnato e poi fatto.'],
+      ['Amministrazione', 'Emettere la rata e controllare fattura e scadenza.'],
+    ],
+    expect: 'Pratica piccola gestita senza passare dal portale; fatture e scadenze al posto giusto.' },
+  { id: 'sc-unico', t: '4 · Investimento immobiliare con investitore', tag: 'Unico', who: 'Responsabile investimenti, Investitore +prova',
+    steps: [
+      ['Unico', 'Ricerca Opportunità: nuova opportunità, spuntare i passi e controllare che in agenda compaia il successivo.'],
+      ['Unico', 'Due diligence completa, generare la manifestazione d\'interesse, provare Email/WhatsApp.'],
+      ['Unico', 'Atto → creare l\'investimento; compilare lo scenario economico completo.'],
+      ['Unico', 'Collegare l\'investitore di prova, generare il contratto investitore, aggiornare 2 fasi con note e date.'],
+      ['Investitore', 'Portale → "I miei investimenti": controllare posizione e fasi.'],
+    ],
+    expect: 'Numeri dello scenario chiari; l\'investitore vede la sua posizione e nulla dei costi interni.' },
+  { id: 'sc-mkt', t: '5 · Cliente esterno di Strategico', tag: 'Strategico', who: 'Marketing',
+    steps: [
+      ['Marketing', 'Centro Marketing: nuovo cliente terzo (un ristorante) dalla rubrica, scheda completa.'],
+      ['Marketing', 'Calendario: un contenuto su Instagram e Facebook insieme.'],
+      ['Marketing', 'KPI del mese e una spesa; report mensile.'],
+      ['Marketing', 'Il mio profilo → Il mio report: controllare che contenuti e KPI risultino.'],
+    ],
+    expect: 'Scheda che si salva da sola, report che si compila da solo.' },
+  { id: 'sc-imprevisti', t: '6 · Imprevisti', tag: 'Tutti', who: 'Chi ha finito prima',
+    steps: [
+      ['Materico', 'Contratto con fine prevista nel passato e penale al giorno: controllare il ritardo e applicare la penale.'],
+      ['Staff senza permessi', 'Provare a creare un preventivo o una pratica: il messaggio è chiaro?'],
+      ['Chiunque', 'Eliminare qualcosa e ripristinarlo dal Cestino.'],
+      ['Chiunque', 'Ripetere uno scenario da telefono o tablet.'],
+    ],
+    expect: 'Messaggi comprensibili, niente dati persi, app usabile anche da telefono.' },
+];
+
+const esiti = {};
+let db = null, userId = null;
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function render() {
+  document.getElementById('scenari').innerHTML = SCEN.map((sc) => {
+    const e = esiti[sc.id] || {};
+    return `<div class="card scen" data-id="${sc.id}">
+      <div class="head"><h3>${esc(sc.t)}</h3><span class="tag">${esc(sc.tag)}</span></div>
+      <div class="who">Chi: ${esc(sc.who)}</div>
+      <ol>${sc.steps.map(([w, s]) => `<li><span class="w">${esc(w)}:</span> ${esc(s)}</li>`).join('')}</ol>
+      <div class="expect"><b>Risultato atteso.</b> ${esc(sc.expect)}</div>
+      <div class="esito">
+        <div class="btns" role="group" aria-label="Esito">
+          ${[['ok', 'Completato'], ['parziale', 'Con intoppi'], ['bloccato', 'Bloccato']].map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${e.esito === v}">${l}</button>`).join('')}
+        </div>
+        <textarea id="t-${sc.id}" placeholder="Dove vi siete bloccati? Cosa non si capiva?">${esc(e.note || '')}</textarea>
+        <div class="row"><button type="button" class="save" ${db ? '' : 'disabled'}>Salva esito</button><span class="small">${e.updatedAt ? 'Salvato il ' + new Date(e.updatedAt).toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : (db ? '' : 'Per salvare apri la pagina da claude.ai con il tuo account.')}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+  const all = Object.values(esiti);
+  const c = (v) => all.filter((x) => x.esito === v).length;
+  document.getElementById('summary').innerHTML = `<span class="chip">${SCEN.length} scenari</span><span class="chip" style="color:var(--ok)">${c('ok')} completati</span><span class="chip" style="color:var(--warn)">${c('parziale')} con intoppi</span><span class="chip" style="color:var(--bad)">${c('bloccato')} bloccati</span>`;
+}
+
+document.getElementById('scenari').addEventListener('click', async (ev) => {
+  const card = ev.target.closest('.scen'); if (!card) return;
+  const b = ev.target.closest('.btns button');
+  if (b) { const on = b.getAttribute('aria-pressed') === 'true'; card.querySelectorAll('.btns button').forEach((x) => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', String(!on)); return; }
+  const sv = ev.target.closest('.save');
+  if (sv && db) {
+    const pressed = card.querySelector('.btns [aria-pressed="true"]');
+    const body = { esito: pressed ? pressed.dataset.v : null, note: card.querySelector('textarea').value.trim(), updatedAt: Date.now(), by: userId };
+    sv.disabled = true; const lab = card.querySelector('.small'); lab.textContent = 'Salvataggio…';
+    try { await db.collection('esiti').doc(card.dataset.id).set(body); lab.textContent = 'Salvato'; }
+    catch (err) { lab.textContent = 'Non salvato: ' + (err && err.code === 'not_granted' ? 'non hai il permesso di scrivere su questa pagina' : 'riprova tra poco'); }
+    finally { sv.disabled = false; }
+  }
+});
+
+render();
+(async () => {
+  try {
+    const [d, u] = await Promise.all([window.claude?.use('db'), window.claude?.use('user')]);
+    if (u) { try { userId = await u.id(); } catch (_) {} }
+    if (!d) return;
+    db = d; render();
+    db.collection('esiti').onSnapshot((snap) => {
+      for (const k of Object.keys(esiti)) delete esiti[k];
+      snap.docs.forEach((doc) => { const v = doc.data(); if (v) esiti[doc.id] = v; });
+      // non sovrascrive un testo che si sta scrivendo
+      const typing = document.activeElement && document.activeElement.tagName === 'TEXTAREA';
+      if (!typing) render();
+    }, () => {});
+  } catch (_) {}
+})();
+</script>
