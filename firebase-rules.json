@@ -29,7 +29,16 @@
       ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'manager')",
       "$pid": {
         ".read": "auth != null && data.child('clientUid').val() == auth.uid",
-        ".write": "auth != null && !data.exists() && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() == 'staff'"
+        ".write": "auth != null && !data.exists() && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() == 'staff'",
+        "phases": {
+          "$ph": {
+            "tasks": {
+              "$t": {
+                ".write": "auth != null && root.child('users').child(auth.uid).child('active').val() == true && root.child('users').child(auth.uid).child('role').val() != 'cliente' && root.child('users').child(auth.uid).child('role').val() != 'partner'"
+              }
+            }
+          }
+        }
       }
     },
     "tasks": {

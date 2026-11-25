@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ClipboardCheck, Check, Clock, Minus, Circle, User, Filter } from 'lucide-react';
 import { Modal } from './Modal';
 import type { Project, Task } from '../types';
-import { ABIL_VOCI, abilVoceLabel, type AbilStato, type AbilCell, type AbilMap } from '../abilitativa';
+import { ABIL_VOCI, abilVoceLabel, abilPhaseTasks, type AbilStato, type AbilCell, type AbilMap } from '../abilitativa';
 
 
 const STATI: { id: AbilStato; label: string; icon: React.ElementType; cls: string }[] = [
@@ -47,6 +47,11 @@ export const AbilitativaView: React.FC<Props> = ({ projects, cells, tasks, team,
   const cellOf = (pid: string, voce: string): AbilCell => {
     const c = cells[pid]?.[voce] || { stato: 'da_fare' as AbilStato };
     if (c.taskId && tasks[c.taskId]?.done && c.stato !== 'non_serve') return { ...c, stato: 'fatto' };
+    // Stessa voce come attività nel fascicolo della pratica, già spuntata → fatta
+    if (c.stato !== 'non_serve' && c.stato !== 'fatto') {
+      const pt = abilPhaseTasks(projects.find((p) => p.id === pid), voce);
+      if (pt.length && pt.every((x) => x.done)) return { ...c, stato: 'fatto' };
+    }
     return c;
   };
 

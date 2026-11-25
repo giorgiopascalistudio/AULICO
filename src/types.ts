@@ -92,6 +92,11 @@ export interface ProjectTask {
   assignee?: string | null;
   due?: string | null;
   durationDays?: number | null;  // durata stimata (per la pianificazione da data inizio)
+  /** Chiave della riga di preventivo da cui è nata (`<riga>-<k>`): lega l'attività della
+   *  pratica all'assegnazione fatta all'accettazione (una sola attività, pratica = agenda). */
+  qKey?: string | null;
+  doneAt?: number | null;
+  doneBy?: string | null;
 }
 
 export interface Phase {

@@ -27,3 +27,30 @@ export const ABIL_VOCI: { id: string; label: string }[] = [
   { id: 'variante', label: 'Variante' },
 ];
 export const abilVoceLabel = (id: string) => ABIL_VOCI.find((v) => v.id === id)?.label || id;
+
+/** Riconosce l'attività della pratica che corrisponde a una voce (titolo del task):
+ *  la casella e l'attività del fascicolo restano allineate. */
+export const ABIL_MATCH: Record<string, RegExp> = {
+  collaudo: /collaud/i,
+  idoneita_statica: /idoneit/i,
+  tipo_mappale: /tipo mappale|pregeo/i,
+  docfa: /docfa|accatastament/i,
+  scarico: /scarico/i,
+  conformita: /dichiarazion\w* di conformit|conformit/i,
+  ape: /\bape\b|prestazione energetica/i,
+  aqe: /\baqe\b/i,
+  agibilita: /agibilit/i,
+  variante: /variant/i,
+};
+
+/** Attività della pratica (fase/task) che corrispondono alla voce. */
+export function abilPhaseTasks(project: any, voceId: string): { ph: string; t: string; done: boolean }[] {
+  const re = ABIL_MATCH[voceId];
+  if (!re || !project?.phases) return [];
+  const out: { ph: string; t: string; done: boolean }[] = [];
+  Object.entries(project.phases).forEach(([ph, phase]: [string, any]) =>
+    Object.entries(phase?.tasks || {}).forEach(([t, task]: [string, any]) => {
+      if (task && re.test(task.title || '')) out.push({ ph, t, done: !!task.done });
+    }));
+  return out;
+}

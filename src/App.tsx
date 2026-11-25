@@ -248,7 +248,7 @@ import { Modal } from './components/Modal';
 import { AppleSwitch } from './components/AppleSwitch';
 import { injectSmartTextStyles } from './components/SmartText';
 import { AuthFlow } from './components/AuthFlow';
-import { ABIL_VOCI } from './abilitativa';
+import { ABIL_VOCI, abilPhaseTasks } from './abilitativa';
 import { type Sopralluogo, type RilievoTariffe, DEFAULT_TARIFFE, stimaRighe, righeToQuoteLines } from './sopralluogo';
 import { MaintenanceScreen } from './components/MaintenanceScreen';
 import { HowToBox } from './components/HowToBox';
@@ -892,7 +892,10 @@ export default function App() {
       const next = val || {};
       const patch: Record<string, any> = {};
       Object.keys(next).forEach((id) => {
-        if (JSON.stringify(clean(next[id])) !== JSON.stringify(clean(prev[id] ?? null))) patch[id] = next[id];
+        // updatedAt escluso dal confronto: la normalizzazione lo rinfresca e farebbe
+        // sembrare "modificate" pratiche che nessuno ha toccato.
+        const strip = (o: any) => (o ? JSON.stringify(clean({ ...o, updatedAt: 0 })) : 'null');
+        if (strip(next[id]) !== strip(prev[id])) patch[id] = next[id];
       });
       Object.keys(prev).forEach((id) => { if (!(id in next)) patch[id] = null; });
       if (!Object.keys(patch).length) return;
@@ -2909,6 +2912,13 @@ export default function App() {
   };
 
   const handleToggleTask = (id: string, date: string) => {
+    // Attività di una pratica mostrata in agenda (`p::<pid>::<fase>::<task>`): è la STESSA
+    // attività del fascicolo → si spunta lì (prima il click in agenda non faceva nulla).
+    if (id.startsWith('p::')) {
+      const [, pid, ph, tid] = id.split('::');
+      handleTogglePtask(pid, ph, tid);
+      return;
+    }
     const t0 = tasks[id];
     setTasks(prev => {
       const t = prev[id];
@@ -2936,23 +2946,51 @@ export default function App() {
     showToast('Stato task aggiornato!');
   };
 
-  const handleTogglePtask = (projId: string, phId: string, tId: string) => {
-    setProjects(prev => {
-      const p = prev[projId];
-      if (!p || !p.phases[phId] || !p.phases[phId].tasks[tId]) return prev;
-      
-      const nextProjects = { ...prev };
-      const task = nextProjects[projId].phases[phId].tasks[tId];
-      nextProjects[projId].phases[phId].tasks[tId] = {
-        ...task,
-        done: !task.done
-      };
-      nextProjects[projId].updatedAt = Date.now();
-      const updated = autoUpdateProjectsCompletion(nextProjects);
-      syncState('projects', updated);
-      return updated;
+  const handleTogglePtask = (projId: string, phId: string, tId: string, force?: boolean) => {
+    const p = projects[projId];
+    const task = p?.phases?.[phId]?.tasks?.[tId];
+    if (!p || !task) return;
+    const done = force ?? !task.done;
+    if (done === !!task.done) return;
+    const patch = { done, doneAt: done ? Date.now() : null, doneBy: done ? (currentUser?.uid || null) : null };
+    // Aggiornamento IMMUTABILE + scrittura mirata sulla sola attività: così anche lo staff
+    // (regola projects/$pid/phases/$ph/tasks/$t) può spuntare le attività delle pratiche.
+    const nextP: Project = { ...p, updatedAt: Date.now(), phases: { ...p.phases, [phId]: { ...p.phases[phId], tasks: { ...p.phases[phId].tasks, [tId]: { ...task, ...patch } } } } };
+    setProjects((prev) => autoUpdateProjectsCompletion({ ...prev, [projId]: nextP }));
+    updateNode(`projects/${projId}/phases/${phId}/tasks/${tId}`, clean(patch))
+      .then(() => {
+        // Stato pratica (completata/attiva) e avvisi al cliente lungo il percorso
+        const after = autoUpdateProjectsCompletion({ [projId]: nextP })[projId];
+        if (after.status !== p.status && (currentUser?.role === 'admin' || currentUser?.role === 'manager')) {
+          updateNode(`projects/${projId}`, { status: after.status, updatedAt: Date.now() }).catch(() => {});
+        }
+        if (done) notifyClientMilestone(nextP, phId);
+      })
+      .catch(() => {
+        showToast('Non hai il permesso di aggiornare questa attività.', 'err');
+        setProjects((prev) => ({ ...prev, [projId]: p }));
+      });
+    // Attività collegate in agenda (vecchie assegnazioni da preventivo) seguono lo stesso stato
+    Object.values(tasks).filter((t: any) => t.phaseRef === `${projId}/${phId}/${tId}` && !!t.done !== done).forEach((t: any) => {
+      const nt = { ...t, done, updatedAt: Date.now() };
+      setTasks((prev) => ({ ...prev, [t.id]: nt }));
+      writeNode(`tasks/${t.id}`, clean(nt)).catch(() => {});
     });
-    showToast('Stato attività cantiere aggiornato!');
+    showToast(done ? 'Attività completata.' : 'Attività riaperta.');
+  };
+
+  // Avvisi al CLIENTE lungo il percorso (doc Onirico: "gradazione" di feedback positivi):
+  // fase completata, pratica completata. Dedup per id deterministico.
+  const notifyClientMilestone = (proj: Project, phId: string) => {
+    if (!proj.clientUid) return;
+    const ph = proj.phases?.[phId];
+    const phDone = ph && Object.values(ph.tasks || {}).every((t: any) => t.done);
+    const allDone = Object.values(proj.phases || {}).every((x: any) => Object.values(x.tasks || {}).every((t: any) => t.done));
+    if (allDone) {
+      writeNode(`notifications/${proj.clientUid}/ms-${proj.id}-done`, { id: `ms-${proj.id}-done`, type: 'progetto', title: `${proj.name}: completata!`, body: 'Tutte le attività sono concluse. Grazie per la fiducia.', link: '#portale', at: Date.now(), read: false }).catch(() => {});
+    } else if (phDone && ph) {
+      writeNode(`notifications/${proj.clientUid}/ms-${proj.id}-${phId}`, { id: `ms-${proj.id}-${phId}`, type: 'progetto', title: `Fase completata: ${ph.name}`, body: `${proj.name} fa un passo avanti.`, link: '#portale', at: Date.now(), read: false }).catch(() => {});
+    }
   };
 
   const handleEditTask = (id: string) => {
@@ -3227,9 +3265,13 @@ export default function App() {
     setPCategorie(prev => (prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]));
   };
 
+  // Convenzione Onirico: commessa = "Cliente — Località" (doc 03-ONIRICO). Se il nome è
+  // vuoto lo componiamo da cliente + comune.
+  const autoProjectName = () => [pClient.trim(), (pComune || pLocation).trim()].filter(Boolean).join(' — ');
   const handleCreateProject = () => {
-    if (!pName.trim()) {
-      showToast('Inserisci il nome del progetto!', 'err');
+    const finalName = pName.trim() || autoProjectName();
+    if (!finalName) {
+      showToast('Inserisci cliente e comune (il nome si compone da solo) oppure un nome.', 'err');
       return;
     }
     // Regole DB: admin/manager modificano tutto, lo staff può CREARE nuove pratiche
@@ -3323,7 +3365,7 @@ export default function App() {
 
     const newProj: Project = {
       id: nId,
-      name: pName.trim(),
+      name: finalName,
       code: pCode.trim() || null,
       client: pClient.trim() || null,
       location: pComune.trim() || pLocation.trim() || null,
@@ -3380,7 +3422,7 @@ export default function App() {
       assigned.forEach((uid) =>
         pushNotification(uid, {
           type: 'task',
-          title: `Nuova pratica: ${pName.trim()}`,
+          title: `Nuova pratica: ${finalName}`,
           body: 'Ti sono state assegnate attività in base alla tua mansione.',
           link: `#progetto/${nId}`
         })
@@ -4240,6 +4282,13 @@ export default function App() {
     writeNode(`abilitativa/${pid}/${voce}`, clean(enriched))
       .then(() => showToast('Fase abilitativa aggiornata.', 'ok'))
       .catch(() => showToast('Errore fase abilitativa (controlla regole).', 'err'));
+    // Allinea le attività del fascicolo con lo stesso nome (es. "Agibilità") e avvisa il cliente
+    if (cell.stato === 'fatto' && prevCell?.stato !== 'fatto') {
+      abilPhaseTasks(proj, voce).filter((x) => !x.done).forEach((x) => handleTogglePtask(pid, x.ph, x.t, true));
+      if (proj?.clientUid && (voce === 'agibilita' || voce === 'ape' || voce === 'docfa')) {
+        pushNotification(proj.clientUid, { type: 'progetto', title: `${label}: completato`, body: proj.name, link: '#portale' });
+      }
+    }
     if (!wantsTask) { dropTask(); return; }
     const old: any = tasks[taskId];
     const t: any = {
@@ -5119,7 +5168,7 @@ export default function App() {
           const titles = l.tasks && l.tasks.length ? l.tasks : [l.desc || MACRO_PHASE[m]];
           titles.forEach((title) => {
             const tId = `t-${Date.now()}-${pi}-${ti}`;
-            tasks[tId] = { id: tId, title, order: ti, done: false, role: l.role || 'Progettazione' };
+            tasks[tId] = { id: tId, title, order: ti, done: false, role: l.role || 'Progettazione', qKey: `${(q.lines || []).indexOf(l)}-${titles.indexOf(title)}` };
             ti++;
           });
         });
@@ -5229,9 +5278,27 @@ export default function App() {
     if (!taskGenModal) return;
     const { quoteId, pid, rows } = taskGenModal;
     const q = quotes[quoteId];
-    setTasks((prev) => {
+    // Commessa nata da questo preventivo: l'assegnazione va sulle attività DELLA PRATICA
+    // (che compaiono già in agenda di chi le riceve) → una sola attività, niente doppioni.
+    const proj = pid ? projects[pid] : null;
+    const byKey: Record<string, { ph: string; t: string }> = {};
+    if (proj) Object.entries(proj.phases || {}).forEach(([ph, phase]: [string, any]) =>
+      Object.entries(phase.tasks || {}).forEach(([t, task]: [string, any]) => { if (task.qKey) byKey[task.qKey] = { ph, t }; }));
+    const leftover = rows.filter((row) => {
+      const ref = byKey[row.key.slice(quoteId.length + 1)];
+      if (!ref || !proj) return true;
+      const patch = { assignee: row.assignee || null, due: row.date || todayISO() };
+      setProjects((prev) => {
+        const pp = prev[pid!]; if (!pp) return prev;
+        const ph = pp.phases[ref.ph];
+        return { ...prev, [pid!]: { ...pp, phases: { ...pp.phases, [ref.ph]: { ...ph, tasks: { ...ph.tasks, [ref.t]: { ...ph.tasks[ref.t], ...patch } } } } } };
+      });
+      updateNode(`projects/${pid}/phases/${ref.ph}/tasks/${ref.t}`, clean(patch)).catch(() => showToast('Errore assegnazione attività.', 'err'));
+      return false;
+    });
+    if (leftover.length) setTasks((prev) => {
       const next: any = { ...prev };
-      rows.forEach((row, i) => {
+      leftover.forEach((row, i) => {
         const tId = `task-q-${quoteId}-${i}`;
         next[tId] = { id: tId, title: row.title || 'Attività', date: row.date || todayISO(), time: null, frequency: 'once', priority: 'media', tipo: row.role || null, assignee: row.assignee || null, assignees: row.assignee ? [row.assignee] : null, projectId: pid || null, notes: `Da preventivo ${q?.number || ''}`, done: false, createdAt: Date.now(), updatedAt: Date.now(), createdBy: currentUser?.uid || '' };
       });
@@ -7941,8 +8008,8 @@ export default function App() {
 
           <div className="flex flex-col gap-3.5">
             <div className="flex flex-col gap-1">
-              <label className="text-[12px] font-semibold">Nome della commessa</label>
-              <input value={pName} onChange={(e) => setPName(e.target.value)} className="input mt-1" placeholder="Es. Villa Saracena - Carovigno" />
+              <label className="text-[12px] font-semibold">Nome della commessa <span className="text-gray-400 font-normal">(vuoto = "Cliente — Comune")</span></label>
+              <input value={pName} onChange={(e) => setPName(e.target.value)} className="input mt-1" placeholder={autoProjectName() || 'Es. Nacci Grazio — Contrada Lato Aperto'} />
             </div>
 
             <div className="flex flex-col gap-1">
