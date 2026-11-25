@@ -8,7 +8,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
-const SRC = `${import.meta.env.BASE_URL}loader/onirico_anim.mp4`;
+const SRC = `${import.meta.env.BASE_URL}loader/onirico_anim.mp4?v=2`; // ?v= cambia a ogni nuova versione del video (cache del browser)
 const RATE = 1.6;            // stessa velocità del BrandLoader
 const MAX_MS = 9000;         // paracadute: 8 s di video / 1.6 + margine
 

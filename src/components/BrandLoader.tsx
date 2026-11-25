@@ -5,7 +5,7 @@
  */
 import React from 'react';
 
-const SRC = `${import.meta.env.BASE_URL}loader/onirico_anim.mp4`;
+const SRC = `${import.meta.env.BASE_URL}loader/onirico_anim.mp4?v=2`; // ?v= cambia a ogni nuova versione del video (cache del browser)
 
 export const BrandLoader: React.FC<{ full?: boolean; label?: string }> = ({ full = false, label }) => (
   <div className={full ? 'min-h-screen bg-[#F5F5F3] flex items-center justify-center font-sans' : 'w-full flex items-center justify-center py-16'}>
