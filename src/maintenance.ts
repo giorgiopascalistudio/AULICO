@@ -6,8 +6,8 @@
  *   i clienti veri vedono la schermata "in aggiornamento".
  * Per riaprire a tutti: MAINTENANCE = false + push.
  */
-export const MAINTENANCE = true;
-export const TEAM_OPEN = true;
+export const MAINTENANCE = false;
+export const TEAM_OPEN = false;
 export const MAINTENANCE_BYPASS = ['giorgio.pascali990@gmail.com'];
 
 export const isTestEmail = (email?: string | null) => /\+prova[^@]*@/i.test(email || '');
