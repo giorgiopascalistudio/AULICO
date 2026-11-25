@@ -116,6 +116,10 @@ interface ProjectsViewProps {
   onEmitMilestone?: (quoteId: string, milestoneId: string) => void;
   // Archiviazione progetti
   onToggleArchiveProject?: (pid: string) => void;
+  /** Onirico → Materico: crea la commessa di esecuzione con il computo della pratica. */
+  onSendToMaterico?: (pid: string) => void;
+  /** id commessa Materico già collegata alla pratica (se esiste). */
+  matericoDealFor?: (pid: string) => string | null;
   // Task agenda collegati alle pratiche (compaiono nel fascicolo tecnico)
   agendaTasks?: Task[];
   onToggleAgendaTask?: (taskId: string, date: string) => void;
@@ -284,6 +288,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
   onSetQuoteStatus,
   onEmitMilestone,
   onToggleArchiveProject,
+  onSendToMaterico,
+  matericoDealFor,
   agendaTasks = [],
   onToggleAgendaTask,
   onEditAgendaTask,
@@ -663,6 +669,18 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 {p.archived ? <ArchiveRestore className="w-4.5 h-4.5" /> : <Archive className="w-4.5 h-4.5" />}
               </button>
             )}
+            {p.division === 'studio' && onSendToMaterico && (() => {
+              const linked = matericoDealFor?.(p.id);
+              return (
+                <button
+                  onClick={() => linked ? (window.location.hash = '#materico/prod-potenziale') : onSendToMaterico(p.id)}
+                  className="inline-flex items-center gap-1.5 py-2 px-4 border border-[#e2e2e2] hover:border-black rounded-full text-[12px] font-bold text-[#161616] bg-white hover:bg-[#161616] hover:text-white cursor-pointer transition-colors"
+                  title={linked ? 'La commessa di esecuzione esiste già: aprila in Materico' : 'Crea la commessa di esecuzione in Materico con il computo di questa pratica'}
+                >
+                  <HardHat className="w-3.5 h-3.5" /> {linked ? 'Vai a Materico' : 'Invia a Materico'}
+                </button>
+              );
+            })()}
             {isInternalBoss && (
               <button
                 onClick={() => onEditProject(p.id)}

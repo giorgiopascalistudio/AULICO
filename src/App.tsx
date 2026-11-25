@@ -4061,6 +4061,40 @@ export default function App() {
       removeNode(`matericoDeals/${id}`).catch(() => {});
     });
   };
+  // ---- Onirico → Materico: "Invia a Materico" (nota utente bb-15/bb-16) ----
+  // Crea la commessa di esecuzione con cliente, indirizzo, pratica collegata e il COMPUTO
+  // già fatto da Onirico (nodo finComputi): Materico ci mette solo prezzi e margini.
+  // Le voci che corrispondono al listino interno prendono subito costo e prezzo.
+  const handleSendToMaterico = async (pid: string) => {
+    const p = projects[pid];
+    if (!p) return;
+    if (Object.values(matericoDeals).some((d) => d.projectId === pid)) { showToast('La commessa Materico per questa pratica esiste già.', 'err'); return; }
+    let rows: any[] = [];
+    try {
+      const all: any = await getNode('finComputi');
+      const list: any[] = Array.isArray(all) ? all : Object.values(all || {});
+      const comp = list.find((c: any) => c && c.projectId === pid);
+      const lst = Object.values(matericoListino);
+      rows = (comp?.items || []).map((it: any, i: number) => {
+        const m = lst.find((l: any) => (l.description || '').trim().toLowerCase() === (it.desc || '').trim().toLowerCase());
+        const costo = m ? (Number(m.costoImprese || 0) + Number(m.costoMateriali || 0)) : Number(it.unitPrice || 0);
+        const prezzo = m ? Math.round(costo * (1 + (Number(m.margineApplicatoPct ?? 20) / 100)) * 100) / 100 : Number(it.unitPrice || 0);
+        return { id: `cr-${Date.now().toString(36)}-${i}`, listinoId: m?.id || null, category: m?.category || 'opere_edili', description: it.desc || 'Voce', unit: m?.unit || null, qty: Number(it.quantity || 0), costoUnit: costo, prezzoUnit: prezzo };
+      });
+    } catch (_) { /* senza permesso finanza il computo non si legge: la commessa nasce comunque */ }
+    const d: MatericoDeal = {
+      id: `md-${Date.now().toString(36)}`, title: p.name, clientName: p.client || null, clientRecordId: p.clientRecordId || null,
+      projectId: pid, address: p.indirizzoImmobile || p.location || null, discipline: 'misto', stage: 'valutazione',
+      computo: rows, valoreStimato: rows.reduce((a, r) => a + r.qty * r.prezzoUnit, 0) || null,
+      costoStimato: rows.reduce((a, r) => a + r.qty * r.costoUnit, 0) || null,
+      notes: `Dalla pratica Onirico "${p.name}"`, createdBy: currentUser?.uid || null, createdAt: Date.now(),
+    } as MatericoDeal;
+    handleSaveMatericoDeal(d);
+    notifyStudio({ type: 'commessa', title: `Nuova commessa di esecuzione: ${p.name}`, body: rows.length ? `${rows.length} voci di computo da Onirico` : 'Senza computo: va compilato', link: '#materico/prod-potenziale' }, currentUser?.uid);
+    logAudit('create', 'materico', p.name, 'da pratica Onirico');
+    showToast(rows.length ? `Commessa creata in Materico con ${rows.length} voci di computo.` : 'Commessa creata in Materico (la pratica non ha ancora un computo).', 'ok');
+  };
+
   // ---- Listino interno Materico (matericoListino, §4) ----
   const handleSaveMatericoListino = (i: MatericoPriceItem) => {
     setMatericoListino((prev) => ({ ...prev, [i.id]: i }));
@@ -6009,6 +6043,8 @@ export default function App() {
             onSetQuoteStatus={handleSetQuoteStatus}
             onEmitMilestone={handleEmitMilestone}
             onToggleArchiveProject={handleToggleArchiveProject}
+            onSendToMaterico={handleSendToMaterico}
+            matericoDealFor={(pid) => Object.values(matericoDeals).find((d) => d.projectId === pid)?.id || null}
             askDelete={askDelete}
             onTrashItem={moveToTrash}
             estimates={Object.values(estimates)}
