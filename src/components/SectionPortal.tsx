@@ -27,7 +27,7 @@ export const SectionPortal: React.FC<Props> = ({ title, color, items, onOpen }) 
     </div>
 
     {items.length === 0 ? (
-      <p className="text-[13px] text-[#8a8a8a]">Nessuna sezione disponibile in quest'area.</p>
+      <p className="text-[13px] text-[#6b6b6b]">Nessuna sezione disponibile in quest'area.</p>
     ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((sec) => {
@@ -44,9 +44,9 @@ export const SectionPortal: React.FC<Props> = ({ title, color, items, onOpen }) 
               <div>
                 <div className="flex items-center gap-1.5">
                   <b className="text-[15px] font-extrabold text-[#161616]">{sec.label}</b>
-                  <ChevronRight className="w-4 h-4 text-[#bdbdbd] group-hover:text-[#161616] group-hover:translate-x-0.5 transition-all" />
+                  <ChevronRight className="w-4 h-4 text-[#9a9a9a] group-hover:text-[#161616] group-hover:translate-x-0.5 transition-all" />
                 </div>
-                {sec.note && <p className="text-[12.5px] text-[#8a8a8a] mt-1 leading-relaxed">{sec.note}</p>}
+                {sec.note && <p className="text-[12.5px] text-[#6b6b6b] mt-1 leading-relaxed">{sec.note}</p>}
               </div>
             </button>
           );

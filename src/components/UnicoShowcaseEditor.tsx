@@ -71,7 +71,7 @@ export const UnicoShowcaseEditor: React.FC<Props> = ({ deal, onClose, onSave }) 
           brandSub={deal.location || 'Puglia'}
           onClose={() => setPreview(false)}
           footer={
-            <span className="text-[9px] font-mono uppercase tracking-[0.25em] text-stone-500 border border-white/15 rounded-full px-3.5 py-2">
+            <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-stone-500 border border-white/15 rounded-full px-3.5 py-2">
               Anteprima vetrina
             </span>
           }
@@ -92,7 +92,7 @@ export const UnicoShowcaseEditor: React.FC<Props> = ({ deal, onClose, onSave }) 
             <span className="w-8 h-8 rounded-lg bg-indigo-50 text-[#4338ca] flex items-center justify-center"><Clapperboard className="w-4 h-4" /></span>
             <div>
               <b className="block text-[15px] tracking-tight leading-none">Pagina vetrina</b>
-              <span className="text-[11.5px] text-stone-400">{deal.title || 'Operazione Unico'}</span>
+              <span className="text-[11.5px] text-stone-500">{deal.title || 'Operazione Unico'}</span>
             </div>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500"><X className="w-4.5 h-4.5" /></button>
@@ -109,7 +109,7 @@ export const UnicoShowcaseEditor: React.FC<Props> = ({ deal, onClose, onSave }) 
             </FieldEl>
             <FieldEl label="Video continuo (URL online)" icon={<Film className="w-3.5 h-3.5" />}>
               <input className={IN} value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://firebasestorage.googleapis.com/…/video.mp4" />
-              <span className="text-[11px] text-stone-400 mt-1.5 leading-snug flex items-start gap-1">
+              <span className="text-[12px] text-stone-500 mt-1.5 leading-snug flex items-start gap-1">
                 <Link2 className="w-3 h-3 mt-0.5 shrink-0" />
                 Carica il video su Firebase Storage e incolla qui l'URL di download. Un unico mp4 continuo: le scene puntano ai suoi secondi.
               </span>
@@ -127,7 +127,7 @@ export const UnicoShowcaseEditor: React.FC<Props> = ({ deal, onClose, onSave }) 
           {/* Scene */}
           <div className="border-t border-[#ececec] pt-4">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><Film className="w-3.5 h-3.5" /> Scene del video</span>
+              <span className="text-[12px] font-extrabold uppercase tracking-wide text-stone-500 flex items-center gap-1.5"><Film className="w-3.5 h-3.5" /> Scene del video</span>
               <button onClick={addScene} className="flex items-center gap-1 text-[12px] font-bold text-[#4338ca] hover:text-[#3730a3] cursor-pointer">
                 <Plus className="w-3.5 h-3.5" /> Aggiungi scena
               </button>
@@ -136,7 +136,7 @@ export const UnicoShowcaseEditor: React.FC<Props> = ({ deal, onClose, onSave }) 
               {scenes.map((s, i) => (
                 <div key={i} className="bg-[#fafafa] border border-[#ececec] rounded-xl p-3 grid grid-cols-[72px_1fr_32px] gap-2 items-start">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold text-stone-400 uppercase">Sec.</label>
+                    <label className="text-[11px] font-bold text-stone-500 uppercase">Sec.</label>
                     <input type="number" min={0} step={1} className={`${IN} h-9 px-2 text-[13px]`} value={s.time}
                       onChange={(e) => setScene(i, { time: Number(e.target.value) || 0 })} />
                   </div>
@@ -149,7 +149,7 @@ export const UnicoShowcaseEditor: React.FC<Props> = ({ deal, onClose, onSave }) 
                   </button>
                 </div>
               ))}
-              {scenes.length === 0 && <span className="text-[12.5px] italic text-stone-400">Nessuna scena: la pagina mostrerà solo titolo e video.</span>}
+              {scenes.length === 0 && <span className="text-[12.5px] italic text-stone-500">Nessuna scena: la pagina mostrerà solo titolo e video.</span>}
             </div>
           </div>
 
@@ -177,7 +177,7 @@ export const UnicoShowcaseEditor: React.FC<Props> = ({ deal, onClose, onSave }) 
 
 const FieldEl: React.FC<{ label: string; icon?: React.ReactNode; children: React.ReactNode }> = ({ label, icon, children }) => (
   <div className="flex flex-col gap-1">
-    <label className="text-[11px] font-bold text-[#555] flex items-center gap-1.5">{icon}{label}</label>
+    <label className="text-[12px] font-bold text-[#555] flex items-center gap-1.5">{icon}{label}</label>
     {children}
   </div>
 );

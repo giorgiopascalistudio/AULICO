@@ -10,7 +10,8 @@ import type { LucideIcon } from 'lucide-react';
 /**
  * Nav bar a pillole (stile dettaglio Progetti) per le sotto-categorie di un
  * "portale" (es. Risorse Umane → Dashboard · CRM · Recruiting · …). La pill
- * attiva scorre con animazione (layoutId) e mostra l'etichetta; le altre solo icona.
+ * attiva scorre con animazione (layoutId). Tutte mostrano icona + NOME (semplificazione 25/11:
+ * le sole icone non dicevano nulla a chi non conosce l'app).
  */
 interface GroupTab { id: string; label: string; icon: LucideIcon; }
 interface Props {
@@ -29,8 +30,9 @@ export const GroupTabBar: React.FC<Props> = ({ tabs, activeId, onSelect }) => (
           <button
             key={tab.id}
             onClick={() => onSelect(tab.id)}
-            className={`relative flex-1 inline-flex items-center justify-center gap-1.5 border-none bg-transparent p-2.5 rounded-full font-bold text-[13px] cursor-pointer transition-colors duration-300 select-none whitespace-nowrap ${
-              active ? 'text-[#161616]' : 'text-[#9a9a9a] hover:text-white'
+            title={tab.label}
+            className={`relative flex-1 shrink-0 inline-flex items-center justify-center gap-1.5 border-none bg-transparent px-3.5 py-2.5 rounded-full font-bold text-[13px] cursor-pointer transition-colors duration-300 select-none whitespace-nowrap ${
+              active ? 'text-[#161616]' : 'text-[#c8c8c8] hover:text-white'
             }`}
             style={{ touchAction: 'none' }}
           >
@@ -42,14 +44,8 @@ export const GroupTabBar: React.FC<Props> = ({ tabs, activeId, onSelect }) => (
               />
             )}
             <div className="relative z-10 flex items-center gap-1.5">
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              <span
-                className={`overflow-hidden transition-all duration-300 ease-out flex items-center ${
-                  active ? 'max-w-[220px] opacity-100 font-extrabold' : 'max-w-0 opacity-0'
-                }`}
-              >
-                <span className="pl-1 pr-1">{tab.label}</span>
-              </span>
+              <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+              <span className={`pr-0.5 ${active ? 'font-extrabold' : 'font-semibold'}`}>{tab.label}</span>
             </div>
           </button>
         );

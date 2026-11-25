@@ -51,14 +51,14 @@ export const FeedbackModal: React.FC<Props> = ({ prefill, onClose, onSubmit }) =
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="min-w-0">
             <b className="block text-[16px] tracking-tight text-[#161616]">Segnala ad Aulico</b>
-            <span className="text-[11.5px] text-[#8a8a8a]">Aiutaci a migliorare il gestionale durante il test</span>
+            <span className="text-[11.5px] text-[#6b6b6b]">Aiutaci a migliorare il gestionale durante il test</span>
           </div>
           <button onClick={onClose} className="w-9 h-9 rounded-xl hover:bg-stone-100 flex items-center justify-center text-stone-500 cursor-pointer bg-transparent border-none shrink-0"><X className="w-4.5 h-4.5" /></button>
         </div>
 
         {isError ? (
           <div className="mb-3 rounded-xl border border-orange-200 bg-orange-50 p-3">
-            <div className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-orange-700 mb-1.5">
+            <div className="flex items-center gap-1.5 text-[12px] font-extrabold uppercase tracking-wider text-orange-700 mb-1.5">
               <AlertTriangle className="w-3.5 h-3.5" /> Errore da inoltrare
             </div>
             <pre className="text-[11.5px] text-[#7a3a12] whitespace-pre-wrap break-words font-mono m-0">{prefill.errorText}</pre>
@@ -80,7 +80,7 @@ export const FeedbackModal: React.FC<Props> = ({ prefill, onClose, onSubmit }) =
           </div>
         )}
 
-        <label className="block text-[11px] font-extrabold uppercase tracking-wider text-[#8a8a8a] mb-1">Titolo</label>
+        <label className="block text-[12px] font-extrabold uppercase tracking-wider text-[#6b6b6b] mb-1">Titolo</label>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -88,7 +88,7 @@ export const FeedbackModal: React.FC<Props> = ({ prefill, onClose, onSubmit }) =
           className="w-full px-3 py-2.5 rounded-xl border border-[#e2e2e2] text-[13.5px] outline-none focus:border-[#161616] bg-white mb-3"
         />
 
-        <label className="block text-[11px] font-extrabold uppercase tracking-wider text-[#8a8a8a] mb-1">Descrizione</label>
+        <label className="block text-[12px] font-extrabold uppercase tracking-wider text-[#6b6b6b] mb-1">Descrizione</label>
         <textarea
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
@@ -97,7 +97,7 @@ export const FeedbackModal: React.FC<Props> = ({ prefill, onClose, onSubmit }) =
           className="w-full px-3 py-2.5 rounded-xl border border-[#e2e2e2] text-[13.5px] outline-none focus:border-[#161616] bg-white mb-2 resize-y"
         />
 
-        <p className="text-[10.5px] text-[#9a9a9a] mb-3">Con l'invio vengono allegati automaticamente la pagina corrente e il tipo di dispositivo.</p>
+        <p className="text-[11.5px] text-[#767676] mb-3">Con l'invio vengono allegati automaticamente la pagina corrente e il tipo di dispositivo.</p>
 
         <button
           onClick={send}

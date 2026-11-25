@@ -63,7 +63,7 @@ export const GoogleLogin: React.FC<GoogleLoginProps> = ({ onError }) => {
           )}
         </div>
 
-        <div className="text-center mt-8 text-[11px] text-stone-400 font-bold tracking-wide uppercase">
+        <div className="text-center mt-8 text-[12px] text-stone-500 font-bold tracking-wide uppercase">
           Aulico · Accesso riservato 2026
         </div>
       </div>

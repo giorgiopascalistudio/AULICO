@@ -37,14 +37,14 @@ const Kpi: React.FC<{
   tone?: 'default' | 'ok' | 'warn' | 'bad';
   onClick: () => void;
 }> = ({ icon: Icon, label, value, sub, tone = 'default', onClick }) => {
-  const subColor = tone === 'ok' ? 'text-emerald-700' : tone === 'warn' ? 'text-amber-700' : tone === 'bad' ? 'text-rose-700' : 'text-[#9a9a9a]';
+  const subColor = tone === 'ok' ? 'text-emerald-700' : tone === 'warn' ? 'text-amber-700' : tone === 'bad' ? 'text-rose-700' : 'text-[#767676]';
   return (
     <button onClick={onClick} className="text-left p-3.5 rounded-2xl border border-[#eee] bg-[#fafafa] hover:bg-white hover:border-[#d8d8d8] transition-colors">
-      <div className="inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wide text-[#9a9a9a]">
+      <div className="inline-flex items-center gap-1.5 text-[11.5px] font-bold uppercase tracking-wide text-[#767676]">
         <Icon className="w-3.5 h-3.5" /> {label}
       </div>
       <div className="text-[20px] font-extrabold text-[#161616] mt-1 leading-tight">{value}</div>
-      {sub && <div className={`text-[11px] font-medium mt-0.5 ${subColor}`}>{sub}</div>}
+      {sub && <div className={`text-[12px] font-medium mt-0.5 ${subColor}`}>{sub}</div>}
     </button>
   );
 };
@@ -89,14 +89,14 @@ export const CantierePanoramica: React.FC<CantierePanoramicaProps> = (p) => {
       {/* barra avanzamento in evidenza */}
       <button onClick={() => p.onGo('sal')} className="text-left p-3.5 rounded-2xl border border-[#eee] bg-[#fafafa] hover:bg-white hover:border-[#d8d8d8] transition-colors">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wide text-[#9a9a9a]"><TrendingUp className="w-3.5 h-3.5" /> Avanzamento lavori</span>
+          <span className="inline-flex items-center gap-1.5 text-[11.5px] font-bold uppercase tracking-wide text-[#767676]"><TrendingUp className="w-3.5 h-3.5" /> Avanzamento lavori</span>
           <span className="text-[15px] font-extrabold text-[#161616]">{progress}%</span>
         </div>
         <div className="h-2 rounded-full bg-[#eaeaea] overflow-hidden">
           <div className="h-full bg-[#161616]" style={{ width: `${Math.min(100, progress)}%` }} />
         </div>
         {salApprovati.length > 0 && (
-          <div className="text-[11px] font-medium text-[#9a9a9a] mt-1.5">{salApprovati.length} SAL approvati · {eur(salImporto)}</div>
+          <div className="text-[12px] font-medium text-[#767676] mt-1.5">{salApprovati.length} SAL approvati · {eur(salImporto)}</div>
         )}
       </button>
 

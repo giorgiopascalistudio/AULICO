@@ -36,7 +36,7 @@ import type { EditorialImportProject } from './EditorialCalendar';
 const dISO = (s?: string | null) => (s ? new Date(s).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) : '—');
 const daysAgo = (dateISO: string) => Math.floor((Date.now() - new Date(dateISO).getTime()) / 86400000);
 const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white disabled:bg-[#f7f7f5]';
-const lbl = 'text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]';
+const lbl = 'text-[11px] font-bold uppercase tracking-wider text-[#767676]';
 
 /**
  * Pallino dell'account: le società del gruppo tengono il colore d'identità (§10),
@@ -253,7 +253,7 @@ const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void; onOp
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
             <Megaphone className="w-5.5 h-5.5 text-[#161616]" /> Centro Marketing
           </h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">
             Tutti gli account gestiti da Strategico: società del gruppo + clienti terzi. Ogni account ha il suo workspace.
           </p>
         </div>
@@ -283,7 +283,7 @@ const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void; onOp
           { l: 'Spese del mese', v: eur(monthSpend) },
         ].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[20px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
           </div>
         ))}
@@ -292,7 +292,7 @@ const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void; onOp
       {/* Alert automatici */}
       {alerts.length > 0 && (
         <div className="bg-white border border-[#f3d9b1] rounded-[20px] p-4">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#b45309] inline-flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> Richiede attenzione</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#b45309] inline-flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> Richiede attenzione</p>
           <div className="flex flex-col gap-1.5">
             {alerts.slice(0, 6).map((a, i) => (
               <button key={i} onClick={() => a.accId && onOpen(a.accId)} className="text-left text-[12.5px] text-[#555] hover:text-[#161616] cursor-pointer bg-transparent border-none p-0 font-semibold">
@@ -305,7 +305,7 @@ const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void; onOp
 
       {/* Account: società del gruppo */}
       <div>
-        <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Società del gruppo</p>
+        <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">Società del gruppo</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {societa.map((a) => <AccountCard key={a.id} acc={a} h={health[a.id]} onOpen={onOpen} />)}
         </div>
@@ -313,9 +313,9 @@ const Centro: React.FC<Props & { onOpen: (id: string, tab?: WsTab) => void; onOp
 
       {/* Account: clienti terzi */}
       <div>
-        <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Clienti terzi</p>
+        <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">Clienti terzi</p>
         {clienti.length === 0 ? (
-          <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-6 text-center">
+          <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-6 text-center">
             Nessun cliente terzo. {canEdit ? 'Aggiungilo con "Nuovo cliente".' : ''}
           </p>
         ) : (
@@ -374,16 +374,16 @@ const AccountCard: React.FC<{ acc: MktAccount; h?: ReturnType<typeof healthOf>; 
           <span className="w-3 h-3 rounded-full shrink-0" style={{ background: dotOf(acc) }} />
           <b className="text-[14.5px] text-[#161616] truncate">{acc.name}</b>
         </span>
-        <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0" style={{ color: st.color, background: st.bg }}>{st.label}</span>
+        <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0" style={{ color: st.color, background: st.bg }}>{st.label}</span>
       </div>
-      <div className="mt-2.5 grid grid-cols-2 gap-1 text-[11.5px] text-[#8a8a8a] font-semibold">
+      <div className="mt-2.5 grid grid-cols-2 gap-1 text-[11.5px] text-[#6b6b6b] font-semibold">
         <span>Ultimo post: <b className="text-[#555]">{h?.lastPub ? dISO(h.lastPub) : '—'}</b></span>
         <span>Prossima: <b className="text-[#555]">{h?.nextPub ? dISO(h.nextPub) : '—'}</b></span>
         <span>In lavorazione: <b className="text-[#555]">{h?.inLavorazione ?? 0}</b></span>
         <span>{acc.kind === 'societa' ? 'Società' : 'Cliente terzo'}{inactive ? ' · sospeso' : ''}</span>
       </div>
       {acc.kind === 'cliente' && !acc.liberatoria && (
-        <p className="mt-2 text-[10.5px] font-extrabold text-rose-600 inline-flex items-center gap-1"><Ban className="w-3 h-3" /> NON PUBBLICARE NULLA — manca la liberatoria</p>
+        <p className="mt-2 text-[11.5px] font-extrabold text-rose-600 inline-flex items-center gap-1"><Ban className="w-3 h-3" /> NON PUBBLICARE NULLA — manca la liberatoria</p>
       )}
     </button>
   );
@@ -425,7 +425,7 @@ const NewClientModal: React.FC<{
           <label className="flex flex-col gap-1"><span className={lbl}>Oppure nome libero</span>
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Es. Masseria Le Fabriche" className={inp} disabled={!!recId} />
           </label>
-          <p className="text-[11px] text-[#9a9a9a]">La liberatoria parte come <b>non concessa</b>: finché non la attivi dalla scheda, sull'account compare "NON PUBBLICARE NULLA".</p>
+          <p className="text-[12px] text-[#767676]">La liberatoria parte come <b>non concessa</b>: finché non la attivi dalla scheda, sull'account compare "NON PUBBLICARE NULLA".</p>
           <button onClick={create} disabled={!recId && !name.trim()} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Crea account</button>
         </div>
       </div>
@@ -457,7 +457,7 @@ const Workspace: React.FC<Props & { account: MktAccount; tab: WsTab; onTab: (t: 
               <span className="w-3 h-3 rounded-full shrink-0" style={{ background: dotOf(acc) }} />
               {acc.name}
             </h2>
-            <p className="text-[11.5px] text-[#8a8a8a] font-semibold">
+            <p className="text-[11.5px] text-[#6b6b6b] font-semibold">
               {acc.kind === 'societa' ? 'Società del gruppo' : 'Cliente terzo'} ·{' '}
               <span style={{ color: st.color }} className="font-extrabold">{st.label}</span>
               {h.nextPub ? ` · prossima pubblicazione ${dISO(h.nextPub)}` : ' · nessuna pubblicazione programmata'}
@@ -466,7 +466,7 @@ const Workspace: React.FC<Props & { account: MktAccount; tab: WsTab; onTab: (t: 
         </div>
         <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] flex-wrap">
           {WS_TABS.map(({ id, label, icon: Icon }) => (
-            <button key={id} onClick={() => onTab(id)} className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-full cursor-pointer border-none ${tab === id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>
+            <button key={id} onClick={() => onTab(id)} className={`inline-flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1.5 rounded-full cursor-pointer border-none ${tab === id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>
               <Icon className="w-3.5 h-3.5" /> {label}
             </button>
           ))}
@@ -548,7 +548,7 @@ const PanoramicaTab: React.FC<Props & { account: MktAccount }> = ({ account: acc
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       {/* Scheda account (PDF §2.2) */}
       <div className="lg:col-span-2 bg-white border border-[#e2e2e2] rounded-[22px] p-5 flex flex-col gap-3">
-        <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Scheda account</p>
+        <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Scheda account</p>
         <div className="grid grid-cols-2 gap-2.5">
           <label className="flex flex-col gap-1 col-span-2"><span className={lbl}>Nome</span>
             <input disabled={!canEdit || acc.kind === 'societa'} value={d.name} onChange={(e) => set({ name: e.target.value })} className={inp} /></label>
@@ -562,7 +562,7 @@ const PanoramicaTab: React.FC<Props & { account: MktAccount }> = ({ account: acc
             <input disabled={!canEdit} type="number" value={d.budgetMonthly ?? ''} onChange={(e) => set({ budgetMonthly: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
           <label className="flex flex-col gap-1 col-span-2"><span className={lbl}>Google Analytics · ID proprietà GA4 (sito)</span>
             <input disabled={!canEdit} value={d.ga4PropertyId || ''} onChange={(e) => set({ ga4PropertyId: e.target.value || null })} placeholder="Es. 123456789 — solo numeri" className={inp} />
-            <span className="text-[10px] text-[#9a9a9a] font-semibold">Collegalo per aggiornare in automatico i KPI del canale "Sito web" (utenti, sessioni, % stranieri). ID numerico da GA4 → Amministrazione → Impostazioni proprietà (non il codice "G-…").</span></label>
+            <span className="text-[11px] text-[#767676] font-semibold">Collegalo per aggiornare in automatico i KPI del canale "Sito web" (utenti, sessioni, % stranieri). ID numerico da GA4 → Amministrazione → Impostazioni proprietà (non il codice "G-…").</span></label>
           <label className="flex flex-col gap-1 col-span-2"><span className={lbl}>Note</span>
             <textarea disabled={!canEdit} value={d.notes || ''} onChange={(e) => set({ notes: e.target.value || null })} rows={2} className={`${inp} resize-none`} /></label>
         </div>
@@ -577,7 +577,7 @@ const PanoramicaTab: React.FC<Props & { account: MktAccount }> = ({ account: acc
                 <input disabled={!canEdit} value={c.handle || ''} onChange={(e) => set({ channels: chs.map((x, j) => j === i ? { ...x, handle: e.target.value || null } : x) })} placeholder="@handle" className={inp} />
                 <input disabled={!canEdit} value={c.url || ''} onChange={(e) => set({ channels: chs.map((x, j) => j === i ? { ...x, url: e.target.value || null } : x) })} placeholder="https://…" className={inp} />
                 <div className="flex items-center gap-1">
-                  {c.url && safeUrl(c.url) && <a href={safeUrl(c.url)!} target="_blank" rel="noreferrer" className="p-1.5 rounded-lg hover:bg-gray-100 text-[#8a8a8a]"><ExternalLink className="w-3.5 h-3.5" /></a>}
+                  {c.url && safeUrl(c.url) && <a href={safeUrl(c.url)!} target="_blank" rel="noreferrer" className="p-1.5 rounded-lg hover:bg-gray-100 text-[#6b6b6b]"><ExternalLink className="w-3.5 h-3.5" /></a>}
                   {canEdit && <button onClick={() => set({ channels: chs.filter((_, j) => j !== i) })} className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button>}
                 </div>
               </div>
@@ -601,9 +601,9 @@ const PanoramicaTab: React.FC<Props & { account: MktAccount }> = ({ account: acc
         {canEdit && (
           <div className="flex items-center gap-2 pt-1">
             <span className="inline-flex items-center gap-1.5 text-[12px] font-bold">
-              {accSave === 'saving' ? <><Loader2 className="w-3.5 h-3.5 animate-spin text-[#8a8a8a]" /><span className="text-[#8a8a8a]">Salvataggio…</span></>
+              {accSave === 'saving' ? <><Loader2 className="w-3.5 h-3.5 animate-spin text-[#6b6b6b]" /><span className="text-[#6b6b6b]">Salvataggio…</span></>
                 : accSave === 'saved' && !dirty ? <><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /><span className="text-emerald-600">Salvato</span></>
-                : <span className="text-[#b0b0b0]">Salvataggio automatico</span>}
+                : <span className="text-[#8f8f8f]">Salvataggio automatico</span>}
             </span>
             {acc.kind === 'cliente' && onDeleteAccount && (
               <button onClick={() => onDeleteAccount(acc.id)} className="px-3 py-2.5 rounded-xl bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 text-[12.5px] font-bold cursor-pointer">Elimina account</button>
@@ -621,17 +621,17 @@ const PanoramicaTab: React.FC<Props & { account: MktAccount }> = ({ account: acc
           { l: 'Budget mensile', v: d.budgetMonthly ? eur(d.budgetMonthly) : '—' },
         ].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[20px] font-black text-[#161616] mt-1 leading-none">{k.v}</p>
           </div>
         ))}
         {acc.budgetMonthly ? (
           <div className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Budget utilizzato</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Budget utilizzato</p>
             <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden">
               <div className="h-full rounded-full" style={{ width: `${Math.min(100, (monthSpend / acc.budgetMonthly) * 100)}%`, background: monthSpend > acc.budgetMonthly ? '#e11d48' : '#059669' }} />
             </div>
-            <p className="text-[11px] text-[#8a8a8a] font-semibold mt-1.5">{eur(monthSpend)} su {eur(acc.budgetMonthly)}</p>
+            <p className="text-[12px] text-[#6b6b6b] font-semibold mt-1.5">{eur(monthSpend)} su {eur(acc.budgetMonthly)}</p>
           </div>
         ) : null}
       </div>
@@ -651,19 +651,19 @@ const WorkflowTab: React.FC<{ posts: EditorialPost[]; canEdit: boolean; onSave?:
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Ogni contenuto passa 9 fasi (PDF): clicca i pallini per segnare le fasi fatte — lo stato si aggiorna da solo.</p>
+        <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Ogni contenuto passa 9 fasi (PDF): clicca i pallini per segnare le fasi fatte — lo stato si aggiorna da solo.</p>
         <input type="month" value={ym} onChange={(e) => setYm(e.target.value || ymNow())} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white" />
       </div>
       {list.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessun contenuto in {ymLabel(ym)}. Aggiungilo dal Calendario.</p>
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessun contenuto in {ymLabel(ym)}. Aggiungilo dal Calendario.</p>
       ) : (
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[760px]">
             <thead>
               <tr className="border-b border-[#eee] bg-[#f7f6f4]">
-                <th className="px-3 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Contenuto</th>
-                {ED_PHASES.map((ph) => <th key={ph.id} className="px-1 py-2.5 text-[9px] font-extrabold uppercase tracking-wider text-[#9a9a9a] text-center" title={ph.label}>{ph.short}</th>)}
-                <th className="px-3 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] text-right">Stato</th>
+                <th className="px-3 py-2.5 text-[11px] font-extrabold uppercase tracking-wider text-[#767676]">Contenuto</th>
+                {ED_PHASES.map((ph) => <th key={ph.id} className="px-1 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#767676] text-center" title={ph.label}>{ph.short}</th>)}
+                <th className="px-3 py-2.5 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] text-right">Stato</th>
               </tr>
             </thead>
             <tbody>
@@ -673,7 +673,7 @@ const WorkflowTab: React.FC<{ posts: EditorialPost[]; canEdit: boolean; onSave?:
                   <tr key={p.id} className="border-b border-[#f3f3f3] last:border-none">
                     <td className="px-3 py-2.5">
                       <b className="text-[12.5px] text-[#161616] block leading-tight">{p.topic || p.caption || 'Senza titolo'}</b>
-                      <span className="text-[10.5px] text-[#9a9a9a] font-semibold">{dISO(p.dateISO)}{p.platform ? ` · ${p.platform}` : ''}</span>
+                      <span className="text-[11.5px] text-[#767676] font-semibold">{dISO(p.dateISO)}{p.platform ? ` · ${p.platform}` : ''}</span>
                     </td>
                     {ED_PHASES.map((ph) => {
                       const done = !!(p.workflow || {})[ph.id];
@@ -684,7 +684,7 @@ const WorkflowTab: React.FC<{ posts: EditorialPost[]; canEdit: boolean; onSave?:
                       );
                     })}
                     <td className="px-3 py-2.5 text-right">
-                      <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white" style={{ background: st.color }}>{st.label}</span>
+                      <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white" style={{ background: st.color }}>{st.label}</span>
                     </td>
                   </tr>
                 );
@@ -809,19 +809,19 @@ const KpiGrid: React.FC<{
             {[year - 2, year - 1, year, year + 1].filter((y, i, a) => a.indexOf(y) === i).map((y) => <option key={y} value={y}>{y}</option>)}
           </select>
           {canEdit && (
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-bold min-w-[92px] justify-end" title="I KPI si salvano da soli mentre digiti">
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-bold min-w-[92px] justify-end" title="I KPI si salvano da soli mentre digiti">
               {saveState === 'saving' ? (
-                <><Loader2 className="w-3.5 h-3.5 animate-spin text-[#8a8a8a]" /><span className="text-[#8a8a8a]">Salvataggio…</span></>
+                <><Loader2 className="w-3.5 h-3.5 animate-spin text-[#6b6b6b]" /><span className="text-[#6b6b6b]">Salvataggio…</span></>
               ) : saveState === 'saved' ? (
                 <><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /><span className="text-emerald-600">Salvato</span></>
               ) : (
-                <span className="text-[#b0b0b0]">Salvataggio automatico</span>
+                <span className="text-[#8f8f8f]">Salvataggio automatico</span>
               )}
             </span>
           )}
         </div>
       </div>
-      <p className="text-[11.5px] text-[#9a9a9a] font-semibold">
+      <p className="text-[11.5px] text-[#767676] font-semibold">
         {ga4Auto ? (
           <span className="inline-flex items-center gap-1 font-bold text-emerald-700"><CheckCircle2 className="w-3.5 h-3.5" /> Sito web aggiornato da Google Analytics.</span>
         ) : null}{' '}
@@ -834,7 +834,7 @@ const KpiGrid: React.FC<{
       {/* Grafico andamento: "Tutte" (una linea per metrica, indicizzate) o "Singola" (una metrica). */}
       <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
         <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Andamento {year}</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Andamento {year}</p>
           <div className="flex items-center gap-2">
             {chartMode === 'singola' && (
               <select value={chartMetric} onChange={(e) => setChartMetric(e.target.value)} className="px-2.5 py-1.5 rounded-lg border border-[#e2e2e2] text-[11.5px] font-bold outline-none bg-white cursor-pointer">
@@ -843,7 +843,7 @@ const KpiGrid: React.FC<{
             )}
             <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
               {([['tutte', 'Tutte'], ['singola', 'Singola']] as const).map(([m, l]) => (
-                <button key={m} onClick={() => setChartMode(m)} className={`text-[11px] font-bold px-3 py-1 rounded-full cursor-pointer border-none ${chartMode === m ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{l}</button>
+                <button key={m} onClick={() => setChartMode(m)} className={`text-[12px] font-bold px-3 py-1 rounded-full cursor-pointer border-none ${chartMode === m ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{l}</button>
               ))}
             </div>
           </div>
@@ -854,7 +854,7 @@ const KpiGrid: React.FC<{
             {chartVals.map((v, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0">
                 <div className="w-full rounded-t-md transition-all" style={{ height: `${v == null ? 0 : Math.max(3, (v / maxV) * 90)}px`, background: v == null ? '#f0f0f0' : '#161616', opacity: v == null ? 1 : 0.85 }} title={v == null ? '—' : String(v)} />
-                <span className="text-[9px] font-bold text-[#b0b0b0]">{monthShort(months[i])}</span>
+                <span className="text-[10px] font-bold text-[#8f8f8f]">{monthShort(months[i])}</span>
               </div>
             ))}
           </div>
@@ -883,21 +883,21 @@ const KpiGrid: React.FC<{
             </div>
             <div className="flex justify-between mt-1">
               {months.map((ym, i) => (
-                <span key={ym} className={`text-[9px] font-bold ${hoverIdx === i ? 'text-[#161616]' : 'text-[#b0b0b0]'}`}>{monthShort(ym)}</span>
+                <span key={ym} className={`text-[10px] font-bold ${hoverIdx === i ? 'text-[#161616]' : 'text-[#8f8f8f]'}`}>{monthShort(ym)}</span>
               ))}
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3">
               {seriesData.map((s) => {
                 const v = hoverIdx != null ? s.vals[hoverIdx] : s.last;
                 return (
-                  <span key={s.key} className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#666]">
+                  <span key={s.key} className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#666]">
                     <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: s.color }} />
                     {s.label}: <b className="text-[#161616]">{v == null ? '—' : kfmt(v)}</b>
                   </span>
                 );
               })}
             </div>
-            <p className="text-[10.5px] text-[#9a9a9a] mt-2">
+            <p className="text-[11.5px] text-[#767676] mt-2">
               Ogni metrica è rapportata al proprio massimo dell'anno, così le tendenze sono confrontabili.{' '}
               {hoverIdx != null ? `Valori di ${ymLabel(months[hoverIdx])}.` : 'Passa col mouse per i valori mese per mese.'}
             </p>
@@ -910,8 +910,8 @@ const KpiGrid: React.FC<{
         <table className="w-full text-left border-collapse min-w-[760px]">
           <thead>
             <tr className="border-b border-[#eee] bg-[#f7f6f4]">
-              <th className="px-3 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Mese</th>
-              {metrics.map((mt) => <th key={mt.key} className="px-2 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] text-center">{mt.label}</th>)}
+              <th className="px-3 py-2.5 text-[11px] font-extrabold uppercase tracking-wider text-[#767676]">Mese</th>
+              {metrics.map((mt) => <th key={mt.key} className="px-2 py-2.5 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] text-center">{mt.label}</th>)}
             </tr>
           </thead>
           <tbody>
@@ -933,7 +933,7 @@ const KpiGrid: React.FC<{
                         placeholder="—"
                       />
                       {delta != null && delta !== 0 && (
-                        <span className={`block text-[9px] font-extrabold ${delta > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>{delta > 0 ? '+' : ''}{Math.round(delta * 100) / 100}</span>
+                        <span className={`block text-[10px] font-extrabold ${delta > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>{delta > 0 ? '+' : ''}{Math.round(delta * 100) / 100}</span>
                       )}
                     </td>
                   );
@@ -969,7 +969,7 @@ const SpeseTab: React.FC<{
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Piano finanziario marketing: registra sponsorizzate, gadget, eventi… senza perdere di vista il budget. Le spese si contano per mese: quello selezionato qui a fianco. "Registra in Contabilità" crea la fattura passiva in Finanza (Strategico).</p>
+        <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Piano finanziario marketing: registra sponsorizzate, gadget, eventi… senza perdere di vista il budget. Le spese si contano per mese: quello selezionato qui a fianco. "Registra in Contabilità" crea la fattura passiva in Finanza (Strategico).</p>
         <input type="month" value={ym} onChange={(e) => setYm(e.target.value || ymNow())} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white" />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -980,7 +980,7 @@ const SpeseTab: React.FC<{
           { l: `Totale ${ym.slice(0, 4)}`, v: eur(yearTot) },
         ].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[20px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
           </div>
         ))}
@@ -997,27 +997,27 @@ const SpeseTab: React.FC<{
       )}
 
       {monthRows.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna spesa in {ymLabel(ym)}.</p>
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna spesa in {ymLabel(ym)}.</p>
       ) : (
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[560px]">
             <thead>
               <tr className="border-b border-[#eee] bg-[#f7f6f4]">
-                {['Mese', 'Categoria', 'Descrizione', 'Importo', ''].map((h, i) => <th key={i} className={`px-3 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i >= 3 ? 'text-right' : ''}`}>{h}</th>)}
+                {['Mese', 'Categoria', 'Descrizione', 'Importo', ''].map((h, i) => <th key={i} className={`px-3 py-2.5 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] ${i >= 3 ? 'text-right' : ''}`}>{h}</th>)}
               </tr>
             </thead>
             <tbody>
               {monthRows.map((e) => (
                 <tr key={e.id} className="border-b border-[#f3f3f3] last:border-none">
                   <td className="px-3 py-2.5 text-[12px] font-semibold text-[#555] capitalize">{ymShort((e.date || '').slice(0, 7))}</td>
-                  <td className="px-3 py-2.5"><span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{EXP_CATEGORIES.find((c) => c.id === e.category)?.label || e.category}</span></td>
+                  <td className="px-3 py-2.5"><span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{EXP_CATEGORIES.find((c) => c.id === e.category)?.label || e.category}</span></td>
                   <td className="px-3 py-2.5 text-[12.5px] text-[#161616]">{e.description || '—'}</td>
                   <td className="px-3 py-2.5 text-right text-[13px] font-extrabold text-[#161616]">{eur(e.amount)}</td>
                   <td className="px-3 py-2.5 text-right whitespace-nowrap">
                     {e.invoiceId ? (
-                      <span className="text-[10px] font-bold text-emerald-600 inline-flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> in Contabilità</span>
+                      <span className="text-[11px] font-bold text-emerald-600 inline-flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> in Contabilità</span>
                     ) : canEdit && onRegister ? (
-                      <button onClick={() => onRegister(e)} className="text-[11px] font-bold text-[#161616] underline decoration-dotted cursor-pointer bg-transparent border-none p-0">Registra in Contabilità</button>
+                      <button onClick={() => onRegister(e)} className="text-[12px] font-bold text-[#161616] underline decoration-dotted cursor-pointer bg-transparent border-none p-0">Registra in Contabilità</button>
                     ) : null}
                     {canEdit && onDelete && <button onClick={() => onDelete(e.id)} className="ml-2 p-1 rounded hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none align-middle"><Trash2 className="w-3.5 h-3.5" /></button>}
                   </td>
@@ -1066,7 +1066,7 @@ const ReportTab: React.FC<{
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2 flex-wrap no-print">
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Report in stile riunione, settimanale o mensile: performance, programmazione, spese, conclusioni. "Stampa" genera il PDF.</p>
+        <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Report in stile riunione, settimanale o mensile: performance, programmazione, spese, conclusioni. "Stampa" genera il PDF.</p>
         <div className="flex items-center gap-2 flex-wrap">
           <PeriodSelect value={period} onChange={setPeriod} />
           <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Printer className="w-4 h-4" /> Stampa / PDF</button>
@@ -1075,15 +1075,15 @@ const ReportTab: React.FC<{
 
       <div className="print-area bg-white border border-[#e2e2e2] rounded-[22px] p-6 flex flex-col gap-5">
         <div>
-          <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: '#b45309' }}>Strategico · Report marketing {period.mode === 'settimana' ? 'settimanale' : 'mensile'}</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider" style={{ color: '#b45309' }}>Strategico · Report marketing {period.mode === 'settimana' ? 'settimanale' : 'mensile'}</p>
           <h3 className="text-[22px] font-black text-[#161616] capitalize">{acc.name} — {periodTitle(period)}</h3>
         </div>
 
         {/* 1. Performance — i KPI sono mensili: anche nel settimanale si guarda il mese di riferimento. */}
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">1 · Analisi performance digital <span className="normal-case tracking-normal font-bold text-[#c0c0c0]">— dati del mese di {ymLabel(ym)}</span></p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">1 · Analisi performance digital <span className="normal-case tracking-normal font-bold text-[#9a9a9a]">— dati del mese di {ymLabel(ym)}</span></p>
           {perfRows.length === 0 ? (
-            <p className="text-[12.5px] text-[#9a9a9a]">Nessun dato KPI inserito per {ymLabel(ym)} (tab KPI).{(() => { const other = kpi.filter((k) => k.accountId === acc.id && k.ym !== ym).map((k) => k.ym).sort().pop(); return other ? <> Ultimi KPI inseriti: <b className="text-[#161616]">{ymLabel(other)}</b> — scegli quel mese nel selettore del periodo.</> : null; })()}</p>
+            <p className="text-[12.5px] text-[#767676]">Nessun dato KPI inserito per {ymLabel(ym)} (tab KPI).{(() => { const other = kpi.filter((k) => k.accountId === acc.id && k.ym !== ym).map((k) => k.ym).sort().pop(); return other ? <> Ultimi KPI inseriti: <b className="text-[#161616]">{ymLabel(other)}</b> — scegli quel mese nel selettore del periodo.</> : null; })()}</p>
           ) : perfRows.map((r) => (
             <div key={r.platform} className="mb-2.5">
               <b className="text-[13px] text-[#161616]">{r.platform}</b>
@@ -1101,8 +1101,8 @@ const ReportTab: React.FC<{
 
         {/* 2. Programmazione */}
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">2 · Programmazione {periodTitle(period)}</p>
-          {periodPosts.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Nessun contenuto in calendario.</p> : (
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">2 · Programmazione {periodTitle(period)}</p>
+          {periodPosts.length === 0 ? <p className="text-[12.5px] text-[#767676]">Nessun contenuto in calendario.</p> : (
             <div className="flex flex-col gap-1">
               {periodPosts.map((p) => {
                 const st = ED_STATUS.find((s) => s.id === p.status) || ED_STATUS[0];
@@ -1111,8 +1111,8 @@ const ReportTab: React.FC<{
                     <span className="w-2 h-2 rounded-full shrink-0" style={{ background: st.color }} />
                     <span className="font-bold text-[#161616] w-[52px] shrink-0">{dISO(p.dateISO)}</span>
                     <span className="text-[#555] truncate">{p.topic || p.caption || 'Contenuto'}</span>
-                    {p.platform && <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 shrink-0">{p.platform}</span>}
-                    {(p.media?.length || 0) > 1 && <span className="text-[10px] text-[#9a9a9a] shrink-0">carosello ×{p.media!.length}</span>}
+                    {p.platform && <span className="text-[11px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 shrink-0">{p.platform}</span>}
+                    {(p.media?.length || 0) > 1 && <span className="text-[11px] text-[#767676] shrink-0">carosello ×{p.media!.length}</span>}
                   </div>
                 );
               })}
@@ -1122,8 +1122,8 @@ const ReportTab: React.FC<{
 
         {/* 3. Spese */}
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">3 · Spese marketing di {ymLabel(ym)}</p>
-          {monthExp.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Nessuna spesa registrata.</p> : (
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">3 · Spese marketing di {ymLabel(ym)}</p>
+          {monthExp.length === 0 ? <p className="text-[12.5px] text-[#767676]">Nessuna spesa registrata.</p> : (
             <div className="flex flex-col gap-0.5">
               {monthExp.map((e) => (
                 <p key={e.id} className="text-[12.5px] text-[#555]">· {EXP_CATEGORIES.find((c) => c.id === e.category)?.label}{e.description ? ` — ${e.description}` : ''}: <b className="text-[#161616]">{eur(e.amount)}</b></p>
@@ -1135,7 +1135,7 @@ const ReportTab: React.FC<{
 
         {/* 4. Conclusioni */}
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">4 · Conclusioni</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">4 · Conclusioni</p>
           <textarea
             disabled={!canEdit}
             value={conclusions}
@@ -1180,12 +1180,12 @@ const MeetingReport: React.FC<{
 
         <div className="print-area flex flex-col gap-5">
           <div>
-            <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: '#b45309' }}>Strategico · Riunione marketing {period.mode === 'settimana' ? 'settimanale' : 'mensile'}</p>
+            <p className="text-[12px] font-extrabold uppercase tracking-wider" style={{ color: '#b45309' }}>Strategico · Riunione marketing {period.mode === 'settimana' ? 'settimanale' : 'mensile'}</p>
             <h3 className="text-[22px] font-black text-[#161616] capitalize">{periodTitle(period)}</h3>
           </div>
 
           <div>
-            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">1 · Stato account</p>
+            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">1 · Stato account</p>
             <div className="flex flex-col gap-1">
               {accounts.filter((a) => a.active !== false).map((a) => {
                 const h = healthOf(a, posts);
@@ -1202,18 +1202,18 @@ const MeetingReport: React.FC<{
           </div>
 
           <div>
-            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">2 · Spese marketing di {ymLabel(ym)}</p>
+            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">2 · Spese marketing di {ymLabel(ym)}</p>
             <p className="text-[13px] font-extrabold text-[#161616]">{eur(monthExpTot)}</p>
           </div>
 
           <div>
-            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">3 · Preventivi Strategico</p>
+            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">3 · Preventivi Strategico</p>
             <p className="text-[12.5px] text-[#555] mb-1"><b className="text-[#161616]">Inviati / in attesa:</b> {sent.length === 0 ? 'nessuno' : sent.map((q: any) => `${q.clientName || 'Cliente'} (${eur(q.total || 0)})`).join(' · ')}</p>
             <p className="text-[12.5px] text-[#555]"><b className="text-[#161616]">Da inviare:</b> {toSend.length === 0 ? 'nessuno' : toSend.map((q: any) => `${q.clientName || 'Cliente'} (${eur(q.total || 0)})`).join(' · ')}</p>
           </div>
 
           <div>
-            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">4 · Conclusioni</p>
+            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">4 · Conclusioni</p>
             <textarea
               disabled={!canEdit}
               value={conclusions}
@@ -1251,16 +1251,16 @@ const ExtrasTab: React.FC<{
         </div>
       )}
       {list.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessun elemento.</p>
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessun elemento.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {list.map((i) => (
             <div key={i.id} onClick={() => setEditing(i)} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm cursor-pointer hover:border-[#cfcfcf] flex flex-col gap-1.5">
               <div className="flex items-start justify-between gap-2">
                 <b className="text-[14px] text-[#161616]">{i.title || 'Senza titolo'}</b>
-                <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 shrink-0">{i.kind === 'gadget' ? 'Gadget' : i.kind === 'evento' ? 'Evento' : 'Blog'}</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 shrink-0">{i.kind === 'gadget' ? 'Gadget' : i.kind === 'evento' ? 'Evento' : 'Blog'}</span>
               </div>
-              <p className="text-[11.5px] text-[#8a8a8a]">{[dISO(i.date), i.cost != null ? eur(i.cost) : null].filter(Boolean).join(' · ') || '—'}</p>
+              <p className="text-[11.5px] text-[#6b6b6b]">{[dISO(i.date), i.cost != null ? eur(i.cost) : null].filter(Boolean).join(' · ') || '—'}</p>
               {(i.notes || i.content) && <p className="text-[12px] text-[#555] line-clamp-2">{i.notes || i.content}</p>}
               {i.link && safeUrl(i.link) && <a href={safeUrl(i.link)!} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-[11.5px] text-indigo-600 hover:underline inline-flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Apri</a>}
             </div>
@@ -1421,9 +1421,9 @@ const AltroTab: React.FC<AltroProps> = (props) => {
           { t: 'Minute riunioni', d: 'Sintesi AI delle riunioni, archiviate per account.' },
         ].map((x) => (
           <div key={x.t} className="bg-white border border-dashed border-[#d8d8d4] rounded-[20px] p-4">
-            <b className="text-[13.5px] text-[#8a8a8a]">{x.t}</b>
+            <b className="text-[13.5px] text-[#6b6b6b]">{x.t}</b>
             <p className="text-[11.5px] text-[#a8a8a8] mt-1">{x.d}</p>
-            <span className="inline-block mt-2 text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#f0f0ee] text-[#9a9a9a]">In preparazione</span>
+            <span className="inline-block mt-2 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#f0f0ee] text-[#767676]">In preparazione</span>
           </div>
         ))}
       </div>
@@ -1433,7 +1433,7 @@ const AltroTab: React.FC<AltroProps> = (props) => {
 
 /** Riquadro comune con avviso destinatari + storico invii. */
 const AudienceNote: React.FC<{ acc: MktAccount; count: number; withEmail?: number }> = ({ acc, count, withEmail }) => (
-  <div className="text-[11.5px] text-[#8a8a8a] bg-[#f7f7f5] border border-[#eee] rounded-xl px-3 py-2">
+  <div className="text-[11.5px] text-[#6b6b6b] bg-[#f7f7f5] border border-[#eee] rounded-xl px-3 py-2">
     {acc.kind === 'societa' ? (
       <><b className="text-[#161616]">{count}</b> contatti con consenso {typeof withEmail === 'number' ? <>· <b className="text-[#161616]">{withEmail}</b> con email</> : null} appartenenti a <b>{acc.name}</b>.</>
     ) : (
@@ -1448,7 +1448,7 @@ const OutreachHistory: React.FC<{ items: MktOutreach[]; onDelete?: (id: string) 
       {items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 12).map((o) => (
         <div key={o.id} className="flex items-center justify-between gap-2 text-[12px] px-3 py-1.5 rounded-lg bg-white border border-[#eee]">
           <span className="truncate"><CheckCircle2 className="w-3.5 h-3.5 inline text-emerald-600 mr-1.5" />{o.title}</span>
-          <span className="flex items-center gap-2 shrink-0 text-[#9a9a9a]">
+          <span className="flex items-center gap-2 shrink-0 text-[#767676]">
             {o.recipients ? `${Object.keys(o.recipients).length} dest.` : ''} · {new Date(o.createdAt).toLocaleDateString('it-IT')}
             {onDelete && <button onClick={() => onDelete(o.id)} className="text-rose-500 hover:text-rose-700 cursor-pointer bg-transparent border-none p-0"><Trash2 className="w-3.5 h-3.5" /></button>}
           </span>
@@ -1485,7 +1485,7 @@ const NewsletterTool: React.FC<ToolProps> = ({ acc, canEdit, audience, history, 
         <a href={canSend ? mailtoBcc(emails, subject, body) : undefined} onClick={() => canSend && logSent()} className={`${linkBtnCls} ${canSend ? '' : 'opacity-40 pointer-events-none'}`}><Send className="w-4 h-4" /> Apri email ({emails.length} in ccn)</a>
         <button onClick={() => { navigator.clipboard?.writeText(body); }} disabled={!body.trim()} className={softBtnCls + ' disabled:opacity-40'}><Copy className="w-4 h-4" /> Copia testo</button>
       </div>
-      <p className="text-[10.5px] text-[#a8a8a8]">I destinatari vanno in <b>copia nascosta (ccn)</b>. Quando l'invio email automatico sarà attivo, questa lista verrà usata dal backend.</p>
+      <p className="text-[11.5px] text-[#a8a8a8]">I destinatari vanno in <b>copia nascosta (ccn)</b>. Quando l'invio email automatico sarà attivo, questa lista verrà usata dal backend.</p>
       <OutreachHistory items={history.filter((o) => o.kind === 'newsletter')} onDelete={onDelete} />
     </div>
   );
@@ -1602,13 +1602,13 @@ const FotoCantieriTool: React.FC<{ acc: MktAccount; canEdit: boolean; photos: Mk
     setDone((d) => ({ ...d, [ph.id]: true }));
   };
   if (acc.kind !== 'societa') return (
-    <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-6 text-center text-[12.5px] text-[#8a8a8a]">Le foto cantiere sono disponibili solo per gli account delle società del gruppo (Onirico/Materico/Unico).</div>
+    <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-6 text-center text-[12.5px] text-[#6b6b6b]">Le foto cantiere sono disponibili solo per gli account delle società del gruppo (Onirico/Materico/Unico).</div>
   );
   return (
     <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-4 flex flex-col gap-3">
       <h4 className="text-[14px] font-extrabold text-[#161616] inline-flex items-center gap-2"><Camera className="w-4 h-4" /> Foto cantieri · {acc.name}</h4>
       {mine.length === 0 ? (
-        <p className="text-[12.5px] text-[#8a8a8a] py-6 text-center">Nessuna foto dai cantieri di {acc.name}. Le foto caricate nel modulo Cantiere compaiono qui.</p>
+        <p className="text-[12.5px] text-[#6b6b6b] py-6 text-center">Nessuna foto dai cantieri di {acc.name}. Le foto caricate nel modulo Cantiere compaiono qui.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {mine.sort((a, b) => (b.takenAt || 0) - (a.takenAt || 0)).slice(0, 60).map((ph) => (
@@ -1617,10 +1617,10 @@ const FotoCantieriTool: React.FC<{ acc: MktAccount; canEdit: boolean; photos: Mk
                 <img src={safeUrl(ph.url) || ''} alt={ph.cantiereName || 'Foto cantiere'} className="w-full h-full object-cover" loading="lazy" />
               </div>
               <div className="p-2 flex flex-col gap-1.5">
-                <span className="text-[10.5px] font-bold text-[#161616] truncate">{ph.cantiereName}</span>
-                <span className="text-[9.5px] text-[#9a9a9a]">{ph.takenAt ? new Date(ph.takenAt).toLocaleDateString('it-IT') : ''}</span>
+                <span className="text-[11.5px] font-bold text-[#161616] truncate">{ph.cantiereName}</span>
+                <span className="text-[10.5px] text-[#767676]">{ph.takenAt ? new Date(ph.takenAt).toLocaleDateString('it-IT') : ''}</span>
                 {canEdit && onSavePost && (
-                  <button onClick={() => useInCalendar(ph)} disabled={done[ph.id]} className="text-[10.5px] font-bold px-2 py-1 rounded-lg bg-[#161616] text-white cursor-pointer border-none disabled:opacity-40 inline-flex items-center justify-center gap-1">
+                  <button onClick={() => useInCalendar(ph)} disabled={done[ph.id]} className="text-[11.5px] font-bold px-2 py-1 rounded-lg bg-[#161616] text-white cursor-pointer border-none disabled:opacity-40 inline-flex items-center justify-center gap-1">
                     {done[ph.id] ? <><CheckCircle2 className="w-3 h-3" /> Aggiunta</> : <><Plus className="w-3 h-3" /> Nel calendario</>}
                   </button>
                 )}

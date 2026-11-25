@@ -46,7 +46,7 @@ export const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({ request,
           </div>
           <div className="min-w-0">
             <h4 className="text-[15.5px] font-extrabold text-[#161616] leading-snug">{request.title}</h4>
-            <p className="text-[12.5px] text-[#8a8a8a] font-medium mt-1.5 leading-relaxed">
+            <p className="text-[12.5px] text-[#6b6b6b] font-medium mt-1.5 leading-relaxed">
               {request.message
                 || (request.permanent
                   ? 'L\'elemento verrà eliminato definitivamente. Questa azione non è reversibile.'

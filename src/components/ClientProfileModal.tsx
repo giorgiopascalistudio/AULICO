@@ -116,22 +116,22 @@ export const ClientProfileModal: React.FC<{
             </div>
             <div className="min-w-0">
               <b className="block text-[15px] text-[#161616] truncate">{profile.name}</b>
-              <span className="block text-[12.5px] text-[#8a8a8a] truncate">{profile.email}</span>
+              <span className="block text-[12.5px] text-[#6b6b6b] truncate">{profile.email}</span>
             </div>
           </div>
 
           {/* Contatti: telefono + residenza */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] inline-flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Telefono</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b] inline-flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Telefono</span>
             <input value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="+39…" className="border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] outline-none focus:border-[#161616]" />
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] inline-flex items-center gap-1.5 mt-2"><MapPin className="w-3.5 h-3.5" /> Residenza</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b] inline-flex items-center gap-1.5 mt-2"><MapPin className="w-3.5 h-3.5" /> Residenza</span>
             <input value={residenza} onChange={(e) => setResidenza(e.target.value)} placeholder="Via, civico, città" className="border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] outline-none focus:border-[#161616]" />
             <button onClick={saveInfo} disabled={savingInfo} className="self-start mt-1 text-[12px] font-bold px-3 py-1.5 rounded-lg bg-[#1b1b1b] text-white border-none cursor-pointer disabled:opacity-50">{savingInfo ? 'Salvo…' : 'Salva'}</button>
           </div>
 
           {/* Password */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] inline-flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Password</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b] inline-flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Password</span>
             {hasPassword ? (
               <>
                 <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Nuova password" className="border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] outline-none focus:border-[#161616]" />
@@ -139,21 +139,21 @@ export const ClientProfileModal: React.FC<{
                 <button onClick={savePassword} disabled={savingPass} className="self-start mt-1 text-[12px] font-bold px-3 py-1.5 rounded-lg bg-[#1b1b1b] text-white border-none cursor-pointer disabled:opacity-50">{savingPass ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Cambia password'}</button>
               </>
             ) : (
-              <p className="text-[12.5px] text-[#8a8a8a]">Accedi con Google: la password è gestita dal tuo account Google.</p>
+              <p className="text-[12.5px] text-[#6b6b6b]">Accedi con Google: la password è gestita dal tuo account Google.</p>
             )}
           </div>
 
           {/* Consensi */}
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] inline-flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Consensi</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b] inline-flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Consensi</span>
             <div className="text-[12.5px] text-[#555] inline-flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-600" /> Privacy accettata{profile.privacyAcceptedAt ? ` il ${new Date(profile.privacyAcceptedAt).toLocaleDateString('it-IT')}` : ''}.</div>
             <NewsletterButton uid={profile.uid} name={profile.name} email={profile.email} variant="inline" />
           </div>
 
           {/* Elimina account */}
           <div className="border-t border-[#f0f0f0] pt-4">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-red-500 inline-flex items-center gap-1.5"><Trash2 className="w-3.5 h-3.5" /> Elimina account</span>
-            <p className="text-[12px] text-[#8a8a8a] mt-1.5">Invii allo studio la richiesta di cancellazione del tuo account e dei tuoi dati. Verrai disconnesso.</p>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-red-500 inline-flex items-center gap-1.5"><Trash2 className="w-3.5 h-3.5" /> Elimina account</span>
+            <p className="text-[12px] text-[#6b6b6b] mt-1.5">Invii allo studio la richiesta di cancellazione del tuo account e dei tuoi dati. Verrai disconnesso.</p>
             {!delArmed ? (
               <button onClick={() => setDelArmed(true)} className="mt-2 text-[12.5px] font-bold px-3 py-2 rounded-xl border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 cursor-pointer">Richiedi eliminazione</button>
             ) : (

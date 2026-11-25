@@ -78,7 +78,7 @@ export const SopralluoghiView: React.FC<Props> = (p) => {
           <div className="w-10 h-10 rounded-2xl bg-[#f5f5f3] flex items-center justify-center text-[#161616]"><MapPinned className="w-5 h-5" /></div>
           <div>
             <h2 className="text-[20px] font-black text-[#161616] leading-tight">Sopralluoghi & Rilievi</h2>
-            <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Dal cliente al preventivo: sopralluogo in agenda, stima del rilievo, preventivo da firmare. Firmato = commessa con le attività.</p>
+            <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Dal cliente al preventivo: sopralluogo in agenda, stima del rilievo, preventivo da firmare. Firmato = commessa con le attività.</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -91,7 +91,7 @@ export const SopralluoghiView: React.FC<Props> = (p) => {
         {kpis.map((k, i) => (
           <motion.div key={k.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="bg-white border border-[#e2e2e2] rounded-[22px] px-4 py-3">
             <div className="text-[20px] font-black text-[#161616]">{k.value}</div>
-            <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">{k.label}</div>
+            <div className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">{k.label}</div>
           </motion.div>
         ))}
       </div>
@@ -107,7 +107,7 @@ export const SopralluoghiView: React.FC<Props> = (p) => {
       {shown.length === 0 ? (
         <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-10 text-center">
           <p className="text-[14px] font-bold text-[#161616]">Nessun sopralluogo{filter !== 'tutti' ? ' in questo stato' : ''}.</p>
-          <p className="text-[12.5px] text-[#9a9a9a] mt-1">Creane uno quando fissi un appuntamento con un cliente: finirà anche nell'agenda del tecnico.</p>
+          <p className="text-[12.5px] text-[#767676] mt-1">Creane uno quando fissi un appuntamento con un cliente: finirà anche nell'agenda del tecnico.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -119,9 +119,9 @@ export const SopralluoghiView: React.FC<Props> = (p) => {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-[15px] font-black text-[#161616] truncate">{s.clientName || 'Cliente da definire'}</p>
-                    <p className="text-[12px] text-[#8a8a8a] font-semibold truncate">{s.address || 'Indirizzo da definire'}{s.tipologia ? ` · ${s.tipologia}` : ''}</p>
+                    <p className="text-[12px] text-[#6b6b6b] font-semibold truncate">{s.address || 'Indirizzo da definire'}{s.tipologia ? ` · ${s.tipologia}` : ''}</p>
                   </div>
-                  <span className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-extrabold ${STATO_TONE[st]}`}>{st === 'perso' ? 'Perso' : STATI_SOPR.find((x) => x.id === st)?.label}</span>
+                  <span className={`shrink-0 px-2.5 py-1 rounded-full text-[12px] font-extrabold ${STATO_TONE[st]}`}>{st === 'perso' ? 'Perso' : STATI_SOPR.find((x) => x.id === st)?.label}</span>
                 </div>
                 <Stepper st={st} />
                 <div className="flex items-center gap-3 flex-wrap text-[12px] text-[#555] font-semibold mt-2">
@@ -165,12 +165,12 @@ const Stepper: React.FC<{ st: SopralluogoStato }> = ({ st }) => {
 
 const Sec: React.FC<{ n: number; title: string; children: React.ReactNode }> = ({ n, title, children }) => (
   <div className="flex flex-col gap-2.5">
-    <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]"><span className="text-[#161616]">{n}</span> · {title}</p>
+    <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]"><span className="text-[#161616]">{n}</span> · {title}</p>
     {children}
   </div>
 );
 const F: React.FC<{ label: string; children: React.ReactNode; className?: string }> = ({ label, children, className }) => (
-  <label className={`flex flex-col gap-1 ${className || ''}`}><span className="text-[11px] font-bold text-[#8a8a8a]">{label}</span>{children}</label>
+  <label className={`flex flex-col gap-1 ${className || ''}`}><span className="text-[12px] font-bold text-[#6b6b6b]">{label}</span>{children}</label>
 );
 
 const Editor: React.FC<Props & { initial: Sopralluogo; isNew: boolean; onClose: () => void }> = (p) => {
@@ -199,9 +199,9 @@ const Editor: React.FC<Props & { initial: Sopralluogo; isNew: boolean; onClose: 
       footer={
         <div className="flex items-center justify-between gap-2 w-full flex-wrap">
           <div className="flex gap-2">
-            {!p.isNew && p.canEdit && <button onClick={() => { p.onDelete(d.id); p.onClose(); }} className={`${BTN} bg-transparent text-[#9a9a9a] hover:text-rose-600`}><Trash2 className="w-4 h-4" /> Elimina</button>}
+            {!p.isNew && p.canEdit && <button onClick={() => { p.onDelete(d.id); p.onClose(); }} className={`${BTN} bg-transparent text-[#767676] hover:text-rose-600`}><Trash2 className="w-4 h-4" /> Elimina</button>}
             {!p.isNew && p.canEdit && !d.projectId && (
-              <button onClick={() => { save({ stato: d.stato === 'perso' ? 'programmato' : 'perso' }); p.onClose(); }} className={`${BTN} bg-transparent text-[#9a9a9a] hover:text-[#161616]`}>{d.stato === 'perso' ? 'Riapri' : 'Segna come perso'}</button>
+              <button onClick={() => { save({ stato: d.stato === 'perso' ? 'programmato' : 'perso' }); p.onClose(); }} className={`${BTN} bg-transparent text-[#767676] hover:text-[#161616]`}>{d.stato === 'perso' ? 'Riapri' : 'Segna come perso'}</button>
             )}
           </div>
           <div className="flex gap-2 flex-wrap">
@@ -223,7 +223,7 @@ const Editor: React.FC<Props & { initial: Sopralluogo; isNew: boolean; onClose: 
             <F label="Telefono"><input className={IN} value={d.phone || ''} onChange={(e) => set({ phone: e.target.value || null })} inputMode="tel" /></F>
             <F label="Email"><input className={IN} value={d.email || ''} onChange={(e) => set({ email: e.target.value || null })} inputMode="email" /></F>
           </div>
-          {!d.clientRecordId && d.clientName.trim() && <p className="text-[11.5px] text-[#9a9a9a] font-semibold">Al salvataggio il cliente viene aggiunto alla rubrica (se hai il permesso sul Commerciale).</p>}
+          {!d.clientRecordId && d.clientName.trim() && <p className="text-[11.5px] text-[#767676] font-semibold">Al salvataggio il cliente viene aggiunto alla rubrica (se hai il permesso sul Commerciale).</p>}
           {d.phone && <a href={`tel:${d.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-1 text-[12px] font-bold text-[#161616] w-fit"><Phone className="w-3.5 h-3.5" /> Chiama</a>}
         </Sec>
 
@@ -242,7 +242,7 @@ const Editor: React.FC<Props & { initial: Sopralluogo; isNew: boolean; onClose: 
           </div>
           <F label="Cosa chiede il cliente"><textarea className={IN} rows={2} value={d.esigenze || ''} onChange={(e) => set({ esigenze: e.target.value || null })} placeholder="Es. rilievo per pratica di ristrutturazione, vuole anche il 3D per vendere…" /></F>
           <div className="flex items-center gap-3 flex-wrap">
-            {d.tecnicoUid && d.date && <p className="text-[11.5px] text-[#9a9a9a] font-semibold">Finisce nell'agenda di {p.team.find((t) => t.uid === d.tecnicoUid)?.name || 'tecnico'}.</p>}
+            {d.tecnicoUid && d.date && <p className="text-[11.5px] text-[#767676] font-semibold">Finisce nell'agenda di {p.team.find((t) => t.uid === d.tecnicoUid)?.name || 'tecnico'}.</p>}
             {d.link && safeUrl(d.link) && <a href={safeUrl(d.link) || '#'} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[12px] font-bold text-[#161616]"><ExternalLink className="w-3.5 h-3.5" /> Apri foto</a>}
             {p.canEdit && st === 'programmato' && !p.isNew && (
               <button type="button" onClick={() => set({ stato: 'svolto' })} className={`${BTN} bg-sky-50 text-sky-700 hover:bg-sky-100`}><Check className="w-4 h-4" /> Segna come svolto</button>
@@ -280,7 +280,7 @@ const Editor: React.FC<Props & { initial: Sopralluogo; isNew: boolean; onClose: 
                   className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left cursor-pointer ${on ? 'border-[#161616] bg-[#fafaf9]' : 'border-[#e2e2e2] bg-white'}`}>
                   <span className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${on ? 'bg-[#161616] border-[#161616] text-white' : 'border-[#d0d0d0]'}`}>{on && <Check className="w-3.5 h-3.5" />}</span>
                   <span className="text-[12.5px] font-bold text-[#161616] flex-1">{sv.label}</span>
-                  <span className="text-[11px] font-semibold text-[#9a9a9a]">{sv.unit === 'mq' ? `${sv.price} €/mq` : eur(sv.price)}</span>
+                  <span className="text-[12px] font-semibold text-[#767676]">{sv.unit === 'mq' ? `${sv.price} €/mq` : eur(sv.price)}</span>
                 </motion.button>
               );
             })}
@@ -290,7 +290,7 @@ const Editor: React.FC<Props & { initial: Sopralluogo; isNew: boolean; onClose: 
               <div key={e.id} className="flex gap-2">
                 <input className={IN} value={e.desc} placeholder="Altra voce (es. sopralluogo aggiuntivo)" onChange={(ev) => set({ extra: (d.extra || []).map((x, j) => j === i ? { ...x, desc: ev.target.value } : x) })} />
                 <input type="number" className={`${IN} w-32!`} value={e.amount || ''} placeholder="€" onChange={(ev) => set({ extra: (d.extra || []).map((x, j) => j === i ? { ...x, amount: Number(ev.target.value) } : x) })} />
-                <button type="button" onClick={() => set({ extra: (d.extra || []).filter((_, j) => j !== i) })} className="px-2 text-[#9a9a9a] hover:text-rose-600 bg-transparent border-none cursor-pointer"><Trash2 className="w-4 h-4" /></button>
+                <button type="button" onClick={() => set({ extra: (d.extra || []).filter((_, j) => j !== i) })} className="px-2 text-[#767676] hover:text-rose-600 bg-transparent border-none cursor-pointer"><Trash2 className="w-4 h-4" /></button>
               </div>
             ))}
             <button type="button" onClick={() => set({ extra: [...(d.extra || []), { id: `x-${Date.now().toString(36)}`, desc: '', amount: 0 }] })} className="text-[12px] font-bold text-[#161616] bg-transparent border-none cursor-pointer w-fit inline-flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> Altra voce a corpo</button>
@@ -299,19 +299,19 @@ const Editor: React.FC<Props & { initial: Sopralluogo; isNew: boolean; onClose: 
 
         <Sec n={4} title="Stima e preventivo">
           <div className="bg-[#fafaf9] border border-[#efefef] rounded-[18px] p-4 flex flex-col gap-1.5">
-            {righe.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Scegli un pacchetto o spunta i servizi: la stima si calcola da sola.</p> : (
+            {righe.length === 0 ? <p className="text-[12.5px] text-[#767676]">Scegli un pacchetto o spunta i servizi: la stima si calcola da sola.</p> : (
               <AnimatePresence initial={false}>
                 {righe.map((r) => (
                   <motion.div key={r.id} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="flex items-baseline gap-2 text-[12.5px]">
                     <span className="font-bold text-[#161616]">{r.label}</span>
-                    <span className="text-[#9a9a9a] text-[11px]">{r.detail}</span>
+                    <span className="text-[#767676] text-[12px]">{r.detail}</span>
                     <span className="ml-auto font-bold text-[#161616]">{eur(r.amount)}</span>
                   </motion.div>
                 ))}
               </AnimatePresence>
             )}
             <div className="flex items-baseline justify-between border-t border-[#e9e9e7] pt-2 mt-1">
-              <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Totale (IVA e cassa escluse)</span>
+              <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Totale (IVA e cassa escluse)</span>
               <motion.span key={tot} initial={{ scale: 1.15 }} animate={{ scale: 1 }} className="text-[20px] font-black text-[#161616]">{eur(tot)}</motion.span>
             </div>
           </div>
@@ -319,7 +319,7 @@ const Editor: React.FC<Props & { initial: Sopralluogo; isNew: boolean; onClose: 
             <div className="flex items-center gap-3 flex-wrap">
               <span className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-[#161616]"><FileText className="w-4 h-4" /> {q.number} · {eur(q.total)} · {q.signedAt ? 'firmato' : q.status}</span>
               {d.projectId && <a href={`#progetto/${d.projectId}`} className="text-[12.5px] font-bold text-[#161616] underline">Apri la commessa</a>}
-              <p className="text-[11.5px] text-[#9a9a9a] font-semibold w-full">Il preventivo si gestisce (documento, firma OTP, invio al portale) in Strategico → Commerciale → Centro Commerciale. Quando viene accettato nasce la commessa con le attività del rilievo.</p>
+              <p className="text-[11.5px] text-[#767676] font-semibold w-full">Il preventivo si gestisce (documento, firma OTP, invio al portale) in Strategico → Commerciale → Centro Commerciale. Quando viene accettato nasce la commessa con le attività del rilievo.</p>
             </div>
           ) : p.canEdit && (
             p.canQuote ? (
@@ -349,11 +349,11 @@ const TariffeEditor: React.FC<{ tariffe: RilievoTariffe; onClose: () => void; on
           {(['base', 'medio', 'alto'] as Dettaglio[]).map((k) => (
             <F key={k} label={`Dettaglio ${k} (×)`}><input type="number" step="0.05" className={`${IN} w-28!`} value={t.dettaglio[k]} onChange={(e) => setT((x) => ({ ...x, dettaglio: { ...x.dettaglio, [k]: Number(e.target.value) || 1 } }))} /></F>
           ))}
-          <p className="text-[11.5px] text-[#9a9a9a] font-semibold">Il moltiplicatore vale per le voci a mq.</p>
+          <p className="text-[11.5px] text-[#767676] font-semibold">Il moltiplicatore vale per le voci a mq.</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-[12.5px] min-w-[720px]">
-            <thead><tr className="text-left text-[11px] uppercase tracking-wider text-[#9a9a9a]"><th className="py-1">Servizio</th><th>Unità</th><th>Prezzo €</th><th>Minimo €</th><th>Attività generate (separate da ;)</th><th /></tr></thead>
+            <thead><tr className="text-left text-[12px] uppercase tracking-wider text-[#767676]"><th className="py-1">Servizio</th><th>Unità</th><th>Prezzo €</th><th>Minimo €</th><th>Attività generate (separate da ;)</th><th /></tr></thead>
             <tbody>
               {t.servizi.map((s, i) => (
                 <tr key={s.id}>
@@ -362,7 +362,7 @@ const TariffeEditor: React.FC<{ tariffe: RilievoTariffe; onClose: () => void; on
                   <td className="pr-2"><input type="number" className={`${IN} w-24!`} value={s.price} onChange={(e) => upd(i, { price: Number(e.target.value) })} /></td>
                   <td className="pr-2"><input type="number" className={`${IN} w-24!`} value={s.min ?? ''} disabled={s.unit !== 'mq'} onChange={(e) => upd(i, { min: Number(e.target.value) || 0 })} /></td>
                   <td className="pr-2"><input className={IN} value={s.tasks.join('; ')} onChange={(e) => upd(i, { tasks: e.target.value.split(';').map((x) => x.trim()).filter(Boolean) })} /></td>
-                  <td><button onClick={() => setT((x) => ({ ...x, servizi: x.servizi.filter((_, j) => j !== i) }))} className="p-1 text-[#9a9a9a] hover:text-rose-600 bg-transparent border-none cursor-pointer"><Trash2 className="w-4 h-4" /></button></td>
+                  <td><button onClick={() => setT((x) => ({ ...x, servizi: x.servizi.filter((_, j) => j !== i) }))} className="p-1 text-[#767676] hover:text-rose-600 bg-transparent border-none cursor-pointer"><Trash2 className="w-4 h-4" /></button></td>
                 </tr>
               ))}
             </tbody>

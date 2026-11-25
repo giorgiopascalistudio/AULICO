@@ -85,7 +85,7 @@ export const AccessRequests: React.FC<AccessRequestsProps> = ({
         <div>
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-[14px] font-extrabold text-[#161616]">Richieste di eliminazione account</h4>
-            <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">{deletionRequests.length}</span>
+            <span className="text-[12px] font-extrabold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">{deletionRequests.length}</span>
           </div>
           <div className="flex flex-col gap-3">
             {deletionRequests.map((u) => (
@@ -94,8 +94,8 @@ export const AccessRequests: React.FC<AccessRequestsProps> = ({
                   <Avatar u={u} />
                   <div className="min-w-0 flex-grow">
                     <b className="block text-[13.5px] text-[#161616] truncate">{u.name || 'Senza nome'}</b>
-                    <small className="block text-[12px] text-[#8a8a8a] truncate">{u.email}</small>
-                    <small className="block text-[11px] font-bold text-rose-600 mt-0.5 inline-flex items-center gap-1"><UserX className="w-3 h-3" /> Ha chiesto di eliminare il proprio account dal portale.</small>
+                    <small className="block text-[12px] text-[#6b6b6b] truncate">{u.email}</small>
+                    <small className="block text-[12px] font-bold text-rose-600 mt-0.5 inline-flex items-center gap-1"><UserX className="w-3 h-3" /> Ha chiesto di eliminare il proprio account dal portale.</small>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -108,7 +108,7 @@ export const AccessRequests: React.FC<AccessRequestsProps> = ({
                     </button>
                   )}
                 </div>
-                <p className="text-[10.5px] text-[#9a9a9a]">L'eliminazione rimuove la scheda dall'app (il login Google/email va rimosso anche da Firebase Console → Authentication per l'eliminazione totale).</p>
+                <p className="text-[11.5px] text-[#767676]">L'eliminazione rimuove la scheda dall'app (il login Google/email va rimosso anche da Firebase Console → Authentication per l'eliminazione totale).</p>
               </div>
             ))}
           </div>
@@ -121,13 +121,13 @@ export const AccessRequests: React.FC<AccessRequestsProps> = ({
           <h4 className="text-[14px] font-extrabold text-[#161616]">
             Richieste in attesa
           </h4>
-          <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+          <span className="text-[12px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
             {pending.length}
           </span>
         </div>
 
         {pending.length === 0 ? (
-          <p className="text-[13px] italic text-[#8a8a8a]">Nessuna richiesta da approvare.</p>
+          <p className="text-[13px] italic text-[#6b6b6b]">Nessuna richiesta da approvare.</p>
         ) : (
           <div className="flex flex-col gap-3">
             {pending.map((u) => (
@@ -136,7 +136,7 @@ export const AccessRequests: React.FC<AccessRequestsProps> = ({
                   <Avatar u={u} />
                   <div className="min-w-0 flex-grow">
                     <b className="block text-[13.5px] text-[#161616] truncate">{u.name || 'Senza nome'}</b>
-                    <small className="block text-[12px] text-[#8a8a8a] truncate">{u.email}</small>
+                    <small className="block text-[12px] text-[#6b6b6b] truncate">{u.email}</small>
                   </div>
                 </div>
 
@@ -197,9 +197,9 @@ export const AccessRequests: React.FC<AccessRequestsProps> = ({
                 <Avatar u={u} size={34} />
                 <div className="min-w-0 flex-grow">
                   <b className="block text-[13px] text-[#161616] truncate">
-                    {u.name} {isMe && <span className="text-[10px] text-[#8a8a8a] font-bold">(tu)</span>}
+                    {u.name} {isMe && <span className="text-[11px] text-[#6b6b6b] font-bold">(tu)</span>}
                   </b>
-                  <small className="block text-[11.5px] text-[#8a8a8a] truncate">{u.email}</small>
+                  <small className="block text-[11.5px] text-[#6b6b6b] truncate">{u.email}</small>
                 </div>
 
                 <select
@@ -232,7 +232,7 @@ export const AccessRequests: React.FC<AccessRequestsProps> = ({
                     </button>
                   </div>
                 )}
-                {isMe && <Shield className="w-4 h-4 text-[#8a8a8a] shrink-0" />}
+                {isMe && <Shield className="w-4 h-4 text-[#6b6b6b] shrink-0" />}
               </div>
             );
           })}

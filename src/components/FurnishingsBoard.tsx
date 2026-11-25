@@ -263,12 +263,12 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
                 </button>
               </span>
             </div>
-            {item.category && <div className="text-[10.5px] text-[#8a8a8a] font-semibold mt-0.5">{catLabel(item.category)}</div>}
+            {item.category && <div className="text-[11.5px] text-[#6b6b6b] font-semibold mt-0.5">{catLabel(item.category)}</div>}
             {item.price != null && (
-              <div className="text-[11px] font-bold text-[#161616] mt-0.5 flex flex-wrap items-center gap-1.5">
+              <div className="text-[12px] font-bold text-[#161616] mt-0.5 flex flex-wrap items-center gap-1.5">
                 <span>{eur(item.price)}{(item.quantity ?? 1) !== 1 ? ` × ${item.quantity} = ${eur((item.price || 0) * (item.quantity || 1))}` : ''}</span>
                 {item.status === 'confermato' && (
-                  <span className="inline-flex items-center gap-0.5 text-[9px] font-extrabold uppercase tracking-wide bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-extrabold uppercase tracking-wide bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full">
                     <Check className="w-2.5 h-2.5" /> {t('fb.inAccounting')}
                   </span>
                 )}
@@ -277,14 +277,14 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
             <div className="flex flex-wrap items-center gap-1.5 mt-2">
               <button
                 onClick={() => cycleStatus(item)}
-                className={`text-[10px] font-bold px-2 py-1 rounded-full transition-opacity hover:opacity-80 ${STATUS_STYLE[item.status]}`}
+                className={`text-[11px] font-bold px-2 py-1 rounded-full transition-opacity hover:opacity-80 ${STATUS_STYLE[item.status]}`}
                 title={t('fb.advanceStatus')}
               >
                 {t('fbstatus.' + item.status)}
               </button>
               {showDeadline && item.deadline && (
                 <span
-                  className={`text-[10px] font-bold px-2 py-1 rounded-full inline-flex items-center gap-1 ${
+                  className={`text-[11px] font-bold px-2 py-1 rounded-full inline-flex items-center gap-1 ${
                     dState === 'overdue'
                       ? 'bg-red-50 text-red-700'
                       : dState === 'soon'
@@ -300,7 +300,7 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
           </div>
         </div>
         {item.note && <p className="text-[11.5px] text-[#5b5b5b] leading-snug">{item.note}</p>}
-        <div className="flex items-center gap-3 text-[11px] font-semibold">
+        <div className="flex items-center gap-3 text-[12px] font-semibold">
           {item.link && (
             <a href={safeUrl(item.link) || '#'} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline inline-flex items-center gap-1">
               <LinkIcon className="w-3 h-3" /> {t('fb.reference')}
@@ -339,7 +339,7 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 border-b border-[#f5f5f5] pb-3">
         <div>
           <h3 className="text-[14px] font-extrabold text-[#161616] font-sans tracking-tight">{t('tab.arredi')}</h3>
-          <p className="text-[10.5px] text-[#8a8a8a] mt-0.5 font-medium">{t('fb.header.sub')}</p>
+          <p className="text-[11.5px] text-[#6b6b6b] mt-0.5 font-medium">{t('fb.header.sub')}</p>
         </div>
         {/* Barra a pillole sezioni */}
         <div className="inline-flex items-center gap-1 bg-[#f1f1f1] rounded-full p-1">
@@ -365,7 +365,7 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
       {(section === 'fissi' || section === 'mobili') && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <p className="text-[11.5px] text-[#8a8a8a] font-medium">
+            <p className="text-[11.5px] text-[#6b6b6b] font-medium">
               {section === 'fissi' ? t('fb.descFissi') : t('fb.descMobili')}
               {isStudio && <span className="text-[#6b6b6b]">{t('fb.confirmNote.a')}<b>{t('fb.confirmNote.bold')}</b>{t('fb.confirmNote.b')}</span>}
             </p>
@@ -382,16 +382,16 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
             {section === 'fissi' ? (
               <>
                 <div>
-                  <span className="text-[10px] uppercase font-extrabold tracking-wider text-[#8a8a8a] block">{t('fb.accFissi')}</span>
+                  <span className="text-[11px] uppercase font-extrabold tracking-wider text-[#6b6b6b] block">{t('fb.accFissi')}</span>
                   <b className="text-[15px] font-black text-[#161616]">{eur(totals.fissiConfermati)}</b>
                   {totals.fissi > totals.fissiConfermati && (
-                    <span className="text-[10px] text-[#8a8a8a] block mt-0.5">
+                    <span className="text-[11px] text-[#6b6b6b] block mt-0.5">
                       {t('fb.outOf', { total: eur(totals.fissi) })}
                     </span>
                   )}
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] uppercase font-extrabold tracking-wider text-[#8a8a8a] block">
+                  <span className="text-[11px] uppercase font-extrabold tracking-wider text-[#6b6b6b] block">
                     {t('fb.studioFees', { pct: Math.round((project.studioFeePct ?? STUDIO_FEE_PCT) * 100) })}
                   </span>
                   <b className="text-[14px] font-black text-indigo-700">{eur(feeFissi)}</b>
@@ -400,10 +400,10 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
             ) : (
               <>
                 <div>
-                  <span className="text-[10px] uppercase font-extrabold tracking-wider text-[#8a8a8a] block">{t('fb.accMobili')}</span>
+                  <span className="text-[11px] uppercase font-extrabold tracking-wider text-[#6b6b6b] block">{t('fb.accMobili')}</span>
                   <b className="text-[15px] font-black text-[#161616]">{eur(totals.mobiliConfermati)}</b>
                   {totals.mobili > totals.mobiliConfermati && (
-                    <span className="text-[10px] text-[#8a8a8a] block mt-0.5">
+                    <span className="text-[11px] text-[#6b6b6b] block mt-0.5">
                       {t('fb.outOf', { total: eur(totals.mobili) })}
                     </span>
                   )}
@@ -417,14 +417,14 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
                     />
                     <span className="text-[11.5px] font-bold text-[#161616] leading-tight">
                       {t('fb.studioManages')}
-                      <span className="block text-[10.5px] font-semibold text-[#8a8a8a]">
+                      <span className="block text-[11.5px] font-semibold text-[#6b6b6b]">
                         {t('fb.feeLine', { pct: Math.round((project.arrediMobiliFeePct ?? ARREDI_MOBILI_FEE_PCT) * 100) })}<b className="text-indigo-700">{eur(feeMobili)}</b>
                       </span>
                     </span>
                   </label>
                 ) : (
                   <div className="text-right">
-                    <span className="text-[10px] uppercase font-extrabold tracking-wider text-[#8a8a8a] block">{t('fb.studioMgmt')}</span>
+                    <span className="text-[11px] uppercase font-extrabold tracking-wider text-[#6b6b6b] block">{t('fb.studioMgmt')}</span>
                     <b className="text-[13px] font-black text-[#161616]">{managesMobili ? t('fb.yesFee', { fee: eur(feeMobili) }) : t('common.no')}</b>
                   </div>
                 )}
@@ -436,7 +436,7 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
             {(section === 'fissi' ? fissi : mobili).map((it) => renderCard(it, section === 'fissi'))}
           </div>
           {(section === 'fissi' ? fissi : mobili).length === 0 && (
-            <div className="text-center text-[12px] text-[#9a9a9a] py-8 border border-dashed border-[#e2e2e2] rounded-[18px]">
+            <div className="text-center text-[12px] text-[#767676] py-8 border border-dashed border-[#e2e2e2] rounded-[18px]">
               {section === 'fissi' ? t('fb.emptyFisso') : t('fb.emptyMobile')}
             </div>
           )}
@@ -456,7 +456,7 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="text-[16px] font-extrabold text-[#161616] tracking-tight">{t('req.mb3d')}</h3>
-                  <p className="text-[12.5px] text-[#8a8a8a] mt-1 max-w-xl">
+                  <p className="text-[12.5px] text-[#6b6b6b] mt-1 max-w-xl">
                     {t('fb.mb.desc')}
                     {count > 0 ? (count === 1 ? t('fb.mb.savedOne', { count }) : t('fb.mb.savedMany', { count })) : t('fb.mb.none')}
                   </p>
@@ -469,7 +469,7 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
                 </button>
               </div>
             </div>
-            <p className="text-[11px] text-[#9a9a9a]">{t('fb.mb.footer')}</p>
+            <p className="text-[12px] text-[#767676]">{t('fb.mb.footer')}</p>
           </div>
         );
       })()}
@@ -480,7 +480,7 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
           <Suspense fallback={
             <div className="fixed inset-0 z-[120] bg-[#F5F5F3] flex flex-col items-center justify-center gap-3">
               <Loader2 className="w-7 h-7 text-[#161616] animate-spin" />
-              <span className="text-[12.5px] font-bold text-[#8a8a8a]">{t('fb.mb.loading')}</span>
+              <span className="text-[12.5px] font-bold text-[#6b6b6b]">{t('fb.mb.loading')}</span>
             </div>
           }>
             <Moodboard3D
@@ -507,11 +507,11 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
               <button onClick={() => { setModalKind(null); setEditItem(null); }} className="text-gray-400 hover:text-[#161616]"><X className="w-5 h-5" /></button>
             </div>
             <div className="flex flex-col gap-3">
-              <label className="text-[11px] font-semibold text-[#6b6b6b] flex flex-col gap-1">
+              <label className="text-[12px] font-semibold text-[#6b6b6b] flex flex-col gap-1">
                 {t('fb.f.title')}
                 <input value={fTitle} onChange={(e) => setFTitle(e.target.value)} placeholder={t('fb.f.titlePlaceholder')} className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b]" />
               </label>
-              <label className="text-[11px] font-semibold text-[#6b6b6b] flex flex-col gap-1">
+              <label className="text-[12px] font-semibold text-[#6b6b6b] flex flex-col gap-1">
                 {t('fb.f.category')}
                 <select value={fCategory} onChange={(e) => setFCategory(e.target.value)} className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b] bg-white">
                   <option value="">{t('fb.f.categoryPlaceholder')}</option>
@@ -519,33 +519,33 @@ export const FurnishingsBoard: React.FC<FurnishingsBoardProps> = ({
                 </select>
               </label>
               {modalKind === 'fisso' && (
-                <label className="text-[11px] font-semibold text-[#6b6b6b] flex flex-col gap-1">
+                <label className="text-[12px] font-semibold text-[#6b6b6b] flex flex-col gap-1">
                   {t('fb.f.deadline')}
                   <input type="date" value={fDeadline} onChange={(e) => setFDeadline(e.target.value)} className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b]" />
                 </label>
               )}
-              <label className="text-[11px] font-semibold text-[#6b6b6b] flex flex-col gap-1">
+              <label className="text-[12px] font-semibold text-[#6b6b6b] flex flex-col gap-1">
                 {t('fb.f.imageUrl')}
                 <input value={fImageUrl} onChange={(e) => setFImageUrl(e.target.value)} placeholder="https://…" className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b]" />
               </label>
-              <label className="text-[11px] font-semibold text-[#6b6b6b] flex flex-col gap-1">
+              <label className="text-[12px] font-semibold text-[#6b6b6b] flex flex-col gap-1">
                 {t('fb.f.link')}
                 <input value={fLink} onChange={(e) => setFLink(e.target.value)} placeholder="https://…" className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b]" />
               </label>
               <div className="flex gap-2">
-                <label className="text-[11px] font-semibold text-[#6b6b6b] flex flex-col gap-1 flex-1">
+                <label className="text-[12px] font-semibold text-[#6b6b6b] flex flex-col gap-1 flex-1">
                   {t('fb.f.price')}
                   <input type="number" inputMode="decimal" value={fPrice} onChange={(e) => setFPrice(e.target.value)} placeholder={t('fb.f.pricePlaceholder')} className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b]" />
                 </label>
-                <label className="text-[11px] font-semibold text-[#6b6b6b] flex flex-col gap-1 w-24">
+                <label className="text-[12px] font-semibold text-[#6b6b6b] flex flex-col gap-1 w-24">
                   {t('fb.f.quantity')}
                   <input type="number" inputMode="decimal" value={fQuantity} onChange={(e) => setFQuantity(e.target.value)} placeholder="1" className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b]" />
                 </label>
               </div>
               <div className="flex items-center gap-2">
                 <input type="color" value={fColor || '#cccccc'} onChange={(e) => setFColor(e.target.value)} className="w-10 h-10 rounded-[10px] border border-[#e2e2e2] cursor-pointer" />
-                <span className="text-[11.5px] text-[#8a8a8a]">{t('fb.f.colorSample')}</span>
-                {fColor && <button onClick={() => setFColor('')} className="text-[11px] text-gray-400 hover:text-red-500 ml-auto">{t('fb.f.removeColor')}</button>}
+                <span className="text-[11.5px] text-[#6b6b6b]">{t('fb.f.colorSample')}</span>
+                {fColor && <button onClick={() => setFColor('')} className="text-[12px] text-gray-400 hover:text-red-500 ml-auto">{t('fb.f.removeColor')}</button>}
               </div>
               <textarea value={fNote} onChange={(e) => setFNote(e.target.value)} placeholder={t('common.notes')} rows={2} className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b] resize-none" />
             </div>
@@ -578,7 +578,7 @@ const MoodboardToolbar: React.FC<{ onAddTile: (data: Partial<Furnishing>) => voi
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-[11px] font-bold text-[#8a8a8a] mr-1">Aggiungi alla lavagna:</span>
+      <span className="text-[12px] font-bold text-[#6b6b6b] mr-1">Aggiungi alla lavagna:</span>
       <button onClick={() => { setOpen('image'); setVal(''); }} className="inline-flex items-center gap-1 text-[11.5px] font-bold border border-[#e2e2e2] rounded-full px-3 py-1.5 hover:bg-[#f5f5f5]"><ImageIcon className="w-3.5 h-3.5" /> Immagine</button>
       <button onClick={() => setOpen('color')} className="inline-flex items-center gap-1 text-[11.5px] font-bold border border-[#e2e2e2] rounded-full px-3 py-1.5 hover:bg-[#f5f5f5]"><Palette className="w-3.5 h-3.5" /> Colore</button>
       <button onClick={() => { setOpen('note'); setVal(''); }} className="inline-flex items-center gap-1 text-[11.5px] font-bold border border-[#e2e2e2] rounded-full px-3 py-1.5 hover:bg-[#f5f5f5]"><TypeIcon className="w-3.5 h-3.5" /> Nota</button>

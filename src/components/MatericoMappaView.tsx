@@ -69,22 +69,22 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, color = '#161616', o
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
             <MapPin className="w-5.5 h-5.5 text-[#161616]" /> Mappa operativa
           </h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">I siti della società sulla mappa: individua, apri la scheda, segnala, naviga.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">I siti della società sulla mappa: individua, apri la scheda, segnala, naviga.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div className="bg-white border border-[#e2e2e2] rounded-[16px] px-3.5 py-2 shadow-sm text-center">
-            <p className="text-[9px] font-bold uppercase tracking-wider text-[#a0a0a0]">Siti</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">Siti</p>
             <p className="text-[17px] font-black leading-none mt-0.5 text-[#161616]">{sites.length}</p>
           </div>
           {kindsPresent.map((k) => (
             <div key={k} className="bg-white border border-[#e2e2e2] rounded-[16px] px-3.5 py-2 shadow-sm text-center">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-[#a0a0a0]">{KIND_META[k].label}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">{KIND_META[k].label}</p>
               <p className="text-[17px] font-black leading-none mt-0.5" style={{ color: KIND_META[k].color }}>{sites.filter((s) => s.kind === k).length}</p>
             </div>
           ))}
           {noAddress > 0 && (
             <div className="bg-white border border-rose-200 rounded-[16px] px-3.5 py-2 shadow-sm text-center">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-rose-400">Senza indirizzo</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-rose-400">Senza indirizzo</p>
               <p className="text-[17px] font-black leading-none mt-0.5 text-rose-500">{noAddress}</p>
             </div>
           )}
@@ -95,7 +95,7 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, color = '#161616', o
         {/* Elenco siti */}
         <div className="lg:w-[330px] w-full flex flex-col gap-2.5">
           <div className="relative">
-            <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#8f8f8f] absolute left-3 top-1/2 -translate-y-1/2" />
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cerca sito, indirizzo…" className="w-full pl-9 pr-3 py-2.5 rounded-2xl border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white shadow-sm" />
           </div>
           {kindsPresent.length > 1 && (
@@ -109,7 +109,7 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, color = '#161616', o
             {list.length === 0 ? (
               <div className="bg-white border border-[#e2e2e2] rounded-2xl p-8 text-center">
                 <MapPin className="w-7 h-7 mx-auto text-[#d0d0d0] mb-2" />
-                <p className="text-[13px] text-[#9a9a9a] font-semibold">Nessun sito {q ? 'corrisponde alla ricerca' : 'con indirizzo'}.</p>
+                <p className="text-[13px] text-[#767676] font-semibold">Nessun sito {q ? 'corrisponde alla ricerca' : 'con indirizzo'}.</p>
               </div>
             ) : list.map((s) => {
               const meta = KIND_META[s.kind];
@@ -128,10 +128,10 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, color = '#161616', o
                       <b className="text-[13px] text-[#161616] truncate">{s.title}</b>
                       {isSel && <Navigation className="w-3 h-3 shrink-0" style={{ color: meta.color }} />}
                     </div>
-                    <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: meta.color }}>{meta.one}{s.subtitle ? ` · ${s.subtitle}` : ''}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-wide" style={{ color: meta.color }}>{meta.one}{s.subtitle ? ` · ${s.subtitle}` : ''}</p>
                     {s.address
-                      ? <p className="text-[11px] text-[#a0a0a0] truncate inline-flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3 shrink-0" /> {s.address}</p>
-                      : <p className="text-[10.5px] text-rose-400 italic mt-0.5">Indirizzo mancante</p>}
+                      ? <p className="text-[12px] text-[#a0a0a0] truncate inline-flex items-center gap-1 mt-0.5"><MapPin className="w-3 h-3 shrink-0" /> {s.address}</p>
+                      : <p className="text-[11.5px] text-rose-400 italic mt-0.5">Indirizzo mancante</p>}
                   </div>
                 </button>
               );
@@ -142,7 +142,7 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, color = '#161616', o
         {/* Mappa + azioni */}
         <div className="lg:flex-1 w-full bg-white border border-[#e2e2e2] rounded-[22px] overflow-hidden shadow-sm">
           {!sel ? (
-            <div className="h-[60vh] flex flex-col items-center justify-center gap-2 text-[#9a9a9a]">
+            <div className="h-[60vh] flex flex-col items-center justify-center gap-2 text-[#767676]">
               <MapPin className="w-8 h-8 text-[#d0d0d0]" />
               <p className="text-[13px] font-semibold">Seleziona un sito dall'elenco.</p>
             </div>
@@ -156,7 +156,7 @@ export const MatericoMappaView: React.FC<Props> = ({ sites, color = '#161616', o
                   </span>
                   <div className="min-w-0">
                     <b className="text-[15px] text-[#161616] block truncate">{sel.title}</b>
-                    <p className="text-[12px] text-[#8a8a8a] truncate">{[sel.subtitle, sel.address].filter(Boolean).join(' · ') || 'Posizione stimata dal nome'}</p>
+                    <p className="text-[12px] text-[#6b6b6b] truncate">{[sel.subtitle, sel.address].filter(Boolean).join(' · ') || 'Posizione stimata dal nome'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">

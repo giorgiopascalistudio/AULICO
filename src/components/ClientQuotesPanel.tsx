@@ -52,7 +52,7 @@ export const ClientQuotesPanel: React.FC<Props> = ({ quotes, onChoice }) => {
   if (open) return <QuoteDetail quote={open} onBack={() => setOpenId(null)} onChoice={onChoice} />;
   return (
     <div className="flex flex-col gap-2.5">
-      {quotes.length === 0 && <p className="text-[13px] text-[#8a8a8a] text-center py-6">Nessun preventivo condiviso al momento.</p>}
+      {quotes.length === 0 && <p className="text-[13px] text-[#6b6b6b] text-center py-6">Nessun preventivo condiviso al momento.</p>}
       {quotes.map((q) => {
         const co = companyDoc(q.division);
         const t = quoteTotals({ ...q, lines: (q.lines || []).filter((l) => !q.choice?.excluded?.[l.id]) });
@@ -64,12 +64,12 @@ export const ClientQuotesPanel: React.FC<Props> = ({ quotes, onChoice }) => {
                 <b className="text-[13.5px] text-[#161616] truncate">{q.docKind === 'parcella' ? 'Parcella' : 'Preventivo'} {q.number}</b>
               </span>
               {q.choice?.accepted
-                ? <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">Accettato</span>
+                ? <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">Accettato</span>
                 : q.choice
-                  ? <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">Selezione inviata</span>
-                  : <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700">Da rivedere</span>}
+                  ? <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">Selezione inviata</span>
+                  : <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700">Da rivedere</span>}
             </div>
-            <p className="text-[11.5px] text-[#8a8a8a] mt-1">
+            <p className="text-[11.5px] text-[#6b6b6b] mt-1">
               {co.brand} · totale <b className="text-[#161616]">{eur(t.totale)}</b>
               {(Number(q.baseValue) || 0) > 0 && <> · valore stimato <b className="text-emerald-700">{eur(quoteValue({ baseValue: q.baseValue, lines: (q.lines || []).filter((l) => !q.choice?.excluded?.[l.id]) }).value)}</b></>}
               {q.validUntil ? ` · valido fino al ${fmtD(q.validUntil)}` : ''}
@@ -116,17 +116,17 @@ const QuoteDetail: React.FC<{ quote: SharedQuote; onBack: () => void; onChoice?:
 
   return (
     <div className="flex flex-col gap-3">
-      <button onClick={onBack} className="self-start inline-flex items-center gap-1 text-[12px] font-bold text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none p-0"><ChevronLeft className="w-4 h-4" /> Tutti i preventivi</button>
+      <button onClick={onBack} className="self-start inline-flex items-center gap-1 text-[12px] font-bold text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none p-0"><ChevronLeft className="w-4 h-4" /> Tutti i preventivi</button>
 
       <div className="rounded-[18px] border border-[#ececec] overflow-hidden">
         <div className="px-4 py-3" style={{ background: color }}>
           <p className="text-white font-black text-[15px] leading-tight">{q.docKind === 'parcella' ? 'Parcella' : 'Preventivo'} {q.number}</p>
-          <p className="text-white/80 text-[11px] font-semibold">{co.legalName}{q.validUntil ? ` · valido fino al ${fmtD(q.validUntil)}` : ''}</p>
+          <p className="text-white/80 text-[12px] font-semibold">{co.legalName}{q.validUntil ? ` · valido fino al ${fmtD(q.validUntil)}` : ''}</p>
         </div>
 
         {/* Voci spuntabili */}
         <div className="p-3 flex flex-col gap-1.5">
-          <p className="text-[11px] text-[#8a8a8a] font-semibold px-1">
+          <p className="text-[12px] text-[#6b6b6b] font-semibold px-1">
             {accepted ? 'Hai accettato questo preventivo: la selezione è bloccata.' : 'Scegli le voci: il totale si aggiorna in tempo reale. Le voci col lucchetto sono necessarie.'}
           </p>
           {lines.map((l) => {
@@ -138,19 +138,19 @@ const QuoteDetail: React.FC<{ quote: SharedQuote; onBack: () => void; onChoice?:
                   className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 transition-colors ${off ? 'border-[#eee] bg-[#fafafa] opacity-70' : 'border-[#e6e6e6] bg-white'} ${accepted || l.locked ? '' : 'cursor-pointer hover:border-[#161616]'}`}
                 >
                   {l.locked ? (
-                    <Lock className="w-4 h-4 text-[#b0b0b0] shrink-0" />
+                    <Lock className="w-4 h-4 text-[#8f8f8f] shrink-0" />
                   ) : (
                     <span className={`w-4.5 h-4.5 rounded-md border-2 shrink-0 flex items-center justify-center ${off ? 'border-[#d0d0d0] bg-white' : 'border-emerald-500 bg-emerald-500'}`}>
                       {!off && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
                     </span>
                   )}
                   <span className="flex-1 min-w-0">
-                    <span className={`text-[12.5px] font-semibold ${off ? 'text-[#9a9a9a] line-through' : 'text-[#161616]'}`}>{l.desc || 'Voce'}</span>
+                    <span className={`text-[12.5px] font-semibold ${off ? 'text-[#767676] line-through' : 'text-[#161616]'}`}>{l.desc || 'Voce'}</span>
                     {hasValue && (Number(l.valuePct) || 0) > 0 && (
-                      <span className={`ml-1.5 text-[9.5px] font-extrabold whitespace-nowrap ${off ? 'text-[#c0c0c0]' : 'text-emerald-700'}`}>+{l.valuePct}% valore</span>
+                      <span className={`ml-1.5 text-[10.5px] font-extrabold whitespace-nowrap ${off ? 'text-[#9a9a9a]' : 'text-emerald-700'}`}>+{l.valuePct}% valore</span>
                     )}
                   </span>
-                  <b className={`text-[13px] shrink-0 ${off ? 'text-[#b0b0b0] line-through' : 'text-[#161616]'}`}>{eur(l.amount || 0)}</b>
+                  <b className={`text-[13px] shrink-0 ${off ? 'text-[#8f8f8f] line-through' : 'text-[#161616]'}`}>{eur(l.amount || 0)}</b>
                 </div>
                 {/* Banner vantaggi persi (+ perdita di VALORE dell'immobile se la voce ha una %) */}
                 {off && lastRemoved === l.id && !accepted && (
@@ -163,7 +163,7 @@ const QuoteDetail: React.FC<{ quote: SharedQuote; onBack: () => void; onChoice?:
                           Senza questa voce il valore stimato dell'immobile scende di {eur(Math.round(v.base * ((Number(l.valuePct) || 0) / 100)))} (−{l.valuePct}%).
                         </p>
                       )}
-                      <button onClick={() => toggle(l)} className="mt-1 text-[11px] font-extrabold text-amber-800 underline cursor-pointer bg-transparent border-none p-0">Reincludi questa voce</button>
+                      <button onClick={() => toggle(l)} className="mt-1 text-[12px] font-extrabold text-amber-800 underline cursor-pointer bg-transparent border-none p-0">Reincludi questa voce</button>
                     </div>
                   </div>
                 )}
@@ -175,24 +175,24 @@ const QuoteDetail: React.FC<{ quote: SharedQuote; onBack: () => void; onChoice?:
         {/* Totali live */}
         <div className="border-t border-[#ececec] bg-[#fafaf8] px-4 py-3">
           {(t.sconto > 0 || t.maggiorazione > 0) && (
-            <div className="flex justify-between text-[11.5px] text-[#8a8a8a] font-semibold"><span>Voci selezionate</span><span>{eur(t.righe)}</span></div>
+            <div className="flex justify-between text-[11.5px] text-[#6b6b6b] font-semibold"><span>Voci selezionate</span><span>{eur(t.righe)}</span></div>
           )}
           {t.sconto > 0 && <div className="flex justify-between text-[11.5px] text-rose-600 font-semibold"><span>Sconto {q.discountPct}%</span><span>−{eur(t.sconto)}</span></div>}
-          {t.maggiorazione > 0 && <div className="flex justify-between text-[11.5px] text-[#8a8a8a] font-semibold"><span>Maggiorazione {q.surchargePct}%</span><span>+{eur(t.maggiorazione)}</span></div>}
+          {t.maggiorazione > 0 && <div className="flex justify-between text-[11.5px] text-[#6b6b6b] font-semibold"><span>Maggiorazione {q.surchargePct}%</span><span>+{eur(t.maggiorazione)}</span></div>}
           <div className="flex justify-between text-[12px] text-[#555] font-semibold"><span>Imponibile</span><span>{eur(t.imponibile)}</span></div>
-          {t.cassa > 0 && <div className="flex justify-between text-[11.5px] text-[#8a8a8a] font-semibold"><span>Cassa {q.cassaPct ?? 4}%</span><span>{eur(t.cassa)}</span></div>}
-          {t.iva > 0 && <div className="flex justify-between text-[11.5px] text-[#8a8a8a] font-semibold"><span>IVA {q.vatPct ?? 22}%</span><span>{eur(t.iva)}</span></div>}
+          {t.cassa > 0 && <div className="flex justify-between text-[11.5px] text-[#6b6b6b] font-semibold"><span>Cassa {q.cassaPct ?? 4}%</span><span>{eur(t.cassa)}</span></div>}
+          {t.iva > 0 && <div className="flex justify-between text-[11.5px] text-[#6b6b6b] font-semibold"><span>IVA {q.vatPct ?? 22}%</span><span>{eur(t.iva)}</span></div>}
           <div className="flex justify-between items-baseline mt-1 pt-1.5 border-t border-[#e2e2e2]">
             <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#161616]">Totale</span>
             <span className="text-[20px] font-black" style={{ color }}>{eur(t.totale)}</span>
           </div>
-          {removedTotal > 0.005 && <p className="text-right text-[10.5px] text-[#9a9a9a] font-semibold mt-0.5">−{eur(removedTotal)} rispetto alla proposta completa</p>}
+          {removedTotal > 0.005 && <p className="text-right text-[11.5px] text-[#767676] font-semibold mt-0.5">−{eur(removedTotal)} rispetto alla proposta completa</p>}
         </div>
 
         {/* VALORE DELL'IMMOBILE — sale/scende in tempo reale con le voci selezionate */}
         {hasValue && (
           <div className="border-t border-[#ececec] bg-emerald-50/50 px-4 py-3">
-            <p className="text-[10.5px] font-extrabold uppercase tracking-wider text-emerald-800 inline-flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5" /> Valore dell'immobile</p>
+            <p className="text-[11.5px] font-extrabold uppercase tracking-wider text-emerald-800 inline-flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5" /> Valore dell'immobile</p>
             <div className="flex justify-between text-[11.5px] text-emerald-900/70 font-semibold mt-1.5"><span>Stato dei luoghi (oggi)</span><span>{eur(v.base)}</span></div>
             <div className="flex justify-between text-[11.5px] text-emerald-900/70 font-semibold"><span>Incremento con le voci scelte</span><span>+{v.upliftPct}%</span></div>
             <div className="flex justify-between items-baseline mt-1 pt-1.5 border-t border-emerald-200/70">
@@ -200,7 +200,7 @@ const QuoteDetail: React.FC<{ quote: SharedQuote; onBack: () => void; onChoice?:
               <span className="text-[20px] font-black text-emerald-700">{eur(v.value)}</span>
             </div>
             {valueLost > 0.5 && (
-              <p className="text-right text-[10.5px] font-bold text-amber-700 mt-0.5">
+              <p className="text-right text-[11.5px] font-bold text-amber-700 mt-0.5">
                 −{eur(valueLost)} di valore rispetto alla proposta completa ({eur(vFull.value)})
               </p>
             )}
@@ -208,7 +208,7 @@ const QuoteDetail: React.FC<{ quote: SharedQuote; onBack: () => void; onChoice?:
         )}
       </div>
 
-      {q.notes && <p className="text-[11.5px] text-[#8a8a8a] px-1">{q.notes}</p>}
+      {q.notes && <p className="text-[11.5px] text-[#6b6b6b] px-1">{q.notes}</p>}
 
       {!accepted && (
         <>
@@ -217,7 +217,7 @@ const QuoteDetail: React.FC<{ quote: SharedQuote; onBack: () => void; onChoice?:
             <button onClick={() => send(false)} disabled={!dirty && !!q.choice} className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-[#161616] text-[#161616] text-[12.5px] font-bold cursor-pointer disabled:opacity-40"><Send className="w-4 h-4" /> Invia selezione</button>
             <button onClick={() => send(true)} className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-[12.5px] font-bold cursor-pointer border-none" style={{ background: color }}><CheckCircle2 className="w-4 h-4" /> Accetta ({eur(t.totale)})</button>
           </div>
-          <p className="text-[10.5px] text-[#a8a8a8] text-center">Accettando confermi la selezione: lo studio ti ricontatterà per la firma.</p>
+          <p className="text-[11.5px] text-[#a8a8a8] text-center">Accettando confermi la selezione: lo studio ti ricontatterà per la firma.</p>
         </>
       )}
       {accepted && (

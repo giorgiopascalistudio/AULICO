@@ -28,7 +28,7 @@ export const RunningTimerPill: React.FC<{ entry: TimeEntry | null; onStop: () =>
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
         </span>
         <div className="flex flex-col min-w-0 leading-tight">
-          <span className="text-[10px] uppercase tracking-wider text-white/50 font-bold flex items-center gap-1">
+          <span className="text-[11px] uppercase tracking-wider text-white/50 font-bold flex items-center gap-1">
             <Timer className="w-3 h-3" /> In corso
           </span>
           <span className="text-[12.5px] font-bold truncate max-w-[150px]">{label}</span>

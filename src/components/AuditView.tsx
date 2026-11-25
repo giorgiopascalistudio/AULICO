@@ -40,7 +40,7 @@ export const AuditView: React.FC<{ entries: AuditEntry[]; onDelete?: (id: string
     <div className="flex flex-col gap-5 text-left">
       <div>
         <h2 className="text-[22px] font-black tracking-tight text-[#161616] leading-none flex items-center gap-2"><ScrollText className="w-5 h-5" /> Registro attività</h2>
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1.5">Trail delle azioni dello studio (creazioni, modifiche, eliminazioni, ripristini).{onDelete ? ' L\'amministratore può eliminare singole voci.' : ' Sola lettura.'}</p>
+        <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1.5">Trail delle azioni dello studio (creazioni, modifiche, eliminazioni, ripristini).{onDelete ? ' L\'amministratore può eliminare singole voci.' : ' Sola lettura.'}</p>
       </div>
 
       {/* Filtri */}
@@ -57,13 +57,13 @@ export const AuditView: React.FC<{ entries: AuditEntry[]; onDelete?: (id: string
           <option value="all">Tutte le azioni</option>
           {Object.entries(ACTION).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
-        <span className="text-[11.5px] text-[#8a8a8a] ml-auto">{list.length} voci</span>
+        <span className="text-[11.5px] text-[#6b6b6b] ml-auto">{list.length} voci</span>
       </div>
 
       {list.length === 0 ? (
         <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
           <ScrollText className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-          <p className="text-[13.5px] text-[#8a8a8a] font-semibold">Nessuna attività registrata.</p>
+          <p className="text-[13.5px] text-[#6b6b6b] font-semibold">Nessuna attività registrata.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-1.5">
@@ -75,13 +75,13 @@ export const AuditView: React.FC<{ entries: AuditEntry[]; onDelete?: (id: string
                 <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: a.color + '1a', color: a.color }}><Icon className="w-4 h-4" /></span>
                 <div className="min-w-0 flex-1">
                   <div className="text-[13px] font-bold text-[#161616] truncate">{e.label}</div>
-                  <div className="text-[11.5px] text-[#8a8a8a] truncate">
+                  <div className="text-[11.5px] text-[#6b6b6b] truncate">
                     <span style={{ color: a.color }} className="font-bold">{a.label}</span> · {e.section}{e.detail ? ` · ${e.detail}` : ''}{e.byName ? ` · ${e.byName}` : ''}
                   </div>
                 </div>
-                <span className="text-[11px] text-[#9a9a9a] shrink-0">{fmt(e.at)}</span>
+                <span className="text-[12px] text-[#767676] shrink-0">{fmt(e.at)}</span>
                 {onDelete && (
-                  <button onClick={() => onDelete(e.id)} title="Elimina voce" className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-[#b0b0b0] hover:text-rose-600 hover:bg-rose-50 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button>
+                  <button onClick={() => onDelete(e.id)} title="Elimina voce" className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-[#8f8f8f] hover:text-rose-600 hover:bg-rose-50 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button>
                 )}
               </div>
             );

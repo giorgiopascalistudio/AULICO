@@ -53,11 +53,11 @@ const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({ chi
 const Kpi: React.FC<{ label: string; value: string; sub?: string; icon: React.ElementType; accent?: string }> = ({ label, value, sub, icon: Icon, accent }) => (
   <Card>
     <div className="flex items-start justify-between">
-      <span className="text-[12px] font-bold uppercase tracking-wider text-[#8a8a8a]">{label}</span>
-      <Icon className="w-[18px] h-[18px] text-[#bdbdbd]" />
+      <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">{label}</span>
+      <Icon className="w-[18px] h-[18px] text-[#9a9a9a]" />
     </div>
     <div className="text-[26px] font-extrabold mt-2 leading-none" style={accent ? { color: accent } : undefined}>{value}</div>
-    {sub && <div className="text-[12.5px] text-[#8a8a8a] mt-1.5">{sub}</div>}
+    {sub && <div className="text-[12.5px] text-[#6b6b6b] mt-1.5">{sub}</div>}
   </Card>
 );
 
@@ -170,7 +170,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
       <div className="flex items-center justify-between mb-5">
         <div>
           <h1 className="text-[26px] font-extrabold tracking-tight text-[#161616]">Statistiche</h1>
-          <p className="text-[13.5px] text-[#8a8a8a] mt-0.5">Redditività, punto di pareggio e andamento del gruppo. Calcolato sui dati di contabilità.</p>
+          <p className="text-[13.5px] text-[#6b6b6b] mt-0.5">Redditività, punto di pareggio e andamento del gruppo. Calcolato sui dati di contabilità.</p>
         </div>
         <button onClick={() => onNav('finanze')} className="hidden sm:flex items-center gap-1.5 text-[13px] font-bold text-[#161616] bg-white border border-[#e2e2e2] rounded-full px-4 py-2 hover:bg-[#ececec] transition-all">
           Apri Finanze <ArrowRight className="w-4 h-4" />
@@ -191,7 +191,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
           <Filter className="w-[18px] h-[18px] text-[#161616]" />
           <h2 className="text-[15px] font-extrabold">Funnel di gruppo</h2>
         </div>
-        <p className="text-[12.5px] text-[#8a8a8a] mb-4">Dal preventivo alla liquidità. La liquidità è una stima (incassi − pagamenti); l'integrazione bancaria reale è prevista in seguito.</p>
+        <p className="text-[12.5px] text-[#6b6b6b] mb-4">Dal preventivo alla liquidità. La liquidità è una stima (incassi − pagamenti); l'integrazione bancaria reale è prevista in seguito.</p>
         <div className="flex flex-col gap-2.5">
           {s.funnel.map((f, i) => {
             const w = Math.max(2, Math.round((Math.abs(f.value) / s.funnelMax) * 100));
@@ -205,7 +205,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
                     <span className="text-[11.5px] font-bold text-white whitespace-nowrap">{eur(f.value)}</span>
                   </div>
                 </div>
-                <span className="w-[60px] shrink-0 text-right text-[11.5px] font-semibold text-[#8a8a8a]">{conv != null ? `${conv.toFixed(0)}%` : ''}</span>
+                <span className="w-[60px] shrink-0 text-right text-[11.5px] font-semibold text-[#6b6b6b]">{conv != null ? `${conv.toFixed(0)}%` : ''}</span>
               </div>
             );
           })}
@@ -226,16 +226,16 @@ export const StatsView: React.FC<StatsViewProps> = ({
                 Fatturato {eur(s.fatturato)} su pareggio {eur(s.pareggio)}
               </div>
             </div>
-            <p className="text-[12.5px] text-[#8a8a8a] mt-2">
+            <p className="text-[12.5px] text-[#6b6b6b] mt-2">
               Il pareggio è il fatturato che copre i costi registrati. {bepReached
                 ? <>Superato: <b className="text-[#2f855a]">utile {eur(s.surplus)}</b>.</>
                 : <>Mancano <b className="text-[#c2410c]">{eur(-s.surplus)}</b> per coprire i costi.</>}
             </p>
           </div>
           <div className="text-center sm:border-l sm:border-[#eee] sm:pl-4">
-            <div className="text-[12px] font-bold uppercase tracking-wider text-[#8a8a8a]">Risultato</div>
+            <div className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Risultato</div>
             <div className="text-[28px] font-extrabold leading-none mt-1" style={{ color: bepReached ? '#2f855a' : '#c2410c' }}>{eur(s.surplus)}</div>
-            <div className="text-[12px] text-[#8a8a8a] mt-1">margine {pct(s.margine)}</div>
+            <div className="text-[12px] text-[#6b6b6b] mt-1">margine {pct(s.margine)}</div>
           </div>
         </div>
       </Card>
@@ -254,7 +254,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
                   <div className="flex-1 h-2 rounded-full bg-[#f0f0ee] overflow-hidden">
                     <div className="h-full rounded-full" style={{ width: `${s.totale.ricavi > 0 ? (b.ricavi / s.totale.ricavi) * 100 : 0}%`, background: COMPANY_COLOR[b.company] }} />
                   </div>
-                  <span className="text-[12.5px] text-[#8a8a8a] w-24 text-right tabular-nums">{eur(b.ricavi)}</span>
+                  <span className="text-[12.5px] text-[#6b6b6b] w-24 text-right tabular-nums">{eur(b.ricavi)}</span>
                   <span className="text-[12.5px] font-bold w-14 text-right tabular-nums" style={{ color: b.netto >= 0 ? '#2f855a' : '#c2410c' }}>{pct(m)}</span>
                 </div>
               );
@@ -270,27 +270,27 @@ export const StatsView: React.FC<StatsViewProps> = ({
         <Card>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-[15px] font-extrabold">Pipeline preventivi</h2>
-            <button onClick={() => onNav('finanze')} className="text-[12px] font-bold text-[#8a8a8a] hover:text-[#161616]">Dettaglio →</button>
+            <button onClick={() => onNav('finanze')} className="text-[12px] font-bold text-[#6b6b6b] hover:text-[#161616]">Dettaglio →</button>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-2xl bg-[#f0faf3] border border-[#cfe9d8] p-3.5">
               <div className="text-[12px] font-bold text-[#2f855a]">Accettati</div>
               <div className="text-[22px] font-extrabold mt-1">{eur(s.valAccept)}</div>
-              <div className="text-[12px] text-[#8a8a8a]">{s.qAccept} preventivi</div>
+              <div className="text-[12px] text-[#6b6b6b]">{s.qAccept} preventivi</div>
             </div>
             <div className="rounded-2xl bg-[#fbf6ee] border border-[#ecdcc4] p-3.5">
               <div className="text-[12px] font-bold text-[#b45309]">In attesa</div>
               <div className="text-[22px] font-extrabold mt-1">{eur(s.valPending)}</div>
-              <div className="text-[12px] text-[#8a8a8a]">{s.qPending} preventivi</div>
+              <div className="text-[12px] text-[#6b6b6b]">{s.qPending} preventivi</div>
             </div>
           </div>
-          <div className="mt-3 text-[12.5px] text-[#8a8a8a]">Win rate (accettati / decisi): <b className="text-[#161616]">{pct(s.winRate || 0)}</b></div>
+          <div className="mt-3 text-[12.5px] text-[#6b6b6b]">Win rate (accettati / decisi): <b className="text-[#161616]">{pct(s.winRate || 0)}</b></div>
         </Card>
       </div>
 
       {/* Andamento mensile */}
       <Card className="mb-3.5">
-        <h2 className="text-[15px] font-extrabold mb-3">Andamento ultimi 12 mesi <span className="font-medium text-[#8a8a8a] text-[12.5px]">· ricavi vs costi</span></h2>
+        <h2 className="text-[15px] font-extrabold mb-3">Andamento ultimi 12 mesi <span className="font-medium text-[#6b6b6b] text-[12.5px]">· ricavi vs costi</span></h2>
         <div className="flex items-end gap-1.5 h-[150px]">
           {s.months.map((m) => (
             <div key={m} className="flex-1 flex flex-col items-center justify-end gap-0.5 group relative">
@@ -298,11 +298,11 @@ export const StatsView: React.FC<StatsViewProps> = ({
                 <div className="w-1/2 rounded-t bg-[#161616]" style={{ height: `${(s.revByMonth[m] / s.maxMonth) * 100}%` }} title={`Ricavi ${eur(s.revByMonth[m])}`} />
                 <div className="w-1/2 rounded-t bg-[#d8b4a0]" style={{ height: `${(s.costByMonth[m] / s.maxMonth) * 100}%` }} title={`Costi ${eur(s.costByMonth[m])}`} />
               </div>
-              <span className="text-[9.5px] text-[#a8a8a8] font-medium">{monthLabel(m)}</span>
+              <span className="text-[10.5px] text-[#a8a8a8] font-medium">{monthLabel(m)}</span>
             </div>
           ))}
         </div>
-        <div className="flex gap-4 mt-2 text-[11.5px] text-[#8a8a8a]">
+        <div className="flex gap-4 mt-2 text-[11.5px] text-[#6b6b6b]">
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-[#161616]" /> Ricavi</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded bg-[#d8b4a0]" /> Costi</span>
         </div>
@@ -319,11 +319,11 @@ export const StatsView: React.FC<StatsViewProps> = ({
             {[['attivo', 'Attive', '#2f855a'], ['completato', 'Chiuse', '#161616'], ['sospeso', 'Sospese', '#b45309'], ['annullato', 'Annull.', '#c2410c']].map(([k, lbl, col]) => (
               <div key={k} className="text-center rounded-xl bg-[#f7f7f5] border border-[#ececec] py-2">
                 <div className="text-[20px] font-extrabold" style={{ color: col }}>{s.byStatus[k] || 0}</div>
-                <div className="text-[11px] text-[#8a8a8a] font-medium">{lbl}</div>
+                <div className="text-[12px] text-[#6b6b6b] font-medium">{lbl}</div>
               </div>
             ))}
           </div>
-          <div className="text-[12px] font-bold uppercase tracking-wider text-[#8a8a8a] mb-2">Top commesse per fatturato</div>
+          <div className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b] mb-2">Top commesse per fatturato</div>
           <div className="space-y-1.5">
             {s.topProjects.length === 0 && <p className="text-[12.5px] text-[#a8a8a8]">Nessuna fattura emessa.</p>}
             {s.topProjects.map((p, i) => (
@@ -350,7 +350,7 @@ export const StatsView: React.FC<StatsViewProps> = ({
                   <div className="h-full rounded-full bg-[#161616]" style={{ width: `${(c.open / s.maxCarico) * 100}%` }} />
                 </div>
                 <span className="text-[12.5px] w-8 text-right tabular-nums font-bold">{c.open}</span>
-                {c.overdue > 0 && <span className="text-[11px] font-bold text-[#c2410c] w-16 text-right">{c.overdue} scad.</span>}
+                {c.overdue > 0 && <span className="text-[12px] font-bold text-[#c2410c] w-16 text-right">{c.overdue} scad.</span>}
                 {c.overdue === 0 && <span className="w-16" />}
               </div>
             ))}

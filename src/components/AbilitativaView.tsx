@@ -15,10 +15,10 @@ import { ABIL_VOCI, abilVoceLabel, abilPhaseTasks, type AbilStato, type AbilCell
 
 
 const STATI: { id: AbilStato; label: string; icon: React.ElementType; cls: string }[] = [
-  { id: 'da_fare', label: 'Da fare', icon: Circle, cls: 'bg-white text-[#9a9a9a] border-[#e2e2e2]' },
+  { id: 'da_fare', label: 'Da fare', icon: Circle, cls: 'bg-white text-[#767676] border-[#e2e2e2]' },
   { id: 'in_corso', label: 'In corso', icon: Clock, cls: 'bg-amber-50 text-amber-700 border-amber-200' },
   { id: 'fatto', label: 'Fatto', icon: Check, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  { id: 'non_serve', label: 'Non serve', icon: Minus, cls: 'text-[#b0b0b0] border-[#ececec]' },
+  { id: 'non_serve', label: 'Non serve', icon: Minus, cls: 'text-[#8f8f8f] border-[#ececec]' },
 ];
 const statoMeta = (s: AbilStato) => STATI.find((x) => x.id === s) || STATI[0];
 // Tratteggio come sul foglio a mano per "non serve".
@@ -98,7 +98,7 @@ export const AbilitativaView: React.FC<Props> = ({ projects, cells, tasks, team,
           <div className="w-10 h-10 rounded-2xl bg-[#f5f5f3] flex items-center justify-center text-[#161616]"><ClipboardCheck className="w-5 h-5" /></div>
           <div>
             <h2 className="text-[20px] font-black text-[#161616] leading-tight">Fase abilitativa</h2>
-            <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Per ogni pratica: cosa è fatto e a chi è assegnato. Clicca una casella per aggiornarla.</p>
+            <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Per ogni pratica: cosa è fatto e a chi è assegnato. Clicca una casella per aggiornarla.</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -112,12 +112,12 @@ export const AbilitativaView: React.FC<Props> = ({ projects, cells, tasks, team,
           <motion.div key={k.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
             className="bg-white border border-[#e2e2e2] rounded-[22px] px-4 py-3">
             <div className="text-[22px] font-black text-[#161616]">{k.value}</div>
-            <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">{k.label}</div>
+            <div className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">{k.label}</div>
           </motion.div>
         ))}
       </div>
 
-      <div className="flex items-center gap-3 flex-wrap text-[11.5px] font-bold text-[#8a8a8a]">
+      <div className="flex items-center gap-3 flex-wrap text-[11.5px] font-bold text-[#6b6b6b]">
         {STATI.map((s) => (
           <span key={s.id} className="inline-flex items-center gap-1.5">
             <span className={`w-5 h-5 rounded-md border inline-flex items-center justify-center ${s.cls}`} style={s.id === 'non_serve' ? HATCH : undefined}><s.icon className="w-3 h-3" /></span>
@@ -127,13 +127,13 @@ export const AbilitativaView: React.FC<Props> = ({ projects, cells, tasks, team,
       </div>
 
       {cols.length === 0 ? (
-        <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center text-[13px] text-[#9a9a9a]">Nessuna pratica Onirico attiva.</div>
+        <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center text-[13px] text-[#767676]">Nessuna pratica Onirico attiva.</div>
       ) : (
         <div className="bg-white border border-[#e2e2e2] rounded-[22px] overflow-x-auto">
           <table className="border-separate border-spacing-0 w-max">
             <thead>
               <tr>
-                <th className="sticky left-0 z-10 bg-white text-left px-4 py-3 text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] border-b border-[#efefef] min-w-[190px]">Documento</th>
+                <th className="sticky left-0 z-10 bg-white text-left px-4 py-3 text-[12px] font-extrabold uppercase tracking-wider text-[#767676] border-b border-[#efefef] min-w-[190px]">Documento</th>
                 <AnimatePresence initial={false}>
                   {visibleCols.map((p) => {
                     const pct = colPct(p.id);
@@ -144,7 +144,7 @@ export const AbilitativaView: React.FC<Props> = ({ projects, cells, tasks, team,
                         <div className="h-1 rounded-full bg-[#f0f0ee] mt-2 overflow-hidden">
                           <motion.div className="h-full rounded-full bg-emerald-500" initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} />
                         </div>
-                        <div className="text-[10px] font-bold text-[#b0b0b0] mt-1">{pct}%</div>
+                        <div className="text-[11px] font-bold text-[#8f8f8f] mt-1">{pct}%</div>
                       </motion.th>
                     );
                   })}
@@ -172,7 +172,7 @@ export const AbilitativaView: React.FC<Props> = ({ projects, cells, tasks, team,
                           whileHover={canEdit ? { scale: 1.05 } : undefined}
                           whileTap={canEdit ? { scale: 0.95 } : undefined}
                           title={`${v.label} · ${p.name}: ${m.label}${who ? ' · ' + who : ''}${c.due ? ' · entro ' + c.due : ''}`}
-                          className={`relative w-full min-w-[88px] h-11 rounded-xl border inline-flex items-center justify-center gap-1.5 text-[11px] font-extrabold ${m.cls} ${canEdit ? 'cursor-pointer' : 'cursor-default'}`}
+                          className={`relative w-full min-w-[88px] h-11 rounded-xl border inline-flex items-center justify-center gap-1.5 text-[12px] font-extrabold ${m.cls} ${canEdit ? 'cursor-pointer' : 'cursor-default'}`}
                           style={c.stato === 'non_serve' ? HATCH : undefined}
                         >
                           <AnimatePresence mode="wait" initial={false}>
@@ -180,8 +180,8 @@ export const AbilitativaView: React.FC<Props> = ({ projects, cells, tasks, team,
                               className="inline-flex"><m.icon className="w-3.5 h-3.5" /></motion.span>
                           </AnimatePresence>
                           {c.stato !== 'non_serve' && (who
-                            ? <span className="w-6 h-6 rounded-full bg-[#161616] text-white text-[9.5px] font-black inline-flex items-center justify-center" title={who}>{initials(who)}</span>
-                            : c.stato !== 'fatto' && <span className="text-[10px] font-bold text-[#c0c0c0]">—</span>)}
+                            ? <span className="w-6 h-6 rounded-full bg-[#161616] text-white text-[10.5px] font-black inline-flex items-center justify-center" title={who}>{initials(who)}</span>
+                            : c.stato !== 'fatto' && <span className="text-[11px] font-bold text-[#9a9a9a]">—</span>)}
                           {late && <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-rose-500" title="Scaduta" />}
                         </motion.button>
                       </td>
@@ -228,7 +228,7 @@ const CellEditor: React.FC<{
     <Modal isOpen title={title} subtitle={subtitle} onClose={onClose}
       footer={
         <div className="flex items-center justify-between gap-2 w-full">
-          <button type="button" onClick={() => onSave(null)} className="text-[12px] font-bold text-[#9a9a9a] hover:text-[#161616] bg-transparent border-none cursor-pointer">Azzera casella</button>
+          <button type="button" onClick={() => onSave(null)} className="text-[12px] font-bold text-[#767676] hover:text-[#161616] bg-transparent border-none cursor-pointer">Azzera casella</button>
           <div className="flex gap-2">
             <button type="button" onClick={onClose} className="inline-flex items-center justify-center px-4 py-2 rounded-xl text-[13px] cursor-pointer bg-gray-100 hover:bg-gray-200 border-none text-[#161616] font-bold">Annulla</button>
             <button type="button" onClick={() => onSave({ ...cell, stato, assignee: stato === 'non_serve' ? null : (assignee || null), due: due || null, note: note.trim() || null })}
@@ -238,7 +238,7 @@ const CellEditor: React.FC<{
       }>
       <div className="flex flex-col gap-4">
         <div>
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Stato</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">Stato</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {STATI.map((s) => (
               <motion.button key={s.id} type="button" whileTap={{ scale: 0.95 }} onClick={() => setStato(s.id)}
@@ -252,24 +252,24 @@ const CellEditor: React.FC<{
         {stato !== 'non_serve' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <label className="flex flex-col gap-1">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Assegnata a</span>
+              <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Assegnata a</span>
               <select value={assignee} onChange={(e) => setAssignee(e.target.value)} className="input">
                 <option value="">— nessuno —</option>
                 {team.map((t) => <option key={t.uid} value={t.uid}>{t.name}</option>)}
               </select>
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Entro il <span className="normal-case font-bold">(facoltativo)</span></span>
+              <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Entro il <span className="normal-case font-bold">(facoltativo)</span></span>
               <input type="date" value={due} onChange={(e) => setDue(e.target.value)} className="input" />
             </label>
           </div>
         )}
         <label className="flex flex-col gap-1">
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Nota</span>
+          <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Nota</span>
           <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className="input" placeholder="Es. in attesa del tecnico, protocollo n…" />
         </label>
         {stato !== 'non_serve' && assignee && (
-          <p className="text-[11.5px] text-[#9a9a9a] font-semibold">L'attività comparirà nell'agenda della persona assegnata; quando la spunta lì, qui risulterà fatta.</p>
+          <p className="text-[11.5px] text-[#767676] font-semibold">L'attività comparirà nell'agenda della persona assegnata; quando la spunta lì, qui risulterà fatta.</p>
         )}
       </div>
     </Modal>

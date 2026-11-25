@@ -289,7 +289,7 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
             <button onClick={() => submit('email')} disabled={busy} className="flex items-center justify-center gap-2 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[14px] w-full mt-5 h-11 transition active:scale-[0.98] disabled:opacity-60">
               {busy ? t('auth.busy.wait') : t('auth.completing.submit')} <ArrowRight className="w-4 h-4" />
             </button>
-            <button onClick={onLogout} className="text-[12px] text-stone-400 hover:text-stone-600 font-semibold w-full text-center mt-3">
+            <button onClick={onLogout} className="text-[12px] text-stone-500 hover:text-stone-600 font-semibold w-full text-center mt-3">
               {t('auth.completing.logout', { email: gUser?.email || '' })}
             </button>
           </div>
@@ -352,12 +352,12 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
               <div className="relative">
                 <input type={showPass ? 'text' : 'password'} value={liPass} onChange={(e) => setLiPass(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleLogin()} className={IN_PWD} placeholder="••••••••" />
-                <button type="button" onClick={() => setShowPass(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600">
+                <button type="button" onClick={() => setShowPass(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-600">
                   {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </Field>
-            <button onClick={handleReset} className="text-[11.5px] font-bold text-stone-400 hover:text-[#161616] text-right -mt-1.5">
+            <button onClick={handleReset} className="text-[11.5px] font-bold text-stone-500 hover:text-[#161616] text-right -mt-1.5">
               {t('auth.login.forgot')}
             </button>
 
@@ -369,7 +369,7 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
 
             <div className="flex items-center gap-3 my-1">
               <div className="h-px flex-1 bg-[#ececec]" />
-              <span className="text-[11px] font-bold text-stone-400 uppercase">{t('auth.or')}</span>
+              <span className="text-[12px] font-bold text-stone-500 uppercase">{t('auth.or')}</span>
               <div className="h-px flex-1 bg-[#ececec]" />
             </div>
 
@@ -435,11 +435,11 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
             <button onClick={handleGoogle} disabled={busy} className="flex items-center justify-center gap-3 h-11 rounded-xl border border-stone-300 hover:bg-stone-50 hover:border-stone-400 font-bold text-[14px] w-full disabled:opacity-60">
               <GoogleMark /> {t('auth.googleRegister')}
             </button>
-            <p className="text-center text-[11.5px] text-stone-400 mt-2">Veloce: nome ed email vengono presi da Google, ti chiediamo solo pochi dati.</p>
+            <p className="text-center text-[11.5px] text-stone-500 mt-2">Veloce: nome ed email vengono presi da Google, ti chiediamo solo pochi dati.</p>
 
             <div className="flex items-center gap-3 my-4">
               <div className="h-px flex-1 bg-[#ececec]" />
-              <span className="text-[11px] font-bold text-stone-400 uppercase">{t('auth.or')}</span>
+              <span className="text-[12px] font-bold text-stone-500 uppercase">{t('auth.or')}</span>
               <div className="h-px flex-1 bg-[#ececec]" />
             </div>
 
@@ -455,7 +455,7 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
               <Field label={t('auth.field.password')} icon={<Lock className="w-3.5 h-3.5" />}>
                 <div className="relative">
                   <input type={showPass ? 'text' : 'password'} value={pass} onChange={(e) => setPass(e.target.value)} className={IN_PWD} placeholder={t('auth.register.passwordPlaceholder')} />
-                  <button type="button" onClick={() => setShowPass(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600">
+                  <button type="button" onClick={() => setShowPass(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-600">
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -499,7 +499,7 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
                 {t.icon}
               </div>
               <b className="block text-[14px]">{t.title}</b>
-              <span className={`block text-[11px] leading-snug mt-0.5 ${on ? 'text-white/70' : 'text-stone-500'}`}>{t.desc}</span>
+              <span className={`block text-[12px] leading-snug mt-0.5 ${on ? 'text-white/70' : 'text-stone-500'}`}>{t.desc}</span>
             </button>
           );
         })}
@@ -513,7 +513,7 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
         {/* Con login Google nome/cognome/email arrivano da Google: chiediamo solo il resto. */}
         {completing ? (
           <div className="col-span-2 flex items-center gap-2.5 p-2.5 rounded-xl bg-[#fafafa] border border-[#ececec]">
-            {gUser?.photoURL ? <img src={gUser.photoURL} alt="" className="w-9 h-9 rounded-full" /> : <UserIcon className="w-5 h-5 text-stone-400" />}
+            {gUser?.photoURL ? <img src={gUser.photoURL} alt="" className="w-9 h-9 rounded-full" /> : <UserIcon className="w-5 h-5 text-stone-500" />}
             <div className="min-w-0">
               <b className="block text-[13px] text-[#161616] truncate">{gUser?.displayName || `${firstName} ${lastName}`.trim() || '—'}</b>
               <span className="block text-[11.5px] text-stone-500 truncate">{gUser?.email}</span>
@@ -539,8 +539,8 @@ export const AuthFlow: React.FC<AuthFlowProps> = ({ gUser, pendingProfile, onToa
         {accountType === 'azienda' && (
           <>
             <div className="col-span-2 mt-1 mb-0.5 flex items-center gap-2">
-              <Briefcase className="w-3.5 h-3.5 text-stone-400" />
-              <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400">{t('auth.field.companyData')}</span>
+              <Briefcase className="w-3.5 h-3.5 text-stone-500" />
+              <span className="text-[12px] font-extrabold uppercase tracking-wide text-stone-500">{t('auth.field.companyData')}</span>
               <div className="h-px flex-1 bg-[#ececec]" />
             </div>
             <Field label={t('auth.field.companyName')} full>

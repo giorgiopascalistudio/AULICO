@@ -107,14 +107,14 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[14px] font-extrabold text-[#161616]">{q.number || '(senza numero)'}</span>
               {q.docKind === 'parcella' && (
-                <span className="text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider bg-[#f1f1f1] text-[#555]">Parcella</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider bg-[#f1f1f1] text-[#555]">Parcella</span>
               )}
-              <span className="inline-flex items-center gap-1.5 text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider bg-[#f1f1f1] text-[#555]">
+              <span className="inline-flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider bg-[#f1f1f1] text-[#555]">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: col }} />{COMPANY_LABEL[(q.division || 'studio') as Company]}
               </span>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${STATUS_STYLE[q.status]}`}>{STATUS_LABEL[q.status]}</span>
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${STATUS_STYLE[q.status]}`}>{STATUS_LABEL[q.status]}</span>
             </div>
-            <div className="text-[12px] text-[#8a8a8a] mt-0.5">
+            <div className="text-[12px] text-[#6b6b6b] mt-0.5">
               {q.clientName} · imponibile {eur(totals.imponibile)}
               {(totals.cassa > 0 || totals.iva > 0) && <> · <b className="text-[#161616]">totale {eur(totals.totale)}</b></>}
               {plan.length > 0 ? ` · fatturato ${eur(fatturato)}/${eur(q.total)}` : ''}
@@ -135,11 +135,11 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
           <div className="mt-3 pt-3 border-t border-[#f2f2f2] flex flex-col gap-3">
             {/* righe */}
             <div>
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Voci</span>
+              <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Voci</span>
               <div className="mt-1.5 flex flex-col gap-1">
                 {(q.lines || []).map((l) => (
                   <div key={l.id} className="flex items-center justify-between gap-2 text-[12.5px] px-3 py-1.5 rounded-lg bg-[#fafafa] border border-[#f0f0f0]">
-                    <span className="truncate"><span className="text-[10px] font-bold uppercase text-[#9a9a9a] mr-2">{MACRO_LABEL[l.macro]}</span>{l.desc}</span>
+                    <span className="truncate"><span className="text-[11px] font-bold uppercase text-[#767676] mr-2">{MACRO_LABEL[l.macro]}</span>{l.desc}</span>
                     <span className="font-bold shrink-0">{eur(l.amount)}</span>
                   </div>
                 ))}
@@ -148,16 +148,16 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
             {/* riepilogo IVA/cassa */}
             {(totals.cassa > 0 || totals.iva > 0) && (
               <div className="flex items-center justify-end gap-4 text-[12px] px-3 py-2 rounded-lg bg-[#fafafa] border border-[#f0f0f0]">
-                <span className="text-[#8a8a8a]">Imponibile <b className="text-[#161616]">{eur(totals.imponibile)}</b></span>
-                {totals.cassa > 0 && <span className="text-[#8a8a8a]">Cassa {q.cassaPct ?? 4}% <b className="text-[#161616]">{eur(totals.cassa)}</b></span>}
-                {totals.iva > 0 && <span className="text-[#8a8a8a]">IVA {q.vatPct ?? 22}% <b className="text-[#161616]">{eur(totals.iva)}</b></span>}
+                <span className="text-[#6b6b6b]">Imponibile <b className="text-[#161616]">{eur(totals.imponibile)}</b></span>
+                {totals.cassa > 0 && <span className="text-[#6b6b6b]">Cassa {q.cassaPct ?? 4}% <b className="text-[#161616]">{eur(totals.cassa)}</b></span>}
+                {totals.iva > 0 && <span className="text-[#6b6b6b]">IVA {q.vatPct ?? 22}% <b className="text-[#161616]">{eur(totals.iva)}</b></span>}
                 <span className="font-black text-[#161616]">Totale {eur(totals.totale)}</span>
               </div>
             )}
             {/* piano pagamenti */}
             {plan.length > 0 && (
               <div>
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Piano pagamenti</span>
+                <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Piano pagamenti</span>
                 <div className="mt-1.5 flex flex-col gap-1">
                   {plan.map((m) => (
                     <div key={m.id} className="flex items-center justify-between gap-2 text-[12.5px] px-3 py-1.5 rounded-lg border border-[#f0f0f0]">
@@ -165,9 +165,9 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="font-bold">{eur(m.amount)}</span>
                         {m.status === 'da_emettere' ? (
-                          <button onClick={() => onEmitMilestone(q.id, m.id)} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold border-none cursor-pointer"><Receipt className="w-3.5 h-3.5" /> Emetti</button>
+                          <button onClick={() => onEmitMilestone(q.id, m.id)} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-bold border-none cursor-pointer"><Receipt className="w-3.5 h-3.5" /> Emetti</button>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-bold bg-indigo-50 text-indigo-700">{m.status === 'incassato' ? 'Incassato' : 'Fatturato'}</span>
+                          <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full font-bold bg-indigo-50 text-indigo-700">{m.status === 'incassato' ? 'Incassato' : 'Fatturato'}</span>
                         )}
                       </div>
                     </div>
@@ -190,12 +190,12 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] leading-none flex items-center gap-2">
             <FileSignature className="w-5 h-5" /> Preventivi &amp; Parcelle
             {!showAll && (
-              <span className="inline-flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider bg-[#f1f1f1] text-[#555]">
+              <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider bg-[#f1f1f1] text-[#555]">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: COMPANY_COLOR[company as Company] }} />{COMPANY_LABEL[company as Company]}
               </span>
             )}
           </h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1.5">Registro per società con macro-voci, stati, IVA/cassa e piano pagamenti collegato alla fatturazione.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1.5">Registro per società con macro-voci, stati, IVA/cassa e piano pagamenti collegato alla fatturazione.</p>
         </div>
         <div className="flex items-center gap-2">
           <ExportMenu
@@ -240,7 +240,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
       {list.length === 0 ? (
         <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
           <FileSignature className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-          <p className="text-[13.5px] text-[#8a8a8a] font-semibold">Nessun preventivo{showAll ? '' : ` per ${COMPANY_LABEL[company as Company]}`}. Creane uno con "Nuovo preventivo".</p>
+          <p className="text-[13.5px] text-[#6b6b6b] font-semibold">Nessun preventivo{showAll ? '' : ` per ${COMPANY_LABEL[company as Company]}`}. Creane uno con "Nuovo preventivo".</p>
         </div>
       ) : showAll ? (
         <div className="flex flex-col gap-6">
@@ -251,7 +251,7 @@ export const QuotesView: React.FC<QuotesViewProps> = ({ quotes, clients, project
                 <h3 className="text-[13px] font-black uppercase tracking-wider text-[#161616]">
                   {COMPANY_LABEL[g.company]}
                 </h3>
-                <span className="text-[10.5px] font-bold text-[#8a8a8a]">{g.items.length} · {eur(g.items.reduce((s, q) => s + (q.total || 0), 0))}</span>
+                <span className="text-[11.5px] font-bold text-[#6b6b6b]">{g.items.length} · {eur(g.items.reduce((s, q) => s + (q.total || 0), 0))}</span>
                 <span className="flex-1 h-px bg-[#e2e2e2]" />
               </div>
               {g.items.map(renderQuote)}
@@ -361,7 +361,7 @@ export const PriceListModal: React.FC<{ items: PriceItem[]; company?: string; on
       footer={<button onClick={() => { onSave([...hidden, ...rows.filter((x) => x.label.trim())]); onClose(); }} className="btn bg-[#1b1b1b] text-white hover:bg-black font-semibold cursor-pointer justify-center">Salva listino</button>}>
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <span className="text-[12px] text-[#8a8a8a] font-semibold flex-1 min-w-[220px]">
+          <span className="text-[12px] text-[#6b6b6b] font-semibold flex-1 min-w-[220px]">
             Voci riusabili in preventivi e stime{scoped ? ` di ${socLabel}` : ''}. <b>% valore</b> = quanto la voce
             aumenta il valore dell'immobile nel preventivo interattivo del portale.
           </span>
@@ -372,12 +372,12 @@ export const PriceListModal: React.FC<{ items: PriceItem[]; company?: string; on
             <button onClick={add} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> Voce</button>
           </div>
         </div>
-        {rows.length === 0 && <p className="text-[13px] text-[#8a8a8a] py-6 text-center">Nessuna voce. Aggiungine una con "Voce".</p>}
+        {rows.length === 0 && <p className="text-[13px] text-[#6b6b6b] py-6 text-center">Nessuna voce. Aggiungine una con "Voce".</p>}
         {/* Su mobile la riga scorre in orizzontale invece di schiacciare i campi */}
         {rows.length > 0 && (
           <div className="overflow-x-auto -mx-1 px-1">
             <div className="min-w-[560px] flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-[9.5px] font-extrabold uppercase tracking-wider text-[#9a9a9a] px-1">
+              <div className="flex items-center gap-2 text-[10.5px] font-extrabold uppercase tracking-wider text-[#767676] px-1">
                 <span className="flex-1">Descrizione</span>
                 <span className="w-[130px] shrink-0">Macro</span>
                 {!scoped && <span className="w-[110px] shrink-0">Società</span>}
@@ -413,7 +413,7 @@ export const PriceListModal: React.FC<{ items: PriceItem[]; company?: string; on
 
 const Kpi: React.FC<{ label: string; value: string; accent?: boolean }> = ({ label, value, accent }) => (
   <div className={`rounded-2xl p-3.5 border ${accent ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white border-[#e2e2e2]'}`}>
-    <div className={`text-[10px] font-bold uppercase tracking-wider ${accent ? 'text-white/60' : 'text-[#9a9a9a]'}`}>{label}</div>
+    <div className={`text-[11px] font-bold uppercase tracking-wider ${accent ? 'text-white/60' : 'text-[#9a9a9a]'}`}>{label}</div>
     <div className="text-[18px] font-black mt-0.5">{value}</div>
   </div>
 );

@@ -181,7 +181,7 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
           <h3 className="text-[16px] font-extrabold text-[#161616] flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#161616]" /> {t('req.tellIdea')}
           </h3>
-          <p className="text-[12.5px] text-[#8a8a8a] mt-0.5 leading-snug">
+          <p className="text-[12.5px] text-[#6b6b6b] mt-0.5 leading-snug">
             {t('req.tellIdeaSub.a')}<b className="text-[#161616] font-bold">{t('req.tellIdeaSub.bold')}</b>{t('req.tellIdeaSub.b')}
           </p>
         </div>
@@ -214,14 +214,14 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
                     <div className="flex items-center gap-2">
                       <b className="text-[13.5px] text-[#161616] truncate">{r.title}</b>
                       {r.mood > 0 && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-md px-1.5 py-0.5">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-md px-1.5 py-0.5">
                           <Box className="w-3 h-3" /> 3D
                         </span>
                       )}
                     </div>
-                    <span className="text-[11.5px] text-[#8a8a8a]">{m.name} · {fmtDay(new Date(r.at))}</span>
+                    <span className="text-[11.5px] text-[#6b6b6b]">{m.name} · {fmtDay(new Date(r.at))}</span>
                   </div>
-                  <span className={`shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-full border ${stCls}`}>{stLabel}</span>
+                  <span className={`shrink-0 text-[12px] font-bold px-2.5 py-1 rounded-full border ${stCls}`}>{stLabel}</span>
                 </div>
               );
             })}
@@ -246,7 +246,7 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
                 )}
                 <div>
                   <b className="text-[15px] text-[#161616]">{step === 1 ? t('req.step1Title') : t('req.step2Title')}</b>
-                  <div className="text-[11.5px] text-[#8a8a8a]">{t('req.stepOf', { step })}</div>
+                  <div className="text-[11.5px] text-[#6b6b6b]">{t('req.stepOf', { step })}</div>
                 </div>
               </div>
               <button onClick={close} className="w-8 h-8 rounded-lg hover:bg-[#f2f2f0] flex items-center justify-center cursor-pointer">
@@ -270,7 +270,7 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
                           <d.icon className="w-5 h-5" />
                         </div>
                         <b className="block text-[14px]">{d.name}</b>
-                        <span className={`block text-[10.5px] font-bold uppercase tracking-wide mt-0.5 ${on ? 'text-white/70' : 'text-stone-400'}`}>{t('div.' + d.key + '.sub')}</span>
+                        <span className={`block text-[11.5px] font-bold uppercase tracking-wide mt-0.5 ${on ? 'text-white/70' : 'text-stone-400'}`}>{t('div.' + d.key + '.sub')}</span>
                         <span className={`block text-[11.5px] leading-snug mt-1.5 ${on ? 'text-white/80' : 'text-stone-500'}`}>{t('div.' + d.key + '.desc')}</span>
                       </button>
                     );
@@ -315,20 +315,20 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
                   {useMoodboard && (
                     <div className="rounded-2xl border border-[#e6e6e6] bg-[#fafafa] p-3.5 flex flex-col gap-2.5">
                       <b className="text-[13px] text-[#161616] flex items-center gap-1.5"><Sparkles className="w-4 h-4 text-[#b45309]" /> Bozza immagine AI</b>
-                      <span className="text-[11.5px] text-[#8a8a8a] -mt-1">Carica una foto (la stanza, la facciata o il lotto), rispondi al breve questionario e genera una bozza d'idea. Risultato indicativo.</span>
+                      <span className="text-[11.5px] text-[#6b6b6b] -mt-1">Carica una foto (la stanza, la facciata o il lotto), rispondi al breve questionario e genera una bozza d'idea. Risultato indicativo.</span>
                       <label className="text-[12px] font-bold px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] cursor-pointer hover:bg-[#f5f5f5] self-start">
                         {photoB64 ? 'Cambia foto' : 'Carica foto'}
                         <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onPhoto(f); }} />
                       </label>
                       {/* Questionario */}
                       <div className="grid grid-cols-2 gap-2">
-                        <label className="flex flex-col gap-1"><span className="text-[10.5px] font-bold text-[#8a8a8a]">Ambiente</span>
+                        <label className="flex flex-col gap-1"><span className="text-[11.5px] font-bold text-[#6b6b6b]">Ambiente</span>
                           <select value={ambiente} onChange={(e) => setAmbiente(e.target.value)} className="input h-9 px-2 text-[13px]">{AMBIENTI.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
-                        <label className="flex flex-col gap-1"><span className="text-[10.5px] font-bold text-[#8a8a8a]">Stile</span>
+                        <label className="flex flex-col gap-1"><span className="text-[11.5px] font-bold text-[#6b6b6b]">Stile</span>
                           <select value={style} onChange={(e) => setStyle(e.target.value)} className="input h-9 px-2 text-[13px]">{STYLES.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
-                        <label className="flex flex-col gap-1"><span className="text-[10.5px] font-bold text-[#8a8a8a]">Palette colori</span>
+                        <label className="flex flex-col gap-1"><span className="text-[11.5px] font-bold text-[#6b6b6b]">Palette colori</span>
                           <select value={palette} onChange={(e) => setPalette(e.target.value)} className="input h-9 px-2 text-[13px]">{PALETTE.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
-                        <label className="flex flex-col gap-1"><span className="text-[10.5px] font-bold text-[#8a8a8a]">Atmosfera</span>
+                        <label className="flex flex-col gap-1"><span className="text-[11.5px] font-bold text-[#6b6b6b]">Atmosfera</span>
                           <select value={atmosfera} onChange={(e) => setAtmosfera(e.target.value)} className="input h-9 px-2 text-[13px]">{ATMOSFERE.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
                       </div>
                       <button type="button" onClick={generateDraft} disabled={!photoB64 || genLoading} className="self-start text-[12px] font-bold px-3 py-2 rounded-xl bg-[#1b1b1b] text-white border-none cursor-pointer disabled:opacity-40">
@@ -337,10 +337,10 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
                       {genErr && <span className="text-[11.5px] text-red-600">{genErr}</span>}
                       <div className="flex gap-3 flex-wrap">
                         {photoB64 && (
-                          <div className="flex flex-col gap-1"><span className="text-[10.5px] text-[#8a8a8a] font-bold">Foto</span><img src={photoB64} alt="foto" className="w-28 h-28 object-cover rounded-xl border border-[#e2e2e2]" /></div>
+                          <div className="flex flex-col gap-1"><span className="text-[11.5px] text-[#6b6b6b] font-bold">Foto</span><img src={photoB64} alt="foto" className="w-28 h-28 object-cover rounded-xl border border-[#e2e2e2]" /></div>
                         )}
                         {draftImage && (
-                          <div className="flex flex-col gap-1"><span className="text-[10.5px] text-[#b45309] font-bold">Bozza ({style})</span><img src={draftImage} alt="bozza" className="w-28 h-28 object-cover rounded-xl border border-[#b45309]" /></div>
+                          <div className="flex flex-col gap-1"><span className="text-[11.5px] text-[#b45309] font-bold">Bozza ({style})</span><img src={draftImage} alt="bozza" className="w-28 h-28 object-cover rounded-xl border border-[#b45309]" /></div>
                         )}
                       </div>
                     </div>
@@ -351,7 +351,7 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
                     <div className="rounded-2xl border border-[#e6e6e6] bg-[#fafafa] p-3.5 flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <b className="text-[13px] text-[#161616] flex items-center gap-1.5"><Layers className="w-4 h-4 text-indigo-600" /> {t('req.mb3d')}</b>
-                        <span className="block text-[11.5px] text-[#8a8a8a] mt-0.5">
+                        <span className="block text-[11.5px] text-[#6b6b6b] mt-0.5">
                           {moodboard.length ? t('req.mbComposed', { n: moodboard.length }) : t('req.mbCompose')}
                         </span>
                       </div>

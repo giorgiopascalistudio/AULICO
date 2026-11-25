@@ -55,14 +55,14 @@ export const CredenzialiView: React.FC<Props> = ({ entries, config, soc, socLabe
           <span className="w-14 h-14 rounded-2xl bg-[#161616] text-white flex items-center justify-center"><Lock className="w-6 h-6" /></span>
           <h3 className="text-[18px] font-extrabold text-[#161616]">Cassaforte credenziali</h3>
           {!hasPass && !setup && (<>
-            <p className="text-[12.5px] text-[#8a8a8a]">Nessuna password impostata.{canEdit ? ' Impostane una.' : ' Chiedi a un amministratore.'}</p>
+            <p className="text-[12.5px] text-[#6b6b6b]">Nessuna password impostata.{canEdit ? ' Impostane una.' : ' Chiedi a un amministratore.'}</p>
             {canEdit && <button onClick={() => { setSetup(true); setErr(''); }} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Imposta password</button>}
           </>)}
           {hasPass && !setup && (<>
             <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && tryUnlock()} placeholder="Password sezione" autoFocus className="w-full px-3 py-2.5 rounded-xl border border-[#e2e2e2] text-[14px] outline-none focus:border-[#161616] bg-white" />
             {err && <p className="text-[12px] text-rose-600 font-semibold">{err}</p>}
             <button onClick={tryUnlock} disabled={!pass} className="w-full px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Sblocca</button>
-            {canEdit && <button onClick={() => { setSetup(true); setErr(''); }} className="text-[11.5px] font-semibold text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none">Reimposta password (amministratore)</button>}
+            {canEdit && <button onClick={() => { setSetup(true); setErr(''); }} className="text-[11.5px] font-semibold text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">Reimposta password (amministratore)</button>}
           </>)}
           {setup && canEdit && (<>
             <input type="password" value={np1} onChange={(e) => setNp1(e.target.value)} placeholder="Nuova password" autoFocus className="w-full px-3 py-2.5 rounded-xl border border-[#e2e2e2] text-[14px] outline-none focus:border-[#161616] bg-white" />
@@ -70,7 +70,7 @@ export const CredenzialiView: React.FC<Props> = ({ entries, config, soc, socLabe
             {err && <p className="text-[12px] text-rose-600 font-semibold">{err}</p>}
             <div className="flex items-center gap-2 w-full"><button onClick={() => { setSetup(false); setErr(''); }} className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-[#e2e2e2] text-[13px] font-bold cursor-pointer">Annulla</button><button onClick={saveNew} className="flex-1 px-4 py-2.5 rounded-xl bg-[#161616] text-white text-[13px] font-bold cursor-pointer border-none">Salva</button></div>
           </>)}
-          <p className="text-[10.5px] text-[#b8b8b8] mt-1">Protezione a livello UI: le credenziali sono condivise nel gruppo. La master password è comune alla cassaforte.</p>
+          <p className="text-[11.5px] text-[#b8b8b8] mt-1">Protezione a livello UI: le credenziali sono condivise nel gruppo. La master password è comune alla cassaforte.</p>
         </div>
       </div>
     );
@@ -80,26 +80,26 @@ export const CredenzialiView: React.FC<Props> = ({ entries, config, soc, socLabe
     <div className="flex flex-col gap-5 text-left">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div><h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><KeyRound className="w-5.5 h-5.5" /> Credenziali & password {socLabel ? `· ${socLabel}` : ''}</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Accessi a siti, portali, software e strumenti della società.</p></div>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Accessi a siti, portali, software e strumenti della società.</p></div>
         <div className="flex items-center gap-2">
           {canEdit && <button onClick={() => setEditing(blank())} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuova credenziale</button>}
           <button onClick={() => setUnlocked(false)} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Lock className="w-3.5 h-3.5" /> Blocca</button>
         </div>
       </div>
       {list.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Nessuna credenziale per questa società.</p>
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Nessuna credenziale per questa società.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {list.map((e) => { const url = e.url ? safeUrl(e.url) : null; const shown = reveal[e.id]; return (
             <div key={e.id} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm flex flex-col gap-2">
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0"><b className="text-[13.5px] text-[#161616] truncate block">{e.label}</b><span className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">{CAT_LABEL[e.category || 'altro']}</span></div>
+                <div className="min-w-0"><b className="text-[13.5px] text-[#161616] truncate block">{e.label}</b><span className="text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0]">{CAT_LABEL[e.category || 'altro']}</span></div>
                 {canEdit && <div className="flex items-center gap-1 shrink-0"><button onClick={() => setEditing(e)} className="p-1.5 rounded-lg hover:bg-gray-100 text-[#666] cursor-pointer bg-transparent border-none"><Eye className="w-3.5 h-3.5" /></button><button onClick={() => onDelete?.(e.id)} className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button></div>}
               </div>
               {url && <a href={url} target="_blank" rel="noreferrer" className="text-[12px] text-indigo-600 hover:underline inline-flex items-center gap-1 truncate"><ExternalLink className="w-3 h-3 shrink-0" /> {e.url}</a>}
-              {e.username && <div className="flex items-center justify-between gap-2 bg-gray-50 border border-[#eee] rounded-lg px-2.5 py-1.5"><span className="text-[12px] text-[#333] truncate"><span className="text-[#a0a0a0]">Utente:</span> {e.username}</span><button onClick={() => copy(e.username!)} className="text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none shrink-0"><Copy className="w-3.5 h-3.5" /></button></div>}
-              {e.password && <div className="flex items-center justify-between gap-2 bg-gray-50 border border-[#eee] rounded-lg px-2.5 py-1.5"><span className="text-[12px] text-[#333] font-mono truncate">{shown ? e.password : '•'.repeat(Math.min(12, e.password.length))}</span><div className="flex items-center gap-1.5 shrink-0"><button onClick={() => setReveal((r) => ({ ...r, [e.id]: !r[e.id] }))} className="text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none">{shown ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}</button><button onClick={() => copy(e.password!)} className="text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none"><Copy className="w-3.5 h-3.5" /></button></div></div>}
-              {e.note && <p className="text-[11.5px] text-[#8a8a8a] leading-relaxed">{e.note}</p>}
+              {e.username && <div className="flex items-center justify-between gap-2 bg-gray-50 border border-[#eee] rounded-lg px-2.5 py-1.5"><span className="text-[12px] text-[#333] truncate"><span className="text-[#a0a0a0]">Utente:</span> {e.username}</span><button onClick={() => copy(e.username!)} className="text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none shrink-0"><Copy className="w-3.5 h-3.5" /></button></div>}
+              {e.password && <div className="flex items-center justify-between gap-2 bg-gray-50 border border-[#eee] rounded-lg px-2.5 py-1.5"><span className="text-[12px] text-[#333] font-mono truncate">{shown ? e.password : '•'.repeat(Math.min(12, e.password.length))}</span><div className="flex items-center gap-1.5 shrink-0"><button onClick={() => setReveal((r) => ({ ...r, [e.id]: !r[e.id] }))} className="text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">{shown ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}</button><button onClick={() => copy(e.password!)} className="text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none"><Copy className="w-3.5 h-3.5" /></button></div></div>}
+              {e.note && <p className="text-[11.5px] text-[#6b6b6b] leading-relaxed">{e.note}</p>}
             </div>
           ); })}
         </div>
@@ -123,7 +123,7 @@ const CredEditor: React.FC<{ entry: VaultEntry; onClose: () => void; onSave: (e:
           <select value={d.category || 'sito'} onChange={(e) => set({ category: e.target.value as VaultCategory })} className={inp}>{CATS.map((c) => <option key={c} value={c}>{CAT_LABEL[c]}</option>)}</select>
           <input value={d.url || ''} onChange={(e) => set({ url: e.target.value || null })} placeholder="URL (https://…)" className={inp} />
           <input value={d.username || ''} onChange={(e) => set({ username: e.target.value || null })} placeholder="Utente / email" className={inp} />
-          <div className="relative"><input type={show ? 'text' : 'password'} value={d.password || ''} onChange={(e) => set({ password: e.target.value || null })} placeholder="Password / chiave" className={`${inp} pr-10`} /><button onClick={() => setShow((s) => !s)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none">{show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button></div>
+          <div className="relative"><input type={show ? 'text' : 'password'} value={d.password || ''} onChange={(e) => set({ password: e.target.value || null })} placeholder="Password / chiave" className={`${inp} pr-10`} /><button onClick={() => setShow((s) => !s)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">{show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button></div>
           <textarea value={d.note || ''} onChange={(e) => set({ note: e.target.value || null })} placeholder="Note (2FA, recupero…)" rows={2} className={`${inp} resize-none`} />
           <button onClick={() => onSave({ ...d, label: d.label.trim(), updatedAt: Date.now() })} disabled={!d.label.trim()} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Salva</button>
         </div>

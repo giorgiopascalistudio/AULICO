@@ -93,8 +93,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           {activeSocietyCfg && (
             <button onClick={() => { setOpenSoc(activeSocieta); setSocOpen(true); }} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#f3f3f1] border border-[#e6e6e4] cursor-pointer min-w-0">
               <span className="w-2 h-2 rounded-full shrink-0" style={{ background: activeSocietyCfg.color }} />
-              <span className="text-[11px] font-extrabold text-[#444] truncate">{activeSocietyCfg.label}</span>
-              <ChevronDown className="w-3 h-3 text-[#9a9a9a] shrink-0" />
+              <span className="text-[12px] font-extrabold text-[#444] truncate">{activeSocietyCfg.label}</span>
+              <ChevronDown className="w-3 h-3 text-[#767676] shrink-0" />
             </button>
           )}
         </div>
@@ -111,13 +111,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
           <button
             onClick={onOpenProfile}
-            className="relative w-[38px] h-[38px] rounded-xl flex items-center justify-center text-white text-[11px] font-bold border-none cursor-pointer active:scale-95 transition-transform"
+            className="relative w-[38px] h-[38px] rounded-xl flex items-center justify-center text-white text-[12px] font-bold border-none cursor-pointer active:scale-95 transition-transform"
             aria-label="Profilo"
             style={{ background: profile.role === 'admin' ? '#1b1b1b' : profile.role === 'manager' ? '#6e6e6e' : '#3d3d3d' }}
           >
             {initials(profile.name)}
             {pendingCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[17px] h-[17px] px-1 rounded-full bg-amber-500 text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white">{pendingCount}</span>
+              <span className="absolute -top-1.5 -right-1.5 min-w-[17px] h-[17px] px-1 rounded-full bg-amber-500 text-white text-[11px] font-extrabold flex items-center justify-center ring-2 ring-white">{pendingCount}</span>
             )}
           </button>
         </div>
@@ -193,7 +193,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                             </span>
                             <span className="flex-1 flex flex-col justify-end">
                               <span className="block text-[13.5px] font-extrabold text-[#161616] leading-tight truncate">{society.label}</span>
-                              <span className="block text-[10.5px] font-bold text-[#8a8a8a] mt-0.5">{secCount} sezion{secCount === 1 ? 'e' : 'i'}</span>
+                              <span className="block text-[11.5px] font-bold text-[#6b6b6b] mt-0.5">{secCount} sezion{secCount === 1 ? 'e' : 'i'}</span>
                             </span>
                             {active && <span className="absolute top-2.5 right-2.5 text-[8.5px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-[#161616] text-white">attiva</span>}
                           </button>
@@ -232,7 +232,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         // Gruppo: card morbida con le sue voci UNA PER RIGA (niente griglia).
                         return (
                           <div key={top.id} className="rounded-[18px] border border-[#ececec] bg-[#fafaf8] p-1.5">
-                            <div className="flex items-center gap-1.5 px-2 py-1.5 text-[10.5px] font-extrabold uppercase tracking-wider text-[#8a8a8a]">
+                            <div className="flex items-center gap-1.5 px-2 py-1.5 text-[11.5px] font-extrabold uppercase tracking-wider text-[#6b6b6b]">
                               <TopIcon className="w-3.5 h-3.5" /> {top.label}
                             </div>
                             <div className="flex flex-col gap-1">

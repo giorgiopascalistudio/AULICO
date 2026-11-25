@@ -73,7 +73,7 @@ export function ExportMenu<T>({ filename, title, subtitle, company, columns, row
           <button type="button" onClick={doPdf} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#f5f5f3] text-left text-[13px] font-semibold text-[#161616] cursor-pointer bg-transparent border-none">
             <FileText className="w-4 h-4 text-rose-600" /> PDF (stampa)
           </button>
-          <div className="px-3 pt-1 pb-0.5 text-[10px] text-[#b0b0b0]">{rows.length} righe</div>
+          <div className="px-3 pt-1 pb-0.5 text-[11px] text-[#8f8f8f]">{rows.length} righe</div>
         </div>
       )}
     </div>

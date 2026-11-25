@@ -53,7 +53,7 @@ export const ProjectBriefForm: React.FC<Props> = ({ pid, brief, canEdit = true, 
           <h3 className="text-[16px] font-extrabold text-[#161616] flex items-center gap-2">
             <ClipboardList className="w-5 h-5" /> {clientMode ? 'Raccontaci il tuo progetto' : 'Questionario iniziale'}
           </h3>
-          <p className="text-[12px] text-[#8a8a8a] font-medium">
+          <p className="text-[12px] text-[#6b6b6b] font-medium">
             {clientMode
               ? 'Le tue risposte guidano stile, materiali, moodboard e preventivo. Puoi modificarle quando vuoi.'
               : 'Le risposte alimentano moodboard, preventivi e presentazioni. Compilabile anche dal cliente.'}
@@ -61,11 +61,11 @@ export const ProjectBriefForm: React.FC<Props> = ({ pid, brief, canEdit = true, 
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <div className="text-right">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-[#9a9a9a]">Completamento</div>
+            <div className="text-[12px] font-bold uppercase tracking-wider text-[#767676]">Completamento</div>
             <div className="text-[18px] font-black" style={{ color }}>{comp.pct}%</div>
           </div>
           <div className="w-12 h-12 rounded-full grid place-items-center" style={{ background: `conic-gradient(${color} ${comp.pct * 3.6}deg, #eee 0deg)` }}>
-            <div className="w-9 h-9 rounded-full bg-white grid place-items-center text-[10px] font-bold text-[#6b6b6b]">{comp.done}/{comp.total}</div>
+            <div className="w-9 h-9 rounded-full bg-white grid place-items-center text-[11px] font-bold text-[#6b6b6b]">{comp.done}/{comp.total}</div>
           </div>
         </div>
       </div>
@@ -78,7 +78,7 @@ export const ProjectBriefForm: React.FC<Props> = ({ pid, brief, canEdit = true, 
 
       {BRIEF_QUESTIONS.length > 0 && Object.entries(groups).map(([group, qs]) => (
         <div key={group} className="bg-white border border-[#e2e2e2] rounded-[22px] p-4">
-          <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[#8a8a8a] mb-3 flex items-center gap-1.5">
+          <h4 className="text-[12px] font-extrabold uppercase tracking-wider text-[#6b6b6b] mb-3 flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5" /> {group}
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -90,7 +90,7 @@ export const ProjectBriefForm: React.FC<Props> = ({ pid, brief, canEdit = true, 
                   <span className="text-[12px] font-bold text-[#333]">{q.label}</span>
                   {!canEdit ? (
                     <div className="min-h-10 px-3 py-2 rounded-xl bg-[#faf9f7] border border-[#eee] text-[13.5px] text-[#161616] whitespace-pre-wrap">
-                      {val || <span className="italic text-[#b0b0b0]">—</span>}
+                      {val || <span className="italic text-[#8f8f8f]">—</span>}
                     </div>
                   ) : q.type === 'select' ? (
                     <select value={val} onChange={(e) => set(q.id, e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">

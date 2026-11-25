@@ -95,18 +95,18 @@ export const StimaPreliminareView: React.FC<Props> = ({ stime, rubrica, priceLis
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Calculator className="w-5.5 h-5.5 text-[#161616]" /> Stima Preliminare</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Il simulatore della fase Pianificazione: inserisci solo le quantità e il livello Base/Medio/Alto — il budget si calcola da solo.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Il simulatore della fase Pianificazione: inserisci solo le quantità e il livello Base/Medio/Alto — il budget si calcola da solo.</p>
         </div>
         {canEdit && <button onClick={nuova} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuova stima</button>}
       </div>
       {stime.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna stima. Creane una per simulare il budget di un intervento.</p>
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna stima. Creane una per simulare il budget di un intervento.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[...stime].sort((a, b) => (b.updatedAt || b.createdAt) - (a.updatedAt || a.createdAt)).map((s) => (
             <button key={s.id} onClick={() => setOpenId(s.id)} className="text-left bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
               <b className="text-[14px] text-[#161616] block truncate">{s.title}</b>
-              <p className="text-[11.5px] text-[#8a8a8a] mt-0.5 truncate">{s.clientName || '—'}</p>
+              <p className="text-[11.5px] text-[#6b6b6b] mt-0.5 truncate">{s.clientName || '—'}</p>
               <p className="text-[18px] font-black mt-2 text-[#161616]">{eur(stimaTotal(s))}</p>
             </button>
           ))}
@@ -119,7 +119,7 @@ export const StimaPreliminareView: React.FC<Props> = ({ stime, rubrica, priceLis
 const LevelPills: React.FC<{ value: StimaLevel; disabled?: boolean; onChange: (l: StimaLevel) => void }> = ({ value, disabled, onChange }) => (
   <span className="inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[2px] rounded-full gap-[1px] shrink-0">
     {(['base', 'medio', 'alto'] as const).map((l) => (
-      <button key={l} disabled={disabled} onClick={() => onChange(l)} className={`text-[10px] font-bold px-2 py-1 rounded-full cursor-pointer border-none capitalize ${value === l ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent'}`}>{l}</button>
+      <button key={l} disabled={disabled} onClick={() => onChange(l)} className={`text-[11px] font-bold px-2 py-1 rounded-full cursor-pointer border-none capitalize ${value === l ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent'}`}>{l}</button>
     ))}
   </span>
 );
@@ -165,14 +165,14 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; price
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-[24px] font-black tracking-tight leading-none">{co.brand}</p>
-                    <p className="text-[10px] text-[#555] mt-1">{co.legalName}{co.piva ? ` · P.IVA ${co.piva}` : ''}</p>
-                    {co.address && <p className="text-[10px] text-[#555]">{co.address}</p>}
-                    {co.contacts && <p className="text-[10px] text-[#555]">{co.contacts}</p>}
+                    <p className="text-[11px] text-[#555] mt-1">{co.legalName}{co.piva ? ` · P.IVA ${co.piva}` : ''}</p>
+                    {co.address && <p className="text-[11px] text-[#555]">{co.address}</p>}
+                    {co.contacts && <p className="text-[11px] text-[#555]">{co.contacts}</p>}
                   </div>
                   <div className="text-right">
                     <p className="text-[13px] font-black uppercase tracking-wider">Stima preliminare</p>
-                    <p className="text-[10.5px] text-[#555] mt-1">{new Date(s.updatedAt || s.createdAt).toLocaleDateString('it-IT')}</p>
-                    {s.clientName && <p className="text-[11px] font-bold mt-1">Committente: {s.clientName}</p>}
+                    <p className="text-[11.5px] text-[#555] mt-1">{new Date(s.updatedAt || s.createdAt).toLocaleDateString('it-IT')}</p>
+                    {s.clientName && <p className="text-[12px] font-bold mt-1">Committente: {s.clientName}</p>}
                   </div>
                 </div>
                 <p className="text-[14px] font-black mt-2">{s.title}</p>
@@ -181,7 +181,7 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; price
           })()}
           {groups.map((g) => (
             <div key={g} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">{g}</p>
+              <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">{g}</p>
               <div className="flex flex-col gap-1.5">
                 {PARAM.filter((p) => p.group === g).map((p) => {
                   const q = s.qty?.[p.key] || 0;
@@ -189,7 +189,7 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; price
                   const sub = q * p.v[LVL_IDX[lvl]];
                   return (
                     <div key={p.key} className="flex items-center gap-2 flex-wrap">
-                      <span className="w-[210px] text-[12.5px] font-semibold text-[#161616]">{p.label} <span className="text-[10px] text-[#9a9a9a]">({p.unit.replace('€/', '')})</span></span>
+                      <span className="w-[210px] text-[12.5px] font-semibold text-[#161616]">{p.label} <span className="text-[11px] text-[#767676]">({p.unit.replace('€/', '')})</span></span>
                       <input disabled={!canEdit} type="number" value={q || ''} placeholder="0" onChange={(e) => set({ qty: { ...(s.qty || {}), [p.key]: Number(e.target.value) || 0 } })} className={`${inp} w-[90px] text-right`} />
                       <LevelPills value={lvl} disabled={!canEdit} onChange={(l) => set({ lvl: { ...(s.lvl || {}), [p.key]: l } })} />
                       <span className="ml-auto text-[12.5px] font-extrabold text-[#161616] min-w-[92px] text-right">{sub > 0 ? eur(sub) : '—'}</span>
@@ -200,7 +200,7 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; price
             </div>
           ))}
           <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Piscina (forfait) · Impianti e servizi (a corpo)</p>
+            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">Piscina (forfait) · Impianti e servizi (a corpo)</p>
             <div className="flex items-center gap-2 flex-wrap mb-2">
               <label className="inline-flex items-center gap-2 cursor-pointer w-[210px]">
                 <input type="checkbox" disabled={!canEdit} checked={!!s.piscina} onChange={(e) => set({ piscina: e.target.checked })} className="w-4 h-4 accent-[#161616]" />
@@ -214,7 +214,7 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; price
                 <label key={e.key} className="inline-flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" disabled={!canEdit} checked={!!s.extras?.[e.key]} onChange={(ev) => set({ extras: { ...(s.extras || {}), [e.key]: ev.target.checked } })} className="w-4 h-4 accent-[#161616]" />
                   <span className="flex-1 text-[12.5px] font-semibold text-[#333]">{e.label}</span>
-                  <span className="text-[11.5px] font-bold text-[#8a8a8a]">{eur(e.cost)}</span>
+                  <span className="text-[11.5px] font-bold text-[#6b6b6b]">{eur(e.cost)}</span>
                 </label>
               ))}
             </div>
@@ -224,7 +224,7 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; price
           {(priceList.length > 0 || voci.length > 0) && (
             <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
               <div className="flex items-center justify-between gap-2 mb-2">
-                <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Voci dal listino</p>
+                <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Voci dal listino</p>
                 {canEdit && priceList.length > 0 && (
                   <select value="" onChange={(e) => { if (e.target.value) addVoce(e.target.value); e.currentTarget.value = ''; }} className={`${inp} no-print w-[220px]`} title="Aggiungi una voce dal listino della società">
                     <option value="">+ dal listino…</option>
@@ -233,14 +233,14 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; price
                 )}
               </div>
               {voci.length === 0 ? (
-                <p className="text-[12px] italic text-[#9a9a9a]">Nessuna voce aggiunta. Le voci si gestiscono nel Listino della società (Commerciale → Listino).</p>
+                <p className="text-[12px] italic text-[#767676]">Nessuna voce aggiunta. Le voci si gestiscono nel Listino della società (Commerciale → Listino).</p>
               ) : (
                 <div className="flex flex-col gap-1.5">
                   {voci.map((v) => (
                     <div key={v.id} className="flex items-center gap-2 flex-wrap">
-                      <span className="w-[210px] text-[12.5px] font-semibold text-[#161616]">{v.label} {v.unit && <span className="text-[10px] text-[#9a9a9a]">({v.unit})</span>}</span>
+                      <span className="w-[210px] text-[12.5px] font-semibold text-[#161616]">{v.label} {v.unit && <span className="text-[11px] text-[#767676]">({v.unit})</span>}</span>
                       <input disabled={!canEdit} type="number" value={v.qty || ''} placeholder="1" onChange={(e) => updVoce(v.id, { qty: Number(e.target.value) || 0 })} className={`${inp} w-[90px] text-right`} />
-                      <span className="text-[11.5px] text-[#8a8a8a] font-semibold">× {eur(v.unitPrice)}</span>
+                      <span className="text-[11.5px] text-[#6b6b6b] font-semibold">× {eur(v.unitPrice)}</span>
                       {canEdit && <button onClick={() => delVoce(v.id)} className="no-print w-7 h-7 rounded-lg hover:bg-rose-50 text-rose-500 flex items-center justify-center cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button>}
                       <span className="ml-auto text-[12.5px] font-extrabold text-[#161616] min-w-[92px] text-right">{eur((Number(v.qty) || 0) * (Number(v.unitPrice) || 0))}</span>
                     </div>
@@ -254,9 +254,9 @@ const Editor: React.FC<{ stima: StimaPreliminare; rubrica: ClientRecord[]; price
         {/* Totale live */}
         <div className="flex flex-col gap-3">
           <div className="bg-white border-2 rounded-[22px] p-5 sticky top-4" style={{ borderColor: color }}>
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Budget stimato</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#767676]">Budget stimato</p>
             <p className="text-[32px] font-black leading-tight text-[#161616]">{eur(total)}</p>
-            <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-1.5">Stima parametrica indicativa (IVA e oneri esclusi). I valori si aggiorneranno coi preventivi reali delle imprese partner.</p>
+            <p className="text-[11.5px] text-[#767676] font-semibold mt-1.5">Stima parametrica indicativa (IVA e oneri esclusi). I valori si aggiorneranno coi preventivi reali delle imprese partner.</p>
           </div>
           <textarea disabled={!canEdit} value={s.notes || ''} onChange={(e) => set({ notes: e.target.value || null })} rows={4} placeholder="Note per il cliente…" className={`${inp} w-full resize-none`} />
         </div>

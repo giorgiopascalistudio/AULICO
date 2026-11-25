@@ -27,7 +27,7 @@ export const ThreeDProgress: React.FC<Props> = (props) => (
         className="w-full flex items-center justify-center bg-[#fcfcfc]"
         style={{ height: props.height || 280 }}
       >
-        <span className="text-[12px] font-semibold text-[#8a8a8a] animate-pulse">
+        <span className="text-[12px] font-semibold text-[#6b6b6b] animate-pulse">
           Caricamento modello 3D…
         </span>
       </div>

@@ -164,14 +164,14 @@ export const MarketingSection: React.FC<MarketingSectionProps> = ({
             <button onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))} className="w-8 h-8 rounded-lg bg-white border border-[#e2e2e2] flex items-center justify-center cursor-pointer hover:bg-[#f5f5f3]"><ChevronRight className="w-4 h-4" /></button>
             <button onClick={() => { const d = new Date(); setCursor(new Date(d.getFullYear(), d.getMonth(), 1)); }} className="text-[12px] font-bold text-[#6e6e6e] hover:text-[#161616] cursor-pointer ml-1">Oggi</button>
             <div className="ml-auto flex flex-wrap gap-2.5">
-              {PLATFORMS.map((p) => <span key={p.id} className="flex items-center gap-1 text-[11px] text-[#6e6e6e]"><span className="w-2 h-2 rounded-full" style={{ background: p.color }} />{p.label}</span>)}
+              {PLATFORMS.map((p) => <span key={p.id} className="flex items-center gap-1 text-[12px] text-[#6e6e6e]"><span className="w-2 h-2 rounded-full" style={{ background: p.color }} />{p.label}</span>)}
             </div>
           </div>
 
           {/* Grid */}
           <div className="bg-white border border-[#e2e2e2] rounded-[18px] overflow-hidden">
             <div className="grid grid-cols-7 border-b border-[#eee]">
-              {DOW.map((d) => <div key={d} className="text-[11px] font-bold uppercase tracking-wider text-[#a8a8a8] px-2 py-2 text-center">{d}</div>)}
+              {DOW.map((d) => <div key={d} className="text-[12px] font-bold uppercase tracking-wider text-[#a8a8a8] px-2 py-2 text-center">{d}</div>)}
             </div>
             {weeks.map((row, ri) => (
               <div key={ri} className="grid grid-cols-7">
@@ -197,12 +197,12 @@ export const MarketingSection: React.FC<MarketingSectionProps> = ({
                               title={p.caption}
                             >
                               <span className="w-2 h-2 rounded-full shrink-0" style={{ background: pl.color }} />
-                              <span className="text-[10.5px] font-medium text-[#161616] truncate flex-1">{p.caption || pl.label}</span>
+                              <span className="text-[11.5px] font-medium text-[#161616] truncate flex-1">{p.caption || pl.label}</span>
                               <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: st.color }} />
                             </button>
                           );
                         })}
-                        {dayPosts.length > 3 && <span className="text-[10px] text-[#8a8a8a] px-1">+{dayPosts.length - 3} altri</span>}
+                        {dayPosts.length > 3 && <span className="text-[11px] text-[#6b6b6b] px-1">+{dayPosts.length - 3} altri</span>}
                       </div>
                     </div>
                   );
@@ -222,7 +222,7 @@ export const MarketingSection: React.FC<MarketingSectionProps> = ({
                     <button key={p.id} onClick={() => setEditing(p)} className="flex items-center gap-1.5 bg-white border border-[#e2e2e2] rounded-xl px-2.5 py-1.5 hover:bg-[#f5f5f3] cursor-pointer">
                       <span className="w-2 h-2 rounded-full" style={{ background: pl.color }} />
                       <span className="text-[12px] font-medium text-[#161616] max-w-[180px] truncate">{p.caption || pl.label}</span>
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${st.color}1a`, color: st.color }}>{st.label}</span>
+                      <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: `${st.color}1a`, color: st.color }}>{st.label}</span>
                     </button>
                   );
                 })}
@@ -257,7 +257,7 @@ const Analisi: React.FC<{ posts: SocialPost[] }> = ({ posts }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-5">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-3">Contenuti per stato</div>
+        <div className="text-[12px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-3">Contenuti per stato</div>
         <div className="flex flex-col gap-2">
           {byStatus.map((s) => (
             <div key={s.id} className="flex items-center justify-between">
@@ -268,7 +268,7 @@ const Analisi: React.FC<{ posts: SocialPost[] }> = ({ posts }) => {
         </div>
       </div>
       <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-5">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-3">Contenuti per canale</div>
+        <div className="text-[12px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-3">Contenuti per canale</div>
         <div className="flex flex-col gap-2">
           {byPlatform.map((p) => (
             <div key={p.id} className="flex items-center justify-between">
@@ -279,12 +279,12 @@ const Analisi: React.FC<{ posts: SocialPost[] }> = ({ posts }) => {
         </div>
       </div>
       <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-5">
-        <div className="text-[11px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-3">Totali (metriche manuali)</div>
+        <div className="text-[12px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-3">Totali (metriche manuali)</div>
         <div className="flex flex-col gap-3">
-          <div><div className="text-[28px] font-extrabold tracking-tight">{posts.length}</div><div className="text-[12px] text-[#8a8a8a]">contenuti</div></div>
+          <div><div className="text-[28px] font-extrabold tracking-tight">{posts.length}</div><div className="text-[12px] text-[#6b6b6b]">contenuti</div></div>
           <div className="flex gap-6">
-            <div><div className="text-[18px] font-extrabold">{reach.toLocaleString('it-IT')}</div><div className="text-[11px] text-[#8a8a8a]">reach</div></div>
-            <div><div className="text-[18px] font-extrabold">{likes.toLocaleString('it-IT')}</div><div className="text-[11px] text-[#8a8a8a]">like</div></div>
+            <div><div className="text-[18px] font-extrabold">{reach.toLocaleString('it-IT')}</div><div className="text-[12px] text-[#6b6b6b]">reach</div></div>
+            <div><div className="text-[18px] font-extrabold">{likes.toLocaleString('it-IT')}</div><div className="text-[12px] text-[#6b6b6b]">like</div></div>
           </div>
         </div>
       </div>

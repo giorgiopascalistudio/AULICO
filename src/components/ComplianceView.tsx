@@ -164,7 +164,7 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616]">Adempimenti societari</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] mt-0.5">Documenti e obblighi di {socLabel}: spunta la presenza e allega i documenti.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] mt-0.5">Documenti e obblighi di {socLabel}: spunta la presenza e allega i documenti.</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="px-3 py-1.5 rounded-full border border-[#e2e2e2] bg-[#f7f7f5] text-[#161616] text-[12px] font-bold">
@@ -198,7 +198,7 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
 
                 <button onClick={() => setOpenId(expanded ? null : r.id)} className="flex-1 min-w-0 text-left bg-transparent border-none cursor-pointer p-0">
                   <b className={`block text-[13.5px] font-bold truncate ${st.present ? 'text-[#161616]' : 'text-[#555]'}`}>{r.label}</b>
-                  <span className="block text-[11px] text-[#9a9a9a] truncate mt-0.5">
+                  <span className="block text-[12px] text-[#767676] truncate mt-0.5">
                     {attN > 0 ? `${attN} allegat${attN === 1 ? 'o' : 'i'}` : 'nessun allegato'}
                     {st.expiry ? ` · scade ${st.expiry}` : ''}
                     {st.note ? ` · ${st.note}` : ''}
@@ -206,15 +206,15 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
                 </button>
 
                 {dTo !== null && dTo <= 30 && (
-                  <span className={`px-2 py-1 rounded-full text-[10.5px] font-extrabold shrink-0 ${dTo < 0 ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}`}>
+                  <span className={`px-2 py-1 rounded-full text-[11.5px] font-extrabold shrink-0 ${dTo < 0 ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}`}>
                     {dTo < 0 ? 'scaduto' : `${dTo} gg`}
                   </span>
                 )}
-                {attN > 0 && <Paperclip className="w-4 h-4 text-[#b0b0b0] shrink-0" />}
+                {attN > 0 && <Paperclip className="w-4 h-4 text-[#8f8f8f] shrink-0" />}
                 {canEdit && (
                   <button
                     onClick={() => removeItem(r.id)}
-                    className="p-1.5 rounded-lg text-[#b0b0b0] hover:text-rose-600 hover:bg-rose-50 cursor-pointer bg-transparent border-none shrink-0"
+                    className="p-1.5 rounded-lg text-[#8f8f8f] hover:text-rose-600 hover:bg-rose-50 cursor-pointer bg-transparent border-none shrink-0"
                     title="Elimina voce"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -231,7 +231,7 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
                         {a.kind === 'file' && a.mime?.startsWith('image/') ? (
                           <img src={a.url} alt="" className="w-8 h-8 rounded object-cover shrink-0" />
                         ) : (
-                          <FileText className="w-4 h-4 text-[#8a8a8a] shrink-0" />
+                          <FileText className="w-4 h-4 text-[#6b6b6b] shrink-0" />
                         )}
                         <a
                           href={a.kind === 'file' ? a.url : (safeUrl(a.url) || '#')}
@@ -258,7 +258,7 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
                           <input type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) addFile(r.id, f); e.currentTarget.value = ''; }} />
                         </label>
                         <div className="flex items-center gap-1.5 flex-1 min-w-[200px]">
-                          <Link2 className="w-4 h-4 text-[#9a9a9a] shrink-0" />
+                          <Link2 className="w-4 h-4 text-[#767676] shrink-0" />
                           <input
                             value={openId === r.id ? linkDraft : ''}
                             onChange={(e) => setLinkDraft(e.target.value)}
@@ -272,7 +272,7 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
 
                       {/* Scadenza + nota + rimuovi voce */}
                       <div className="flex items-center gap-2 flex-wrap">
-                        <label className="text-[11px] font-bold text-[#8a8a8a]">Scadenza</label>
+                        <label className="text-[12px] font-bold text-[#6b6b6b]">Scadenza</label>
                         <input
                           type="date"
                           value={st.expiry || ''}
@@ -298,7 +298,7 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
       {/* Aggiungi voce custom */}
       {canEdit && (
         <div className="flex items-center gap-2 bg-white border border-[#e2e2e2] rounded-[18px] p-3">
-          <Plus className="w-4 h-4 text-[#9a9a9a] shrink-0" />
+          <Plus className="w-4 h-4 text-[#767676] shrink-0" />
           <input
             value={newLabel}
             onChange={(e) => setNewLabel(e.target.value)}
@@ -312,7 +312,7 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
 
       {/* Voci base rimosse: ripristinabili */}
       {canEdit && hiddenSeed.length > 0 && (
-        <div className="flex items-center gap-2 flex-wrap text-[11.5px] text-[#9a9a9a] px-1">
+        <div className="flex items-center gap-2 flex-wrap text-[11.5px] text-[#767676] px-1">
           <span className="font-bold">Voci rimosse:</span>
           {hiddenSeed.map((s) => (
             <button key={s.id} onClick={() => restoreItem(s.id)} className="inline-flex items-center gap-1 px-2 py-1 rounded-full border border-[#e2e2e2] bg-white hover:border-black text-[#555] cursor-pointer">
@@ -322,7 +322,7 @@ export const ComplianceView: React.FC<Props> = ({ soc, socLabel, color, record, 
         </div>
       )}
 
-      {!canEdit && <p className="text-[12px] text-[#9a9a9a]">Sola consultazione: non hai il permesso di operare su questa sezione.</p>}
+      {!canEdit && <p className="text-[12px] text-[#767676]">Sola consultazione: non hai il permesso di operare su questa sezione.</p>}
     </div>
   );
 };

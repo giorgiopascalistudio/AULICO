@@ -16,7 +16,7 @@ import type { Project } from '../types';
 import { callAiImage } from '../firebase';
 
 const inp = 'px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white';
-const lbl = 'text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]';
+const lbl = 'text-[11px] font-bold uppercase tracking-wider text-[#767676]';
 
 // Questionario (le voci compongono il prompt inglese per il modello img2img)
 const TIPOLOGIE = [
@@ -155,7 +155,7 @@ export const RenderAiView: React.FC<Props> = ({ projects, color = '#161616', can
         <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
           <Sparkles className="w-5.5 h-5.5 text-[#161616]" /> Render AI preliminare
         </h2>
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
+        <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">
           Foto del lotto + questionario → bozza render fotorealistica in pochi secondi. È un'anteprima
           emozionale di pre-vendita, non un progetto: il render vero arriva dalla progettazione.
         </p>
@@ -188,9 +188,9 @@ export const RenderAiView: React.FC<Props> = ({ projects, color = '#161616', can
               </div>
             ) : (
               <div className="py-6">
-                <UploadCloud className="w-8 h-8 mx-auto text-[#c0c0c0] mb-2" />
+                <UploadCloud className="w-8 h-8 mx-auto text-[#9a9a9a] mb-2" />
                 <p className="text-[13px] font-bold text-[#555]">Foto del lotto / stato dei luoghi</p>
-                <p className="text-[11.5px] text-[#9a9a9a] mt-0.5">Trascina qui o</p>
+                <p className="text-[11.5px] text-[#767676] mt-0.5">Trascina qui o</p>
                 {canEdit && (
                   <button onClick={() => fileRef.current?.click()} className="mt-2 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none">
                     <ImageIcon className="w-4 h-4" /> Scegli foto
@@ -203,7 +203,7 @@ export const RenderAiView: React.FC<Props> = ({ projects, color = '#161616', can
 
           {/* Questionario */}
           <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 flex flex-col gap-3">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Questionario di stile</p>
+            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Questionario di stile</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <label className="flex flex-col gap-1"><span className={lbl}>Tipologia</span>
                 <select disabled={!canEdit} value={tipologia} onChange={(e) => setTipologia(e.target.value)} className={inp}>
@@ -268,7 +268,7 @@ export const RenderAiView: React.FC<Props> = ({ projects, color = '#161616', can
         <div className="flex flex-col gap-3 lg:sticky lg:top-4">
           <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Render generato</p>
+              <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Render generato</p>
               {render && (
                 <button onClick={() => download(render)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[11.5px] font-bold cursor-pointer">
                   <Download className="w-3.5 h-3.5" /> Scarica PNG
@@ -278,12 +278,12 @@ export const RenderAiView: React.FC<Props> = ({ projects, color = '#161616', can
             {render ? (
               <img src={render} alt="Render AI" className="w-full rounded-[14px] cursor-zoom-in" onClick={() => setZoom(render)} />
             ) : (
-              <div className="py-14 text-center text-[#b0b0b0]">
+              <div className="py-14 text-center text-[#8f8f8f]">
                 <Sparkles className="w-9 h-9 mx-auto mb-2 opacity-50" />
                 <p className="text-[12.5px] font-semibold">{busy ? 'Generazione in corso (10–30 secondi)…' : 'Il render apparirà qui.'}</p>
               </div>
             )}
-            <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-2">
+            <p className="text-[11.5px] text-[#767676] font-semibold mt-2">
               Bozza indicativa generata dall'AI: non sostituisce elaborati e render di progetto. Scaricala e
               allegala alla pratica dai Documenti, se serve condividerla.
             </p>
@@ -291,7 +291,7 @@ export const RenderAiView: React.FC<Props> = ({ projects, color = '#161616', can
 
           {history.length > 1 && (
             <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Tentativi di questa sessione</p>
+              <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">Tentativi di questa sessione</p>
               <div className="grid grid-cols-4 gap-2">
                 {history.map((h, i) => (
                   <button key={i} onClick={() => setRender(h)} className={`aspect-square rounded-lg overflow-hidden border-2 cursor-pointer p-0 ${render === h ? 'border-[#161616]' : 'border-transparent hover:border-[#c0c0c0]'}`}>

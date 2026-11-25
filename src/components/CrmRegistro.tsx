@@ -168,7 +168,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
       <div className="lg:w-[40%] xl:w-[34%] flex flex-col bg-white border border-[#e2e2e2] rounded-[22px] overflow-hidden shadow-sm">
         <div className="p-3.5 border-b border-[#f0f0f0] flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
-            <h3 className="inline-flex items-center gap-2 text-[14px] font-extrabold text-[#161616]"><Users className="w-4.5 h-4.5" /> {title || 'Registro Unico'} <span className="text-[#b0b0b0] font-bold">({list.length})</span></h3>
+            <h3 className="inline-flex items-center gap-2 text-[14px] font-extrabold text-[#161616]"><Users className="w-4.5 h-4.5" /> {title || 'Registro Unico'} <span className="text-[#8f8f8f] font-bold">({list.length})</span></h3>
             <div className="flex items-center gap-1.5 flex-wrap justify-end">
               <button onClick={exportXlsx} title="Esporta Excel (.xlsx, filtri applicati)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Download className="w-3.5 h-3.5" /> Excel</button>
               <button onClick={exportCsv} title="Esporta CSV (filtri applicati)" className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Download className="w-3.5 h-3.5" /> CSV</button>
@@ -179,7 +179,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
           </div>
           {/* Ricerca */}
           <div className="relative">
-            <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#8f8f8f] absolute left-3 top-1/2 -translate-y-1/2" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cerca nome, azienda, email, codice…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616]" />
           </div>
           {/* Filtri compatti — differenziati clienti / fornitori */}
@@ -193,7 +193,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
                   <option value={2}>★★ e più</option>
                   <option value={1}>★ e più</option>
                 </select>
-                <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ChevronDown className="w-3.5 h-3.5 text-[#767676] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             ) : (
               <div className="relative flex-1">
@@ -201,7 +201,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
                   <option value="all">Tutte le società</option>
                   {societies.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
                 </select>
-                <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ChevronDown className="w-3.5 h-3.5 text-[#767676] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             )}
             {filterRoles.length > 0 && (
@@ -210,13 +210,13 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
                   <option value="all">{isFornitori ? 'Tutte le categorie' : 'Tutti i tipi'}</option>
                   {filterRoles.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
                 </select>
-                <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ChevronDown className="w-3.5 h-3.5 text-[#767676] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             )}
           </div>
           {/* Indicatore società attiva (pallino colore) */}
           {soc !== 'all' && (
-            <div className="flex items-center gap-1.5 text-[11px] text-[#8a8a8a] font-semibold">
+            <div className="flex items-center gap-1.5 text-[12px] text-[#6b6b6b] font-semibold">
               <span className="w-2 h-2 rounded-full" style={{ background: societies.find((s) => s.id === soc)?.color }} />
               Stai vedendo i contatti di {societies.find((s) => s.id === soc)?.label}
             </div>
@@ -225,7 +225,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
 
         <div className="flex-1 overflow-y-auto divide-y divide-[#f3f3f3] max-h-[520px]">
           {list.length === 0 ? (
-            <div className="p-8 text-center text-[#9a9a9a] text-[13px]">Nessun contatto con i filtri correnti.</div>
+            <div className="p-8 text-center text-[#767676] text-[13px]">Nessun contatto con i filtri correnti.</div>
           ) : list.map((c) => {
             const pay = paymentStatus(c);
             const isSel = selId === c.id;
@@ -239,14 +239,14 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <h4 className="text-[13.5px] font-bold text-[#161616] truncate">{c.name}</h4>
-                    {onKeys(c.roles)[0] && <span className="text-[9px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full shrink-0">{roleLabel(onKeys(c.roles)[0])}</span>}
+                    {onKeys(c.roles)[0] && <span className="text-[10px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full shrink-0">{roleLabel(onKeys(c.roles)[0])}</span>}
                   </div>
-                  {c.companyName && <p className="text-[11.5px] text-[#8a8a8a] truncate mt-0.5 font-medium">{c.companyName}</p>}
-                  {isFornitori && (() => { const avg = ratingAvg(c.partnerRating); return <div className="flex items-center gap-1.5 mt-1"><Stars value={avg} size={13} />{avg > 0 && <span className="text-[10.5px] font-bold text-[#8a8a8a]">{avg.toFixed(1)}</span>}</div>; })()}
+                  {c.companyName && <p className="text-[11.5px] text-[#6b6b6b] truncate mt-0.5 font-medium">{c.companyName}</p>}
+                  {isFornitori && (() => { const avg = ratingAvg(c.partnerRating); return <div className="flex items-center gap-1.5 mt-1"><Stars value={avg} size={13} />{avg > 0 && <span className="text-[11.5px] font-bold text-[#6b6b6b]">{avg.toFixed(1)}</span>}</div>; })()}
                   <div className="flex flex-wrap items-center gap-1 mt-1.5">
-                    {c.tier && <span className={`text-[9.5px] font-bold px-1.5 py-0.5 rounded ${tierStyle(c.tier)}`}>Fascia {c.tier}</span>}
-                    {c.acquisitionChannel && <span className="text-[9.5px] bg-gray-50 text-gray-500 border border-gray-100 px-1.5 py-0.5 rounded capitalize">{c.acquisitionChannel}</span>}
-                    {c.privacyLiberatoria === false && <span className="text-[9.5px] bg-rose-100 text-rose-800 font-bold px-1.5 py-0.5 rounded inline-flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> NO LIBERATORIA</span>}
+                    {c.tier && <span className={`text-[10.5px] font-bold px-1.5 py-0.5 rounded ${tierStyle(c.tier)}`}>Fascia {c.tier}</span>}
+                    {c.acquisitionChannel && <span className="text-[10.5px] bg-gray-50 text-gray-500 border border-gray-100 px-1.5 py-0.5 rounded capitalize">{c.acquisitionChannel}</span>}
+                    {c.privacyLiberatoria === false && <span className="text-[10.5px] bg-rose-100 text-rose-800 font-bold px-1.5 py-0.5 rounded inline-flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> NO LIBERATORIA</span>}
                     {societies.filter((s) => c.societies?.[s.id]).slice(0, 3).map((s) => <span key={s.id} title={s.label} className="w-1.5 h-1.5 rounded-full" style={{ background: s.color }} />)}
                   </div>
                 </div>
@@ -259,7 +259,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
       {/* ===== DETTAGLIO (vista dedicata) ===== */}
       <div className="flex-1 bg-white border border-[#e2e2e2] rounded-[22px] overflow-hidden shadow-sm flex flex-col">
         {!sel ? (
-          <div className="flex-1 flex items-center justify-center p-10 text-center text-[#9a9a9a] text-[13.5px]">Seleziona un contatto dalla lista.</div>
+          <div className="flex-1 flex items-center justify-center p-10 text-center text-[#767676] text-[13.5px]">Seleziona un contatto dalla lista.</div>
         ) : (() => {
           const pay = paymentStatus(sel);
           return (
@@ -271,14 +271,14 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <h2 className="text-[18px] font-black text-[#161616] leading-tight">{sel.name}</h2>
-                      <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${pay.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>{pay.ok ? '● Pagamenti ok' : '● Morosità'}</span>
+                      <span className={`text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${pay.ok ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>{pay.ok ? '● Pagamenti ok' : '● Morosità'}</span>
                     </div>
-                    {sel.companyName && <p className="text-[12.5px] text-[#8a8a8a] font-medium mt-0.5">{sel.companyName}</p>}
+                    {sel.companyName && <p className="text-[12.5px] text-[#6b6b6b] font-medium mt-0.5">{sel.companyName}</p>}
                     <div className="flex items-center gap-1 mt-1.5 flex-wrap">
-                      <span className="text-[9px] text-[#b0b0b0] font-bold uppercase tracking-wider mr-1">Società</span>
+                      <span className="text-[10px] text-[#8f8f8f] font-bold uppercase tracking-wider mr-1">Società</span>
                       {societies.map((s) => {
                         const on = !!sel.societies?.[s.id];
-                        return <span key={s.id} className="text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase" style={on ? { background: s.color, color: '#fff' } : { background: '#f0f0f0', color: '#c4c4c4' }}>{s.label}</span>;
+                        return <span key={s.id} className="text-[10px] px-2 py-0.5 rounded-full font-extrabold uppercase" style={on ? { background: s.color, color: '#fff' } : { background: '#f0f0f0', color: '#c4c4c4' }}>{s.label}</span>;
                       })}
                     </div>
                   </div>
@@ -330,10 +330,10 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
 
 // ---- ANAGRAFICA ----
 const Info: React.FC<{ icon: any; label: string; children: React.ReactNode }> = ({ icon: Icon, label, children }) => (
-  <div className="flex items-start gap-3"><Icon className="w-4 h-4 text-[#b0b0b0] mt-0.5" /><div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">{label}</p><div className="text-[13px] font-medium text-[#222]">{children}</div></div></div>
+  <div className="flex items-start gap-3"><Icon className="w-4 h-4 text-[#8f8f8f] mt-0.5" /><div><p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase">{label}</p><div className="text-[13px] font-medium text-[#222]">{children}</div></div></div>
 );
 const Box: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-4 flex flex-col gap-3.5"><h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[#666]">{title}</h4>{children}</div>
+  <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-4 flex flex-col gap-3.5"><h4 className="text-[12px] font-extrabold uppercase tracking-wider text-[#666]">{title}</h4>{children}</div>
 );
 // Meta per-tipo dello storico (colori semantici come KIND_META, non colori società).
 const HIST_META: Record<HistItem['kind'], { label: string; color: string; icon: any }> = {
@@ -378,10 +378,10 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
           <Info icon={FileText} label="CF / P.IVA"><span className="font-mono">{sel.partitaIva || sel.codiceFiscale || 'Non fornito'}</span></Info>
           {(sel.targetTags || []).length > 0 && <Info icon={Target} label="Target / categoria"><span className="inline-flex flex-wrap gap-1">{(sel.targetTags || []).map((t) => <span key={t} className="bg-white border border-[#e2e2e2] rounded px-2 py-0.5 text-[12px]">🎯 {t}</span>)}</span></Info>}
           <div className="grid grid-cols-2 gap-3">
-            <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">Fascia</p><div className="flex items-center gap-1.5 mt-1"><span className="h-6 w-6 rounded-full bg-[#161616] text-white text-[11px] font-bold flex items-center justify-center">{sel.tier || '—'}</span><span className="text-[12px] font-semibold text-[#555]">{sel.tier === 1 ? 'Alto valore' : sel.tier === 2 ? 'Medio' : sel.tier === 3 ? 'Standard' : ''}</span></div></div>
-            <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">Canale</p><p className="text-[12px] font-bold uppercase text-[#555] mt-1.5">{sel.acquisitionChannel || '—'}</p></div>
+            <div><p className="text-[10.5px] text-[#b0b0b0] font-bold uppercase">Fascia</p><div className="flex items-center gap-1.5 mt-1"><span className="h-6 w-6 rounded-full bg-[#161616] text-white text-[12px] font-bold flex items-center justify-center">{sel.tier || '—'}</span><span className="text-[12px] font-semibold text-[#555]">{sel.tier === 1 ? 'Alto valore' : sel.tier === 2 ? 'Medio' : sel.tier === 3 ? 'Standard' : ''}</span></div></div>
+            <div><p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase">Canale</p><p className="text-[12px] font-bold uppercase text-[#555] mt-1.5">{sel.acquisitionChannel || '—'}</p></div>
           </div>
-          <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Tipi di contatto</p><div className="flex flex-wrap gap-1">{onKeys(sel.roles).map((r) => <span key={r} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{roleLabel(r)}</span>)}</div></div>
+          <div><p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Tipi di contatto</p><div className="flex flex-wrap gap-1">{onKeys(sel.roles).map((r) => <span key={r} className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{roleLabel(r)}</span>)}</div></div>
         </Box>
       </div>
 
@@ -389,28 +389,28 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
       <Box title="Riferimenti & relazioni">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1 inline-flex items-center gap-1"><Hash className="w-3 h-3" /> Codice referral (proprio)</p>
+            <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1 inline-flex items-center gap-1"><Hash className="w-3 h-3" /> Codice referral (proprio)</p>
             <input value={ref} onChange={(e) => setRef(e.target.value.toUpperCase())} onBlur={saveRef} placeholder="auto: nome+anno" className="w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] font-mono outline-none focus:border-[#161616] bg-white" />
-            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1 mt-2 inline-flex items-center gap-1">Portato da (referral)</p>
+            <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1 mt-2 inline-flex items-center gap-1">Portato da (referral)</p>
             <input value={refBy} onChange={(e) => setRefBy(e.target.value.toUpperCase())} onBlur={() => (sel.referredByCode || '') !== refBy && onPatch({ referredByCode: refBy || null })} placeholder="codice di chi ha segnalato" className="w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] font-mono outline-none focus:border-[#161616] bg-white" />
           </div>
           <div>
-            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1 inline-flex items-center gap-1"><UserCog className="w-3 h-3" /> Team di riferimento</p>
-            {teamUids.length === 0 ? <p className="text-[12px] text-[#9a9a9a] mt-1.5">Nessuno assegnato.</p> : (
+            <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1 inline-flex items-center gap-1"><UserCog className="w-3 h-3" /> Team di riferimento</p>
+            {teamUids.length === 0 ? <p className="text-[12px] text-[#767676] mt-1.5">Nessuno assegnato.</p> : (
               <div className="flex flex-wrap gap-1 mt-1">
-                {teamUids.map((u) => <span key={u} className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white border border-[#e2e2e2] text-[#444]">{memberName ? memberName(u) : u}</span>)}
+                {teamUids.map((u) => <span key={u} className="text-[12px] font-bold px-2 py-0.5 rounded-full bg-white border border-[#e2e2e2] text-[#444]">{memberName ? memberName(u) : u}</span>)}
               </div>
             )}
           </div>
         </div>
         <div>
-          <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1.5 inline-flex items-center gap-1"><FolderOpen className="w-3 h-3" /> Progetti collegati ({projects.length})</p>
-          {projects.length === 0 ? <p className="text-[12px] text-[#9a9a9a]">Nessun progetto collegato a questo contatto.</p> : (
+          <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1.5 inline-flex items-center gap-1"><FolderOpen className="w-3 h-3" /> Progetti collegati ({projects.length})</p>
+          {projects.length === 0 ? <p className="text-[12px] text-[#767676]">Nessun progetto collegato a questo contatto.</p> : (
             <div className="flex flex-col gap-1.5">
               {projects.map((p) => (
                 <div key={p.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white border border-[#f0f0f0]">
-                  <span className="text-[12.5px] font-medium text-[#161616] truncate inline-flex items-center gap-1.5"><FolderOpen className="w-3.5 h-3.5 text-[#b0b0b0]" /> {p.name}</span>
-                  {p.status && <span className="text-[10px] font-bold text-[#8a8a8a] uppercase shrink-0">{p.status}</span>}
+                  <span className="text-[12.5px] font-medium text-[#161616] truncate inline-flex items-center gap-1.5"><FolderOpen className="w-3.5 h-3.5 text-[#8f8f8f]" /> {p.name}</span>
+                  {p.status && <span className="text-[11px] font-bold text-[#6b6b6b] uppercase shrink-0">{p.status}</span>}
                 </div>
               ))}
             </div>
@@ -423,18 +423,18 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
         const items = historyOf(sel);
         return (
           <Box title="Storico (pratiche · preventivi · contratti · pagamenti)">
-            {items.length === 0 ? <p className="text-[12px] text-[#9a9a9a]">Nessuna attività registrata per questo contatto.</p> : (
+            {items.length === 0 ? <p className="text-[12px] text-[#767676]">Nessuna attività registrata per questo contatto.</p> : (
               <div className="flex flex-col gap-1.5">
                 {items.map((it) => {
                   const M = HIST_META[it.kind];
                   return (
                     <div key={it.id} className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-white border border-[#f0f0f0]">
                       <M.icon className="w-3.5 h-3.5 shrink-0" style={{ color: M.color }} />
-                      <span className="text-[9.5px] font-bold uppercase tracking-wider shrink-0 w-[74px]" style={{ color: M.color }}>{M.label}</span>
+                      <span className="text-[10.5px] font-bold uppercase tracking-wider shrink-0 w-[74px]" style={{ color: M.color }}>{M.label}</span>
                       <span className="text-[12.5px] font-medium text-[#161616] truncate flex-1">{it.link ? <a href={it.link} className="hover:underline">{it.label}</a> : it.label}</span>
-                      {it.status && <span className="text-[10px] font-bold text-[#8a8a8a] uppercase shrink-0">{it.status}</span>}
+                      {it.status && <span className="text-[11px] font-bold text-[#6b6b6b] uppercase shrink-0">{it.status}</span>}
                       {it.amount != null && it.amount > 0 && <span className="text-[12px] font-black text-[#161616] shrink-0">€ {Math.round(it.amount).toLocaleString('it-IT')}</span>}
-                      <span className="text-[10.5px] text-[#b0b0b0] shrink-0 w-[58px] text-right">{it.date ? new Date(it.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: '2-digit' }) : ''}</span>
+                      <span className="text-[11.5px] text-[#8f8f8f] shrink-0 w-[58px] text-right">{it.date ? new Date(it.date).toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: '2-digit' }) : ''}</span>
                     </div>
                   );
                 })}
@@ -448,36 +448,36 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
       <Box title="Pratica & registro">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div>
-            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Stato</p>
+            <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Stato</p>
             <select value={sel.stato || ''} onChange={(e) => onPatch({ stato: (e.target.value || null) as any })} className="w-full px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white cursor-pointer">
               <option value="">—</option><option value="attivo">Attivo</option><option value="chiuso">Chiuso</option>
             </select>
           </div>
           <div>
-            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Preventivo</p>
+            <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Preventivo</p>
             <select value={sel.preventivoStato || ''} onChange={(e) => onPatch({ preventivoStato: (e.target.value || null) as any })} className="w-full px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white cursor-pointer">
               <option value="">—</option><option value="firmato">Firmato</option><option value="non_firmato">Non firmato</option>
             </select>
           </div>
           <div>
-            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Saldato</p>
-            <button onClick={() => onPatch({ saldato: !(sel.saldato ?? false) })} className={`w-full px-2.5 py-2 rounded-lg text-[12.5px] font-bold border cursor-pointer ${sel.saldato ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white text-[#8a8a8a] border-[#e2e2e2]'}`}>{sel.saldato ? 'Sì' : 'No'}</button>
+            <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Saldato</p>
+            <button onClick={() => onPatch({ saldato: !(sel.saldato ?? false) })} className={`w-full px-2.5 py-2 rounded-lg text-[12.5px] font-bold border cursor-pointer ${sel.saldato ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>{sel.saldato ? 'Sì' : 'No'}</button>
           </div>
           <div>
-            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Data inizio</p>
+            <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Data inizio</p>
             <input type="date" value={sel.dataInizio || ''} onChange={(e) => onPatch({ dataInizio: e.target.value || null })} className="w-full px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white" />
           </div>
           <div>
-            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Data fine</p>
+            <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Data fine</p>
             <input type="date" value={sel.dataFine || ''} onChange={(e) => onPatch({ dataFine: e.target.value || null })} className="w-full px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white" />
           </div>
           <div>
-            <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Responsabile</p>
+            <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Responsabile</p>
             <input value={respNome} onChange={(e) => setRespNome(e.target.value)} onBlur={() => (sel.responsabileNome || '') !== respNome && onPatch({ responsabileNome: respNome || null })} className="w-full px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white" />
           </div>
         </div>
         <div>
-          <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Riferimento comunicazione</p>
+          <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Riferimento comunicazione</p>
           <input value={rifCom} onChange={(e) => setRifCom(e.target.value)} onBlur={() => (sel.riferimentoComunicazione || '') !== rifCom && onPatch({ riferimentoComunicazione: rifCom || null })} className="w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white" />
         </div>
       </Box>
@@ -519,7 +519,7 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
             <div className="flex items-center justify-between gap-3 bg-white p-3 rounded-lg border border-[#f0f0f0]">
               <div>
                 <p className="text-[12px] font-bold text-[#444]">Punteggio complessivo</p>
-                <p className="text-[11px] text-[#8a8a8a]">Media dei criteri valutati</p>
+                <p className="text-[12px] text-[#6b6b6b]">Media dei criteri valutati</p>
               </div>
               <div className="flex items-center gap-2"><Stars value={avg} size={18} /><span className="text-[16px] font-black text-[#161616]">{avg ? avg.toFixed(1) : '—'}</span></div>
             </div>
@@ -531,7 +531,7 @@ const AnagraficaPane: React.FC<{ sel: ClientRecord; pay: PayInfo; societies: Soc
                 </div>
               ))}
             </div>
-            <p className="text-[10.5px] text-[#b0b0b0] leading-relaxed mt-1">Clic sulle stelle per valutare (riclicca sulla stessa per azzerare). Le imprese con punteggio più alto compaiono in cima al registro fornitori.</p>
+            <p className="text-[11.5px] text-[#8f8f8f] leading-relaxed mt-1">Clic sulle stelle per valutare (riclicca sulla stessa per azzerare). Le imprese con punteggio più alto compaiono in cima al registro fornitori.</p>
           </Box>
         );
       })()}
@@ -544,7 +544,7 @@ const BrandPane: React.FC<{ sel: ClientRecord; onSave: (b: BrandAsset) => void }
   const [b, setB] = React.useState<BrandAsset>(sel.brandAsset || {});
   React.useEffect(() => { setB(sel.brandAsset || {}); }, [sel.id]);
   const Fld = (label: string, key: keyof BrandAsset, rows = 2) => (
-    <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">{label}</p>
+    <div><p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">{label}</p>
       <textarea value={(b[key] as string) || ''} onChange={(e) => setB((p) => ({ ...p, [key]: e.target.value }))} rows={rows} className="w-full p-2.5 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] resize-none" /></div>
   );
   return (
@@ -553,7 +553,7 @@ const BrandPane: React.FC<{ sel: ClientRecord; onSave: (b: BrandAsset) => void }
         {Fld('Obiettivi del cliente', 'obiettivi')}
         {Fld('Tono di voce', 'tonoVoce', 1)}
         {Fld('Target di riferimento', 'targetRiferimento', 1)}
-        <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Asset grafici (uno per riga: nome o link)</p>
+        <div><p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Asset grafici (uno per riga: nome o link)</p>
           <textarea value={(b.assetGrafici || []).join('\n')} onChange={(e) => setB((p) => ({ ...p, assetGrafici: e.target.value.split('\n').map((s) => s.trim()).filter(Boolean) }))} rows={3} className="w-full p-2.5 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] resize-none" /></div>
       </Box>
       <button onClick={() => onSave(b)} className="self-start px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Salva asset brand</button>
@@ -573,10 +573,10 @@ const CredenzialiPane: React.FC<{ sel: ClientRecord; pwShown: Record<string, boo
   return (
     <div className="flex flex-col gap-4 max-w-2xl">
       <div className="flex items-center justify-between">
-        <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[#666]">Credenziali & password</h4>
-        <span className="inline-flex items-center gap-1 text-[10.5px] bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-full"><Lock className="w-3 h-3" /> Riservato</span>
+        <h4 className="text-[12px] font-extrabold uppercase tracking-wider text-[#666]">Credenziali & password</h4>
+        <span className="inline-flex items-center gap-1 text-[11.5px] bg-rose-50 text-rose-700 font-bold px-2 py-0.5 rounded-full"><Lock className="w-3 h-3" /> Riservato</span>
       </div>
-      {creds.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a] py-2">Nessuna credenziale salvata.</p> : creds.map((c) => {
+      {creds.length === 0 ? <p className="text-[12.5px] text-[#767676] py-2">Nessuna credenziale salvata.</p> : creds.map((c) => {
         const vis = pwShown[c.id];
         return (
           <div key={c.id} className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-3.5">
@@ -588,10 +588,10 @@ const CredenzialiPane: React.FC<{ sel: ClientRecord; pwShown: Record<string, boo
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 text-[12px]">
-              <div><p className="text-[9px] text-[#b0b0b0] font-bold uppercase">Username</p><p className="font-mono font-semibold text-[#444]">{c.username || '—'}</p></div>
-              <div><p className="text-[9px] text-[#b0b0b0] font-bold uppercase">Password</p><p className="font-mono font-semibold text-[#444] tracking-wider">{vis ? (c.password || '—') : '••••••••••'}</p></div>
+              <div><p className="text-[10px] text-[#8f8f8f] font-bold uppercase">Username</p><p className="font-mono font-semibold text-[#444]">{c.username || '—'}</p></div>
+              <div><p className="text-[10px] text-[#8f8f8f] font-bold uppercase">Password</p><p className="font-mono font-semibold text-[#444] tracking-wider">{vis ? (c.password || '—') : '••••••••••'}</p></div>
             </div>
-            {c.note && <p className="text-[11px] text-[#9a9a9a] italic mt-2 pt-2 border-t border-[#eee]">{c.note}</p>}
+            {c.note && <p className="text-[12px] text-[#767676] italic mt-2 pt-2 border-t border-[#eee]">{c.note}</p>}
           </div>
         );
       })}
@@ -622,7 +622,7 @@ const StoriaPane: React.FC<{ sel: ClientRecord; onSave: (it: ContactInteraction[
   return (
     <div className="flex flex-col gap-4 max-w-2xl">
       <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-4 flex flex-col gap-2.5">
-        <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-[#666]">Nuova interazione</h4>
+        <h4 className="text-[12px] font-extrabold uppercase tracking-wider text-[#666]">Nuova interazione</h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <input value={titolo} onChange={(e) => setTitolo(e.target.value)} placeholder="Titolo (riunione, evento…)" className="px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none bg-white" />
           <select value={tipo} onChange={(e) => setTipo(e.target.value as any)} className="px-3 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none bg-white">
@@ -633,7 +633,7 @@ const StoriaPane: React.FC<{ sel: ClientRecord; onSave: (it: ContactInteraction[
         <button onClick={add} disabled={!titolo.trim()} className="self-end px-4 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none disabled:opacity-40">Salva appunto</button>
       </div>
 
-      {items.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Nessuna interazione registrata.</p> : (
+      {items.length === 0 ? <p className="text-[12.5px] text-[#767676]">Nessuna interazione registrata.</p> : (
         <div className="flex flex-col gap-2">
           {items.map((it) => {
             const Icon = INT_ICON[it.tipo] || FileText;
@@ -644,12 +644,12 @@ const StoriaPane: React.FC<{ sel: ClientRecord; onSave: (it: ContactInteraction[
                   <div className="flex items-center justify-between gap-2">
                     <b className="text-[13px] text-[#161616] truncate">{it.titolo}</b>
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-[10px] font-bold uppercase text-[#9a9a9a]">{INT_LABEL[it.tipo]}</span>
+                      <span className="text-[11px] font-bold uppercase text-[#767676]">{INT_LABEL[it.tipo]}</span>
                       <button onClick={() => onSave((sel.interactions || []).filter((x) => x.id !== it.id))} className="text-rose-400 hover:text-rose-600 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
                     </div>
                   </div>
                   {it.descrizione && <p className="text-[12px] text-[#666] mt-0.5 leading-relaxed">{it.descrizione}</p>}
-                  <span className="text-[10.5px] text-[#b0b0b0]">{fmtDate(it.data)}</span>
+                  <span className="text-[11.5px] text-[#8f8f8f]">{fmtDate(it.data)}</span>
                 </div>
               </div>
             );

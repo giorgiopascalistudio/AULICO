@@ -65,7 +65,7 @@ export const MotionTabsMenu: React.FC = () => {
       className="bg-white border border-[#e2e2e2] rounded-[26px] p-6 shadow-sm text-left flex flex-col gap-5 w-full max-w-md mx-auto"
     >
       <div className="flex items-center justify-between">
-        <span className="text-[12px] uppercase font-extrabold text-[#8a8a8a] tracking-wider flex items-center gap-1.5 select-none">
+        <span className="text-[12px] uppercase font-extrabold text-[#6b6b6b] tracking-wider flex items-center gap-1.5 select-none">
           <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Componente Interactive
         </span>
         <span className="text-[11.5px] font-bold text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
@@ -94,7 +94,7 @@ export const MotionTabsMenu: React.FC = () => {
               <span className={`w-2 h-2 rounded-full bg-gradient-to-tr ${activeData.color}`} />
               Modulo {activeData.label}
             </b>
-            <p className="text-[12.5px] text-[#8a8a8a] leading-relaxed">
+            <p className="text-[12.5px] text-[#6b6b6b] leading-relaxed">
               {activeData.content}
             </p>
           </motion.div>

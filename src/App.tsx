@@ -336,7 +336,7 @@ const CatastaliEditor: React.FC<{
     onChange(rows.map((r, idx) => (idx === i ? { ...r, [k]: v } : r)));
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="grid grid-cols-[1fr_1fr_1fr_32px] gap-2 text-[10px] font-bold uppercase tracking-wider text-[#8a8a8a] px-1">
+      <div className="grid grid-cols-[1fr_1fr_1fr_32px] gap-2 text-[11px] font-bold uppercase tracking-wider text-[#6b6b6b] px-1">
         <span>Foglio</span>
         <span>Particella</span>
         <span>Sub</span>
@@ -364,7 +364,7 @@ const CatastaliEditor: React.FC<{
       <button
         type="button"
         onClick={() => onChange([...rows, { foglio: rows[rows.length - 1]?.foglio || '', particella: '', sub: '' }])}
-        className="self-start text-[11px] font-bold text-[#161616] bg-[#f0f0f0] hover:bg-[#e2e2e2] border-none rounded-full px-3 py-1.5 cursor-pointer"
+        className="self-start text-[12px] font-bold text-[#161616] bg-[#f0f0f0] hover:bg-[#e2e2e2] border-none rounded-full px-3 py-1.5 cursor-pointer"
       >
         + Aggiungi particella
       </button>
@@ -5567,10 +5567,10 @@ export default function App() {
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <b className="text-[16px] text-[#161616]">Accesso non autorizzato</b>
-              <p className="text-[13px] text-[#8a8a8a] leading-relaxed">
+              <p className="text-[13px] text-[#6b6b6b] leading-relaxed">
                 Il tuo account non è stato abilitato. Contatta l’amministratore dello studio.
               </p>
-              <div className="flex items-center gap-2 mt-2 text-[12px] text-stone-400 font-semibold">
+              <div className="flex items-center gap-2 mt-2 text-[12px] text-stone-500 font-semibold">
                 <User className="w-3.5 h-3.5" /> {gUser.email}
               </div>
               <button onClick={handleLogout} className="btn bg-gray-100 hover:bg-gray-200 border-none text-[#161616] font-bold justify-center mt-3 w-full">
@@ -5603,11 +5603,11 @@ export default function App() {
               <Clock className="w-6 h-6" />
             </div>
             <b className="text-[16px] text-[#161616]">Richiesta in attesa di approvazione</b>
-            <p className="text-[13px] text-[#8a8a8a] leading-relaxed">
+            <p className="text-[13px] text-[#6b6b6b] leading-relaxed">
               La tua registrazione come <b>Team</b> è stata inviata. Un responsabile dello studio
               deve approvarti e assegnarti un ruolo. Riprova più tardi.
             </p>
-            <div className="flex items-center gap-2 mt-2 text-[12px] text-stone-400 font-semibold">
+            <div className="flex items-center gap-2 mt-2 text-[12px] text-stone-500 font-semibold">
               <User className="w-3.5 h-3.5" /> {gUser.email}
             </div>
             <button onClick={handleLogout} className="btn bg-gray-100 hover:bg-gray-200 border-none text-[#161616] font-bold justify-center mt-3 w-full">
@@ -5627,7 +5627,7 @@ export default function App() {
       <React.Suspense
         fallback={
           <div className="min-h-screen bg-[#F5F5F3] flex items-center justify-center">
-            <span className="text-[13px] font-bold text-[#8a8a8a] animate-pulse">Caricamento…</span>
+            <span className="text-[13px] font-bold text-[#6b6b6b] animate-pulse">Caricamento…</span>
           </div>
         }
       >
@@ -6238,7 +6238,7 @@ export default function App() {
 
           return (
             <div className="flex flex-col gap-6 text-left">
-              <a href={backTo} className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#8a8a8a] truncate hover:text-[#161616]">
+              <a href={backTo} className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#6b6b6b] truncate hover:text-[#161616]">
                 Indietro a Team
               </a>
               <div className="flex items-center gap-5">
@@ -6247,7 +6247,7 @@ export default function App() {
                 </span>
                 <div>
                   <h2 className="text-[24px] font-black tracking-tight leading-none">{u.name}</h2>
-                  <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">{u.email}</p>
+                  <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">{u.email}</p>
                 </div>
               </div>
 
@@ -6271,20 +6271,20 @@ export default function App() {
                             <div className="w-full h-1 bg-[#ececec] rounded-full overflow-hidden">
                               <div className="h-full bg-[#1b1b1b]" style={{ width: `${pc}%` }} />
                             </div>
-                            <span className="text-[11.5px] text-[#8a8a8a]">{pc}% completata</span>
+                            <span className="text-[11.5px] text-[#6b6b6b]">{pc}% completata</span>
                           </div>
                         );
                       })}
                     </div>
                   ) : (
-                    <p className="text-sm italic text-[#8a8a8a]">Nessuna pratica collegata a questo cliente</p>
+                    <p className="text-sm italic text-[#6b6b6b]">Nessuna pratica collegata a questo cliente</p>
                   )}
                 </div>
               ) : (
                 <div className="flex flex-col gap-5">
                   <div className="flex flex-wrap gap-1.5">
                     {pFns.map(f => (
-                      <span key={f} className="bg-[#1b1b1b] text-white px-3 py-1 rounded-full text-[11px] uppercase font-bold tracking-wider">
+                      <span key={f} className="bg-[#1b1b1b] text-white px-3 py-1 rounded-full text-[12px] uppercase font-bold tracking-wider">
                         {f}
                       </span>
                     ))}
@@ -6298,16 +6298,16 @@ export default function App() {
                           <div key={t.id} className="flex items-center justify-between py-2 border-b border-[#fafafa] last:border-0">
                             <div>
                               <b className="font-semibold">{t.title}</b>
-                              {t.due && <p className="text-[11.5px] text-[#8a8a8a] mt-0.5">Scadenza: {fmtDay(t.due)}</p>}
+                              {t.due && <p className="text-[11.5px] text-[#6b6b6b] mt-0.5">Scadenza: {fmtDay(t.due)}</p>}
                             </div>
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${t.done ? 'bg-green-100 text-green-800' : 'bg-orange-105 bg-orange-100 text-orange-800'}`}>
+                            <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase ${t.done ? 'bg-green-100 text-green-800' : 'bg-orange-105 bg-orange-100 text-orange-800'}`}>
                               {t.done ? 'Chiusa' : 'Aperta'}
                             </span>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm italic text-[#8a8a8a]">Nessuna attività in carico</p>
+                      <p className="text-sm italic text-[#6b6b6b]">Nessuna attività in carico</p>
                     )}
                   </div>
                 </div>
@@ -6315,14 +6315,14 @@ export default function App() {
             </div>
           );
         }
-        return <p className="text-[13px] text-[#8a8a8a]">Seleziona una persona valida.</p>;
+        return <p className="text-[13px] text-[#6b6b6b]">Seleziona una persona valida.</p>;
 
       // --- Aulico V2: dashboard configurabile per società ---
       case 'sdash': {
         const society = getSociety(activeSocieta);
         const sec = society?.sections.find((s) => s.id === activeSection) || society?.sections.find((s) => s.kind === 'dashboard');
         if (society && sec && !canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
-        if (!society || !society.dashboard) return <p className="text-[13px] text-[#8a8a8a]">Dashboard non disponibile.</p>;
+        if (!society || !society.dashboard) return <p className="text-[13px] text-[#6b6b6b]">Dashboard non disponibile.</p>;
         const ctx: DashboardCtx = {
           societa: activeSocieta,
           profile: currentUser,
@@ -6341,7 +6341,7 @@ export default function App() {
       case 'sview': {
         const society = getSociety(activeSocieta);
         const sec = society?.sections.find((s) => s.id === activeSection);
-        if (!society || !sec) return <p className="text-[13px] text-[#8a8a8a]">Sezione non trovata.</p>;
+        if (!society || !sec) return <p className="text-[13px] text-[#6b6b6b]">Sezione non trovata.</p>;
         if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
         // Override per-sezione (Team → Permessi → Sezioni): 'view' = sola consultazione
         // anche per chi normalmente opererebbe. I gate admin/manager restano in aggiunta.
@@ -6387,7 +6387,7 @@ export default function App() {
               });
             });
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <MarketingHub
                   accounts={[...socAccounts, ...cliAccounts]}
                   contacts={mktContacts}
@@ -6428,7 +6428,7 @@ export default function App() {
             // finanza in "operate" (permesso su Amministrazione & Contabilità).
             const isBoss = currentUser.role === 'admin' || currentUser.role === 'manager' || canEditFinance;
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <DirezioneHub
                   quotes={Object.values(quotes)}
                   invA={finInvoicesActive}
@@ -6478,7 +6478,7 @@ export default function App() {
               .filter((p: any) => p.division === psoc && !p.archived && p.status !== 'completato' && p.status !== 'annullato')
               .map((p: any) => ({ id: p.id, name: p.name }));
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <PianoBattaglia
                   soc={psoc}
                   socLabel={society.label}
@@ -6496,7 +6496,7 @@ export default function App() {
           case 'point-of-entry':
             if (currentUser.role !== 'admin' && currentUser.role !== 'manager') return renderUnauthorized();
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <PointOfEntryView
                   leads={crmLeads}
                   requests={Object.values(clientRequests)}
@@ -6515,7 +6515,7 @@ export default function App() {
             );
           case 'fantastico-gestione':
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <FantasticoView
                   immobili={Object.values(fantImmobili)}
                   tickets={Object.values(fantTickets)}
@@ -6531,7 +6531,7 @@ export default function App() {
             );
           case 'recruiting':
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <RecruitingView
                   items={Object.values(recruiting)}
                   color={society.color}
@@ -6549,7 +6549,7 @@ export default function App() {
               ...Object.values(mktAccounts).filter((a) => a.kind === 'cliente').map((a) => ({ id: a.id, name: a.name })),
             ];
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <TimeReportView
                   tasks={Object.values(tasks)}
                   timeEntries={Object.values(timeEntries)}
@@ -6572,7 +6572,7 @@ export default function App() {
           }
           case 'mie-commesse':
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <MieCommesseView
                   myUid={currentUser.uid}
                   isBoss={currentUser.role === 'admin' || currentUser.role === 'manager'}
@@ -6589,7 +6589,7 @@ export default function App() {
           case 'sopralluoghi': {
             const studioTeam = Object.values(users).filter((u: any) => u && u.active && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }));
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <SopralluoghiView
                   soc={activeSocieta as string}
                   items={Object.values(sopralluoghi).filter((s) => (s.soc || 'studio') === activeSocieta)}
@@ -6612,7 +6612,7 @@ export default function App() {
           }
           case 'abilitativa':
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <AbilitativaView
                   projects={Object.values(projects).filter((p) => p.division === 'studio' && !p.archived && p.status !== 'completato' && p.status !== 'annullato')}
                   cells={abilitativa}
@@ -6626,7 +6626,7 @@ export default function App() {
             );
           case 'render-ai':
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <RenderAiView
                   projects={Object.values(projects).filter((p) => p.division === 'studio' && !p.archived)}
                   color={society.color}
@@ -6637,7 +6637,7 @@ export default function App() {
           case 'society-chat':
             // Chat di gruppo del team della società (una stanza per società).
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <SocietyChat
                   socLabel={society.label}
                   color={society.color}
@@ -6654,7 +6654,7 @@ export default function App() {
             // Home → Notifiche della società: notifiche/messaggi + chat coi clienti
             // (projectMessages dei progetti della società). Chat 1:1/stanza = modulo futuro.
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <NotificheView
                   socLabel={society.label}
                   color={society.color}
@@ -6670,7 +6670,7 @@ export default function App() {
           case 'compliance':
             // Adempimenti societari: checklist documenti per società (nodo compliance/<soc>).
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <ComplianceView
                   soc={activeSocieta}
                   socLabel={society.label}
@@ -6685,7 +6685,7 @@ export default function App() {
             // Raccolta segnalazioni test (read regole: admin/manager; gli altri
             // membri inviano dal pulsante "Segnala un problema").
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <DevReportsView
                   reports={Object.values(devReports)}
                   color={society.color}
@@ -6699,10 +6699,10 @@ export default function App() {
           case 'legale': {
             // Nodo legalDocs: admin/manager (dati legali sensibili).
             if (!(currentUser.role === 'admin' || currentUser.role === 'manager')) {
-              return <p className="text-[13px] text-[#8a8a8a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">L'Area Legale contiene dati riservati: sezione per admin/manager.</p>;
+              return <p className="text-[13px] text-[#6b6b6b] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">L'Area Legale contiene dati riservati: sezione per admin/manager.</p>;
             }
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <LegaleView
                   rubrica={Object.values(clients)}
                   users={users}
@@ -6719,11 +6719,11 @@ export default function App() {
           case 'computi': {
             // Nodo finComputi: leggibile solo admin/manager (regole finanza).
             if (!(currentUser.role === 'admin' || currentUser.role === 'manager')) {
-              return <p className="text-[13px] text-[#8a8a8a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">I computi metrici contengono dati contabili: sezione riservata ad amministrazione (admin/manager).</p>;
+              return <p className="text-[13px] text-[#6b6b6b] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">I computi metrici contengono dati contabili: sezione riservata ad amministrazione (admin/manager).</p>;
             }
             const compSoc = activeSocieta as string;
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <ComputiView
                   projects={Object.values(projects).filter((p) => p.division === compSoc && !p.archived)}
                   socLabel={society.label}
@@ -6740,7 +6740,7 @@ export default function App() {
             // la gestione (nuove stime, modifica) vive in Strategico → Centro Commerciale → tab Stime.
             const stimaSoc = activeSocieta as string;
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <StimaPreliminareView
                   stime={Object.values(stimePreliminari).filter((s: any) => (s.soc || 'studio') === stimaSoc)}
                   rubrica={Object.values(clients)}
@@ -6752,7 +6752,7 @@ export default function App() {
           }
           case 'unico-opportunita':
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <UnicoOpportunitaView
                   opps={Object.values(unicoOpps)}
                   rubrica={Object.values(clients)}
@@ -6768,7 +6768,7 @@ export default function App() {
           case 'contabilita-read': {
             const psoc = activeSocieta as string;
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <ContabilitaConsult
                   soc={psoc}
                   socLabel={society.label}
@@ -6782,7 +6782,7 @@ export default function App() {
           }
           case 'materico-deals':
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <MatericoDealsView
                   deals={matericoDeals}
                   members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
@@ -6798,7 +6798,7 @@ export default function App() {
             );
           case 'materico-listino':
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <MatericoListinoView
                   items={matericoListino}
                   color={society.color}
@@ -6823,14 +6823,14 @@ export default function App() {
               liquidita: paid(secInv(finInvoicesActive)).reduce((s: number, i: any) => s + (Number(i.amount) || 0), 0) - paid(secInv(finInvoicesPassive)).reduce((s: number, i: any) => s + (Number(i.amount) || 0), 0),
             };
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <PianoFinanziarioView piano={pianoFinanziario[pid] || null} soc={psoc} socLabel={society.label} year={pianoAnno} color={society.color} canEdit={isStudioRole(currentUser.role) && secOp} onChangeYear={setPianoAnno} onSave={handleSavePiano} kpi={kpi} />
               </React.Suspense>
             );
           }
           case 'piano-incentivante':
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <PianoIncentivanteView
                   members={Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
                   pointEvents={pointEvents}
@@ -6842,7 +6842,7 @@ export default function App() {
           case 'pianificazione-fiscale': {
             const psoc = activeSocieta as string;
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <FiscaleView items={Object.values(fiscalePlan).filter((i) => i.soc === psoc)} soc={psoc} socLabel={society.label} color={society.color} canEdit={isStudioRole(currentUser.role) && secOp} onSave={handleSaveFiscale} onDelete={handleDeleteFiscale} />
               </React.Suspense>
             );
@@ -6850,7 +6850,7 @@ export default function App() {
           case 'credenziali-soc': {
             const psoc = activeSocieta as string;
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <CredenzialiView entries={Object.values(governanceVault)} config={vaultConfig} soc={psoc} socLabel={society.label} canEdit={(currentUser.role === 'admin' || currentUser.role === 'manager') && secOp} onSave={handleSaveVaultEntry} onDelete={handleDeleteVaultEntry} onSetConfig={handleSetVaultConfig} />
               </React.Suspense>
             );
@@ -6861,7 +6861,7 @@ export default function App() {
             const socKey = activeSocieta as string;
             const edChannels = [{ key: socKey, label: (SOCIETA_LABEL as any)[socKey] || society.label }];
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <EditorialCalendar
                   posts={Object.values(editorialPosts)}
                   channels={edChannels}
@@ -6880,7 +6880,7 @@ export default function App() {
             // (la gestione è centralizzata nel Centro Commerciale di Strategico).
             const psoc = activeSocieta as string;
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <CommercialeView
                   quotes={Object.values(quotes).filter((q: any) => q.division === psoc)}
                   soc={psoc}
@@ -6897,7 +6897,7 @@ export default function App() {
           case 'commerciale-hub': {
             const isBoss = isStudioRole(currentUser.role);
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <CommercialeHub
                   quotes={Object.values(quotes)}
                   clients={clients}
@@ -6933,7 +6933,7 @@ export default function App() {
           case 'prog-fatturazione': {
             const psoc = activeSocieta as string;
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <ProgFatturazioneView
                   items={Object.values(fatturazionePlan).filter((i) => i.soc === psoc)}
                   soc={psoc}
@@ -6950,7 +6950,7 @@ export default function App() {
           }
           case 'materico-home':
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <MatericoHomeView
                   deals={Object.values(matericoDeals)}
                   cantieriCount={Object.keys(cantieri).length}
@@ -6982,14 +6982,14 @@ export default function App() {
                 .map((p: any) => ({ id: `p-${p.id}`, title: p.name, subtitle: p.client || null, address: p.indirizzoImmobile || null, lat: null, lng: null, kind: 'pratica' as const, hash: `#progetto/${p.id}` }));
             }
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <MatericoMappaView sites={sites} color={society.color} canEdit={isStudioRole(currentUser.role) && secOp} onQuickTask={handleQuickTask} onOpen={(h) => { window.location.hash = h; }} />
               </React.Suspense>
             );
           }
           case 'materico-contracts':
             return (
-              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+              <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
                 <MatericoContractsView
                   contracts={matericoContracts}
                   deals={Object.values(matericoDeals)}
@@ -7036,18 +7036,18 @@ export default function App() {
       case 'sportal': {
         const society = getSociety(activeSocieta);
         const sec = society?.sections.find((s) => s.id === activeSection);
-        if (!society || !sec) return <p className="text-[13px] text-[#8a8a8a]">Sezione non trovata.</p>;
+        if (!society || !sec) return <p className="text-[13px] text-[#6b6b6b]">Sezione non trovata.</p>;
         if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
         // Gruppo accessibile solo tramite una voce concessa (livello proprio < view):
         // l'effetto di redirect porta alla voce; qui evitiamo il lampo del cruscotto d'area.
         if (!atLeast(sectionSelfLevel(currentUser, activeSocieta, sec), 'view') && firstViewableChild(currentUser, activeSocieta, sec)) {
-          return <div className="text-[13px] text-[#8a8a8a] p-8 text-center">Apro la sezione…</div>;
+          return <div className="text-[13px] text-[#6b6b6b] p-8 text-center">Apro la sezione…</div>;
         }
         // Il portale "Risorse Umane" di Strategico ha come dashboard l'agenda HR dedicata.
         if (activeSection === 'hr' && activeSocieta === 'strategico') {
           const hrMembers = Object.values(users).filter((u: any) => u && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }));
           return (
-            <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico l'agenda…</div>}>
+            <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico l'agenda…</div>}>
               <HrAgendaView events={hrEvents} members={hrMembers} teamLeave={Object.values(teamLeave)} canEdit={currentUser.role === 'admin' || currentUser.role === 'manager'} color={society.color} onSave={handleSaveHrEvent} onDelete={handleDeleteHrEvent} onDeleteLeave={handleDeleteLeave} />
             </React.Suspense>
           );
@@ -7055,7 +7055,7 @@ export default function App() {
         // La Home di Materico mostra il cruscotto dedicato (§1 del processo Materico).
         if (activeSection === 'home' && activeSocieta === 'materico') {
           return (
-            <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+            <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico…</div>}>
               <MatericoHomeView
                 deals={Object.values(matericoDeals)}
                 cantieriCount={Object.keys(cantieri).length}
@@ -7083,13 +7083,13 @@ export default function App() {
       case 'splaceholder': {
         const society = getSociety(activeSocieta);
         const sec = society?.sections.find((s) => s.id === activeSection);
-        if (!society || !sec) return <p className="text-[13px] text-[#8a8a8a]">Sezione non trovata.</p>;
+        if (!society || !sec) return <p className="text-[13px] text-[#6b6b6b]">Sezione non trovata.</p>;
         if (!canViewSection(currentUser, activeSocieta, sec)) return renderUnauthorized();
         return <SectionPlaceholder section={sec} societyLabel={society.label} color={society.color} />;
       }
 
       default:
-        return <p className="text-[13px] text-[#8a8a8a]">Sezione in arrivo.</p>;
+        return <p className="text-[13px] text-[#6b6b6b]">Sezione in arrivo.</p>;
     }
   };
 
@@ -7256,7 +7256,7 @@ export default function App() {
                             markAllNotificationsRead();
                             showToast('Tutte le notifiche segnate come lette.');
                           }}
-                          className="text-[11px] font-extrabold text-indigo-650 hover:underline cursor-pointer bg-transparent border-none"
+                          className="text-[12px] font-extrabold text-indigo-650 hover:underline cursor-pointer bg-transparent border-none"
                         >
                           Segna come lette
                         </button>
@@ -7288,9 +7288,9 @@ export default function App() {
                           >
                             <div className="flex justify-between items-start gap-2">
                               <h4 className="font-bold text-[12px] text-[#161616] leading-tight pr-2">{n.title}</h4>
-                              <span className="text-[9px] font-bold text-gray-400 shrink-0 mt-0.5">{n.time}</span>
+                              <span className="text-[10px] font-bold text-gray-400 shrink-0 mt-0.5">{n.time}</span>
                             </div>
-                            <p className="text-[11px] text-gray-605 mt-1 leading-normal">{n.text}</p>
+                            <p className="text-[12px] text-gray-605 mt-1 leading-normal">{n.text}</p>
                             {!n.read && (
                               <span className="absolute top-3.5 right-2 w-1.5 h-1.5 rounded-full bg-indigo-600" />
                             )}
@@ -7310,7 +7310,7 @@ export default function App() {
                             clearNotifications();
                             showToast('Le notifiche sono state cancellate.');
                           }}
-                          className="text-[11px] font-extrabold text-red-500 hover:text-red-700 bg-transparent border-none cursor-pointer"
+                          className="text-[12px] font-extrabold text-red-500 hover:text-red-700 bg-transparent border-none cursor-pointer"
                         >
                           Svuota notifiche
                         </button>
@@ -7348,7 +7348,7 @@ export default function App() {
                   )}
                   <button
                     onClick={() => setNotificationsOpen(false)}
-                    className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-[11px] font-extrabold cursor-pointer hover:bg-gray-200 border-none"
+                    className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-[12px] font-extrabold cursor-pointer hover:bg-gray-200 border-none"
                   >
                     ✕
                   </button>
@@ -7380,7 +7380,7 @@ export default function App() {
                     >
                       <div className="flex justify-between items-start gap-2">
                         <h4 className="font-bold text-[12.5px] text-[#161616] leading-tight pr-2">{n.title}</h4>
-                        <span className="text-[10px] font-bold text-gray-400 shrink-0">{n.time}</span>
+                        <span className="text-[11px] font-bold text-gray-400 shrink-0">{n.time}</span>
                       </div>
                       <p className="text-[11.5px] text-gray-605 mt-1 leading-normal">{n.text}</p>
                       {!n.read && (
@@ -7389,7 +7389,7 @@ export default function App() {
                     </div>
                   ))
                 ) : (
-                  <div className="py-12 text-center text-sm text-[#8a8a8a]">
+                  <div className="py-12 text-center text-sm text-[#6b6b6b]">
                     Nessuna notifica al momento.
                   </div>
                 )}
@@ -7456,8 +7456,8 @@ export default function App() {
           </span>
           <div className="min-w-0">
             <b className="block text-[18px] font-black text-[#161616] leading-none truncate">{currentUser.name}</b>
-            <small className="block text-[12px] text-[#8a8a8a] font-semibold mt-1 truncate">{currentUser.email}</small>
-            <span className="inline-block mt-1.5 text-[9.5px] font-extrabold uppercase tracking-wider bg-[#f0f0f0] border border-[#e2e2e2] text-[#6b6b6b] px-2 py-0.5 rounded-full">
+            <small className="block text-[12px] text-[#6b6b6b] font-semibold mt-1 truncate">{currentUser.email}</small>
+            <span className="inline-block mt-1.5 text-[10.5px] font-extrabold uppercase tracking-wider bg-[#f0f0f0] border border-[#e2e2e2] text-[#6b6b6b] px-2 py-0.5 rounded-full">
               {currentUser.role}
             </span>
           </div>
@@ -7465,23 +7465,23 @@ export default function App() {
 
         <div className="flex flex-col gap-3 text-left">
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Nome e cognome</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Nome e cognome</span>
             <input value={profName} onChange={(e) => setProfName(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
           </label>
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Telefono</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Telefono</span>
               <input value={profPhone} onChange={(e) => setProfPhone(e.target.value)} placeholder="+39…" className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Residenza</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Residenza</span>
               <input value={profRes} onChange={(e) => setProfRes(e.target.value)} placeholder="Via, civico, città" className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
           </div>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Società di default</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Società di default</span>
             <select value={profSoc} onChange={(e) => setProfSoc(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
               <option value="">— nessuna —</option>
               <option value="studio">Onirico</option>
@@ -7490,19 +7490,19 @@ export default function App() {
               <option value="unico">Unico</option>
               <option value="fantastico">Fantastico</option>
             </select>
-            <span className="text-[11px] text-[#9a9a9a]">Preimpostata come società di riferimento quando crei impegni e appuntamenti.</span>
+            <span className="text-[12px] text-[#767676]">Preimpostata come società di riferimento quando crei impegni e appuntamenti.</span>
           </label>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Mansioni associate</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Mansioni associate</span>
             <div className="flex flex-wrap gap-1.5">
               {(currentUser.functions && currentUser.functions.length ? currentUser.functions : []).map(f => (
-                <span key={f} className="text-[10px] bg-slate-100 rounded-full py-0.5 px-2.5 font-extrabold text-gray-800">
+                <span key={f} className="text-[11px] bg-slate-100 rounded-full py-0.5 px-2.5 font-extrabold text-gray-800">
                   {f}
                 </span>
               ))}
               {(!currentUser.functions || currentUser.functions.length === 0) && (
-                <span className="text-[11.5px] italic text-[#9a9a9a]">Nessuna mansione assegnata (le gestisce l'amministrazione da Team).</span>
+                <span className="text-[11.5px] italic text-[#767676]">Nessuna mansione assegnata (le gestisce l'amministrazione da Team).</span>
               )}
             </div>
           </div>
@@ -7588,7 +7588,7 @@ export default function App() {
                 <button
                   key={k}
                   onClick={() => switchNewEntryKind(k)}
-                  className={`flex-1 text-[12.5px] font-bold px-3 py-2 rounded-xl cursor-pointer border-none transition-colors ${active ? 'bg-white text-[#161616] font-extrabold shadow-2xs' : 'bg-transparent text-[#8a8a8a] hover:text-[#161616]'}`}
+                  className={`flex-1 text-[12.5px] font-bold px-3 py-2 rounded-xl cursor-pointer border-none transition-colors ${active ? 'bg-white text-[#161616] font-extrabold shadow-2xs' : 'bg-transparent text-[#6b6b6b] hover:text-[#161616]'}`}
                 >
                   {lbl}
                 </button>
@@ -7599,21 +7599,21 @@ export default function App() {
         {apptOpen ? (
         <div className="flex flex-col gap-3 text-left">
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Titolo *</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Titolo *</span>
             <input value={apptTitle} onChange={(e) => setApptTitle(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" placeholder="Sopralluogo, riunione…" />
           </label>
 
           <div className="grid grid-cols-3 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Data *</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Data *</span>
               <input type="date" value={apptDate} onChange={(e) => setApptDate(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Inizio</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Inizio</span>
               <input type="time" value={apptTime} onChange={(e) => setApptTime(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Fine</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Fine</span>
               <input type="time" value={apptEndTime} onChange={(e) => setApptEndTime(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
           </div>
@@ -7621,7 +7621,7 @@ export default function App() {
           {/* Società (colore blocco) + Urgenza (pallino) + Area del Vivere (metadato) */}
           <div className="grid grid-cols-3 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Società (colore)</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Società (colore)</span>
               <select value={apptSoc} onChange={(e) => setApptSoc(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
                 <option value="">— nessuna —</option>
                 <option value="studio">Onirico</option>
@@ -7632,7 +7632,7 @@ export default function App() {
               </select>
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Urgenza (pallino)</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Urgenza (pallino)</span>
               <select value={apptPrio} onChange={(e) => setApptPrio(e.target.value as any)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
                 <option value="">— nessuna —</option>
                 <option value="urgente">Urgente</option>
@@ -7642,7 +7642,7 @@ export default function App() {
               </select>
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Area del Vivere</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Area del Vivere</span>
               <select value={apptArea} onChange={(e) => setApptArea(e.target.value as any)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
                 <option value="">— nessuna —</option>
                 <option value="personale">Personale</option>
@@ -7656,7 +7656,7 @@ export default function App() {
           {/* Ricorrenza + Promemoria */}
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Ripeti</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Ripeti</span>
               <select value={apptRepeat} onChange={(e) => setApptRepeat(e.target.value as any)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
                 <option value="none">Mai (singolo)</option>
                 <option value="daily">Ogni giorno</option>
@@ -7665,7 +7665,7 @@ export default function App() {
               </select>
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Promemoria</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Promemoria</span>
               <select value={apptRemind} onChange={(e) => setApptRemind(e.target.value === '' ? '' : Number(e.target.value))} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
                 <option value="">Nessuno</option>
                 <option value="10">10 min prima</option>
@@ -7679,18 +7679,18 @@ export default function App() {
           {apptRepeat !== 'none' && (
             <div className="grid grid-cols-2 gap-3 -mt-1">
               <label className="flex flex-col gap-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Ogni</span>
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Ogni</span>
                 <input type="number" min={1} value={apptRepeatEvery} onChange={(e) => setApptRepeatEvery(Math.max(1, Number(e.target.value) || 1))} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
               </label>
               <label className="flex flex-col gap-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Fino al</span>
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Fino al</span>
                 <input type="date" value={apptRepeatUntil} onChange={(e) => setApptRepeatUntil(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
               </label>
             </div>
           )}
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Con</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Con</span>
             {/* chips dei selezionati */}
             {apptWho.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
@@ -7720,7 +7720,7 @@ export default function App() {
                 const people = Object.values(users)
                   .filter((u) => u.status === 'approved' && u.role && (!q || (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q)))
                   .sort((a, b) => (a.uid === currentUser.uid ? -1 : b.uid === currentUser.uid ? 1 : (roleOrder[a.role] ?? 3) - (roleOrder[b.role] ?? 3) || (a.name || '').localeCompare(b.name || '')));
-                if (people.length === 0) return <div className="px-3 py-2.5 text-[12px] italic text-[#9a9a9a]">Nessuna persona trovata.</div>;
+                if (people.length === 0) return <div className="px-3 py-2.5 text-[12px] italic text-[#767676]">Nessuna persona trovata.</div>;
                 return people.map((u) => {
                   const sel = apptWho.includes(u.uid);
                   const tag = u.uid === currentUser.uid ? 'io' : u.role === 'cliente' ? 'cliente' : u.role === 'partner' ? 'partner' : 'team';
@@ -7736,7 +7736,7 @@ export default function App() {
                         </span>
                         <span className="text-[13px] font-semibold text-[#161616] truncate">{u.uid === currentUser.uid ? `Io (${currentUser.name})` : u.name}</span>
                       </span>
-                      <span className={`text-[9.5px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${tag === 'cliente' ? 'bg-sky-50 text-sky-700' : tag === 'partner' ? 'bg-orange-50 text-orange-700' : 'bg-[#f0f0f0] text-[#6b6b6b]'}`}>
+                      <span className={`text-[10.5px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${tag === 'cliente' ? 'bg-sky-50 text-sky-700' : tag === 'partner' ? 'bg-orange-50 text-orange-700' : 'bg-[#f0f0f0] text-[#6b6b6b]'}`}>
                         {tag}
                       </span>
                     </button>
@@ -7744,11 +7744,11 @@ export default function App() {
                 });
               })()}
             </div>
-            <span className="text-[11px] text-[#9a9a9a]">L'appuntamento comparirà nel calendario di tutti i partecipanti, che dovranno confermare.</span>
+            <span className="text-[12px] text-[#767676]">L'appuntamento comparirà nel calendario di tutti i partecipanti, che dovranno confermare.</span>
           </div>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Note</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Note</span>
             <textarea value={apptNote} onChange={(e) => setApptNote(e.target.value)} rows={2} className="input border border-[#e2e2e2] rounded-xl p-3 text-[14px] resize-none" />
           </label>
 
@@ -7774,7 +7774,7 @@ export default function App() {
         ) : (
         <div className="flex flex-col gap-3 text-left">
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Titolo *</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Titolo *</span>
             <input
               value={tTitle}
               onChange={(e) => setTTitle(e.target.value)}
@@ -7785,21 +7785,21 @@ export default function App() {
 
           <div className="grid grid-cols-3 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Data *</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Data *</span>
               <input type="date" value={tDateInput} onChange={(e) => setTDateInput(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Inizio</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Inizio</span>
               <input type="time" value={tTimeInput} onChange={(e) => setTTimeInput(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Fine</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Fine</span>
               <input type="time" value={tEndInput} onChange={(e) => setTEndInput(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Priorità</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Priorità</span>
             <div className="flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-xl gap-[2px]">
               {([['urgente', 'Urgente'], ['alta', 'Alta'], ['media', 'Media'], ['bassa', 'Bassa']] as const).map(([k, lbl]) => (
                 <button
@@ -7808,7 +7808,7 @@ export default function App() {
                   className={`flex-1 text-[12px] font-bold px-2 py-1.5 rounded-lg cursor-pointer border-none transition-all ${
                     tPrio === k
                       ? k === 'urgente' ? 'bg-rose-600 text-white' : k === 'alta' ? 'bg-orange-500 text-white' : k === 'media' ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'
-                      : 'bg-transparent text-[#8a8a8a] hover:text-[#161616]'
+                      : 'bg-transparent text-[#6b6b6b] hover:text-[#161616]'
                   }`}
                 >
                   {lbl}
@@ -7818,7 +7818,7 @@ export default function App() {
           </div>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Società di riferimento (colore in agenda)</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Società di riferimento (colore in agenda)</span>
             <select value={tSoc} onChange={(e) => setTSoc(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
               <option value="">— dalla pratica collegata / nessuna —</option>
               <option value="studio">Onirico</option>
@@ -7831,7 +7831,7 @@ export default function App() {
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Ricorrenza</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Ricorrenza</span>
               <select value={tFreq} onChange={(e: any) => setTFreq(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]">
                 <option value="once">Una volta</option>
                 <option value="daily">Giornaliero</option>
@@ -7840,7 +7840,7 @@ export default function App() {
               </select>
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Tipologia</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Tipologia</span>
               <input
                 value={tTipo}
                 onChange={(e) => setTTipo(e.target.value)}
@@ -7861,7 +7861,7 @@ export default function App() {
             const doneMin = editTaskId ? (tasks[editTaskId]?.actualMinutes || 0) : 0;
             return (
               <div className="flex flex-col gap-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Durata stimata</span>
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Durata stimata</span>
                 <div className="flex items-center gap-2">
                   <input
                     type="number" min={0} value={tEst}
@@ -7869,7 +7869,7 @@ export default function App() {
                     placeholder={avg != null ? String(avg) : 'minuti'}
                     className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] w-28"
                   />
-                  <span className="text-[12px] text-[#8a8a8a] font-semibold">minuti</span>
+                  <span className="text-[12px] text-[#6b6b6b] font-semibold">minuti</span>
                   {avg != null && (
                     <button
                       type="button"
@@ -7881,7 +7881,7 @@ export default function App() {
                     </button>
                   )}
                 </div>
-                <span className="text-[11px] text-[#9a9a9a]">
+                <span className="text-[12px] text-[#767676]">
                   {avg != null
                     ? `Tempo medio "${tTipo.trim()}": ${fmtDuration(avg)} (da ${n} rilevazion${n === 1 ? 'e' : 'i'}). Si aggiorna da solo col cronometro.`
                     : tTipo.trim()
@@ -7895,7 +7895,7 @@ export default function App() {
 
           {/* Attività del catalogo punti → punteggio automatico al completamento */}
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Attività (catalogo punti · auto al completamento)</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Attività (catalogo punti · auto al completamento)</span>
             <select value={tActivityId} onChange={(e) => setTActivityId(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
               <option value="">Nessuna — punti dalla priorità ({PRIORITY_POINTS[tPrio] ?? 2})</option>
               {catalogFor('team').filter((a) => a.id !== 'manual').map((a) => (
@@ -7910,7 +7910,7 @@ export default function App() {
           </label>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Assegna a (anche più persone)</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Assegna a (anche più persone)</span>
             {tAssignees.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {tAssignees.map((uid) => (
@@ -7946,11 +7946,11 @@ export default function App() {
                   );
                 })}
             </div>
-            <span className="text-[11px] text-[#9a9a9a]">Senza selezione il task resta personale. Il task compare nel calendario di tutti gli assegnatari.</span>
+            <span className="text-[12px] text-[#767676]">Senza selezione il task resta personale. Il task compare nel calendario di tutti gli assegnatari.</span>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Collega a pratica</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Collega a pratica</span>
             {!tProjectId && (
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[12px] text-amber-800">
                 <HelpCircle className="w-4 h-4 shrink-0" />
@@ -7970,7 +7970,7 @@ export default function App() {
           </div>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Note o appunti</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Note o appunti</span>
             <textarea
               value={tNotes}
               onChange={(e) => setTNotes(e.target.value)}
@@ -8002,7 +8002,7 @@ export default function App() {
           style={{ borderColor: `${DIVISION_META[pDivision].color}33`, background: `${DIVISION_META[pDivision].color}0d` }}
         >
           <span
-            className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider text-white shrink-0"
+            className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider text-white shrink-0"
             style={{ background: DIVISION_META[pDivision].color }}
           >
             {DIVISION_META[pDivision].label}
@@ -8018,13 +8018,13 @@ export default function App() {
                   <input type="checkbox" checked={pProcessoOnirico} onChange={() => setPProcessoOnirico((v) => !v)} className="w-4 h-4 accent-[#161616]" />
                   <div className="flex-1">
                     <b className="text-[12.5px] text-[#161616]">Processo Onirico (4 fasi)</b>
-                    <p className="text-[11px] text-[#8a8a8a]">{(() => { const s = oniricoProcessoSummary(); return `Pianificazione · Progettuale · Abilitativa · Esecutiva — ${s.tasks} attività`; })()}</p>
+                    <p className="text-[12px] text-[#6b6b6b]">{(() => { const s = oniricoProcessoSummary(); return `Pianificazione · Progettuale · Abilitativa · Esecutiva — ${s.tasks} attività`; })()}</p>
                   </div>
                 </div>
                 {!pProcessoOnirico && (<>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[12px] font-bold text-[#8a8a8a] uppercase tracking-wider block">Categorie di lavorazione</span>
-                  <span className="text-[10px] font-bold text-[#8a8a8a]">{pCategorie.length} sel.</span>
+                  <span className="text-[12px] font-bold text-[#6b6b6b] uppercase tracking-wider block">Categorie di lavorazione</span>
+                  <span className="text-[11px] font-bold text-[#6b6b6b]">{pCategorie.length} sel.</span>
                 </div>
                 <div className="flex flex-col gap-3 max-h-[360px] overflow-y-auto pr-1">
                   {STUDIO_CATEGORIE_BY_FASE.map(group => {
@@ -8032,11 +8032,11 @@ export default function App() {
                     return (
                       <div key={group.fase} className="border border-[#ececec] rounded-2xl p-3 bg-[#fafafa]/60">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#161616]">{group.fase}</span>
+                          <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#161616]">{group.fase}</span>
                           <button
                             type="button"
                             onClick={() => setPCategorie(prev => allSel ? prev.filter(c => !group.categorie.includes(c)) : Array.from(new Set([...prev, ...group.categorie])))}
-                            className="text-[10px] font-bold text-[#8a8a8a] hover:text-[#161616] bg-transparent border-none cursor-pointer"
+                            className="text-[11px] font-bold text-[#6b6b6b] hover:text-[#161616] bg-transparent border-none cursor-pointer"
                           >
                             {allSel ? 'Deseleziona' : 'Tutte'}
                           </button>
@@ -8057,7 +8057,7 @@ export default function App() {
               </>
             ) : (
               <>
-            <span className="text-[12px] font-bold text-[#8a8a8a] uppercase tracking-wider block mb-1">Seleziona Template Standard</span>
+            <span className="text-[12px] font-bold text-[#6b6b6b] uppercase tracking-wider block mb-1">Seleziona Template Standard</span>
             <div className="flex flex-col gap-2 max-h-[340px] overflow-y-auto pr-1">
               {Object.values(templates)
                 .filter((t: any) => {
@@ -8081,7 +8081,7 @@ export default function App() {
                     </span>
                     <div>
                       <b className="block text-[13.5px]">{t.name}</b>
-                      <small className="text-[#8a8a8a] truncate block max-w-[200px] mt-0.5">{t.desc}</small>
+                      <small className="text-[#6b6b6b] truncate block max-w-[200px] mt-0.5">{t.desc}</small>
                     </div>
                   </button>
                 ))
@@ -8173,31 +8173,31 @@ export default function App() {
 
             {pDivision === 'studio' && (
               <div className="rounded-2xl border border-[#ececec] bg-[#fafafa] p-4 flex flex-col gap-3 border-l-[3px]" style={{ borderLeftColor: DIVISION_META.studio.color }}>
-                <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.studio.color }} /> Pratica edilizia</span>
+                <span className="text-[11.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.studio.color }} /> Pratica edilizia</span>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[11px] font-semibold text-gray-600">Tipo di intervento edilizio</label>
+                    <label className="text-[12px] font-semibold text-gray-600">Tipo di intervento edilizio</label>
                     <select value={pIntervento} onChange={(e) => handleInterventoChange(e.target.value)} className="select text-xs bg-white h-9 font-sans">
                       {INTERVENTI_EDILIZI.map(i => <option key={i.id} value={i.id}>{i.label}</option>)}
                     </select>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[11px] font-semibold text-gray-600">Titolo abilitativo <span className="text-gray-400 normal-case font-normal">(auto)</span></label>
+                    <label className="text-[12px] font-semibold text-gray-600">Titolo abilitativo <span className="text-gray-400 normal-case font-normal">(auto)</span></label>
                     <select value={pTitolo} onChange={(e) => setPTitolo(e.target.value)} className="select text-xs bg-white h-9 font-sans">
                       {TITOLI_ABILITATIVI.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                     </select>
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-semibold text-gray-600">Committente</label>
+                  <label className="text-[12px] font-semibold text-gray-600">Committente</label>
                   <input value={pCommittente} onChange={(e) => setPCommittente(e.target.value)} placeholder="Es. Mario Rossi" className="input text-xs bg-white h-9" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-semibold text-gray-600">Identificativi catastali</label>
+                  <label className="text-[12px] font-semibold text-gray-600">Identificativi catastali</label>
                   <CatastaliEditor rows={pCatastali} onChange={setPCatastali} />
                 </div>
                 {(() => { const s = pProcessoOnirico ? oniricoProcessoSummary() : studioSummary(pCategorie, pTitolo); return (
-                  <div className="flex items-center gap-2 mt-1 text-[11px] font-bold text-[#161616] bg-white border border-[#ececec] rounded-xl px-3 py-2">
+                  <div className="flex items-center gap-2 mt-1 text-[12px] font-bold text-[#161616] bg-white border border-[#ececec] rounded-xl px-3 py-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     Verranno generate <span className="text-emerald-700">{s.fasi} fasi</span> e <span className="text-emerald-700">{s.tasks} attività</span> {pProcessoOnirico ? 'dal processo Onirico (4 fasi).' : 'dalla libreria Onirico.'}
                   </div>
@@ -8207,19 +8207,19 @@ export default function App() {
 
             {pDivision === 'strategico' && (
               <div className="rounded-2xl border border-[#ececec] bg-[#fafafa] p-4 flex flex-col gap-3 border-l-[3px]" style={{ borderLeftColor: DIVISION_META.strategico.color }}>
-                <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.strategico.color }} /> Parametri Marketing</span>
+                <span className="text-[11.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.strategico.color }} /> Parametri Marketing</span>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[11px] font-semibold text-gray-600">Budget Campagna (€)</label>
+                    <label className="text-[12px] font-semibold text-gray-600">Budget Campagna (€)</label>
                     <input type="number" value={pMarketingBudget} onChange={(e) => setPMarketingBudget(e.target.value ? Number(e.target.value) : '')} placeholder="Es. 7500" className="input text-xs bg-white h-9" />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[11px] font-semibold text-gray-600">Canali Primari</label>
+                    <label className="text-[12px] font-semibold text-gray-600">Canali Primari</label>
                     <input value={pMarketingChannels} onChange={(e) => setPMarketingChannels(e.target.value)} placeholder="Es. Instagram, Meta Ads" className="input text-xs bg-white h-9" />
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-semibold text-gray-600">Obiettivo Principale Brand</label>
+                  <label className="text-[12px] font-semibold text-gray-600">Obiettivo Principale Brand</label>
                   <input value={pMarketingGoal} onChange={(e) => setPMarketingGoal(e.target.value)} placeholder="Es. Lead Generation Masserie Salentine" className="input text-xs bg-white h-9" />
                 </div>
               </div>
@@ -8227,14 +8227,14 @@ export default function App() {
 
             {pDivision === 'materico' && (
               <div className="rounded-2xl border border-[#ececec] bg-[#fafafa] p-4 flex flex-col gap-3 border-l-[3px]" style={{ borderLeftColor: DIVISION_META.materico.color }}>
-                <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.materico.color }} /> Forniture e posa</span>
+                <span className="text-[11.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.materico.color }} /> Forniture e posa</span>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[11px] font-semibold text-gray-600">Est. Forniture (€)</label>
+                    <label className="text-[12px] font-semibold text-gray-600">Est. Forniture (€)</label>
                     <input type="number" value={pMatericoEstimatedBudget} onChange={(e) => setPMatericoEstimatedBudget(e.target.value ? Number(e.target.value) : '')} placeholder="Es. 45000" className="input text-xs bg-white h-9" />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[11px] font-semibold text-gray-600">Finiture Selezionate</label>
+                    <label className="text-[12px] font-semibold text-gray-600">Finiture Selezionate</label>
                     <select value={pMatericoFinitureType} onChange={(e) => setPMatericoFinitureType(e.target.value)} className="select text-xs bg-white h-9 font-sans">
                       <option value="">Seleziona...</option>
                       <option value="infissi_minimali">Infissi Minimali di Pregio</option>
@@ -8245,7 +8245,7 @@ export default function App() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-semibold text-gray-600">Stato Sottofondi</label>
+                  <label className="text-[12px] font-semibold text-gray-600">Stato Sottofondi</label>
                   <select value={pMatericoSottofondiStatus} onChange={(e) => setPMatericoSottofondiStatus(e.target.value)} className="select text-xs bg-white h-9 font-sans">
                     <option value="">Seleziona...</option>
                     <option value="idoneo">Idoneo per posa immediata</option>
@@ -8258,8 +8258,8 @@ export default function App() {
 
             {pDivision === 'unico' && (
               <div className="rounded-2xl border border-[#ececec] bg-[#fafafa] p-4 flex flex-col gap-1.5 border-l-[3px]" style={{ borderLeftColor: DIVISION_META.unico.color }}>
-                <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.unico.color }} /> Operazione Unico</span>
-                <p className="text-[11px] text-[#8a8a8a]">Nessun parametro aggiuntivo: l'operazione immobiliare si configura nel modulo Unico (operazioni & investitori).</p>
+                <span className="text-[11.5px] font-extrabold uppercase tracking-wider text-[#161616] flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full" style={{ background: DIVISION_META.unico.color }} /> Operazione Unico</span>
+                <p className="text-[12px] text-[#6b6b6b]">Nessun parametro aggiuntivo: l'operazione immobiliare si configura nel modulo Unico (operazioni & investitori).</p>
               </div>
             )}
 
@@ -8273,7 +8273,7 @@ export default function App() {
                 <input type="date" value={pDue} onChange={(e) => setPDue(e.target.value)} className="input mt-1" />
               </div>
             </div>
-            <p className="text-[11px] text-[#9a9a9a] -mt-1">
+            <p className="text-[12px] text-[#767676] -mt-1">
               Dalla data di inizio i task vengono pianificati in sequenza (durata e ordine delle fasi) e assegnati
               automaticamente al membro con la mansione richiesta più libero.
             </p>
@@ -8367,7 +8367,7 @@ export default function App() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-[11px] font-bold tracking-widest uppercase text-[#8a8a8a]">Note interne studio</label>
+            <label className="text-[12px] font-bold tracking-widest uppercase text-[#6b6b6b]">Note interne studio</label>
             <textarea value={pNotes} onChange={(e) => setPNotes(e.target.value)} className="textarea mt-1 min-h-[80px]" placeholder="Appunti segreti..." />
           </div>
 
@@ -8392,7 +8392,7 @@ export default function App() {
       <Modal title={phaseEditId ? 'Rinomina fase' : 'Aggiungi fase'} isOpen={phaseOpen} onClose={() => setPhaseOpen(false)}>
         <div className="flex flex-col gap-3 text-left">
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Nome macro-fase *</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Nome macro-fase *</span>
             <input
               value={phaseName}
               onChange={(e) => setPhaseName(e.target.value)}
@@ -8400,7 +8400,7 @@ export default function App() {
               placeholder="Es. Rilievo e stato di fatto"
             />
           </label>
-          <span className="text-[11px] text-[#9a9a9a]">La fase viene aggiunta in coda al fascicolo; le attività si aggiungono dopo, dentro la fase.</span>
+          <span className="text-[12px] text-[#767676]">La fase viene aggiunta in coda al fascicolo; le attività si aggiungono dopo, dentro la fase.</span>
           <button
             onClick={() => {
               if (!phaseName.trim() || !phasePrjId) return;
@@ -8430,13 +8430,13 @@ export default function App() {
       <Modal title={ptaskEditId ? 'Modifica attività' : 'Nuova attività'} isOpen={ptaskOpen} onClose={() => setPtaskOpen(false)}>
         <div className="flex flex-col gap-3 text-left">
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Attività *</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Attività *</span>
             <input value={ptTitle} onChange={(e) => setPtTitle(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" placeholder="Es. Rilievo droni esterni" />
           </label>
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Ruolo / Mansione</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Ruolo / Mansione</span>
               <select value={ptRole} onChange={(e) => setPtRole(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[13.5px]">
                 <option value="">— Nessuno —</option>
                 {MANSIONI.map(m => (
@@ -8445,7 +8445,7 @@ export default function App() {
               </select>
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Operatore di riferimento</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Operatore di riferimento</span>
               <select value={ptAssignee} onChange={(e) => setPtAssignee(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[13.5px]">
                 <option value="">— Non assegnato —</option>
                 {Object.values(users).filter((u: any) => u.role !== 'cliente' && u.role !== 'partner').map((u: any) => (
@@ -8456,7 +8456,7 @@ export default function App() {
           </div>
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Scadenza</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Scadenza</span>
             <input type="date" value={ptDue} onChange={(e) => setPtDue(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
           </label>
 
@@ -8468,7 +8468,7 @@ export default function App() {
           )}
 
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Descrizione attività</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Descrizione attività</span>
             <textarea value={ptNote} onChange={(e) => setPtNote(e.target.value)} rows={2} className="input border border-[#e2e2e2] rounded-xl p-3 text-[14px] resize-none" />
           </label>
 
@@ -8525,21 +8525,21 @@ export default function App() {
           {(!anagProjId || projects[anagProjId]?.division === 'studio' || !projects[anagProjId]?.division) && (
             <>
               <div className="bg-[#fafafa] p-4 rounded-2xl border border-[#ececec] flex flex-col gap-3">
-                <h4 className="text-[12px] font-bold uppercase tracking-wider text-[#8a8a8a]">Committente / Intestatario</h4>
+                <h4 className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Committente / Intestatario</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <label className="flex flex-col gap-1">
-                    <span className="text-[11px] font-semibold text-gray-600">Cognome e nome</span>
+                    <span className="text-[12px] font-semibold text-gray-600">Cognome e nome</span>
                     <input value={pCommittente} onChange={(e) => setPCommittente(e.target.value)} placeholder="Es. Mario Rossi" className="input bg-white h-9 text-[13px]" />
                   </label>
                   <label className="flex flex-col gap-1">
-                    <span className="text-[11px] font-semibold text-gray-600">Ragione sociale / Cliente</span>
+                    <span className="text-[12px] font-semibold text-gray-600">Ragione sociale / Cliente</span>
                     <input value={pClient} onChange={(e) => setPClient(e.target.value)} placeholder="Es. Rossi Costruzioni srl" className="input bg-white h-9 text-[13px]" />
                   </label>
                 </div>
               </div>
 
               <div className="bg-[#fafafa] p-4 rounded-2xl border border-[#ececec] flex flex-col gap-2">
-                <h4 className="text-[12px] font-bold uppercase tracking-wider text-[#8a8a8a]">Indirizzo immobile</h4>
+                <h4 className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Indirizzo immobile</h4>
                 <div className="grid grid-cols-[2fr_1fr] gap-2">
                   <input value={pVia} onChange={(e) => setPVia(e.target.value)} placeholder="Via / Piazza" className="input bg-white h-9 text-[13px]" />
                   <input value={pCivico} onChange={(e) => setPCivico(e.target.value)} placeholder="N. civico" className="input bg-white h-9 text-[13px]" />
@@ -8552,28 +8552,28 @@ export default function App() {
               </div>
 
               <div className="bg-[#fafafa] p-4 rounded-2xl border border-[#ececec] flex flex-col gap-2">
-                <h4 className="text-[12px] font-bold uppercase tracking-wider text-[#8a8a8a]">Dati catastali fabbricato</h4>
+                <h4 className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Dati catastali fabbricato</h4>
                 <CatastaliEditor rows={pCatastali} onChange={setPCatastali} />
               </div>
 
               <div className="bg-[#fafafa] p-4 rounded-2xl border border-[#ececec] flex flex-col gap-3">
-                <h4 className="text-[12px] font-bold uppercase tracking-wider text-[#8a8a8a]">Pratica edilizia</h4>
+                <h4 className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Pratica edilizia</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <label className="flex flex-col gap-1">
-                    <span className="text-[11px] font-semibold text-gray-600">Tipo di intervento</span>
+                    <span className="text-[12px] font-semibold text-gray-600">Tipo di intervento</span>
                     <select value={pIntervento} onChange={(e) => setPIntervento(e.target.value)} className="select bg-white h-9 text-[12.5px]">
                       {INTERVENTI_EDILIZI.map(i => <option key={i.id} value={i.id}>{i.label}</option>)}
                     </select>
                   </label>
                   <label className="flex flex-col gap-1">
-                    <span className="text-[11px] font-semibold text-gray-600">Titolo abilitativo</span>
+                    <span className="text-[12px] font-semibold text-gray-600">Titolo abilitativo</span>
                     <select value={pTitolo} onChange={(e) => setPTitolo(e.target.value)} className="select bg-white h-9 text-[12.5px]">
                       {TITOLI_ABILITATIVI.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                     </select>
                   </label>
                 </div>
                 <label className="flex flex-col gap-1">
-                  <span className="text-[11px] font-semibold text-gray-600">Lavori di progettazione</span>
+                  <span className="text-[12px] font-semibold text-gray-600">Lavori di progettazione</span>
                   <input value={pTipo} onChange={(e) => setPTipo(e.target.value)} placeholder="Es. Ampliamento residenza, SCIA commerciale..." className="input bg-white h-9 text-[13px]" />
                 </label>
               </div>
@@ -8586,17 +8586,17 @@ export default function App() {
               
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-semibold text-gray-600">Budget Campagna Allocato (€)</label>
+                  <label className="text-[12px] font-semibold text-gray-600">Budget Campagna Allocato (€)</label>
                   <input type="number" value={pMarketingBudget} onChange={(e) => setPMarketingBudget(e.target.value ? Number(e.target.value) : '')} placeholder="Es. 7500" className="input" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-semibold text-gray-600">Canali Attivi Primari</label>
+                  <label className="text-[12px] font-semibold text-gray-600">Canali Attivi Primari</label>
                   <input value={pMarketingChannels} onChange={(e) => setPMarketingChannels(e.target.value)} placeholder="Es. Instagram Feed, Meta Ads" className="input" />
                 </div>
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-semibold text-gray-600">Obiettivo Principale Brand</label>
+                <label className="text-[12px] font-semibold text-gray-600">Obiettivo Principale Brand</label>
                 <input value={pMarketingGoal} onChange={(e) => setPMarketingGoal(e.target.value)} placeholder="Es. Lead Generation Masserie Salentine" className="input" />
               </div>
             </div>
@@ -8608,11 +8608,11 @@ export default function App() {
               
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-semibold text-gray-500">Estimato Forniture (€)</label>
+                  <label className="text-[12px] font-semibold text-gray-500">Estimato Forniture (€)</label>
                   <input type="number" value={pMatericoEstimatedBudget} onChange={(e) => setPMatericoEstimatedBudget(e.target.value ? Number(e.target.value) : '')} placeholder="Es. 45000" className="input" />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-semibold text-gray-500">Finiture Selezionate</label>
+                  <label className="text-[12px] font-semibold text-gray-500">Finiture Selezionate</label>
                   <select value={pMatericoFinitureType} onChange={(e) => setPMatericoFinitureType(e.target.value)} className="select">
                     <option value="">Seleziona...</option>
                     <option value="infissi_minimali">Infissi Minimali di Pregio</option>
@@ -8624,7 +8624,7 @@ export default function App() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-semibold text-gray-500">Stato Sottofondi</label>
+                <label className="text-[12px] font-semibold text-gray-500">Stato Sottofondi</label>
                 <select value={pMatericoSottofondiStatus} onChange={(e) => setPMatericoSottofondiStatus(e.target.value)} className="select">
                   <option value="">Seleziona...</option>
                   <option value="idoneo">Idoneo per posa immediata</option>
@@ -8810,24 +8810,24 @@ export default function App() {
       <Modal title="Modifica iscritto" isOpen={editUserOpen} onClose={() => { setEditUserOpen(false); setEditUserId(null); }}>
         <div className="flex flex-col gap-3 text-left">
           <label className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Nome e cognome *</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Nome e cognome *</span>
             <input value={nuName} onChange={(e) => setNuName(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
           </label>
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Email (accesso)</span>
-              <input value={nuEmail} readOnly disabled className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[13px] bg-[#f5f5f3] text-[#8a8a8a]" />
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Email (accesso)</span>
+              <input value={nuEmail} readOnly disabled className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[13px] bg-[#f5f5f3] text-[#6b6b6b]" />
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Telefono</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Telefono</span>
               <input value={nuPhone} onChange={(e) => setNuPhone(e.target.value)} placeholder="+39…" className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Ruolo</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Ruolo</span>
               <select value={nuRole} onChange={(e: any) => setNuRole(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[13.5px]">
                 <option value="staff">Operatore Staff</option>
                 <option value="manager">Project Manager</option>
@@ -8837,13 +8837,13 @@ export default function App() {
               </select>
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Titolo / Specializzazione</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Titolo / Specializzazione</span>
               <input value={nuTitle} onChange={(e) => setNuTitle(e.target.value)} placeholder="Ingegnere, Architetto…" className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
             </label>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Mansioni (per l'assegnazione automatica dei task)</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Mansioni (per l'assegnazione automatica dei task)</span>
             <div className="flex flex-wrap gap-1.5">
               {Array.from(new Set([...MANSIONI, ...nuFns])).map((m) => {
                 const on = nuFns.includes(m);
@@ -8874,7 +8874,7 @@ export default function App() {
           {nuRole !== 'cliente' && nuRole !== 'partner' && (
             <label className="flex items-center justify-between gap-3 p-3 rounded-xl border border-[#e2e2e2] cursor-pointer">
               <span className="text-[13px] font-bold text-[#161616]">Account attivo
-                <span className="block text-[11px] font-semibold text-[#8a8a8a]">Se disattivato, il membro non vede più i dati dello studio.</span>
+                <span className="block text-[12px] font-semibold text-[#6b6b6b]">Se disattivato, il membro non vede più i dati dello studio.</span>
               </span>
               <input type="checkbox" checked={nuActive} onChange={(e) => setNuActive(e.target.checked)} />
             </label>
@@ -8883,18 +8883,18 @@ export default function App() {
           {nuRole !== 'cliente' && nuRole !== 'partner' && (
             <div className="flex flex-col gap-2 p-3 rounded-xl border border-[#e2e2e2] bg-[#fafafa]">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Permessi per società</span>
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Permessi per società</span>
                 {Object.keys(nuAccess).length > 0 && (
                   <button
                     type="button"
                     onClick={() => setNuAccess({})}
-                    className="text-[11px] font-bold text-[#b45309] hover:underline cursor-pointer bg-transparent border-none p-0"
+                    className="text-[12px] font-bold text-[#b45309] hover:underline cursor-pointer bg-transparent border-none p-0"
                   >
                     Ripristina dal ruolo
                   </button>
                 )}
               </div>
-              <p className="text-[11px] text-[#8a8a8a] -mt-1">
+              <p className="text-[12px] text-[#6b6b6b] -mt-1">
                 Lascia "Predefinito" per usare i permessi del ruolo. Imposta un livello per dare accesso mirato a una società.
               </p>
               {SOCIETA.map((s) => {
@@ -9079,13 +9079,13 @@ export default function App() {
             setTaskGenModal((m) => (m ? { ...m, rows: m.rows.map((r) => (r.key === key ? { ...r, ...patch } : r)) } : m));
           return (
             <div className="flex flex-col gap-3">
-              <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Il software ha suggerito l'assegnatario in base alla mansione e al carico di lavoro. Puoi cambiarlo e scegliere la data di inizio per ogni attività.</p>
+              <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Il software ha suggerito l'assegnatario in base alla mansione e al carico di lavoro. Puoi cambiarlo e scegliere la data di inizio per ogni attività.</p>
               <div className="flex flex-col gap-2 max-h-[52vh] overflow-y-auto pr-1">
                 {taskGenModal.rows.map((r) => (
                   <div key={r.key} className="rounded-xl border border-[#e2e2e2] bg-white p-3 flex flex-col sm:flex-row sm:items-center gap-2">
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-bold text-[#161616] truncate">{r.title}</p>
-                      {r.role && <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#9a9a9a]">Mansione: {r.role}</span>}
+                      {r.role && <span className="text-[11.5px] font-bold uppercase tracking-wider text-[#767676]">Mansione: {r.role}</span>}
                     </div>
                     <select value={r.assignee || ''} onChange={(e) => setRow(r.key, { assignee: e.target.value || null })} className="shrink-0 px-2.5 py-2 rounded-lg border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616] bg-white cursor-pointer sm:w-[190px]">
                       <option value="">Non assegnato</option>
@@ -9141,7 +9141,7 @@ export default function App() {
             {t.type === 'err' && (
               <button
                 onClick={() => setFeedback({ kind: 'errore', errorText: t.msg })}
-                className="ml-1 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-white text-[11px] font-bold cursor-pointer shrink-0"
+                className="ml-1 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 text-white text-[12px] font-bold cursor-pointer shrink-0"
               >
                 Segnala
               </button>

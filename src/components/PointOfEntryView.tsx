@@ -57,7 +57,7 @@ export const PointOfEntryView: React.FC<Props> = ({ leads, requests, myName, col
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Inbox className="w-5.5 h-5.5 text-[#161616]" /> Point of Entry</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Tutto entra da qui: lead e richieste dei clienti, smistati alla società competente prima di diventare lavoro.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Tutto entra da qui: lead e richieste dei clienti, smistati alla società competente prima di diventare lavoro.</p>
         </div>
         <div className="flex items-center gap-2">
           {onOpenCrm && <button onClick={onOpenCrm} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12.5px] font-bold cursor-pointer"><Target className="w-4 h-4" /> Pipeline completa</button>}
@@ -73,7 +73,7 @@ export const PointOfEntryView: React.FC<Props> = ({ leads, requests, myName, col
           { l: 'Smistati (7gg)', v: String(smistatiSettimana) },
         ].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[20px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
           </div>
         ))}
@@ -82,22 +82,22 @@ export const PointOfEntryView: React.FC<Props> = ({ leads, requests, myName, col
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* LEAD da smistare */}
         <div className="flex flex-col gap-2">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Lead da smistare · a quale società compete?</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Lead da smistare · a quale società compete?</p>
           {daSmistare.length === 0 ? (
-            <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessun lead in attesa di smistamento.</p>
+            <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessun lead in attesa di smistamento.</p>
           ) : daSmistare.map((l) => (
             <div key={l.id} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <b className="text-[13.5px] text-[#161616] block truncate">{l.name}{l.company ? ` · ${l.company}` : ''}</b>
-                  <p className="text-[11px] text-[#8a8a8a] mt-0.5">{[l.stage, l.value ? eur(l.value) : null, l.email || l.phone, fmtD(l.createdAt)].filter(Boolean).join(' · ')}</p>
+                  <p className="text-[12px] text-[#6b6b6b] mt-0.5">{[l.stage, l.value ? eur(l.value) : null, l.email || l.phone, fmtD(l.createdAt)].filter(Boolean).join(' · ')}</p>
                 </div>
               </div>
               {canEdit && (
                 <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0] mr-0.5">Smista a</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0] mr-0.5">Smista a</span>
                   {SOC_OPTS.map((s) => (
-                    <button key={s.id} onClick={() => route(l, s.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-white text-[11px] font-bold cursor-pointer border-none" style={{ background: s.color }}>
+                    <button key={s.id} onClick={() => route(l, s.id)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-white text-[12px] font-bold cursor-pointer border-none" style={{ background: s.color }}>
                       {s.label} <ArrowRight className="w-3 h-3" />
                     </button>
                   ))}
@@ -109,25 +109,25 @@ export const PointOfEntryView: React.FC<Props> = ({ leads, requests, myName, col
 
         {/* RICHIESTE CLIENTI dal portale */}
         <div className="flex flex-col gap-2">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Richieste dei clienti (dal portale)</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Richieste dei clienti (dal portale)</p>
           {nuoveRichieste.length === 0 && inCarico.length === 0 ? (
-            <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna richiesta aperta.</p>
+            <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna richiesta aperta.</p>
           ) : [...nuoveRichieste, ...inCarico].map((r) => (
             <div key={r.id} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <b className="text-[13.5px] text-[#161616] block truncate">{r.title}</b>
-                  <p className="text-[11px] text-[#8a8a8a] mt-0.5 truncate">{[r.clientName, DIV_LABEL[r.division] || r.division, r.budget ? eur(r.budget) : null, r.location, fmtD(r.createdAt)].filter(Boolean).join(' · ')}</p>
+                  <p className="text-[12px] text-[#6b6b6b] mt-0.5 truncate">{[r.clientName, DIV_LABEL[r.division] || r.division, r.budget ? eur(r.budget) : null, r.location, fmtD(r.createdAt)].filter(Boolean).join(' · ')}</p>
                 </div>
-                <span className={`text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${r.status === 'inviata' ? 'bg-amber-50 text-amber-700' : 'bg-indigo-50 text-indigo-700'}`}>{r.status === 'inviata' ? 'Nuova' : `In carico${r.handledByName ? ` · ${r.handledByName}` : ''}`}</span>
+                <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${r.status === 'inviata' ? 'bg-amber-50 text-amber-700' : 'bg-indigo-50 text-indigo-700'}`}>{r.status === 'inviata' ? 'Nuova' : `In carico${r.handledByName ? ` · ${r.handledByName}` : ''}`}</span>
               </div>
               {r.description && <p className="text-[12px] text-[#555] mt-1.5 line-clamp-2">{r.description}</p>}
               {canEdit && (
                 <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
-                  {r.status === 'inviata' && onTakeCharge && <button onClick={() => onTakeCharge(r)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[11px] font-bold cursor-pointer border-none"><User className="w-3 h-3" /> Prendi in carico</button>}
-                  {onConvert && <button onClick={() => onConvert(r)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-emerald-400 text-emerald-700 text-[11px] font-bold cursor-pointer"><Briefcase className="w-3 h-3" /> Converti in progetto ({DIV_LABEL[r.division] || r.division})</button>}
-                  {onCloseRequest && <button onClick={() => onCloseRequest(r)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-rose-300 text-rose-600 text-[11px] font-bold cursor-pointer"><XCircle className="w-3 h-3" /> Chiudi</button>}
-                  {r.projectId && <span className="text-[10.5px] font-bold text-emerald-700 inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Progetto creato</span>}
+                  {r.status === 'inviata' && onTakeCharge && <button onClick={() => onTakeCharge(r)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><User className="w-3 h-3" /> Prendi in carico</button>}
+                  {onConvert && <button onClick={() => onConvert(r)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-emerald-400 text-emerald-700 text-[12px] font-bold cursor-pointer"><Briefcase className="w-3 h-3" /> Converti in progetto ({DIV_LABEL[r.division] || r.division})</button>}
+                  {onCloseRequest && <button onClick={() => onCloseRequest(r)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-rose-300 text-rose-600 text-[12px] font-bold cursor-pointer"><XCircle className="w-3 h-3" /> Chiudi</button>}
+                  {r.projectId && <span className="text-[11.5px] font-bold text-emerald-700 inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Progetto creato</span>}
                 </div>
               )}
             </div>

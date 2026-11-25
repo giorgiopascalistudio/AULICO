@@ -22,7 +22,7 @@ export const BrandLoader: React.FC<{ full?: boolean; label?: string }> = ({ full
         style={{ mixBlendMode: 'multiply' }} /* video su fondo bianco: col 'moltiplica' il bianco sparisce nel fondo della pagina */
         onLoadedMetadata={(e) => { (e.currentTarget as HTMLVideoElement).playbackRate = 1.6; }}
       />
-      {label && <span className="text-[11.5px] font-bold uppercase tracking-wider text-stone-400">{label}</span>}
+      {label && <span className="text-[11.5px] font-bold uppercase tracking-wider text-stone-500">{label}</span>}
     </div>
   </div>
 );

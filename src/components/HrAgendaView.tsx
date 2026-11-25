@@ -105,7 +105,7 @@ export const HrAgendaView: React.FC<Props> = ({ events, members, teamLeave = [],
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><CalendarDays className="w-5.5 h-5.5" /> Agenda Risorse Umane</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Riunioni, team building, formazione, viaggi, assenze e vacanze del team. Le ferie e le assenze dichiarate dai collaboratori dalla loro agenda compaiono qui automaticamente (chip con bordo).</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Riunioni, team building, formazione, viaggi, assenze e vacanze del team. Le ferie e le assenze dichiarate dai collaboratori dalla loro agenda compaiono qui automaticamente (chip con bordo).</p>
         </div>
         {canEdit && <button onClick={() => setEditing(blank())} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuovo evento</button>}
       </div>
@@ -122,7 +122,7 @@ export const HrAgendaView: React.FC<Props> = ({ events, members, teamLeave = [],
                 </optgroup>
               ))}
             </select>
-            <ChevronDown className="w-4 h-4 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-4 h-4 text-[#767676] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
           {filter !== 'all' && (
             <span className="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-white px-2.5 py-1.5 rounded-full" style={{ background: CAT_META[filter].color }}>
@@ -136,7 +136,7 @@ export const HrAgendaView: React.FC<Props> = ({ events, members, teamLeave = [],
           {CAT_GROUPS.map((g) => (
             <span key={g.label} className="inline-flex items-center gap-1.5">
               {g.cats.map((c) => <span key={c} title={CAT_META[c].label} className="w-2.5 h-2.5 rounded-full" style={{ background: CAT_META[c].color }} />)}
-              <span className="text-[10.5px] font-semibold text-[#9a9a9a]">{g.label}</span>
+              <span className="text-[11.5px] font-semibold text-[#767676]">{g.label}</span>
             </span>
           ))}
         </div>
@@ -151,25 +151,25 @@ export const HrAgendaView: React.FC<Props> = ({ events, members, teamLeave = [],
             <button onClick={() => move(1)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-[#6b6b6b] cursor-pointer bg-transparent border-none"><ChevronRight className="w-4 h-4" /></button>
           </div>
           <div className="grid grid-cols-7 gap-1">
-            {WD.map((w) => <div key={w} className="text-center text-[10px] font-bold uppercase tracking-wider text-[#b0b0b0] py-1">{w}</div>)}
+            {WD.map((w) => <div key={w} className="text-center text-[11px] font-bold uppercase tracking-wider text-[#8f8f8f] py-1">{w}</div>)}
             {days.map((d, i) => {
               const di = iso(d); const inMonth = d.getMonth() === cursor.m; const evs = onDay(di); const isToday = di === todayIso;
               return (
                 <div key={i} onClick={() => canEdit && setEditing({ ...blank(), date: di })} className={`min-h-[74px] rounded-lg border p-1 flex flex-col gap-0.5 ${canEdit ? 'cursor-pointer' : ''} ${inMonth ? 'bg-white border-[#eee]' : 'bg-gray-50/60 border-transparent'} ${isToday ? 'ring-2 ring-[#161616]/70' : ''} hover:border-[#d5d5d5]`}>
-                  <span className={`text-[11px] font-bold ${inMonth ? 'text-[#444]' : 'text-[#c0c0c0]'} ${isToday ? 'text-[#161616]' : ''}`}>{d.getDate()}</span>
+                  <span className={`text-[12px] font-bold ${inMonth ? 'text-[#444]' : 'text-[#9a9a9a]'} ${isToday ? 'text-[#161616]' : ''}`}>{d.getDate()}</span>
                   {evs.slice(0, 3).map((e) => { const m = CAT_META[e.category]; return e.leave ? (
                     // Ferie/assenza dichiarata dal collaboratore: chip con bordo (non è un evento HR).
                     <button
                       key={e.id}
                       onClick={(ev) => { ev.stopPropagation(); setViewLeave(e.leave!); }}
                       title={`${LEAVE_LABEL[e.leave.type]} — ${e.leave.name} (dichiarata dal team)`}
-                      className="text-left text-[9.5px] font-bold truncate rounded px-1 py-0.5 cursor-pointer bg-white"
+                      className="text-left text-[10.5px] font-bold truncate rounded px-1 py-0.5 cursor-pointer bg-white"
                       style={{ color: m.color, border: `1px solid ${m.color}` }}
                     >{e.title}</button>
                   ) : (
-                    <button key={e.id} onClick={(ev) => { ev.stopPropagation(); setEditing(e.ev!); }} title={`${m.label} — ${e.title}`} className="text-left text-[9.5px] font-bold text-white truncate rounded px-1 py-0.5 cursor-pointer border-none" style={{ background: m.color }}>{e.time ? `${e.time} ` : ''}{e.title || m.short}</button>
+                    <button key={e.id} onClick={(ev) => { ev.stopPropagation(); setEditing(e.ev!); }} title={`${m.label} — ${e.title}`} className="text-left text-[10.5px] font-bold text-white truncate rounded px-1 py-0.5 cursor-pointer border-none" style={{ background: m.color }}>{e.time ? `${e.time} ` : ''}{e.title || m.short}</button>
                   ); })}
-                  {evs.length > 3 && <span className="text-[9px] font-bold text-[#9a9a9a]">+{evs.length - 3}</span>}
+                  {evs.length > 3 && <span className="text-[10px] font-bold text-[#767676]">+{evs.length - 3}</span>}
                 </div>
               );
             })}
@@ -178,15 +178,15 @@ export const HrAgendaView: React.FC<Props> = ({ events, members, teamLeave = [],
 
         {/* Prossimi eventi */}
         <div className="lg:w-[320px] w-full bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Prossimi eventi</p>
-          {upcoming.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a] py-6 text-center">Nessun evento in programma.</p> : (
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Prossimi eventi</p>
+          {upcoming.length === 0 ? <p className="text-[12.5px] text-[#767676] py-6 text-center">Nessun evento in programma.</p> : (
             <div className="flex flex-col gap-2">
               {upcoming.map((e) => { const m = CAT_META[e.category]; return (
                 <button key={e.id} onClick={() => e.leave ? setViewLeave(e.leave) : setEditing(e.ev!)} className="text-left flex items-start gap-2.5 p-2.5 rounded-xl hover:bg-gray-50 cursor-pointer bg-transparent border border-[#f0f0f0]">
                   <span className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${e.leave ? 'border-2 bg-transparent' : ''}`} style={e.leave ? { borderColor: m.color } : { background: m.color }} />
                   <div className="min-w-0 flex-1">
                     <p className="text-[12.5px] font-bold text-[#161616] truncate">{e.title || m.label}</p>
-                    <p className="text-[11px] text-[#8a8a8a] truncate">{e.leave ? LEAVE_LABEL[e.leave.type] : m.label} · {fmtLong(e.date)}{e.endDate && e.endDate !== e.date ? ` → ${fmtLong(e.endDate)}` : ''}{e.time ? ` · ${e.time}` : ''}</p>
+                    <p className="text-[12px] text-[#6b6b6b] truncate">{e.leave ? LEAVE_LABEL[e.leave.type] : m.label} · {fmtLong(e.date)}{e.endDate && e.endDate !== e.date ? ` → ${fmtLong(e.endDate)}` : ''}{e.time ? ` · ${e.time}` : ''}</p>
                   </div>
                 </button>
               ); })}
@@ -227,12 +227,12 @@ const LeaveDetail: React.FC<{ leave: TeamLeave; canEdit: boolean; onClose: () =>
             <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button>
           </div>
         </div>
-        <p className="text-[13.5px] font-bold text-[#161616] inline-flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-[#9a9a9a]" /> {leave.name}</p>
+        <p className="text-[13.5px] font-bold text-[#161616] inline-flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-[#767676]" /> {leave.name}</p>
         <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1.5">
           {leave.dateFrom === leave.dateTo ? fmtLong(leave.dateFrom) : `${fmtLong(leave.dateFrom)} → ${fmtLong(leave.dateTo)}`}
         </p>
         {leave.note && <p className="text-[12.5px] text-[#6b6b6b] mt-2 p-2.5 rounded-xl bg-[#fafafa] border border-[#eee]">{leave.note}</p>}
-        <p className="text-[11px] text-[#9a9a9a] mt-3">Dichiarata dal collaboratore nella sua agenda.</p>
+        <p className="text-[12px] text-[#767676] mt-3">Dichiarata dal collaboratore nella sua agenda.</p>
       </div>
     </div>
   );
@@ -257,7 +257,7 @@ const HrEventEditor: React.FC<{ ev: HrEvent; members: Member[]; canEdit: boolean
         <div className="flex flex-col gap-3">
           <input disabled={!canEdit} value={d.title} onChange={(e) => set({ title: e.target.value })} placeholder="Titolo (es. 1:1 con Rosa)" className={inp} />
           <label className="flex flex-col gap-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Categoria</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Categoria</span>
             <div className="relative">
               <span className="w-2.5 h-2.5 rounded-full absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ background: CAT_META[d.category].color }} />
               <select disabled={!canEdit} value={d.category} onChange={(e) => set({ category: e.target.value as HrEventCategory })} className={`${inp} appearance-none pl-7 pr-8`}>
@@ -267,21 +267,21 @@ const HrEventEditor: React.FC<{ ev: HrEvent; members: Member[]; canEdit: boolean
                   </optgroup>
                 ))}
               </select>
-              <ChevronDown className="w-4 h-4 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-[#767676] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </label>
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">{isPeriod ? 'Dal' : 'Data'}</span><input disabled={!canEdit} type="date" value={d.date} onChange={(e) => set({ date: e.target.value })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">{isPeriod ? 'Dal' : 'Data'}</span><input disabled={!canEdit} type="date" value={d.date} onChange={(e) => set({ date: e.target.value })} className={inp} /></label>
             {isPeriod ? (
-              <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Al</span><input disabled={!canEdit} type="date" value={d.endDate || ''} onChange={(e) => set({ endDate: e.target.value || null })} className={inp} /></label>
+              <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Al</span><input disabled={!canEdit} type="date" value={d.endDate || ''} onChange={(e) => set({ endDate: e.target.value || null })} className={inp} /></label>
             ) : (
-              <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Ora</span><input disabled={!canEdit} type="time" value={d.time || ''} onChange={(e) => set({ time: e.target.value || null })} className={inp} /></label>
+              <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Ora</span><input disabled={!canEdit} type="time" value={d.time || ''} onChange={(e) => set({ time: e.target.value || null })} className={inp} /></label>
             )}
           </div>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a] inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> Luogo</span><input disabled={!canEdit} value={d.location || ''} onChange={(e) => set({ location: e.target.value || null })} placeholder="Sede, online, azienda…" className={inp} /></label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676] inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> Luogo</span><input disabled={!canEdit} value={d.location || ''} onChange={(e) => set({ location: e.target.value || null })} placeholder="Sede, online, azienda…" className={inp} /></label>
           {members.length > 0 && (
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a] mb-1.5 inline-flex items-center gap-1"><Users2 className="w-3 h-3" /> Partecipanti</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[#767676] mb-1.5 inline-flex items-center gap-1"><Users2 className="w-3 h-3" /> Partecipanti</p>
               <div className="flex flex-wrap gap-1.5">
                 {members.map((m) => { const on = !!d.participants?.[m.uid]; return (
                   <button key={m.uid} type="button" disabled={!canEdit} onClick={() => toggleP(m.uid)} className={`text-[11.5px] font-bold px-2.5 py-1 rounded-full border ${on ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2]'}`}>{m.name}</button>
@@ -289,7 +289,7 @@ const HrEventEditor: React.FC<{ ev: HrEvent; members: Member[]; canEdit: boolean
               </div>
             </div>
           )}
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Note</span><textarea disabled={!canEdit} value={d.notes || ''} onChange={(e) => set({ notes: e.target.value || null })} rows={2} className={`${inp} resize-none`} /></label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Note</span><textarea disabled={!canEdit} value={d.notes || ''} onChange={(e) => set({ notes: e.target.value || null })} rows={2} className={`${inp} resize-none`} /></label>
           {canEdit && <button onClick={() => onSave({ ...d, title: d.title.trim() || CAT_META[d.category].label, updatedAt: Date.now() })} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Salva evento</button>}
         </div>
       </div>

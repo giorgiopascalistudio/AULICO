@@ -24,7 +24,7 @@ const WidgetBody: React.FC<{ data: WidgetData; color: string; go: (h: string) =>
     return (
       <div className="pt-1">
         <div className="text-[40px] leading-none font-black tracking-tight text-[#161616]">{data.value}</div>
-        {data.sub && <div className="text-[12px] text-[#8a8a8a] mt-2 font-medium">{data.sub}</div>}
+        {data.sub && <div className="text-[12px] text-[#6b6b6b] mt-2 font-medium">{data.sub}</div>}
       </div>
     );
   }
@@ -40,7 +40,7 @@ const WidgetBody: React.FC<{ data: WidgetData; color: string; go: (h: string) =>
             className={`rounded-2xl bg-[#f7f6f4] border border-[#ececec] px-2.5 py-3 text-left transition-all ${it.hash ? 'hover:bg-white hover:border-[#e0e0e0] hover:shadow-xs cursor-pointer' : 'cursor-default'}`}
           >
             <div className="text-[24px] leading-none font-black tracking-tight" style={{ color: it.accent || '#161616' }}>{it.value}</div>
-            <div className="text-[10.5px] text-[#8a8a8a] mt-1.5 font-bold uppercase tracking-wide truncate">{it.label}</div>
+            <div className="text-[11.5px] text-[#6b6b6b] mt-1.5 font-bold uppercase tracking-wide truncate">{it.label}</div>
           </button>
         ))}
       </div>
@@ -68,12 +68,12 @@ const WidgetBody: React.FC<{ data: WidgetData; color: string; go: (h: string) =>
             <span className="flex-1 min-w-0">
               <span className="flex items-center justify-between gap-2">
                 <span className={`text-[13.5px] text-[#161616] truncate ${it.unread ? 'font-bold' : 'font-medium'}`}>{it.label}</span>
-                <span className="flex items-center gap-1 shrink-0 text-[11.5px] font-bold text-[#8a8a8a]">
+                <span className="flex items-center gap-1 shrink-0 text-[11.5px] font-bold text-[#6b6b6b]">
                   {it.meta}
                   {it.hash && <ChevronRight className="w-3.5 h-3.5 opacity-60" />}
                 </span>
               </span>
-              {it.sub && <span className="block text-[11.5px] text-[#8a8a8a] truncate mt-0.5">{it.sub}</span>}
+              {it.sub && <span className="block text-[11.5px] text-[#6b6b6b] truncate mt-0.5">{it.sub}</span>}
               {it.progress !== undefined && (
                 <span className="block w-full h-[5px] bg-[#ececec] rounded-full overflow-hidden mt-1.5">
                   <span
@@ -144,14 +144,14 @@ export const SocietyDashboard: React.FC<Props> = ({ spec, ctx, societyLabel, col
     <div className="flex-1 overflow-y-auto px-0 py-0 md:px-[30px] md:py-6 md:bg-[#f5f5f3]">
       {isPersonal ? (
         <div className="mb-4 md:mb-6">
-          <div className="flex items-center gap-2 text-[11px] md:text-[12px] font-bold uppercase tracking-wider mb-1.5 md:mb-2 text-[#8a8a8a]">
+          <div className="flex items-center gap-2 text-[12px] md:text-[12px] font-bold uppercase tracking-wider mb-1.5 md:mb-2 text-[#6b6b6b]">
             <span className="w-2 h-2 rounded-full" style={{ background: color }} />
             {societyLabel}
           </div>
           <h1 className="text-[24px] md:text-[30px] leading-tight font-black tracking-tight text-[#161616]">
             {greetingFor(ctx.profile?.name)}
           </h1>
-          <div className="text-[12px] md:text-[13px] text-[#8a8a8a] capitalize mt-0.5 md:mt-1 font-semibold">{dateLabel}</div>
+          <div className="text-[12px] md:text-[13px] text-[#6b6b6b] capitalize mt-0.5 md:mt-1 font-semibold">{dateLabel}</div>
         </div>
       ) : (
         <div className="flex items-center gap-2.5 mb-4 md:mb-5">
@@ -172,7 +172,7 @@ export const SocietyDashboard: React.FC<Props> = ({ spec, ctx, societyLabel, col
                 className={`rounded-2xl bg-white border border-[#e8e8e6] px-2.5 py-3.5 text-left shadow-sm ${it.hash ? 'cursor-pointer active:scale-[0.97] transition-transform' : 'cursor-default'}`}
               >
                 <div className="text-[26px] leading-none font-black tracking-tight" style={{ color: it.accent || '#161616' }}>{it.value}</div>
-                <div className="text-[10px] text-[#8a8a8a] mt-1.5 font-bold uppercase tracking-wide truncate">{it.label}</div>
+                <div className="text-[11px] text-[#6b6b6b] mt-1.5 font-bold uppercase tracking-wide truncate">{it.label}</div>
               </button>
             ))}
           </div>
@@ -202,8 +202,8 @@ export const SocietyDashboard: React.FC<Props> = ({ spec, ctx, societyLabel, col
                 </div>
                 <div className="mt-auto">
                   <div className="text-[24px] font-black tracking-tight text-[#161616] leading-none">{count}</div>
-                  <div className="text-[10.5px] text-[#8a8a8a] mt-1 font-bold uppercase tracking-wider truncate">{w.title}</div>
-                  <div className="text-[10.5px] text-[#9a9a9a] font-semibold truncate">{preview}</div>
+                  <div className="text-[11.5px] text-[#6b6b6b] mt-1 font-bold uppercase tracking-wider truncate">{w.title}</div>
+                  <div className="text-[11.5px] text-[#767676] font-semibold truncate">{preview}</div>
                 </div>
               </button>
             );

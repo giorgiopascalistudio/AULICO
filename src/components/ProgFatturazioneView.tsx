@@ -49,7 +49,7 @@ export const ProgFatturazioneView: React.FC<Props> = ({ items, soc, socLabel, cl
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><FileText className="w-5.5 h-5.5" /> Programmazione fatturazione {socLabel ? `· ${socLabel}` : ''}</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Pianifica cosa fatturare; "Emetti" crea la bozza fattura + la scadenza in Finanza.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Pianifica cosa fatturare; "Emetti" crea la bozza fattura + la scadenza in Finanza.</p>
         </div>
         {canEdit && <button onClick={addRow} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuova voce</button>}
       </div>
@@ -57,9 +57,9 @@ export const ProgFatturazioneView: React.FC<Props> = ({ items, soc, socLabel, cl
       <div className="grid grid-cols-3 gap-3">
         {KPI.map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[16px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[19px] font-black mt-1 leading-none" style={{ color: k.c }}>{k.v}</p>
-            <p className="text-[11px] text-[#9a9a9a] mt-1">{k.s}</p>
+            <p className="text-[12px] text-[#767676] mt-1">{k.s}</p>
           </div>
         ))}
       </div>
@@ -68,7 +68,7 @@ export const ProgFatturazioneView: React.FC<Props> = ({ items, soc, socLabel, cl
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-[12.5px] min-w-[760px]">
             <thead>
-              <tr className="bg-[#fafafa] border-b border-[#eee] text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">
+              <tr className="bg-[#fafafa] border-b border-[#eee] text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0]">
                 <th className="text-left py-2.5 px-3">Cliente</th>
                 <th className="text-left py-2.5 px-3">Descrizione</th>
                 <th className="text-right py-2.5 px-2 w-28">Importo</th>
@@ -79,7 +79,7 @@ export const ProgFatturazioneView: React.FC<Props> = ({ items, soc, socLabel, cl
               </tr>
             </thead>
             <tbody>
-              {list.length === 0 ? <tr><td colSpan={7} className="py-10 text-center text-[13px] text-[#9a9a9a]">Nessuna voce pianificata.{canEdit ? ' Aggiungi la prima.' : ''}</td></tr> : list.map((i) => {
+              {list.length === 0 ? <tr><td colSpan={7} className="py-10 text-center text-[13px] text-[#767676]">Nessuna voce pianificata.{canEdit ? ' Aggiungi la prima.' : ''}</td></tr> : list.map((i) => {
                 const emessa = i.status === 'emessa';
                 const d = inDays(i.dueDate);
                 const overdue = !emessa && d != null && d < 0;
@@ -92,12 +92,12 @@ export const ProgFatturazioneView: React.FC<Props> = ({ items, soc, socLabel, cl
                     <td className="py-1.5 px-2"><input disabled={!canEdit || emessa} type="number" value={i.amount || ''} onChange={(e) => patch(i, { amount: Number(e.target.value) || 0 })} className="w-full px-2 py-1 rounded border border-transparent hover:border-[#eee] focus:border-[#161616] text-[12.5px] text-right font-bold outline-none bg-transparent" /></td>
                     <td className="py-1.5 px-2"><input disabled={!canEdit || emessa} type="number" value={i.taxRate ?? ''} onChange={(e) => patch(i, { taxRate: e.target.value ? Number(e.target.value) : null })} className="w-full px-1 py-1 rounded border border-transparent hover:border-[#eee] focus:border-[#161616] text-[12px] text-right outline-none bg-transparent" /></td>
                     <td className="py-1.5 px-2">
-                      {emessa ? <span className="text-[12px] text-[#8a8a8a]">{fmt(i.dueDate)}</span> : <input disabled={!canEdit} type="date" value={i.dueDate || ''} onChange={(e) => patch(i, { dueDate: e.target.value || null })} className="w-full px-1 py-1 rounded border border-transparent hover:border-[#eee] focus:border-[#161616] text-[11.5px] outline-none bg-transparent" />}
+                      {emessa ? <span className="text-[12px] text-[#6b6b6b]">{fmt(i.dueDate)}</span> : <input disabled={!canEdit} type="date" value={i.dueDate || ''} onChange={(e) => patch(i, { dueDate: e.target.value || null })} className="w-full px-1 py-1 rounded border border-transparent hover:border-[#eee] focus:border-[#161616] text-[11.5px] outline-none bg-transparent" />}
                     </td>
                     <td className="py-1.5 px-2 text-center">
-                      {emessa ? <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Emessa</span>
-                        : overdue ? <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 inline-flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Scaduta</span>
-                        : <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 inline-flex items-center gap-1"><Clock className="w-3 h-3" /> Da fare</span>}
+                      {emessa ? <span className="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Emessa</span>
+                        : overdue ? <span className="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 inline-flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Scaduta</span>
+                        : <span className="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 inline-flex items-center gap-1"><Clock className="w-3 h-3" /> Da fare</span>}
                     </td>
                     <td className="py-1.5 px-2">
                       <div className="flex items-center justify-end gap-1.5">
@@ -113,7 +113,7 @@ export const ProgFatturazioneView: React.FC<Props> = ({ items, soc, socLabel, cl
         </div>
         <datalist id="pf-clients">{clients.map((c) => <option key={c.id} value={c.name} />)}</datalist>
       </div>
-      <p className="text-[11px] text-[#b0b0b0]">"Emetti" crea una <b>bozza</b> di fattura attiva + una scadenza in Contabilità → Contabilità. Da lì si completa/invia allo SDI.</p>
+      <p className="text-[12px] text-[#8f8f8f]">"Emetti" crea una <b>bozza</b> di fattura attiva + una scadenza in Contabilità → Contabilità. Da lì si completa/invia allo SDI.</p>
     </div>
   );
 };

@@ -54,11 +54,11 @@ export const Modal: React.FC<ModalProps> = ({
         <div className="flex items-center gap-3 px-5 md:px-6 pt-5 pb-3">
           <div className="text-left min-w-0 flex-1">
             <h2 className="font-semibold text-[21px] tracking-tight text-[#161616] m-0">{title}</h2>
-            {subtitle && <p className="text-[12.5px] text-[#8a8a8a] mt-[2px] mb-0 truncate">{subtitle}</p>}
+            {subtitle && <p className="text-[12.5px] text-[#6b6b6b] mt-[2px] mb-0 truncate">{subtitle}</p>}
           </div>
           <button
             onClick={onClose}
-            className="w-[38px] h-[38px] md:w-[34px] md:h-[34px] rounded-lg flex items-center justify-center text-[#8a8a8a] hover:bg-[#ececec] hover:text-[#161616] transition-colors cursor-pointer"
+            className="w-[38px] h-[38px] md:w-[34px] md:h-[34px] rounded-lg flex items-center justify-center text-[#6b6b6b] hover:bg-[#ececec] hover:text-[#161616] transition-colors cursor-pointer"
             aria-label="Chiudi"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[18px] h-[18px]">

@@ -631,7 +631,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <h1 className="text-[25px] font-extrabold tracking-tight text-[#161616] leading-none mb-1 font-sans">
                 {p.name}
               </h1>
-              <div className="text-[12px] text-[#8a8a8a] font-mono font-semibold tracking-wide">
+              <div className="text-[12px] text-[#6b6b6b] font-mono font-semibold tracking-wide">
                 {p.code || 'ARC-K-00'} · <span className="text-[#555]">{p.templateName || 'Generica pratica'}</span>
               </div>
             </div>
@@ -639,12 +639,12 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
           <div className="flex items-center gap-2">
             {p.archived && (
-              <span className="py-1 px-3.5 rounded-full text-[10.5px] font-bold uppercase tracking-wider border bg-amber-50 text-amber-700 border-amber-200 inline-flex items-center gap-1.5">
+              <span className="py-1 px-3.5 rounded-full text-[11.5px] font-bold uppercase tracking-wider border bg-amber-50 text-amber-700 border-amber-200 inline-flex items-center gap-1.5">
                 <Archive className="w-3.5 h-3.5" /> Archiviato
               </span>
             )}
             <span
-              className={`py-1 px-3.5 rounded-full text-[10.5px] font-bold uppercase tracking-wider border ${
+              className={`py-1 px-3.5 rounded-full text-[11.5px] font-bold uppercase tracking-wider border ${
                 p.status === 'attivo'
                   ? 'bg-blue-50 text-blue-700 border-blue-200'
                   : p.status === 'completato'
@@ -657,7 +657,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             {isInternalBoss && (
               <button
                 onClick={() => onToggleArchiveProject?.(p.id)}
-                className="w-9 h-9 border border-[#e2e2e2] hover:border-black rounded-full flex items-center justify-center text-[#8a8a8a] hover:text-[#161616] bg-transparent cursor-pointer transition-colors"
+                className="w-9 h-9 border border-[#e2e2e2] hover:border-black rounded-full flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] bg-transparent cursor-pointer transition-colors"
                 title={p.archived ? 'Ripristina dall\'archivio' : 'Archivia progetto'}
               >
                 {p.archived ? <ArchiveRestore className="w-4.5 h-4.5" /> : <Archive className="w-4.5 h-4.5" />}
@@ -691,9 +691,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           if (!dates.some((d) => d.v)) return null;
           return (
             <div className="flex items-center gap-x-5 gap-y-1 flex-wrap mt-1 px-1">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#a0a0a0]">Date importanti</span>
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#a0a0a0]">Date importanti</span>
               {dates.map((d) => (
-                <span key={d.l} className="text-[11.5px] text-[#8a8a8a] font-semibold">{d.l}: <b className={d.v ? 'text-[#161616]' : 'text-[#c0c0c0]'}>{d.v || '—'}</b></span>
+                <span key={d.l} className="text-[11.5px] text-[#6b6b6b] font-semibold">{d.l}: <b className={d.v ? 'text-[#161616]' : 'text-[#9a9a9a]'}>{d.v || '—'}</b></span>
               ))}
             </div>
           );
@@ -791,7 +791,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#fafafa]/50 border border-[#f3f3f3] hover:border-[#e5e5e5] transition-colors">
                           <Layers className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                           <div className="min-w-0">
-                            <span className="text-[10px] text-[#8a8a8a] uppercase font-bold tracking-wider block font-sans">Intervento</span>
+                            <span className="text-[11px] text-[#6b6b6b] uppercase font-bold tracking-wider block font-sans">Intervento</span>
                             <b className="block text-[13px] mt-0.5 truncate text-[#161616]">{interventoLabel(p.interventoEdilizio)}</b>
                           </div>
                         </div>
@@ -801,7 +801,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#fafafa]/50 border border-[#f3f3f3] hover:border-[#e5e5e5] transition-colors">
                           <FileText className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                           <div className="min-w-0">
-                            <span className="text-[10px] text-[#8a8a8a] uppercase font-bold tracking-wider block font-sans">Titolo abilitativo</span>
+                            <span className="text-[11px] text-[#6b6b6b] uppercase font-bold tracking-wider block font-sans">Titolo abilitativo</span>
                             <b className="block text-[13px] mt-0.5 truncate text-[#161616]">{titoloLabel(p.titoloAbilitativo)}</b>
                           </div>
                         </div>
@@ -811,7 +811,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#fafafa]/50 border border-[#f3f3f3] hover:border-[#e5e5e5] transition-colors">
                           <User className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                           <div className="min-w-0">
-                            <span className="text-[10px] text-[#8a8a8a] uppercase font-bold tracking-wider block font-sans">Committente</span>
+                            <span className="text-[11px] text-[#6b6b6b] uppercase font-bold tracking-wider block font-sans">Committente</span>
                             <b className="block text-[13px] mt-0.5 truncate text-[#161616]">{p.committente}</b>
                           </div>
                         </div>
@@ -821,7 +821,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#fafafa]/50 border border-[#f3f3f3] hover:border-[#e5e5e5] transition-colors">
                           <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                           <div className="min-w-0">
-                            <span className="text-[10px] text-[#8a8a8a] uppercase font-bold tracking-wider block font-sans">Indirizzo</span>
+                            <span className="text-[11px] text-[#6b6b6b] uppercase font-bold tracking-wider block font-sans">Indirizzo</span>
                             <b className="block text-[13px] mt-0.5 truncate text-[#161616]">{p.indirizzoImmobile}</b>
                           </div>
                         </div>
@@ -831,7 +831,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#fafafa]/50 border border-[#f3f3f3] hover:border-[#e5e5e5] transition-colors">
                           <Building2 className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                           <div className="min-w-0">
-                            <span className="text-[10px] text-[#8a8a8a] uppercase font-bold tracking-wider block font-sans">Foglio / Part. / Sub</span>
+                            <span className="text-[11px] text-[#6b6b6b] uppercase font-bold tracking-wider block font-sans">Foglio / Part. / Sub</span>
                             {(p.catastali && p.catastali.length ? p.catastali : [{ foglio: p.foglio, particella: p.particella, sub: p.sub }]).map((r: any, i: number) => (
                               <b key={i} className="block text-[13px] mt-0.5 truncate text-[#161616]">{r.foglio || '—'} / {r.particella || '—'} / {r.sub || '—'}</b>
                             ))}
@@ -845,7 +845,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-5 shadow-sm flex items-center justify-between">
                       <div>
                         <h4 className="text-[13.5px] font-bold text-[#161616] font-sans">Scheda Catastale Pratica</h4>
-                        <p className="text-[11.5px] text-[#8a8a8a] mt-0.5">Nessun dato catastale inserito per il progetto.</p>
+                        <p className="text-[11.5px] text-[#6b6b6b] mt-0.5">Nessun dato catastale inserito per il progetto.</p>
                       </div>
                       <button 
                         onClick={() => onOpenAnagrafica(p.id)} 
@@ -874,7 +874,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#fafafa]/50 border border-[#f3f3f3] hover:border-[#e5e5e5] transition-colors">
                       <Wallet className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
-                        <span className="text-[10px] text-[#8a8a8a] uppercase font-bold tracking-wider block">Budget Allineato</span>
+                        <span className="text-[11px] text-[#6b6b6b] uppercase font-bold tracking-wider block">Budget Allineato</span>
                         <b className="block text-[13.5px] mt-0.5 font-mono text-[#161616]">
                           {p.marketingBudget !== undefined && p.marketingBudget !== null
                             ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(p.marketingBudget)
@@ -886,7 +886,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#fafafa]/50 border border-[#f3f3f3] hover:border-[#e5e5e5] transition-colors">
                       <Briefcase className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
-                        <span className="text-[10px] text-[#8a8a8a] uppercase font-bold tracking-wider block">Canali Prioritari</span>
+                        <span className="text-[11px] text-[#6b6b6b] uppercase font-bold tracking-wider block">Canali Prioritari</span>
                         <b className="block text-[13px] mt-0.5 text-[#161616] truncate">{p.marketingChannels || 'Da definire'}</b>
                       </div>
                     </div>
@@ -894,7 +894,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#fafafa]/50 border border-[#f3f3f3] hover:border-[#e5e5e5] transition-colors">
                       <FileText className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
-                        <span className="text-[10px] text-[#8a8a8a] uppercase font-bold tracking-wider block">Obiettivo Strategico</span>
+                        <span className="text-[11px] text-[#6b6b6b] uppercase font-bold tracking-wider block">Obiettivo Strategico</span>
                         <b className="block text-[13px] mt-0.5 text-[#161616] truncate">{p.marketingGoal || 'Branding / Generico'}</b>
                       </div>
                     </div>
@@ -918,7 +918,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#fafafa]/50 border border-[#f3f3f3] hover:border-[#e5e5e5] transition-colors">
                       <Wallet className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
-                        <span className="text-[10px] text-[#8a8a8a] uppercase font-bold tracking-wider block">Est. Forniture</span>
+                        <span className="text-[11px] text-[#6b6b6b] uppercase font-bold tracking-wider block">Est. Forniture</span>
                         <b className="block text-[13.5px] mt-0.5 font-mono text-[#161616]">
                           {p.matericoEstimatedBudget !== undefined && p.matericoEstimatedBudget !== null
                             ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(p.matericoEstimatedBudget)
@@ -930,7 +930,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#fafafa]/50 border border-[#f3f3f3] hover:border-[#e5e5e5] transition-colors">
                       <Building className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
-                        <span className="text-[10px] text-[#8a8a8a] uppercase font-bold tracking-wider block">Finiture Selezionate</span>
+                        <span className="text-[11px] text-[#6b6b6b] uppercase font-bold tracking-wider block">Finiture Selezionate</span>
                         <b className="block text-[13px] mt-0.5 text-[#161616] truncate capitalize">
                           {p.matericoFinitureType ? p.matericoFinitureType.replace(/_/g, ' ') : 'Nessuna finitura indicata'}
                         </b>
@@ -940,7 +940,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#fafafa]/50 border border-[#f3f3f3] hover:border-[#e5e5e5] transition-colors">
                       <SlidersHorizontal className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                       <div className="min-w-0">
-                        <span className="text-[10px] text-[#8a8a8a] uppercase font-bold tracking-wider block">Stato Sottofondi</span>
+                        <span className="text-[11px] text-[#6b6b6b] uppercase font-bold tracking-wider block">Stato Sottofondi</span>
                         <b className="block text-[13px] mt-0.5 text-[#161616] truncate capitalize">
                           {p.matericoSottofondiStatus ? p.matericoSottofondiStatus.replace(/_/g, ' ') : 'Da valutare'}
                         </b>
@@ -952,7 +952,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="bg-[#fafafa]/50 border border-dashed border-[#e2e2e2] rounded-[24px] p-6 text-center font-sans">
                   <Sparkles className="w-6 h-6 text-amber-500 mx-auto mb-2" />
                   <h4 className="text-[13.5px] font-bold text-[#161616] uppercase tracking-wider font-mono">Atelier Unico (UNICO)</h4>
-                  <p className="text-[11.5px] text-[#8a8a8a] mt-1">L'iter esclusivo e di elevato pregio viene custodito con massima riservatezza.</p>
+                  <p className="text-[11.5px] text-[#6b6b6b] mt-1">L'iter esclusivo e di elevato pregio viene custodito con massima riservatezza.</p>
                 </div>
               )}
             </div>
@@ -961,11 +961,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Meta attributes card */}
               <div className="bg-white border border-[#e2e2e2] rounded-[24px] overflow-hidden shadow-sm grid grid-cols-2 md:grid-cols-3 divide-x divide-y divide-[#f1f1f1]">
                 <div className="p-4 border-[#f1f1f1] flex flex-col justify-between">
-                  <div className="text-[10px] uppercase font-extrabold text-[#8a8a8a] tracking-wider">Cliente</div>
+                  <div className="text-[11px] uppercase font-extrabold text-[#6b6b6b] tracking-wider">Cliente</div>
                   <div className="text-[13.5px] font-bold text-[#161616] mt-2 truncate">{p.client || '—'}</div>
                 </div>
                 <div className="p-4 border-[#f1f1f1] flex flex-col justify-between">
-                  <div className="text-[10px] uppercase font-extrabold text-[#8a8a8a] tracking-wider">Portale Cliente</div>
+                  <div className="text-[11px] uppercase font-extrabold text-[#6b6b6b] tracking-wider">Portale Cliente</div>
                   <div className="text-[13.5px] font-bold text-[#161616] mt-2 truncate">
                     {clientAcc ? (
                       <span className="flex items-center gap-1.5 text-green-750">
@@ -978,19 +978,19 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   </div>
                 </div>
                 <div className="p-4 border-[#f1f1f1] flex flex-col justify-between">
-                  <div className="text-[10px] uppercase font-extrabold text-[#8a8a8a] tracking-wider">Luogo</div>
+                  <div className="text-[11px] uppercase font-extrabold text-[#6b6b6b] tracking-wider">Luogo</div>
                   <div className="text-[13.5px] font-bold text-[#161616] mt-2 truncate">{p.location || '—'}</div>
                 </div>
                 <div className="p-4 border-[#f1f1f1] flex flex-col justify-between">
-                  <div className="text-[10px] uppercase font-extrabold text-[#8a8a8a] tracking-wider">Responsabile</div>
+                  <div className="text-[11px] uppercase font-extrabold text-[#6b6b6b] tracking-wider">Responsabile</div>
                   <div className="text-[13.5px] font-bold text-[#161616] mt-2 truncate">{pm || '—'}</div>
                 </div>
                 <div className="p-4 border-[#f1f1f1] flex flex-col justify-between">
-                  <div className="text-[10px] uppercase font-extrabold text-[#8a8a8a] tracking-wider font-sans">Inizio Cantiere</div>
+                  <div className="text-[11px] uppercase font-extrabold text-[#6b6b6b] tracking-wider font-sans">Inizio Cantiere</div>
                   <div className="text-[13.5px] font-bold text-[#161616] mt-2">{p.startDate ? fmtDay(p.startDate) : '—'}</div>
                 </div>
                 <div className="p-4 border-[#f1f1f1] flex flex-col justify-between">
-                  <div className="text-[10px] uppercase font-extrabold text-[#8a8a8a] tracking-wider font-sans">Termine Consegna</div>
+                  <div className="text-[11px] uppercase font-extrabold text-[#6b6b6b] tracking-wider font-sans">Termine Consegna</div>
                   <div className="text-[13.5px] font-bold text-red-755 mt-2">{p.dueDate ? fmtDay(p.dueDate) : '—'}</div>
                 </div>
               </div>
@@ -1022,31 +1022,31 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <h2 className="text-[15px] font-extrabold text-[#161616] font-sans tracking-tight flex items-center gap-1.5">
                         <Users className="w-4 h-4" /> Team di lavoro
                       </h2>
-                      <span className="text-[11px] font-bold text-[#8a8a8a]">{members.length} membri</span>
+                      <span className="text-[12px] font-bold text-[#6b6b6b]">{members.length} membri</span>
                     </div>
                     {members.length > 0 ? (
                       <div className="flex flex-col gap-1.5">
                         {members.map((u: any) => (
                           <div key={u.uid} className="flex items-center justify-between gap-3 px-2.5 py-2 rounded-xl hover:bg-[#fafafa] transition-colors">
                             <div className="flex items-center gap-2.5 min-w-0">
-                              <span className="w-8 h-8 rounded-full bg-[#161616] text-white flex items-center justify-center text-[11px] font-extrabold shrink-0 uppercase">
+                              <span className="w-8 h-8 rounded-full bg-[#161616] text-white flex items-center justify-center text-[12px] font-extrabold shrink-0 uppercase">
                                 {(u.name || '?').split(' ').map((s: string) => s[0]).slice(0, 2).join('')}
                               </span>
                               <div className="min-w-0">
                                 <b className="block text-[13px] font-bold text-[#161616] truncate">{u.name}</b>
-                                <span className="block text-[10.5px] text-[#8a8a8a] truncate">
+                                <span className="block text-[11.5px] text-[#6b6b6b] truncate">
                                   {(u.functions || []).slice(0, 2).join(' · ') || u.title || u.role}
                                 </span>
                               </div>
                             </div>
-                            <span className="text-[10.5px] font-bold text-[#8a8a8a] bg-[#f5f5f3] border border-[#ececec] rounded-full px-2 py-0.5 shrink-0">
+                            <span className="text-[11.5px] font-bold text-[#6b6b6b] bg-[#f5f5f3] border border-[#ececec] rounded-full px-2 py-0.5 shrink-0">
                               {openFor(u.uid)} task aperti
                             </span>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="text-[12.5px] italic text-[#9a9a9a] py-2">Nessun membro assegnato alle attività della pratica.</p>
+                      <p className="text-[12.5px] italic text-[#767676] py-2">Nessun membro assegnato alle attività della pratica.</p>
                     )}
                   </div>
                 );
@@ -1056,7 +1056,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-5 shadow-sm text-left flex flex-col">
                 <div className="flex items-center justify-between mb-4 pb-1 border-b border-[#f5f5f5]">
                   <h2 className="text-[15px] font-extrabold text-[#161616] font-sans tracking-tight">Comunicazioni Cliente</h2>
-                  {clientAcc && <span className="bg-emerald-50 text-emerald-800 border border-emerald-100 text-[9.5px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Attivo</span>}
+                  {clientAcc && <span className="bg-emerald-50 text-emerald-800 border border-emerald-100 text-[10.5px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Attivo</span>}
                 </div>
                 
                 <div className="flex flex-col gap-3 min-h-[160px] max-h-[220px] overflow-y-auto pr-1">
@@ -1068,7 +1068,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           <div className={`p-3 rounded-[18px] text-[13px] leading-relaxed shadow-xs ${isMine ? 'bg-[#161616] text-white rounded-tr-none' : 'bg-gray-100/80 text-[#161616] rounded-tl-none'}`}>
                             {m.text}
                           </div>
-                          <span className="inline-flex items-center gap-1 text-[9.5px] text-[#8a8a8a] mt-1 px-1 font-bold font-mono">
+                          <span className="inline-flex items-center gap-1 text-[10.5px] text-[#6b6b6b] mt-1 px-1 font-bold font-mono">
                             {m.name} · {m.at ? fmtDay(isoDate(m.at)) : ''}
                             {m.from === myUid && onDeleteMessage && (
                               <ChatDeleteButton at={m.at || 0} onDelete={() => onDeleteMessage(p.id, m.id)} />
@@ -1078,7 +1078,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       );
                     })
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-8 text-center text-[#8a8a8a]">
+                    <div className="flex flex-col items-center justify-center py-8 text-center text-[#6b6b6b]">
                       <Users className="w-8 h-8 opacity-25 mb-1.5" />
                       <p className="italic text-[12.5px] font-medium max-w-[240px]">Nessuna comunicazione registrata in questa chat.</p>
                     </div>
@@ -1104,7 +1104,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   </div>
                 ) : (
                   <div className="mt-4 pt-3 border-t border-[#f5f5f5] text-center">
-                    <p className="text-[12px] text-[#8a8a8a] font-medium leading-relaxed italic">
+                    <p className="text-[12px] text-[#6b6b6b] font-medium leading-relaxed italic">
                       Associa un portale cliente dalle impostazioni per attivare l'invio delle notifiche e lo scambio di comunicazioni.
                     </p>
                   </div>
@@ -1120,11 +1120,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="bg-white border border-[#ececec] rounded-3xl p-6 shadow-xs text-left">
               <div className="flex justify-between items-center gap-4 flex-wrap pb-4 border-b border-[#f5f5f5] mb-5">
                 <div>
-                  <span className="text-[10px] font-mono tracking-widest uppercase text-gray-400 font-extrabold block">STRATEGICO</span>
+                  <span className="text-[11px] font-mono tracking-widest uppercase text-gray-400 font-extrabold block">STRATEGICO</span>
                   <h2 className="text-xl font-sans tracking-tight font-extrabold text-[#111]">Pannello Strumenti & Campagne Marketing</h2>
                 </div>
                 <div className="flex gap-2">
-                  <span className="bg-green-50 text-green-700 text-[11px] font-extrabold px-3 py-1 rounded-full border border-green-200 uppercase">
+                  <span className="bg-green-50 text-green-700 text-[12px] font-extrabold px-3 py-1 rounded-full border border-green-200 uppercase">
                     ● Agenzia Partner Attiva
                   </span>
                 </div>
@@ -1133,24 +1133,24 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* KPIs indicators */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div className="bg-[#fcfcfc] border border-[#f0f0f0] rounded-2xl p-4">
-                  <div className="text-[10px] uppercase font-mono tracking-wider text-gray-400 font-bold">Leads Generati</div>
+                  <div className="text-[11px] uppercase font-mono tracking-wider text-gray-400 font-bold">Leads Generati</div>
                   <div className="text-2xl font-black text-black mt-1 font-mono">118</div>
-                  <div className="text-[10.5px] text-green-600 mt-1 font-bold">+12% vs scorsa sett.</div>
+                  <div className="text-[11.5px] text-green-600 mt-1 font-bold">+12% vs scorsa sett.</div>
                 </div>
                 <div className="bg-[#fcfcfc] border border-[#f0f0f0] rounded-2xl p-4">
-                  <div className="text-[10px] uppercase font-mono tracking-wider text-gray-400 font-bold">Budget Totale</div>
+                  <div className="text-[11px] uppercase font-mono tracking-wider text-gray-400 font-bold">Budget Totale</div>
                   <div className="text-2xl font-black text-black mt-1 font-mono">{eur(2150)}</div>
-                  <div className="text-[10.5px] text-[#8a8a8a] mt-1 font-medium">Assegna budget campagne</div>
+                  <div className="text-[11.5px] text-[#6b6b6b] mt-1 font-medium">Assegna budget campagne</div>
                 </div>
                 <div className="bg-[#fcfcfc] border border-[#f0f0f0] rounded-2xl p-4">
-                  <div className="text-[10px] uppercase font-mono tracking-wider text-gray-400 font-bold">Budget Speso</div>
+                  <div className="text-[11px] uppercase font-mono tracking-wider text-gray-400 font-bold">Budget Speso</div>
                   <div className="text-2xl font-black text-black mt-1 font-mono">{eur(1250)}</div>
-                  <div className="text-[10.5px] text-[#8a8a8a] mt-1 font-medium">58% del budget allocato</div>
+                  <div className="text-[11.5px] text-[#6b6b6b] mt-1 font-medium">58% del budget allocato</div>
                 </div>
                 <div className="bg-[#fcfcfc] border border-[#f0f0f0] rounded-2xl p-4">
-                  <div className="text-[10px] uppercase font-mono tracking-wider text-gray-400 font-bold">CACL Medio</div>
+                  <div className="text-[11px] uppercase font-mono tracking-wider text-gray-400 font-bold">CACL Medio</div>
                   <div className="text-2xl font-black text-black mt-1 font-mono">{eur(10.59)}</div>
-                  <div className="text-[10.5px] text-green-600 mt-1 font-bold font-semibold">Ottimo livello ROI</div>
+                  <div className="text-[11.5px] text-green-600 mt-1 font-bold font-semibold">Ottimo livello ROI</div>
                 </div>
               </div>
 
@@ -1161,7 +1161,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <h3 className="font-extrabold text-[15.5px] text-[#111] mb-2.5">Crea / Monitora Campagna Ads</h3>
                     <div className="flex flex-col gap-3 font-sans">
                       <div className="flex flex-col gap-1">
-                        <label className="text-[11px] font-bold text-gray-500">Nome Campagna</label>
+                        <label className="text-[12px] font-bold text-gray-500">Nome Campagna</label>
                         <input
                           type="text"
                           placeholder="es. Campagna Instagram Brand Identity"
@@ -1171,7 +1171,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="flex flex-col gap-1">
-                          <label className="text-[11px] font-bold text-gray-500">Budget (€)</label>
+                          <label className="text-[12px] font-bold text-gray-500">Budget (€)</label>
                           <input
                             type="number"
                             placeholder="500"
@@ -1180,7 +1180,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           />
                         </div>
                         <div className="flex flex-col gap-1">
-                          <label className="text-[11px] font-bold text-gray-500">Canale / Media</label>
+                          <label className="text-[12px] font-bold text-gray-500">Canale / Media</label>
                           <select className="select bg-white font-bold" id="mkt_channel">
                             <option value="instagram">Instagram Ads</option>
                             <option value="google">Google Search</option>
@@ -1221,17 +1221,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         <div key={idx} className="bg-white border border-[#f2f2f2] p-3 rounded-xl flex items-center justify-between gap-3 text-left">
                           <div>
                             <div className="font-bold text-[13px] text-gray-900 leading-tight">{cp.title}</div>
-                            <div className="text-[10px] text-gray-400 font-mono font-bold mt-1 uppercase">
+                            <div className="text-[11px] text-gray-400 font-mono font-bold mt-1 uppercase">
                               {cp.ch} • budget {eur(cp.bd)} • speso {eur(cp.sp)}
                             </div>
                           </div>
                           <div className="text-right">
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide inline-block ${
+                            <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide inline-block ${
                               cp.st === 'In Corso' ? 'bg-blue-50 text-blue-700' : cp.st === 'Completata' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'
                             }`}>
                               {cp.st}
                             </span>
-                            <div className="text-[11px] font-extrabold text-black font-mono mt-1">{cp.l} Lead</div>
+                            <div className="text-[12px] font-extrabold text-black font-mono mt-1">{cp.l} Lead</div>
                           </div>
                         </div>
                       ))}
@@ -1255,18 +1255,18 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                   {/* Scheduled Content Feed and Previews */}
                   <div className="flex flex-col gap-3 mt-1.5">
-                    <h4 className="text-[11px] font-mono uppercase tracking-wider text-gray-400 font-extrabold">Post In Attesa Di Approvazione</h4>
+                    <h4 className="text-[12px] font-mono uppercase tracking-wider text-gray-400 font-extrabold">Post In Attesa Di Approvazione</h4>
                     {[
                       { id: 'p1', channel: 'Instagram Feed', desc: 'Anteprima rendering tridimensionale cortile interno con illuminazione soffusa calda da incasso pietra.', date: 'Pianificato per il 12 Giugno 2026', likes: 'In attesa approvazione' },
                       { id: 'p2', channel: 'TikTok Reels', desc: 'Video backstage: la sbozzatura dei blocchi di pietra realizzati dai maestri artigiani locali.', date: 'Pianificato per il 18 Giugno 2026', likes: 'In attesa approvazione' }
                     ].map(post => (
                       <div key={post.id} className="bg-white border border-[#f0f0f0] p-3.5 rounded-xl shadow-xs text-left relative overflow-hidden">
-                        <div className="absolute top-0 right-0 bg-[#e2e2e2] px-2.5 py-1 text-[9px] font-mono tracking-wider font-extrabold uppercase rounded-bl text-gray-600">
+                        <div className="absolute top-0 right-0 bg-[#e2e2e2] px-2.5 py-1 text-[10px] font-mono tracking-wider font-extrabold uppercase rounded-bl text-gray-600">
                           {post.channel}
                         </div>
                         <div className="pr-20 font-sans">
                           <p className="text-[12.5px] text-[#333] font-medium leading-normal">{post.desc}</p>
-                          <div className="flex items-center gap-2 mt-3 text-[11px] font-mono text-[#8a8a8a] font-bold">
+                          <div className="flex items-center gap-2 mt-3 text-[12px] font-mono text-[#6b6b6b] font-bold">
                             <Clock className="w-3.5 h-3.5" />
                             {post.date}
                           </div>
@@ -1275,13 +1275,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         <div className="mt-3 pt-3 border-t border-[#f5f5f5]/80 flex gap-1.5">
                           <button
                             onClick={() => alert("Post approvato per la programmazione!")}
-                            className="bg-green-50 hover:bg-green-100 text-green-700 font-extrabold text-[11px] rounded px-3 py-1 cursor-pointer transition-all border border-green-200"
+                            className="bg-green-50 hover:bg-green-100 text-green-700 font-extrabold text-[12px] rounded px-3 py-1 cursor-pointer transition-all border border-green-200"
                           >
                             Approva e Pubblica
                           </button>
                           <button
                             onClick={() => alert("Richiesta modifica inviata al reparto marketing.")}
-                            className="bg-amber-50 hover:bg-amber-100 text-amber-700 font-extrabold text-[11px] rounded px-3 py-1 cursor-pointer transition-all border border-amber-200"
+                            className="bg-amber-50 hover:bg-amber-100 text-amber-700 font-extrabold text-[12px] rounded px-3 py-1 cursor-pointer transition-all border border-amber-200"
                           >
                             Modifica
                           </button>
@@ -1303,7 +1303,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               {/* Header and statistics */}
               <div className="flex justify-between items-center gap-4 flex-wrap pb-4 border-b border-[#f5f5f5] mb-5">
                 <div>
-                  <span className="text-[10px] font-mono tracking-widest uppercase text-gray-400 font-extrabold block">Materico Store</span>
+                  <span className="text-[11px] font-mono tracking-widest uppercase text-gray-400 font-extrabold block">Materico Store</span>
                   <h2 className="text-xl font-sans tracking-tight font-extrabold text-[#111]">Forniture per la Casa — Consolle Gestionale Preventivi</h2>
                 </div>
                 <button
@@ -1320,7 +1320,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <h3 className="font-extrabold text-[15px] mb-3 text-black">Aggiungi Preventivo Fornitore & Maggiorazione</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 font-sans">
                     <div className="flex flex-col gap-1">
-                      <label className="text-[11px] font-bold text-gray-500">Descrizione Fornitura / Materiale</label>
+                      <label className="text-[12px] font-bold text-gray-500">Descrizione Fornitura / Materiale</label>
                       <input
                         type="text"
                         placeholder="Es. Porte interne in Rovere Massello (x5)"
@@ -1330,7 +1330,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-[11px] font-bold text-gray-500">Azienda Partner / Impresa Salentina</label>
+                      <label className="text-[12px] font-bold text-gray-500">Azienda Partner / Impresa Salentina</label>
                       <input
                         type="text"
                         placeholder="Es. Mondolegno Serramenti Ostuni"
@@ -1340,7 +1340,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-[11px] font-bold text-gray-500">Costo Base Fornitore (€)</label>
+                      <label className="text-[12px] font-bold text-gray-500">Costo Base Fornitore (€)</label>
                       <input
                         type="number"
                         placeholder="2400"
@@ -1350,7 +1350,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-[11px] font-bold text-gray-500">Maggiorazione Onirico (%)</label>
+                      <label className="text-[12px] font-bold text-gray-500">Maggiorazione Onirico (%)</label>
                       <select
                         className="select bg-white font-bold"
                         value={estMarkupPct}
@@ -1366,7 +1366,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   </div>
 
                   {estBaseCost && !isNaN(Number(estBaseCost)) && (
-                    <div className="mb-4 text-[#8a8a8a] text-[12.5px] font-semibold bg-white border border-[#f0f0f0] p-3 rounded-xl flex items-center justify-between">
+                    <div className="mb-4 text-[#6b6b6b] text-[12.5px] font-semibold bg-white border border-[#f0f0f0] p-3 rounded-xl flex items-center justify-between">
                       <span>Costo Fornitore: {eur(Number(estBaseCost))}</span>
                       <span className="font-extrabold text-amber-600">Margine Onirico (+{estMarkupPct}%): {eur(Number(estBaseCost) * estMarkupPct / 100)}</span>
                       <span className="font-black text-black text-[14px]">Prezzo Cliente: {eur(Number(estBaseCost) * (1 + estMarkupPct / 100))}</span>
@@ -1423,7 +1423,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="border border-[#ececec] rounded-2xl p-5 text-left">
                   <div className="flex items-center justify-between gap-3 mb-4.5 border-b border-[#f5f5f5] pb-3">
                     <h3 className="font-extrabold text-[14.5px] text-[#111]">1. Sezione Imprese & Aziende Partner</h3>
-                    <span className="bg-blue-50 text-blue-800 text-[10px] uppercase font-black px-2.5 py-0.5 rounded">Pre-maggiorazioni</span>
+                    <span className="bg-blue-50 text-blue-800 text-[11px] uppercase font-black px-2.5 py-0.5 rounded">Pre-maggiorazioni</span>
                   </div>
 
                   <div className="flex flex-col gap-3">
@@ -1437,9 +1437,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                             <div className="flex justify-between items-start gap-3">
                               <div>
                                 <h4 className="font-bold text-[14px] text-black leading-tight">{e.itemDescription}</h4>
-                                <p className="text-[11px] text-gray-400 mt-1 uppercase font-semibold tracking-tight">Partner: {e.partnerName}</p>
+                                <p className="text-[12px] text-gray-400 mt-1 uppercase font-semibold tracking-tight">Partner: {e.partnerName}</p>
                               </div>
-                              <span className={`text-[9.5px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${
+                              <span className={`text-[10.5px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${
                                 e.status === 'approvato'
                                   ? 'bg-green-50 text-green-700'
                                   : e.status === 'rifiutato'
@@ -1452,7 +1452,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                               </span>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-2 mt-3.5 pt-3.5 border-t border-[#f8f8f8] text-center text-[10.5px] font-mono">
+                            <div className="grid grid-cols-3 gap-2 mt-3.5 pt-3.5 border-t border-[#f8f8f8] text-center text-[11.5px] font-mono">
                               <div className="flex flex-col gap-0.5">
                                 <span className="text-gray-400 font-sans">Preventivo Partner</span>
                                 <span className="font-black text-black">{eur(e.baseCost)}</span>
@@ -1477,10 +1477,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="border border-[#ececec] bg-slate-50/50 rounded-2xl p-5 text-left">
                   <div className="flex items-center justify-between gap-3 mb-4.5 border-b border-[#ececec] pb-3">
                     <h3 className="font-extrabold text-[14.5px] text-[#111]">2. Sezione Anteprima Cliente / Simulatori</h3>
-                    <span className="bg-emerald-50 text-emerald-800 text-[10px] uppercase font-black px-2.5 py-0.5 rounded">Prezzo di Listino</span>
+                    <span className="bg-emerald-50 text-emerald-800 text-[11px] uppercase font-black px-2.5 py-0.5 rounded">Prezzo di Listino</span>
                   </div>
 
-                  <p className="text-[11.5px] text-[#8a8a8a] leading-relaxed mb-4 font-sans">
+                  <p className="text-[11.5px] text-[#6b6b6b] leading-relaxed mb-4 font-sans">
                     Questa sezione riproduce fedelmente ciò che il cliente visualizzerà all'interno del proprio portale.
                   </p>
 
@@ -1494,7 +1494,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                             <div className="flex justify-between items-start gap-3">
                               <div>
                                 <h4 className="font-bold text-[13.5px] text-gray-900 leading-tight">{e.itemDescription}</h4>
-                                <div className="text-[10px] text-gray-400 mt-1 uppercase font-bold">Divisione: Forniture Materico</div>
+                                <div className="text-[11px] text-gray-400 mt-1 uppercase font-bold">Divisione: Forniture Materico</div>
                               </div>
                               <div className="text-right">
                                 <div className="text-[14px] font-black text-emerald-600 font-mono">{eur(e.finalClientPrice)}</div>
@@ -1502,7 +1502,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                             </div>
 
                             <div className="flex items-center justify-between gap-3 mt-4 pt-3.5 border-t border-[#f0f0f0]">
-                              <span className={`text-[10.5px] font-bold uppercase ${
+                              <span className={`text-[11.5px] font-bold uppercase ${
                                 e.status === 'approvato'
                                   ? 'text-green-700 font-extrabold'
                                   : e.status === 'rifiutato'
@@ -1519,7 +1519,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                                       const nextEst = { ...e, status: 'approvato' as const };
                                       if (onSaveEstimate) onSaveEstimate(nextEst);
                                     }}
-                                    className="bg-green-600 hover:bg-green-700 text-white text-[10.5px] font-extrabold px-2.5 py-1 rounded transition-all cursor-pointer shadow-xs border-none"
+                                    className="bg-green-600 hover:bg-green-700 text-white text-[11.5px] font-extrabold px-2.5 py-1 rounded transition-all cursor-pointer shadow-xs border-none"
                                   >
                                     Accetta
                                   </button>
@@ -1528,7 +1528,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                                       const nextEst = { ...e, status: 'rifiutato' as const };
                                       if (onSaveEstimate) onSaveEstimate(nextEst);
                                     }}
-                                    className="bg-red-50 text-red-700 hover:bg-red-100 text-[10.5px] font-extrabold px-2.5 py-1 rounded transition-all cursor-pointer border border-red-200"
+                                    className="bg-red-50 text-red-700 hover:bg-red-100 text-[11.5px] font-extrabold px-2.5 py-1 rounded transition-all cursor-pointer border border-red-200"
                                   >
                                     Rifiuta
                                   </button>
@@ -1541,7 +1541,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                                     const nextEst = { ...e, status: 'pending_client' as const };
                                     if (onSaveEstimate) onSaveEstimate(nextEst);
                                   }}
-                                  className="text-[9.5px] text-gray-400 hover:text-black hover:underline cursor-pointer bg-transparent border-none"
+                                  className="text-[10.5px] text-gray-400 hover:text-black hover:underline cursor-pointer bg-transparent border-none"
                                 >
                                   Reimposta Stato
                                 </button>
@@ -1607,16 +1607,16 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         className="flex justify-between items-center p-4 cursor-pointer hover:bg-gray-50/50 transition-colors"
                       >
                         <div className="flex items-center gap-3.5 min-w-0 font-sans">
-                          <span className={`w-[26px] h-[26px] rounded-lg flex items-center justify-center font-bold text-[11px] flex-shrink-0 ${numBgColor}`}>
+                          <span className={`w-[26px] h-[26px] rounded-lg flex items-center justify-center font-bold text-[12px] flex-shrink-0 ${numBgColor}`}>
                             {pStatus === 'completato' ? '✓' : (ph.order || 0) + 1}
                           </span>
                           <div className="min-w-0 text-left">
                             <b className="block text-[14px] font-bold text-[#161616] leading-tight truncate">{ph.name}</b>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className={`px-2 py-0.5 rounded border text-[9px] font-extrabold uppercase tracking-wide ${phBadgeColor}`}>
+                              <span className={`px-2 py-0.5 rounded border text-[10px] font-extrabold uppercase tracking-wide ${phBadgeColor}`}>
                                 {pStatus === 'completato' ? 'Completata' : pStatus === 'in_corso' ? 'In corso' : 'Da fare'}
                               </span>
-                              <span className="text-[12px] text-[#8a8a8a] font-medium">{doneTasks}/{totTasks} tasks completati</span>
+                              <span className="text-[12px] text-[#6b6b6b] font-medium">{doneTasks}/{totTasks} tasks completati</span>
                             </div>
                           </div>
                         </div>
@@ -1634,7 +1634,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           )}
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" className={`w-3.5 h-3.5 text-[#8a8a8a] transition-all flex-shrink-0 ${isOpen ? 'transform rotate-180 text-gray-950' : ''}`}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" className={`w-3.5 h-3.5 text-[#6b6b6b] transition-all flex-shrink-0 ${isOpen ? 'transform rotate-180 text-gray-950' : ''}`}>
                             <polyline points="6 9 12 15 18 9" />
                           </svg>
                         </div>
@@ -1673,19 +1673,19 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                                       <b className={`block text-[13px] font-bold text-[#161616] ${t.done ? 'line-through text-gray-400 font-medium' : ''}`}>
                                         {t.title}
                                       </b>
-                                      <div className="flex items-center gap-2 mt-1.5 flex-wrap text-gray-400 text-[10.5px] font-bold font-mono">
+                                      <div className="flex items-center gap-2 mt-1.5 flex-wrap text-gray-400 text-[11.5px] font-bold font-mono">
                                         {t.role && (
-                                          <span className="bg-[#161616] text-white px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider">
+                                          <span className="bg-[#161616] text-white px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">
                                             {t.role}
                                           </span>
                                         )}
                                         {assignee && (
-                                          <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[9.5px]">
+                                          <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10.5px]">
                                             👤 {assignee}
                                           </span>
                                         )}
                                         {t.due && (
-                                          <span className={`px-1.5 py-0.5 rounded text-[9.5px] ${t.due < todayISO() && !t.done ? 'bg-red-50 text-red-700 font-bold' : 'bg-gray-50 text-gray-500'}`}>
+                                          <span className={`px-1.5 py-0.5 rounded text-[10.5px] ${t.due < todayISO() && !t.done ? 'bg-red-50 text-red-700 font-bold' : 'bg-gray-50 text-gray-500'}`}>
                                             📅 Scadenza: {fmtDay(t.due)}
                                           </span>
                                         )}
@@ -1725,7 +1725,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           {isInternalBoss && (
                             <button
                               onClick={() => onAddPtask(p.id, phId)}
-                              className="self-start mt-1.5 bg-[#161616] hover:bg-black text-white text-[11px] font-bold py-1.5 px-3 rounded-full flex items-center gap-1 cursor-pointer border-none shadow-xs transition-all active:scale-95"
+                              className="self-start mt-1.5 bg-[#161616] hover:bg-black text-white text-[12px] font-bold py-1.5 px-3 rounded-full flex items-center gap-1 cursor-pointer border-none shadow-xs transition-all active:scale-95"
                             >
                               + Aggiungi attività
                             </button>
@@ -1746,9 +1746,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="flex items-center justify-between mb-3">
                       <div className="text-left">
                         <h3 className="text-[14px] font-extrabold text-[#161616] font-sans tracking-tight">Impegni agenda collegati</h3>
-                        <p className="text-[10.5px] text-[#8a8a8a] mt-0.5 font-medium">Task dell'agenda personale/di studio collegati a questa pratica</p>
+                        <p className="text-[11.5px] text-[#6b6b6b] mt-0.5 font-medium">Task dell'agenda personale/di studio collegati a questa pratica</p>
                       </div>
-                      <span className="text-[11px] font-bold text-[#8a8a8a]">{linked.length}</span>
+                      <span className="text-[12px] font-bold text-[#6b6b6b]">{linked.length}</span>
                     </div>
                     <div className="flex flex-col gap-2">
                       {linked
@@ -1774,17 +1774,17 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                                 </button>
                                 <div className="min-w-0 text-left">
                                   <b className={`block text-[13px] font-bold text-[#161616] ${t.done ? 'line-through text-gray-400 font-medium' : ''}`}>{t.title}</b>
-                                  <div className="flex items-center gap-2 mt-1 flex-wrap text-gray-400 text-[10.5px] font-bold font-mono">
+                                  <div className="flex items-center gap-2 mt-1 flex-wrap text-gray-400 text-[11.5px] font-bold font-mono">
                                     {t.date && (
-                                      <span className={`px-1.5 py-0.5 rounded text-[9.5px] ${t.date < todayISO() && !t.done ? 'bg-red-50 text-red-700 font-bold' : 'bg-gray-50 text-gray-500'}`}>
+                                      <span className={`px-1.5 py-0.5 rounded text-[10.5px] ${t.date < todayISO() && !t.done ? 'bg-red-50 text-red-700 font-bold' : 'bg-gray-50 text-gray-500'}`}>
                                         📅 {fmtDay(t.date)}{t.time ? ` · ${t.time}` : ''}
                                       </span>
                                     )}
-                                    <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-extrabold tracking-wider ${
+                                    <span className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-extrabold tracking-wider ${
                                       t.priority === 'urgente' ? 'bg-rose-50 text-rose-700' : t.priority === 'alta' ? 'bg-orange-50 text-orange-700' : t.priority === 'media' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'
                                     }`}>{t.priority}</span>
                                     {names.length > 0 && (
-                                      <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[9.5px]">👤 {names.join(', ')}</span>
+                                      <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10.5px]">👤 {names.join(', ')}</span>
                                     )}
                                   </div>
                                 </div>
@@ -1813,7 +1813,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <div className="flex justify-between items-center mb-4 border-b border-[#f5f5f5] pb-3">
                   <div>
                     <h3 className="text-[14px] font-extrabold text-[#161616] font-sans tracking-tight">Documenti di Commessa</h3>
-                    <p className="text-[10.5px] text-[#8a8a8a] mt-0.5 font-medium">Archivio PDF, DWG e schede tecniche</p>
+                    <p className="text-[11.5px] text-[#6b6b6b] mt-0.5 font-medium">Archivio PDF, DWG e schede tecniche</p>
                   </div>
                   <label className="bg-[#1b1b1b] hover:bg-black text-white text-[11.5px] font-bold py-1.5 px-3.5 rounded-full flex items-center gap-1 cursor-pointer select-none transition-colors shadow-xs">
                     <Upload className="w-3.5 h-3.5" /> Carica
@@ -1829,7 +1829,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           <FileText className="w-5 h-5 text-gray-400 flex-shrink-0" />
                           <div className="min-w-0">
                             <b className="block text-[13px] text-[#161616] truncate font-bold leading-tight">{doc.name}</b>
-                            <span className="text-[10px] text-[#8a8a8a] block font-semibold font-mono mt-0.5">
+                            <span className="text-[11px] text-[#6b6b6b] block font-semibold font-mono mt-0.5">
                               {doc.byName || 'Inviato'} · {(doc.size / 1024 / 1024).toFixed(2)} MB
                             </span>
                           </div>
@@ -1839,7 +1839,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                             href={safeUrl(doc.url) || '#'}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-[#8a8a8a] hover:text-[#161616] transition-colors"
+                            className="w-7 h-7 rounded-full hover:bg-gray-100 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] transition-colors"
                             title="Apri documento"
                           >
                             <FileDown className="w-4 h-4" />
@@ -1847,7 +1847,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           {isInternalBoss && (
                             <button
                               onClick={() => onDeleteDocument(p.id, doc.id)}
-                              className="w-7 h-7 rounded-full hover:bg-red-50 flex items-center justify-center text-[#8a8a8a] hover:text-red-700 bg-transparent border-none cursor-pointer transition-colors"
+                              className="w-7 h-7 rounded-full hover:bg-red-50 flex items-center justify-center text-[#6b6b6b] hover:text-red-700 bg-transparent border-none cursor-pointer transition-colors"
                               title="Rimuovi"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1964,52 +1964,52 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-5 border-b border-[#f5f5f5] pb-4">
               <div>
                 <h2 className="text-[16px] font-extrabold tracking-tight text-[#161616] leading-none mb-1.5 font-sans">Contabilità di commessa</h2>
-                <p className="text-[12px] text-[#8a8a8a] font-medium">Quadro economico, ricavi/costi e scadenze di questo progetto — collegati in tempo reale alla sezione <b>Finanze</b>.</p>
+                <p className="text-[12px] text-[#6b6b6b] font-medium">Quadro economico, ricavi/costi e scadenze di questo progetto — collegati in tempo reale alla sezione <b>Finanze</b>.</p>
               </div>
-              <span className="text-[10.5px] bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg font-black uppercase tracking-wide text-slate-700 capitalize">{p.division || 'studio'}</span>
+              <span className="text-[11.5px] bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-lg font-black uppercase tracking-wide text-slate-700 capitalize">{p.division || 'studio'}</span>
             </div>
 
             {/* A. QUADRO ECONOMICO AUTOMATICO */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
               <div className="bg-[#fafafa]/60 border border-[#f0f0f0] rounded-2xl p-3.5">
-                <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">Valore opera</span>
+                <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">Valore opera</span>
                 <b className="text-[15px] font-black text-[#161616]">{eur(valoreOpera)}</b>
-                <span className="text-[9.5px] text-stone-400 block mt-0.5">computo + arredi fissi confermati</span>
+                <span className="text-[10.5px] text-stone-500 block mt-0.5">computo + arredi fissi confermati</span>
               </div>
               <div className="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-3.5">
-                <span className="text-[9.5px] uppercase font-black text-indigo-500 tracking-wider block">Parcella Studio</span>
+                <span className="text-[10.5px] uppercase font-black text-indigo-500 tracking-wider block">Parcella Studio</span>
                 <b className="text-[15px] font-black text-indigo-800">{eur(parcellaTeorica)}</b>
-                <span className="text-[9.5px] text-indigo-400 block mt-0.5">onorari {Math.round(projParcella.feePct * 100)}%{projParcella.feeMobili > 0 ? ' + arredi' : ''}</span>
+                <span className="text-[10.5px] text-indigo-400 block mt-0.5">onorari {Math.round(projParcella.feePct * 100)}%{projParcella.feeMobili > 0 ? ' + arredi' : ''}</span>
               </div>
               <div className="bg-[#fafafa]/60 border border-[#f0f0f0] rounded-2xl p-3.5">
-                <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">Ricavi fatturati</span>
+                <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">Ricavi fatturati</span>
                 <b className="text-[15px] font-black text-[#161616]">{eur(ricaviFatturati)}</b>
-                <span className="text-[9.5px] text-stone-400 block mt-0.5">{projInvActive.length} fatture attive</span>
+                <span className="text-[10.5px] text-stone-500 block mt-0.5">{projInvActive.length} fatture attive</span>
               </div>
               <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-3.5">
-                <span className="text-[9.5px] uppercase font-black text-emerald-600 tracking-wider block">Incassato</span>
+                <span className="text-[10.5px] uppercase font-black text-emerald-600 tracking-wider block">Incassato</span>
                 <b className="text-[15px] font-black text-emerald-700">{eur(incassato)}</b>
-                <span className="text-[9.5px] text-emerald-500 block mt-0.5">da incassare {eur(daIncassare)}</span>
+                <span className="text-[10.5px] text-emerald-500 block mt-0.5">da incassare {eur(daIncassare)}</span>
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
               <div className="bg-rose-50/40 border border-rose-100 rounded-2xl p-3.5">
-                <span className="text-[9.5px] uppercase font-black text-rose-500 tracking-wider block">Costi</span>
+                <span className="text-[10.5px] uppercase font-black text-rose-500 tracking-wider block">Costi</span>
                 <b className="text-[15px] font-black text-rose-700">{eur(costiFatture)}</b>
-                <span className="text-[9.5px] text-rose-400 block mt-0.5">{projInvPassive.length} fatture passive</span>
+                <span className="text-[10.5px] text-rose-400 block mt-0.5">{projInvPassive.length} fatture passive</span>
               </div>
               <div className="bg-[#fafafa]/60 border border-[#f0f0f0] rounded-2xl p-3.5">
-                <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">Margine atteso</span>
+                <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">Margine atteso</span>
                 <b className={`text-[15px] font-black ${margineAtteso >= 0 ? 'text-[#161616]' : 'text-rose-700'}`}>{eur(margineAtteso)}</b>
-                <span className="text-[9.5px] text-stone-400 block mt-0.5">parcella − costi</span>
+                <span className="text-[10.5px] text-stone-500 block mt-0.5">parcella − costi</span>
               </div>
               <div className={`rounded-2xl p-3.5 border ${margineRealizzato >= 0 ? 'bg-[#1b1b1b] border-[#1b1b1b]' : 'bg-rose-700 border-rose-700'}`}>
-                <span className="text-[9.5px] uppercase font-black text-stone-300 tracking-wider block">Margine realizzato</span>
+                <span className="text-[10.5px] uppercase font-black text-stone-300 tracking-wider block">Margine realizzato</span>
                 <b className="text-[16px] font-black text-green-400">{eur(margineRealizzato)}</b>
-                <span className="text-[9.5px] text-stone-400 block mt-0.5">incassato − costi</span>
+                <span className="text-[10.5px] text-stone-500 block mt-0.5">incassato − costi</span>
               </div>
               <div className="bg-[#fafafa]/60 border border-[#f0f0f0] rounded-2xl p-3.5 flex flex-col justify-center">
-                <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">Avanzamento economico</span>
+                <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">Avanzamento economico</span>
                 <b className="text-[15px] font-black text-[#161616]">{avanzamentoEco}%</b>
                 <div className="h-1.5 mt-1.5 rounded-full bg-stone-200 overflow-hidden">
                   <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${avanzamentoEco}%` }} />
@@ -2048,7 +2048,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               </div>
               <div className="flex flex-col gap-2">
                 {projQuotes.length === 0 ? (
-                  <p className="text-[11.5px] text-stone-400 italic py-3 text-center">Nessun preventivo o parcella per questa commessa. Aggiungine uno: comparirà anche in Finanze → Preventivi.</p>
+                  <p className="text-[11.5px] text-stone-500 italic py-3 text-center">Nessun preventivo o parcella per questa commessa. Aggiungine uno: comparirà anche in Finanze → Preventivi.</p>
                 ) : projQuotes.map((q) => {
                   const totals = quoteTotals(q);
                   const plan = q.paymentPlan || [];
@@ -2058,10 +2058,10 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <div className="min-w-0 flex items-center gap-2 flex-wrap">
                           <b className="text-stone-900">{q.number || '(senza numero)'}</b>
-                          <span className={`text-[9px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider ${q.docKind === 'parcella' ? 'bg-indigo-50 text-indigo-700' : 'bg-stone-100 text-stone-600'}`}>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wider ${q.docKind === 'parcella' ? 'bg-indigo-50 text-indigo-700' : 'bg-stone-100 text-stone-600'}`}>
                             {q.docKind === 'parcella' ? 'Parcella' : 'Preventivo'}
                           </span>
-                          <span className="text-[10.5px] text-stone-500">
+                          <span className="text-[11.5px] text-stone-500">
                             imponibile {eur(totals.imponibile)}{totals.totale !== totals.imponibile ? <> · tot. doc. <b className="text-stone-800">{eur(totals.totale)}</b></> : null}
                           </span>
                         </div>
@@ -2069,14 +2069,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                           <select
                             value={q.status}
                             onChange={(e) => onSetQuoteStatus?.(q.id, e.target.value as Quote['status'])}
-                            className="px-2 py-1 rounded-lg border border-stone-200 text-[11px] font-bold outline-none bg-white cursor-pointer"
+                            className="px-2 py-1 rounded-lg border border-stone-200 text-[12px] font-bold outline-none bg-white cursor-pointer"
                           >
                             <option value="elaborato">Elaborato</option>
                             <option value="in_attesa">In attesa</option>
                             <option value="accettato">Accettato</option>
                             <option value="rifiutato">Rifiutato</option>
                           </select>
-                          <button onClick={() => setQuoteDraft(q)} className="px-2.5 py-1 rounded-lg bg-[#161616] hover:bg-black text-white text-[11px] font-bold border-none cursor-pointer">Modifica</button>
+                          <button onClick={() => setQuoteDraft(q)} className="px-2.5 py-1 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold border-none cursor-pointer">Modifica</button>
                           <button onClick={() => onDeleteQuote?.(q.id)} className="w-7 h-7 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-rose-600 cursor-pointer" title="Elimina (nel Cestino)"><Trash2 className="w-3.5 h-3.5" /></button>
                         </div>
                       </div>
@@ -2088,14 +2088,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                               <div className="flex items-center gap-2 shrink-0">
                                 <span className="font-bold text-stone-800">{eur(m.amount)}</span>
                                 {m.status === 'da_emettere' ? (
-                                  <button onClick={() => onEmitMilestone?.(q.id, m.id)} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold border-none cursor-pointer"><Receipt className="w-3 h-3" /> Emetti</button>
+                                  <button onClick={() => onEmitMilestone?.(q.id, m.id)} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold border-none cursor-pointer"><Receipt className="w-3 h-3" /> Emetti</button>
                                 ) : (
-                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-indigo-50 text-indigo-700">{m.status === 'incassato' ? 'Incassato' : 'Fatturato'}</span>
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-indigo-50 text-indigo-700">{m.status === 'incassato' ? 'Incassato' : 'Fatturato'}</span>
                                 )}
                               </div>
                             </div>
                           ))}
-                          {daEmettere.length > 0 && <span className="text-[10px] text-stone-400">"Emetti" genera bozza fattura + scadenza in Finanze.</span>}
+                          {daEmettere.length > 0 && <span className="text-[11px] text-stone-500">"Emetti" genera bozza fattura + scadenza in Finanze.</span>}
                         </div>
                       )}
                     </div>
@@ -2106,7 +2106,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
             {/* C. AZIONI RAPIDE — Registra */}
             <div className="flex flex-wrap items-center gap-2 mb-5">
-              <span className="text-[11px] font-bold text-[#8a8a8a] mr-1">Registra:</span>
+              <span className="text-[12px] font-bold text-[#6b6b6b] mr-1">Registra:</span>
               <button onClick={() => { setQaKind('ricavo'); setQaDate(todayISO()); }} className="inline-flex items-center gap-1 text-[11.5px] font-bold border border-emerald-200 text-emerald-700 bg-emerald-50/50 rounded-full px-3 py-1.5 hover:bg-emerald-100 transition-colors">
                 <Plus className="w-3.5 h-3.5" /> Ricavo / incasso
               </button>
@@ -2127,16 +2127,16 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="bg-stone-50/50 border border-stone-200 rounded-2xl p-4">
                 <div className="flex justify-between items-center border-b border-stone-150 pb-2 mb-3">
                   <span className="text-[12px] font-black text-stone-800 uppercase tracking-wide">Ricavi (fatture attive)</span>
-                  <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold font-mono">{eur(ricaviFatturati)}</span>
+                  <span className="text-[11px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold font-mono">{eur(ricaviFatturati)}</span>
                 </div>
                 <div className="flex flex-col gap-2 max-h-[240px] overflow-y-auto pr-1">
                   {projInvActive.length === 0 ? (
-                    <p className="text-[11.5px] text-stone-400 italic py-4 text-center">Nessun ricavo registrato.</p>
+                    <p className="text-[11.5px] text-stone-500 italic py-4 text-center">Nessun ricavo registrato.</p>
                   ) : projInvActive.map((inv: any) => (
                     <div key={inv.id} className="bg-white p-2.5 rounded-xl border border-stone-150 text-[12px] flex items-center justify-between gap-2">
                       <div className="min-w-0">
                         <b className="block text-stone-900 truncate">{inv.clientName || 'Cliente'}{inv.isSal ? ` · SAL ${inv.salNumber || ''}` : ''}</b>
-                        <span className="text-[10.5px] text-stone-500 font-mono">{fmtDay(inv.date)} · {inv.status === 'pagata' ? 'Incassata ✓' : 'Da incassare'}</span>
+                        <span className="text-[11.5px] text-stone-500 font-mono">{fmtDay(inv.date)} · {inv.status === 'pagata' ? 'Incassata ✓' : 'Da incassare'}</span>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <span className="font-black text-emerald-700 font-mono">{eur(Number(inv.amount))}</span>
@@ -2150,16 +2150,16 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="bg-stone-50/50 border border-stone-200 rounded-2xl p-4">
                 <div className="flex justify-between items-center border-b border-stone-150 pb-2 mb-3">
                   <span className="text-[12px] font-black text-stone-800 uppercase tracking-wide">Costi (fatture passive)</span>
-                  <span className="text-[10px] bg-rose-50 text-rose-700 px-1.5 py-0.5 rounded font-bold font-mono">{eur(costiFatture)}</span>
+                  <span className="text-[11px] bg-rose-50 text-rose-700 px-1.5 py-0.5 rounded font-bold font-mono">{eur(costiFatture)}</span>
                 </div>
                 <div className="flex flex-col gap-2 max-h-[240px] overflow-y-auto pr-1">
                   {projInvPassive.length === 0 ? (
-                    <p className="text-[11.5px] text-stone-400 italic py-4 text-center">Nessun costo registrato.</p>
+                    <p className="text-[11.5px] text-stone-500 italic py-4 text-center">Nessun costo registrato.</p>
                   ) : projInvPassive.map((inv: any) => (
                     <div key={inv.id} className="bg-white p-2.5 rounded-xl border border-stone-150 text-[12px] flex items-center justify-between gap-2">
                       <div className="min-w-0">
                         <b className="block text-stone-900 truncate">{inv.supplierName || 'Fornitore'}</b>
-                        <span className="text-[10.5px] text-stone-500 font-mono">{fmtDay(inv.date)} · {inv.category || 'Fornitori'}{inv.status === 'pagata' ? ' · Pagata ✓' : ''}</span>
+                        <span className="text-[11.5px] text-stone-500 font-mono">{fmtDay(inv.date)} · {inv.category || 'Fornitori'}{inv.status === 'pagata' ? ' · Pagata ✓' : ''}</span>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <span className="font-black text-rose-700 font-mono">{eur(Number(inv.amount))}</span>
@@ -2175,20 +2175,20 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
             <div className="bg-stone-50/50 border border-stone-200 rounded-2xl p-4 mb-6">
               <div className="flex justify-between items-center border-b border-stone-150 pb-2 mb-3">
                 <span className="text-[12px] font-black text-stone-800 uppercase tracking-wide">Scadenziario della commessa</span>
-                <span className="text-[10px] bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded font-bold font-mono">{projScadenze.length} scadenze</span>
+                <span className="text-[11px] bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded font-bold font-mono">{projScadenze.length} scadenze</span>
               </div>
               <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1">
                 {projScadenze.length === 0 ? (
-                  <p className="text-[11.5px] text-stone-400 italic py-4 text-center">Nessuna scadenza pianificata.</p>
+                  <p className="text-[11.5px] text-stone-500 italic py-4 text-center">Nessuna scadenza pianificata.</p>
                 ) : projScadenze.map((sc: any) => (
                   <div key={sc.id} className="bg-white p-2.5 rounded-xl border border-stone-150 text-[12px] flex items-center justify-between gap-2">
                     <div className="min-w-0">
                       <b className="block text-stone-900 truncate">{sc.desc || 'Scadenza'} {sc.clientOrSupplier ? `· ${sc.clientOrSupplier}` : ''}</b>
-                      <span className="text-[10.5px] text-stone-500 font-mono">Scad: {fmtDay(sc.dueDate)} · {sc.kind === 'entrata' ? 'Entrata' : 'Uscita'}</span>
+                      <span className="text-[11.5px] text-stone-500 font-mono">Scad: {fmtDay(sc.dueDate)} · {sc.kind === 'entrata' ? 'Entrata' : 'Uscita'}</span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className={`font-black font-mono ${sc.kind === 'entrata' ? 'text-emerald-700' : 'text-rose-700'}`}>{eur(Number(sc.amount))}</span>
-                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${sc.status === 'pagato' ? 'bg-emerald-50 text-emerald-700' : sc.status === 'scaduta' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${sc.status === 'pagato' ? 'bg-emerald-50 text-emerald-700' : sc.status === 'scaduta' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
                         {sc.status === 'pagato' ? 'Saldata' : sc.status === 'scaduta' ? 'Scaduta' : 'In attesa'}
                       </span>
                       <button onClick={() => onDeleteFinanceItem?.('finScadenze', sc.id)} className="text-stone-300 hover:text-red-500 transition-colors" title="Rimuovi"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -2203,7 +2203,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
               <div className="flex flex-wrap justify-between items-center gap-2 mb-3">
                 <div>
                   <h3 className="text-[13px] font-black text-stone-900 uppercase tracking-wide font-sans">Movimenti liberi (cassa)</h3>
-                  <p className="text-[11px] text-stone-500">Saldo {eur(movSaldo)} · entrate {eur(movEntrate)} · uscite {eur(movUscite)} — non conteggiati nel margine.</p>
+                  <p className="text-[12px] text-stone-500">Saldo {eur(movSaldo)} · entrate {eur(movEntrate)} · uscite {eur(movUscite)} — non conteggiati nel margine.</p>
                 </div>
                 <button
                   onClick={() => setShowFinFilters(!showFinFilters)}
@@ -2247,8 +2247,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <div key={f.id} className="flex items-center justify-between p-3 rounded-xl border border-[#ececec] bg-[#f9f9f9]/40 hover:border-gray-300 transition-colors">
                     <div className="min-w-0">
                       <b className="block text-[13px] font-bold text-[#161616] tracking-tight truncate">{f.desc}</b>
-                      <small className="text-[#8a8a8a] font-medium block mt-0.5 font-mono">
-                        {fmtDay(f.date)} {f.category ? <>· <span className="bg-[#f0f0f0] text-[#161616] px-1.5 py-0.5 rounded text-[9.5px] font-bold uppercase font-sans tracking-wide">{f.category}</span></> : null} {f.note ? `· ${f.note}` : ''}
+                      <small className="text-[#6b6b6b] font-medium block mt-0.5 font-mono">
+                        {fmtDay(f.date)} {f.category ? <>· <span className="bg-[#f0f0f0] text-[#161616] px-1.5 py-0.5 rounded text-[10.5px] font-bold uppercase font-sans tracking-wide">{f.category}</span></> : null} {f.note ? `· ${f.note}` : ''}
                       </small>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0 font-mono">
@@ -2300,11 +2300,11 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <input value={qaParty} onChange={(e) => setQaParty(e.target.value)} placeholder={qaKind === 'costo' ? 'Fornitore' : 'Cliente / controparte'} className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b]" />
                     <input type="number" inputMode="decimal" value={qaAmount} onChange={(e) => setQaAmount(e.target.value)} placeholder="Importo €" className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b]" />
                     <div className="flex gap-2">
-                      <label className="text-[11px] font-semibold text-[#6b6b6b] flex flex-col gap-1 flex-1">
+                      <label className="text-[12px] font-semibold text-[#6b6b6b] flex flex-col gap-1 flex-1">
                         {qaKind === 'scadenza' ? 'Data' : 'Data documento'}
                         <input type="date" value={qaDate} onChange={(e) => setQaDate(e.target.value)} className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b]" />
                       </label>
-                      <label className="text-[11px] font-semibold text-[#6b6b6b] flex flex-col gap-1 flex-1">
+                      <label className="text-[12px] font-semibold text-[#6b6b6b] flex flex-col gap-1 flex-1">
                         Scadenza
                         <input type="date" value={qaDue} onChange={(e) => setQaDue(e.target.value)} className="w-full border border-[#e2e2e2] rounded-[14px] px-3 py-2.5 text-[13px] outline-none focus:border-[#1b1b1b]" />
                       </label>
@@ -2402,8 +2402,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <button
                     key={t.id}
                     onClick={() => setMatericoTab(t.id)}
-                    className={`relative flex-1 sm:flex-initial text-center text-[11px] sm:text-[12px] font-extrabold px-3.5 sm:px-4 py-1.5 rounded-full cursor-pointer select-none transition-colors duration-300 border-none bg-transparent inline-flex items-center justify-center gap-1.5 ${
-                      active ? 'text-[#161616]' : 'text-[#8a8a8a] hover:text-[#161616]'
+                    className={`relative flex-1 sm:flex-initial text-center text-[12px] sm:text-[12px] font-extrabold px-3.5 sm:px-4 py-1.5 rounded-full cursor-pointer select-none transition-colors duration-300 border-none bg-transparent inline-flex items-center justify-center gap-1.5 ${
+                      active ? 'text-[#161616]' : 'text-[#6b6b6b] hover:text-[#161616]'
                     }`}
                     style={{ touchAction: 'none' }}
                   >
@@ -2416,7 +2416,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     )}
                     <span className="relative z-10 font-extrabold">{t.label}</span>
                     {t.id === 'richieste' && matericoActionable > 0 && (
-                      <span className="relative z-10 text-[9px] font-extrabold min-w-[16px] h-[16px] px-1 rounded-full flex items-center justify-center bg-[#c2410c] text-white">
+                      <span className="relative z-10 text-[10px] font-extrabold min-w-[16px] h-[16px] px-1 rounded-full flex items-center justify-center bg-[#c2410c] text-white">
                         {matericoActionable}
                       </span>
                     )}
@@ -2438,8 +2438,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   <button
                     key={t.id}
                     onClick={() => setUnicoTab(t.id)}
-                    className={`relative flex-1 sm:flex-initial text-center text-[11px] sm:text-[12px] font-extrabold px-3.5 sm:px-4 py-1.5 rounded-full cursor-pointer select-none transition-colors duration-300 border-none bg-transparent inline-flex items-center justify-center gap-1.5 ${
-                      active ? 'text-[#161616]' : 'text-[#8a8a8a] hover:text-[#161616]'
+                    className={`relative flex-1 sm:flex-initial text-center text-[12px] sm:text-[12px] font-extrabold px-3.5 sm:px-4 py-1.5 rounded-full cursor-pointer select-none transition-colors duration-300 border-none bg-transparent inline-flex items-center justify-center gap-1.5 ${
+                      active ? 'text-[#161616]' : 'text-[#6b6b6b] hover:text-[#161616]'
                     }`}
                     style={{ touchAction: 'none' }}
                   >
@@ -2474,8 +2474,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 <button
                   key={option.id}
                   onClick={() => setFilter(option.id)}
-                  className={`relative flex-1 sm:flex-initial text-center text-[11px] sm:text-[12px] font-extrabold px-3.5 sm:px-4 py-1.5 rounded-full capitalize cursor-pointer select-none transition-colors duration-300 border-none bg-transparent ${
-                    active ? 'text-[#161616]' : 'text-[#8a8a8a] hover:text-[#161616]'
+                  className={`relative flex-1 sm:flex-initial text-center text-[12px] sm:text-[12px] font-extrabold px-3.5 sm:px-4 py-1.5 rounded-full capitalize cursor-pointer select-none transition-colors duration-300 border-none bg-transparent ${
+                    active ? 'text-[#161616]' : 'text-[#6b6b6b] hover:text-[#161616]'
                   }`}
                   style={{ touchAction: 'none' }}
                 >
@@ -2515,7 +2515,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     setShowSearchInput(false);
                     setSearch('');
                   }}
-                  className="w-5 h-5 rounded-full bg-white flex items-center justify-center border-none cursor-pointer text-[#8a8a8a] hover:text-[#161616] hover:bg-gray-100 shadow-xs active:scale-95 text-[9px] font-bold"
+                  className="w-5 h-5 rounded-full bg-white flex items-center justify-center border-none cursor-pointer text-[#6b6b6b] hover:text-[#161616] hover:bg-gray-100 shadow-xs active:scale-95 text-[10px] font-bold"
                 >
                   ✕
                 </button>
@@ -2526,7 +2526,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                 className={`w-9 h-9 rounded-full flex items-center justify-center border border-[#e2e2e2] cursor-pointer transition-all active:scale-95 ${
                   search.trim() 
                     ? 'bg-[#161616] text-white hover:bg-black border-[#161616]' 
-                    : 'bg-white hover:bg-[#fafafa] text-[#8a8a8a] hover:text-[#161616] hover:border-black'
+                    : 'bg-white hover:bg-[#fafafa] text-[#6b6b6b] hover:text-[#161616] hover:border-black'
                 }`}
                 title="Cerca progetti"
               >
@@ -2683,13 +2683,13 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     </div>
                     <div className="flex flex-col items-end gap-1.5">
                       <span
-                        className="px-2 py-0.5 rounded-full text-[9px] uppercase font-extrabold tracking-wider text-white"
+                        className="px-2 py-0.5 rounded-full text-[10px] uppercase font-extrabold tracking-wider text-white"
                         style={{ background: dv.bg }}
                       >
                         {dv.label}
                       </span>
                       <span
-                        className={`px-2 py-0.5 rounded-full text-[10.5px] uppercase font-bold tracking-wide ${
+                        className={`px-2 py-0.5 rounded-full text-[11.5px] uppercase font-bold tracking-wide ${
                           p.status === 'attivo'
                             ? 'bg-blue-50 text-blue-800 border border-blue-200'
                             : p.status === 'completato'
@@ -2700,7 +2700,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                         {p.status}
                       </span>
                       {p.archived && (
-                        <span className="px-2 py-0.5 rounded-full text-[9px] uppercase font-extrabold tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] uppercase font-extrabold tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
                           Archiviato
                         </span>
                       )}
@@ -2709,7 +2709,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
 
                   <div className="min-w-0">
                     <h3 className="font-extrabold text-[16px] text-[#161616] truncate leading-snug">{p.name}</h3>
-                    <p className="text-[11px] text-[#8a8a8a] font-mono mt-1 font-bold">{p.code || 'ARC-COMMESSA'}</p>
+                    <p className="text-[12px] text-[#6b6b6b] font-mono mt-1 font-bold">{p.code || 'ARC-COMMESSA'}</p>
                     <p className="text-[12.5px] text-[#333] mt-2 font-medium truncate">{p.client || 'Nessun cliente'}</p>
                   </div>
 
@@ -2717,9 +2717,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                     <div className="w-full h-[6px] bg-[#f0f0f0] rounded-full overflow-hidden">
                       <div className="h-full bg-[#1b1b1b] rounded-full" style={{ width: `${pcpValue}%` }} />
                     </div>
-                    <div className="flex justify-between items-center text-[11.5px] text-[#8a8a8a] font-bold uppercase tracking-wider">
+                    <div className="flex justify-between items-center text-[11.5px] text-[#6b6b6b] font-bold uppercase tracking-wider">
                       <span>{pcpValue}%</span>
-                      <span className="bg-[#f0f0f0] px-2 py-0.5 rounded text-[9.5px]">{phSize} Fasi</span>
+                      <span className="bg-[#f0f0f0] px-2 py-0.5 rounded text-[10.5px]">{phSize} Fasi</span>
                     </div>
                   </div>
                 </div>
@@ -2740,14 +2740,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-bold text-[14.5px] text-[#161616] truncate pr-2">{p.name}</h3>
-                    <p className="text-[12px] text-[#8a8a8a] truncate mt-0.5">
+                    <p className="text-[12px] text-[#6b6b6b] truncate mt-0.5">
                       <span className="font-extrabold" style={{ color: dv.bg }}>{dv.label}</span> · {p.client || 'Nessun cliente'} · {p.location || 'Ostuni'}
                     </p>
                   </div>
                 </div>
 
                 <div className="hidden sm:flex flex-col gap-1 text-right flex-shrink-0">
-                  <span className="text-[11px] text-[#8a8a8a] font-mono font-bold leading-none">{p.code || 'ARC-K'}</span>
+                  <span className="text-[12px] text-[#6b6b6b] font-mono font-bold leading-none">{p.code || 'ARC-K'}</span>
                   <span className="text-[12px] text-[#161616] font-bold leading-none mt-1">{phSize} Fasi · {tot} Task</span>
                 </div>
 
@@ -2762,7 +2762,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({
           })}
         </div>
       ) : (
-        <div className="text-center py-[70px] px-5 text-[#8a8a8a]">
+        <div className="text-center py-[70px] px-5 text-[#6b6b6b]">
           <Folder className="w-12 h-12 opacity-30 mx-auto mb-3.5" />
           <b className="block text-[#161616] text-[16px] font-bold">Nessun progetto trovato</b>
           <p className="text-[13.5px] max-w-[340px] mx-auto">Non sono presenti progetti attivi o corrispondenti alla ricerca fornita.</p>

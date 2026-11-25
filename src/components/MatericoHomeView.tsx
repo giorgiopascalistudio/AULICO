@@ -57,7 +57,7 @@ export const MatericoHomeView: React.FC<Props> = ({ deals, cantieriCount = 0, co
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><LayoutGrid className="w-5.5 h-5.5" /> Home Materico</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Il quadro operativo di Materico: commesse, cantieri, contratti e scadenze.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Il quadro operativo di Materico: commesse, cantieri, contratti e scadenze.</p>
         </div>
         {members.length > 0 && (
           <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] flex-wrap">
@@ -71,9 +71,9 @@ export const MatericoHomeView: React.FC<Props> = ({ deals, cantieriCount = 0, co
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {KPI.map((k) => { const Icon = k.i; return (
           <button key={k.l} onClick={() => go(k.h)} className="text-left bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm hover:border-[#cfcfcf] cursor-pointer">
-            <div className="flex items-center justify-between"><p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p><Icon className="w-4 h-4 text-[#c9c9c9]" /></div>
+            <div className="flex items-center justify-between"><p className="text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p><Icon className="w-4 h-4 text-[#c9c9c9]" /></div>
             <p className="text-[20px] font-black text-[#161616] mt-1 leading-none">{k.v}</p>
-            {k.s && <p className="text-[11px] text-[#9a9a9a] mt-1">{k.s}</p>}
+            {k.s && <p className="text-[12px] text-[#767676] mt-1">{k.s}</p>}
           </button>
         ); })}
       </div>
@@ -81,7 +81,7 @@ export const MatericoHomeView: React.FC<Props> = ({ deals, cantieriCount = 0, co
       <div className="flex flex-col lg:flex-row gap-4 items-start">
         {/* Pipeline per stato */}
         <div className="lg:flex-1 w-full bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3"><b className="text-[14px] text-[#161616]">Pipeline commesse</b><button onClick={() => go('#materico/prod-potenziale')} className="text-[11.5px] font-bold text-[#8a8a8a] hover:text-[#161616] inline-flex items-center gap-0.5 cursor-pointer bg-transparent border-none">Apri <ChevronRight className="w-3.5 h-3.5" /></button></div>
+          <div className="flex items-center justify-between mb-3"><b className="text-[14px] text-[#161616]">Pipeline commesse</b><button onClick={() => go('#materico/prod-potenziale')} className="text-[11.5px] font-bold text-[#6b6b6b] hover:text-[#161616] inline-flex items-center gap-0.5 cursor-pointer bg-transparent border-none">Apri <ChevronRight className="w-3.5 h-3.5" /></button></div>
           {(['nuovo', 'valutazione', 'preventivo', 'contrattualizzazione', 'vinta'] as MatericoDealStage[]).map((st) => {
             const items = scoped.filter((d) => d.stage === st);
             const val = items.reduce((s, d) => s + (d.valoreStimato || 0), 0);
@@ -90,8 +90,8 @@ export const MatericoHomeView: React.FC<Props> = ({ deals, cantieriCount = 0, co
               <div key={st} className="flex items-center gap-2 mb-2">
                 <span className="w-24 text-[11.5px] font-semibold text-[#555] shrink-0">{STAGE_LABEL[st]}</span>
                 <div className="flex-1 h-4 rounded-full bg-gray-100 overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(val / max) * 100}%`, background: STAGE_COLOR[st] }} /></div>
-                <span className="w-8 text-[11px] font-bold text-[#8a8a8a] text-right">{items.length}</span>
-                <span className="w-20 text-[11px] font-semibold text-[#161616] text-right shrink-0">{eur(val)}</span>
+                <span className="w-8 text-[12px] font-bold text-[#6b6b6b] text-right">{items.length}</span>
+                <span className="w-20 text-[12px] font-semibold text-[#161616] text-right shrink-0">{eur(val)}</span>
               </div>
             );
           })}
@@ -111,13 +111,13 @@ export const MatericoHomeView: React.FC<Props> = ({ deals, cantieriCount = 0, co
 
       {/* Moduli trasversali (§2) */}
       <div>
-        <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Aree della società</p>
+        <p className="text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Aree della società</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {TRASV.map((c) => { const Icon = c.i; return (
             <button key={c.l} onClick={() => go(c.h)} className="text-left bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm hover:border-[#cfcfcf] cursor-pointer flex flex-col gap-2">
               <span className="w-9 h-9 rounded-xl bg-[#161616]/[0.06] flex items-center justify-center text-[#161616]"><Icon className="w-4.5 h-4.5" /></span>
               <b className="text-[13.5px] text-[#161616]">{c.l}</b>
-              <p className="text-[11.5px] text-[#8a8a8a] leading-relaxed">{c.d}</p>
+              <p className="text-[11.5px] text-[#6b6b6b] leading-relaxed">{c.d}</p>
             </button>
           ); })}
         </div>

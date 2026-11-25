@@ -113,7 +113,7 @@ export const ClientImportModal: React.FC<{ onClose: () => void; onImport: (recs:
       <div className="bg-white rounded-[24px] w-full max-w-xl max-h-[90vh] overflow-y-auto p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3"><h3 className="text-[16px] font-extrabold text-[#161616]">Importa Registro Clienti (Excel / CSV)</h3><button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button></div>
         <div className="flex flex-col gap-3">
-          <p className="text-[12px] text-[#8a8a8a] leading-relaxed">Carica il file <b>Excel (.xlsx)</b> o <b>CSV</b> (oppure incolla il testo). Colonne riconosciute: Numero, Denominazione, Cognome, Nome, Indirizzo, Email, Numero di telefono, Stato, Fascia, Responsabile cliente, Riferimento comunicazione, Preventivo, Saldato, Data inizio, Data fine. I duplicati (stesso nome+telefono) vengono saltati.</p>
+          <p className="text-[12px] text-[#6b6b6b] leading-relaxed">Carica il file <b>Excel (.xlsx)</b> o <b>CSV</b> (oppure incolla il testo). Colonne riconosciute: Numero, Denominazione, Cognome, Nome, Indirizzo, Email, Numero di telefono, Stato, Fascia, Responsabile cliente, Riferimento comunicazione, Preventivo, Saldato, Data inizio, Data fine. I duplicati (stesso nome+telefono) vengono saltati.</p>
           <label className="inline-flex items-center gap-2 text-[12.5px] font-bold text-[#161616] cursor-pointer self-start">
             <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-[#e2e2e2] hover:border-black"><Upload className="w-4 h-4" /> Carica Excel / CSV</span>
             <input type="file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
@@ -126,12 +126,12 @@ export const ClientImportModal: React.FC<{ onClose: () => void; onImport: (recs:
           {result && <p className="text-[12.5px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">{result}</p>}
           {preview && preview.length > 0 && (
             <div className="border border-[#eee] rounded-xl overflow-hidden">
-              <div className="bg-gray-50 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">Anteprima ({preview.length})</div>
+              <div className="bg-gray-50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0]">Anteprima ({preview.length})</div>
               <div className="max-h-52 overflow-y-auto divide-y divide-[#f2f2f2]">
                 {preview.slice(0, 80).map((c) => (
                   <div key={c.id} className="px-3 py-1.5 text-[12px] flex items-center justify-between gap-2">
                     <span className="font-semibold text-[#161616] truncate">{c.name}</span>
-                    <span className="text-[#9a9a9a] truncate">{[c.phone, c.tier ? `${c.tier}ª` : '', c.stato].filter(Boolean).join(' · ')}</span>
+                    <span className="text-[#767676] truncate">{[c.phone, c.tier ? `${c.tier}ª` : '', c.stato].filter(Boolean).join(' · ')}</span>
                   </div>
                 ))}
               </div>

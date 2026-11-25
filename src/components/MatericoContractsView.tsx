@@ -84,7 +84,7 @@ export const MatericoContractsView: React.FC<Props> = ({ contracts, deals = [], 
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><FileSignature className="w-5.5 h-5.5" /> Contratti imprese</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Generazione automatica del contratto dai dati a gestionale + firma con OTP.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Generazione automatica del contratto dai dati a gestionale + firma con OTP.</p>
         </div>
         {canEdit && <button onClick={() => setEditing(blank())} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuovo contratto</button>}
       </div>
@@ -92,7 +92,7 @@ export const MatericoContractsView: React.FC<Props> = ({ contracts, deals = [], 
       {list.length === 0 ? (
         <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
           <FileSignature className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-          <p className="text-[13.5px] text-[#8a8a8a] font-semibold">Nessun contratto.{canEdit ? ' Generane uno dai dati della commessa.' : ''}</p>
+          <p className="text-[13.5px] text-[#6b6b6b] font-semibold">Nessun contratto.{canEdit ? ' Generane uno dai dati della commessa.' : ''}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -101,23 +101,23 @@ export const MatericoContractsView: React.FC<Props> = ({ contracts, deals = [], 
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <b className="text-[14px] text-[#161616]">{c.partnerName || 'Impresa'}</b>
-                  <p className="text-[11px] text-[#8a8a8a] mt-0.5 font-mono">{c.number}</p>
+                  <p className="text-[12px] text-[#6b6b6b] mt-0.5 font-mono">{c.number}</p>
                 </div>
-                <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: s.color }}>{s.label}</span>
+                <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: s.color }}>{s.label}</span>
               </div>
               {c.lavorazioni && <p className="text-[12px] text-[#555] mt-1.5 line-clamp-2">{c.lavorazioni}</p>}
               {(() => { const pm = penaleMaturata(c, c.cantiereId ? cantieri?.[c.cantiereId] : null); if (!pm) return null; return (
                 <div className="mt-2 flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-rose-50 border border-rose-100">
                   <span className="text-[11.5px] font-bold text-rose-700">Ritardo {pm.giorni} gg{pm.importo ? ` · penale ${eur(pm.importo)}` : ' · imposta la penale €/giorno'}</span>
                   {canEdit && onSave && pm.importo > 0 && (!c.penaleApplicata || c.penaleApplicata.giorni !== pm.giorni) && (
-                    <button onClick={(e) => { e.stopPropagation(); onSave({ ...c, penaleApplicata: { giorni: pm.giorni, importo: pm.importo, at: Date.now() }, updatedAt: Date.now() }); }} className="text-[11px] font-bold px-2 py-1 rounded-lg bg-rose-600 text-white border-none cursor-pointer">Applica</button>
+                    <button onClick={(e) => { e.stopPropagation(); onSave({ ...c, penaleApplicata: { giorni: pm.giorni, importo: pm.importo, at: Date.now() }, updatedAt: Date.now() }); }} className="text-[12px] font-bold px-2 py-1 rounded-lg bg-rose-600 text-white border-none cursor-pointer">Applica</button>
                   )}
-                  {c.penaleApplicata && c.penaleApplicata.giorni === pm.giorni && <span className="text-[10.5px] font-bold text-rose-700">applicata</span>}
+                  {c.penaleApplicata && c.penaleApplicata.giorni === pm.giorni && <span className="text-[11.5px] font-bold text-rose-700">applicata</span>}
                 </div>
               ); })()}
               <div className="flex items-center justify-between mt-2">
                 <span className="text-[13px] font-black text-[#161616]">{c.importo != null ? eur(c.importo) : '—'}</span>
-                {c.status === 'firmato' && c.signedAt && <span className="text-[10.5px] font-bold text-emerald-600 inline-flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> {fmtDate(new Date(c.signedAt).toISOString())}</span>}
+                {c.status === 'firmato' && c.signedAt && <span className="text-[11.5px] font-bold text-emerald-600 inline-flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> {fmtDate(new Date(c.signedAt).toISOString())}</span>}
               </div>
             </div>
           ); })}
@@ -157,7 +157,7 @@ const ContractEditor: React.FC<{ contract: MatericoContract; deals: MatericoDeal
     <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-[24px] w-full max-w-2xl max-h-[92vh] overflow-y-auto p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3">
-          <div><h3 className="text-[16px] font-extrabold text-[#161616]">Contratto {d.number}</h3><span className="text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white" style={{ background: ST[d.status].color }}>{ST[d.status].label}</span></div>
+          <div><h3 className="text-[16px] font-extrabold text-[#161616]">Contratto {d.number}</h3><span className="text-[12px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white" style={{ background: ST[d.status].color }}>{ST[d.status].label}</span></div>
           <div className="flex items-center gap-1">
             <button onClick={printContract} title="Stampa / PDF" className="p-1.5 rounded-lg hover:bg-gray-100 text-[#666] cursor-pointer bg-transparent border-none"><Printer className="w-4 h-4" /></button>
             {canEdit && !signed && onDelete && contract.partnerName && <button onClick={() => onDelete(d.id)} className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-4 h-4" /></button>}
@@ -167,7 +167,7 @@ const ContractEditor: React.FC<{ contract: MatericoContract; deals: MatericoDeal
 
         <div className="flex flex-col gap-3">
           {canEdit && !signed && deals.length > 0 && (
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Precompila da commessa</span>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Precompila da commessa</span>
               <select value={d.dealId || ''} onChange={(e) => e.target.value && prefillFromDeal(e.target.value)} className={inp}>
                 <option value="">— seleziona commessa —</option>{deals.map((dl) => <option key={dl.id} value={dl.id}>{dl.title}{dl.clientName ? ` · ${dl.clientName}` : ''}</option>)}
               </select>
@@ -188,7 +188,7 @@ const ContractEditor: React.FC<{ contract: MatericoContract; deals: MatericoDeal
             const ok = mpct >= 15;
             return (
               <div className={`rounded-[14px] border-2 p-3 ${ok ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-300 bg-rose-50/60'}`}>
-                <p className="text-[10.5px] font-extrabold uppercase tracking-wider mb-1.5" style={{ color: ok ? '#047857' : '#be123c' }}>
+                <p className="text-[11.5px] font-extrabold uppercase tracking-wider mb-1.5" style={{ color: ok ? '#047857' : '#be123c' }}>
                   Controllo margini pre-firma · {ok ? 'redditività OK' : 'ATTENZIONE: margine sotto il 15%'}
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-x-3 gap-y-1 text-[11.5px] text-[#555]">
@@ -199,33 +199,33 @@ const ContractEditor: React.FC<{ contract: MatericoContract; deals: MatericoDeal
                   <span>Margine<br /><b className={`text-[12.5px] ${ok ? 'text-emerald-700' : 'text-rose-600'}`}>{Math.round(mpct * 10) / 10}%</b></span>
                 </div>
                 {d.importo != null && costoDir > 0 && d.importo > costoDir && (
-                  <p className="text-[10.5px] font-bold text-rose-600 mt-1.5">⚠ L'importo del contratto ({eur(d.importo)}) supera il costo diretto previsto ({eur(costoDir)}): il margine reale sarà più basso.</p>
+                  <p className="text-[11.5px] font-bold text-rose-600 mt-1.5">⚠ L'importo del contratto ({eur(d.importo)}) supera il costo diretto previsto ({eur(costoDir)}): il margine reale sarà più basso.</p>
                 )}
               </div>
             );
           })()}
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Impresa</span>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Impresa</span>
               <input disabled={locked} list="ctr-partners" value={d.partnerName} onChange={(e) => { const p = partners.find((x) => x.name === e.target.value); set({ partnerName: e.target.value, partnerRecordId: p?.id || d.partnerRecordId }); }} className={inp} />
               <datalist id="ctr-partners">{partners.map((p) => <option key={p.id} value={p.name} />)}</datalist>
             </label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Importo €</span><input disabled={locked} type="number" value={d.importo ?? ''} onChange={(e) => set({ importo: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Importo €</span><input disabled={locked} type="number" value={d.importo ?? ''} onChange={(e) => set({ importo: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
           </div>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Lavorazioni affidate</span><textarea disabled={locked} value={d.lavorazioni || ''} onChange={(e) => set({ lavorazioni: e.target.value || null })} rows={3} className={`${inp} resize-none`} /></label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Lavorazioni affidate</span><textarea disabled={locked} value={d.lavorazioni || ''} onChange={(e) => set({ lavorazioni: e.target.value || null })} rows={3} className={`${inp} resize-none`} /></label>
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Inizio</span><input disabled={locked} type="date" value={d.startDate || ''} onChange={(e) => set({ startDate: e.target.value || null })} className={inp} /></label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Fine prevista</span><input disabled={locked} type="date" value={d.endDate || ''} onChange={(e) => set({ endDate: e.target.value || null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Inizio</span><input disabled={locked} type="date" value={d.startDate || ''} onChange={(e) => set({ startDate: e.target.value || null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Fine prevista</span><input disabled={locked} type="date" value={d.endDate || ''} onChange={(e) => set({ endDate: e.target.value || null })} className={inp} /></label>
           </div>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Modalità di pagamento</span><input disabled={locked} value={d.modalitaPagamento || ''} onChange={(e) => set({ modalitaPagamento: e.target.value || null })} placeholder="A SAL, saldo a fine lavori…" className={inp} /></label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Modalità di pagamento</span><input disabled={locked} value={d.modalitaPagamento || ''} onChange={(e) => set({ modalitaPagamento: e.target.value || null })} placeholder="A SAL, saldo a fine lavori…" className={inp} /></label>
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Penali</span><input disabled={locked} value={d.penali || ''} onChange={(e) => set({ penali: e.target.value || null })} className={inp} /></label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Penale €/giorno di ritardo</span><input disabled={!canEdit} type="number" min={0} value={d.penaleGiorno ?? ''} onChange={(e) => set({ penaleGiorno: e.target.value === '' ? null : Number(e.target.value) })} className={inp} placeholder="si calcola da sola oltre la fine prevista" /></label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Responsabilità</span><input disabled={locked} value={d.responsabilita || ''} onChange={(e) => set({ responsabilita: e.target.value || null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Penali</span><input disabled={locked} value={d.penali || ''} onChange={(e) => set({ penali: e.target.value || null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Penale €/giorno di ritardo</span><input disabled={!canEdit} type="number" min={0} value={d.penaleGiorno ?? ''} onChange={(e) => set({ penaleGiorno: e.target.value === '' ? null : Number(e.target.value) })} className={inp} placeholder="si calcola da sola oltre la fine prevista" /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Responsabilità</span><input disabled={locked} value={d.responsabilita || ''} onChange={(e) => set({ responsabilita: e.target.value || null })} className={inp} /></label>
           </div>
 
           {/* Testo contratto */}
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Testo del contratto</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Testo del contratto</span>
             {canEdit && !signed && <button onClick={genBody} className="text-[11.5px] font-bold text-[#4338ca] hover:underline cursor-pointer bg-transparent border-none">Rigenera dai dati</button>}
           </div>
           <textarea disabled={locked} value={d.body || ''} onChange={(e) => set({ body: e.target.value })} rows={7} placeholder="Clicca 'Rigenera dai dati' per compilare automaticamente." className={`${inp} resize-none font-mono text-[11.5px] leading-relaxed`} />
@@ -233,12 +233,12 @@ const ContractEditor: React.FC<{ contract: MatericoContract; deals: MatericoDeal
           {/* Firma OTP (§7) */}
           {!signed ? (
             <div className="rounded-[16px] border border-[#e2e2e2] bg-[#fafafa] p-3 flex flex-col gap-2.5">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] inline-flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Firma con OTP</span>
+              <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b] inline-flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Firma con OTP</span>
               {canEdit && (
                 <div className="flex items-center gap-2 flex-wrap">
                   <button onClick={genOtp} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Send className="w-3.5 h-3.5" /> {d.otp ? 'Rigenera OTP' : 'Genera OTP'}</button>
                   {d.otp && <span className="text-[13px] font-black tracking-[0.2em] text-[#161616] bg-white border border-[#e2e2e2] rounded-lg px-3 py-1.5">{d.otp}</span>}
-                  {d.otp && <span className="text-[11px] text-[#9a9a9a]">Comunica il codice al firmatario.</span>}
+                  {d.otp && <span className="text-[12px] text-[#767676]">Comunica il codice al firmatario.</span>}
                 </div>
               )}
               {d.otp && (
@@ -248,7 +248,7 @@ const ContractEditor: React.FC<{ contract: MatericoContract; deals: MatericoDeal
                 </div>
               )}
               {otpErr && <p className="text-[12px] text-rose-600 font-semibold">{otpErr}</p>}
-              <p className="text-[10.5px] text-[#b8b8b8]">OTP a livello applicativo (senza invio SMS reale). Integrazione provider di firma = evoluzione futura.</p>
+              <p className="text-[11.5px] text-[#b8b8b8]">OTP a livello applicativo (senza invio SMS reale). Integrazione provider di firma = evoluzione futura.</p>
             </div>
           ) : (
             <div className="rounded-[16px] border border-emerald-200 bg-emerald-50 p-3 flex items-center gap-2.5">

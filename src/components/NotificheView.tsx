@@ -60,7 +60,7 @@ export const NotificheView: React.FC<Props> = ({ socLabel, color, notifications,
     <div className="flex flex-col gap-5 text-left">
       <div>
         <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616]">Notifiche & messaggi</h2>
-        <p className="text-[12.5px] text-[#8a8a8a] mt-0.5">Aggiornamenti e conversazioni di {socLabel}.</p>
+        <p className="text-[12.5px] text-[#6b6b6b] mt-0.5">Aggiornamenti e conversazioni di {socLabel}.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
@@ -71,10 +71,10 @@ export const NotificheView: React.FC<Props> = ({ socLabel, color, notifications,
               <span className="w-8 h-8 rounded-xl flex items-center justify-center bg-[#f5f5f3] text-[#161616]"><Bell className="w-4 h-4" /></span>
               <b className="text-[14px] font-extrabold text-[#161616]">Notifiche</b>
             </div>
-            {unread > 0 && <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-[#161616] text-white text-[11px] font-extrabold">{unread}</span>}
+            {unread > 0 && <span className="inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 rounded-full bg-[#161616] text-white text-[12px] font-extrabold">{unread}</span>}
           </div>
           {notifications.length === 0 ? (
-            <div className="text-center py-8 text-[#9a9a9a]">
+            <div className="text-center py-8 text-[#767676]">
               <Inbox className="w-9 h-9 opacity-30 mx-auto mb-2" />
               <p className="text-[12.5px]">Nessuna notifica.</p>
             </div>
@@ -89,9 +89,9 @@ export const NotificheView: React.FC<Props> = ({ socLabel, color, notifications,
                   <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${n.read ? 'bg-[#d6d6d6]' : 'bg-orange-500'}`} />
                   <span className="flex-1 min-w-0">
                     <b className="block text-[13px] font-bold text-[#161616] leading-tight truncate">{n.title}</b>
-                    {n.text && <span className="block text-[11.5px] text-[#8a8a8a] leading-snug mt-0.5 line-clamp-2">{n.text}</span>}
+                    {n.text && <span className="block text-[11.5px] text-[#6b6b6b] leading-snug mt-0.5 line-clamp-2">{n.text}</span>}
                   </span>
-                  <span className="text-[10px] text-[#9a9a9a] font-semibold shrink-0 mt-0.5">{n.time}</span>
+                  <span className="text-[11px] text-[#767676] font-semibold shrink-0 mt-0.5">{n.time}</span>
                 </button>
               ))}
             </div>
@@ -105,7 +105,7 @@ export const NotificheView: React.FC<Props> = ({ socLabel, color, notifications,
             <b className="text-[14px] font-extrabold text-[#161616]">Chat coi clienti</b>
           </div>
           {chats.length === 0 ? (
-            <div className="text-center py-8 text-[#9a9a9a]">
+            <div className="text-center py-8 text-[#767676]">
               <MessageSquare className="w-9 h-9 opacity-30 mx-auto mb-2" />
               <p className="text-[12.5px]">Nessuna conversazione. Le chat coi clienti compaiono qui quando c'è un messaggio su un progetto della società.</p>
             </div>
@@ -120,11 +120,11 @@ export const NotificheView: React.FC<Props> = ({ socLabel, color, notifications,
                 >
                   <span className="flex-1 min-w-0">
                     <b className="block text-[13px] font-bold text-[#161616] truncate leading-tight">{p.name}</b>
-                    <span className="block text-[11.5px] text-[#8a8a8a] truncate mt-0.5">
+                    <span className="block text-[11.5px] text-[#6b6b6b] truncate mt-0.5">
                       {last.from === myUid ? 'Tu' : (last.name || 'Cliente')}: {last.text}
                     </span>
                   </span>
-                  <span className="text-[10px] text-[#9a9a9a] font-semibold shrink-0">{relTime(last.at)}</span>
+                  <span className="text-[11px] text-[#767676] font-semibold shrink-0">{relTime(last.at)}</span>
                   <ChevronRight className="w-4 h-4 text-[#c9c9c9] shrink-0" />
                 </button>
               ))}

@@ -49,10 +49,10 @@ export const MobileHomeHint: React.FC = () => {
             <span className="w-11 h-11 rounded-2xl bg-[#161616] text-white flex items-center justify-center"><Home className="w-5 h-5" /></span>
             <div>
               <h3 className="text-[16px] font-extrabold text-[#161616] leading-tight">Aggiungi Onirico alla Home</h3>
-              <p className="text-[12px] text-[#8a8a8a] mt-0.5">Accedi più velocemente, come un'app.</p>
+              <p className="text-[12px] text-[#6b6b6b] mt-0.5">Accedi più velocemente, come un'app.</p>
             </div>
           </div>
-          <button onClick={close} className="w-8 h-8 rounded-lg flex items-center justify-center text-[#9a9a9a] hover:bg-[#ececec] shrink-0"><X className="w-4 h-4" /></button>
+          <button onClick={close} className="w-8 h-8 rounded-lg flex items-center justify-center text-[#767676] hover:bg-[#ececec] shrink-0"><X className="w-4 h-4" /></button>
         </div>
 
         {ios ? (

@@ -60,7 +60,7 @@ export const InteractiveView: React.FC = () => {
           <h2 className="text-[28px] font-extrabold tracking-tight text-[#161616] leading-none mb-2">
             Integrazioni Motion & UI
           </h2>
-          <p className="text-[14px] text-[#8a8a8a] leading-relaxed">
+          <p className="text-[14px] text-[#6b6b6b] leading-relaxed">
             In questa sezione sono stati integrati i 5 widget avanzati unlumen UI e Componentry. 
             Ciascun elemento è completamente interattivo, responsive ed equipaggiato con animazioni inerziali a molla per la massima fluidità visiva.
           </p>
@@ -81,7 +81,7 @@ export const InteractiveView: React.FC = () => {
               <h3 className="text-[18px] font-extrabold tracking-tight text-[#161616]">
                 1/5 Status Card Adaptive
               </h3>
-              <p className="text-[12.5px] text-[#8a8a8a]">
+              <p className="text-[12.5px] text-[#6b6b6b]">
                 Widget di stato avanzamento a matrice di punti ispirato alle bacheche meccaniche, con layout fluido reattivo.
               </p>
             </div>
@@ -124,7 +124,7 @@ export const InteractiveView: React.FC = () => {
               <h3 className="text-[18px] font-extrabold tracking-tight text-[#171717]">
                 2/5 Smart Animate Text & 3/5 Apple Switch
               </h3>
-              <p className="text-[12px] text-[#8a8a8a] -mt-0.5">
+              <p className="text-[12px] text-[#6b6b6b] -mt-0.5">
                 Animazioni tipografiche blur-slide per-carattere e pulsanti iOS fluidi con drag & drop nativo.
               </p>
             </div>
@@ -132,7 +132,7 @@ export const InteractiveView: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Apple Switch Card */}
               <div className="border border-[#e2e2e2] rounded-2xl p-4 flex flex-col gap-3.5 bg-white">
-                <span className="text-[11px] font-extrabold text-[#8a8a8a] tracking-wider uppercase">
+                <span className="text-[12px] font-extrabold text-[#6b6b6b] tracking-wider uppercase">
                   Pannello Apple Switches
                 </span>
                 <div className="flex flex-col gap-3">
@@ -168,7 +168,7 @@ export const InteractiveView: React.FC = () => {
               {/* Smart Animate Text Card */}
               <div className="border border-[#e2e2e2] rounded-2xl p-4 flex flex-col justify-between gap-3 bg-white">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[11px] font-extrabold text-[#8a8a8a] tracking-wider uppercase">
+                  <span className="text-[12px] font-extrabold text-[#6b6b6b] tracking-wider uppercase">
                     Smart Animate Text
                   </span>
                   <div className="py-2.5">
@@ -204,7 +204,7 @@ export const InteractiveView: React.FC = () => {
 
                 {/* String Animate Input */}
                 <div className="mt-3">
-                  <label className="text-[10px] font-extrabold text-[#8a8a8a] uppercase tracking-wider block mb-1">
+                  <label className="text-[11px] font-extrabold text-[#6b6b6b] uppercase tracking-wider block mb-1">
                     Digita testo per provare:
                   </label>
                   <input
@@ -231,7 +231,7 @@ export const InteractiveView: React.FC = () => {
               <h3 className="text-[18px] font-extrabold tracking-tight text-[#161616]">
                 4/5 Motion Tabs Menu
               </h3>
-              <p className="text-[12.5px] text-[#8a8a8a]">
+              <p className="text-[12.5px] text-[#6b6b6b]">
                 Floating menu con transizioni di altezza/larghezza e micro-ritardo dei testi per simulare un'app nativa.
               </p>
             </div>
@@ -245,7 +245,7 @@ export const InteractiveView: React.FC = () => {
               <h3 className="text-[18px] font-extrabold tracking-tight text-[#161616]">
                 5/5 Pinned List Component
               </h3>
-              <p className="text-[12.5px] text-[#8a8a8a]">
+              <p className="text-[12.5px] text-[#6b6b6b]">
                 Lista fluida con transizione di layout. Gli elementi evidenziati scivolano automaticamente in cima.
               </p>
             </div>
@@ -263,11 +263,11 @@ export const InteractiveView: React.FC = () => {
               renderItem={(item, isPinned) => (
                 <div className="flex flex-col gap-1 text-left">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[11px] font-extrabold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                    <span className="text-[12px] font-extrabold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full uppercase tracking-wide">
                       {item.category}
                     </span>
                     {isPinned && (
-                      <span className="text-[10px] font-extrabold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                      <span className="text-[11px] font-extrabold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
                         <Pin className="w-2.5 h-2.5 fill-current" /> EVIDENZIATO
                       </span>
                     )}
@@ -275,10 +275,10 @@ export const InteractiveView: React.FC = () => {
                   <b className="text-[13.5px] font-extrabold text-[#161616] block mt-1 truncate">
                     {item.title}
                   </b>
-                  <p className="text-[12px] text-[#8a8a8a] line-clamp-2 leading-relaxed">
+                  <p className="text-[12px] text-[#6b6b6b] line-clamp-2 leading-relaxed">
                     {item.desc}
                   </p>
-                  <span className="text-[11px] text-gray-400 font-mono mt-1">
+                  <span className="text-[12px] text-gray-400 font-mono mt-1">
                     Durata stimata: {item.hours} ore
                   </span>
                 </div>

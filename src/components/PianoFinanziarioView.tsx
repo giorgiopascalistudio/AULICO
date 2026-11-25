@@ -150,7 +150,7 @@ export const PianoFinanziarioView: React.FC<Props> = ({ piano, soc, socLabel, ye
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><BarChart3 className="w-5.5 h-5.5" /> Piano finanziario {socLabel ? `· ${socLabel}` : ''}</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Importi IVA esclusa. Consuntivo vs budget, per mese, con utile e progressivo.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Importi IVA esclusa. Consuntivo vs budget, per mese, con utile e progressivo.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <select value={year} onChange={(e) => onChangeYear?.(Number(e.target.value))} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[13px] font-bold bg-white outline-none focus:border-[#161616] cursor-pointer">
@@ -167,7 +167,7 @@ export const PianoFinanziarioView: React.FC<Props> = ({ piano, soc, socLabel, ye
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 print-area">
         {K.map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[16px] p-3.5 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[17px] font-black text-[#161616] mt-1 leading-none">{k.v != null ? eur(k.v) : '—'}</p>
           </div>
         ))}
@@ -176,7 +176,7 @@ export const PianoFinanziarioView: React.FC<Props> = ({ piano, soc, socLabel, ye
       {rows.length === 0 ? (
         <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
           <BarChart3 className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-          <p className="text-[13.5px] text-[#8a8a8a] font-semibold mb-4">Piano finanziario {year} vuoto.</p>
+          <p className="text-[13.5px] text-[#6b6b6b] font-semibold mb-4">Piano finanziario {year} vuoto.</p>
           {canEdit && <button onClick={loadSeed} className="px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Carica struttura di partenza</button>}
         </div>
       ) : (
@@ -184,7 +184,7 @@ export const PianoFinanziarioView: React.FC<Props> = ({ piano, soc, socLabel, ye
           <div className="overflow-x-auto">
             <table className="border-collapse text-[12px] min-w-[980px] w-full">
               <thead>
-                <tr className="bg-[#fafafa] border-b border-[#eee] text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">
+                <tr className="bg-[#fafafa] border-b border-[#eee] text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0]">
                   <th className="text-left py-2.5 px-3 sticky left-0 bg-[#fafafa] min-w-[220px]">Voce</th>
                   {MESI.map((m) => <th key={m} className="py-2.5 px-1.5 text-right min-w-[64px]">{m}</th>)}
                   <th className="py-2.5 px-2 text-right min-w-[80px] bg-[#f2f2f2]">Tot</th>
@@ -208,7 +208,7 @@ export const PianoFinanziarioView: React.FC<Props> = ({ piano, soc, socLabel, ye
                               ? <input value={sec.label} onChange={(e) => setSecLabel(sec.id, e.target.value)} className="flex-1 min-w-0 px-1.5 py-1 rounded border border-transparent hover:border-[#0001] focus:border-current text-[12px] font-extrabold outline-none bg-transparent" style={{ color: meta.color }} />
                               : <span className="flex-1 font-extrabold text-[12px]" style={{ color: meta.color }}>{sec.label}</span>}
                             {canEdit && (
-                              <select value={sec.nature} onChange={(e) => setSecNature(sec.id, e.target.value as PianoNature)} title="Natura (guida il calcolo utile)" className="shrink-0 text-[9.5px] font-bold uppercase rounded-full border px-1.5 py-0.5 bg-white outline-none cursor-pointer" style={{ color: meta.color, borderColor: `${meta.color}55` }}>
+                              <select value={sec.nature} onChange={(e) => setSecNature(sec.id, e.target.value as PianoNature)} title="Natura (guida il calcolo utile)" className="shrink-0 text-[10.5px] font-bold uppercase rounded-full border px-1.5 py-0.5 bg-white outline-none cursor-pointer" style={{ color: meta.color, borderColor: `${meta.color}55` }}>
                                 {NATURES.map((n) => <option key={n} value={n}>{NATURE_META[n].label}</option>)}
                               </select>
                             )}
@@ -240,7 +240,7 @@ export const PianoFinanziarioView: React.FC<Props> = ({ piano, soc, socLabel, ye
                               )}
                               <input disabled={!canEdit} value={r.label} onChange={(e) => setLabel(r.id, e.target.value)} className="flex-1 min-w-0 px-1.5 py-1 rounded border border-transparent hover:border-[#eee] focus:border-[#161616] text-[12px] outline-none bg-transparent" />
                               {canEdit && sections.length > 1 && (
-                                <select value={r.section} onChange={(e) => moveRowToSection(r.id, e.target.value)} title="Sposta in un'altra sezione" className="shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100 text-[10px] rounded border border-[#e2e2e2] bg-white outline-none cursor-pointer max-w-[90px]">
+                                <select value={r.section} onChange={(e) => moveRowToSection(r.id, e.target.value)} title="Sposta in un'altra sezione" className="shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100 text-[11px] rounded border border-[#e2e2e2] bg-white outline-none cursor-pointer max-w-[90px]">
                                   {sections.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
                                 </select>
                               )}
@@ -255,23 +255,23 @@ export const PianoFinanziarioView: React.FC<Props> = ({ piano, soc, socLabel, ye
                         </tr>
                       ))}
                       {!isCol && canEdit && (
-                        <tr><td className="py-1 px-3 sticky left-0 bg-white" colSpan={14}><button onClick={() => addRow(sec.id)} className="text-[11.5px] font-bold text-[#8a8a8a] hover:text-[#161616] inline-flex items-center gap-1 cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Aggiungi voce</button></td><td /></tr>
+                        <tr><td className="py-1 px-3 sticky left-0 bg-white" colSpan={14}><button onClick={() => addRow(sec.id)} className="text-[11.5px] font-bold text-[#6b6b6b] hover:text-[#161616] inline-flex items-center gap-1 cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Aggiungi voce</button></td><td /></tr>
                       )}
                     </React.Fragment>
                   );
                 })}
                 {canEdit && (
-                  <tr><td className="py-2 px-3 sticky left-0 bg-white" colSpan={14}><button onClick={addSection} className="text-[11.5px] font-extrabold text-[#8a8a8a] hover:text-[#161616] inline-flex items-center gap-1 cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Aggiungi sezione (macro-voce)</button></td><td /></tr>
+                  <tr><td className="py-2 px-3 sticky left-0 bg-white" colSpan={14}><button onClick={addSection} className="text-[11.5px] font-extrabold text-[#6b6b6b] hover:text-[#161616] inline-flex items-center gap-1 cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Aggiungi sezione (macro-voce)</button></td><td /></tr>
                 )}
                 {/* Utile / risultato / progressivo */}
                 <tr className="border-t-2 border-[#161616] bg-[#161616] text-white">
-                  <td className="py-2.5 px-3 sticky left-0 bg-[#161616] font-extrabold text-[11px] uppercase tracking-wider">Utile lordo</td>
+                  <td className="py-2.5 px-3 sticky left-0 bg-[#161616] font-extrabold text-[12px] uppercase tracking-wider">Utile lordo</td>
                   {MESI.map((_, m) => { const u = utileM(m); return <td key={m} className={`py-2.5 px-1.5 text-right font-bold ${u >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>{num(u)}</td>; })}
                   <td className="py-2.5 px-2 text-right font-black bg-[#000]">{num(totYear(utileM))}</td>
                   <td className="bg-[#161616]" />
                 </tr>
                 <tr className="bg-[#2a2a2a] text-white">
-                  <td className="py-2 px-3 sticky left-0 bg-[#2a2a2a] font-bold text-[11px] uppercase tracking-wider">Progressivo</td>
+                  <td className="py-2 px-3 sticky left-0 bg-[#2a2a2a] font-bold text-[12px] uppercase tracking-wider">Progressivo</td>
                   {MESI.map((_, m) => <td key={m} className={`py-2 px-1.5 text-right font-semibold ${progressivo[m] >= 0 ? 'text-emerald-200' : 'text-rose-200'}`}>{num(progressivo[m])}</td>)}
                   <td className="py-2 px-2 text-right font-black bg-[#000]">{num(progressivo[11])}</td>
                   <td className="bg-[#2a2a2a]" />

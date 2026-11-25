@@ -49,7 +49,7 @@ export const NewsletterButton: React.FC<{
         <span className="w-9 h-9 rounded-full bg-[#161616] text-white flex items-center justify-center shrink-0"><Mail className="w-4 h-4" /></span>
         <div className="min-w-0 flex-1">
           <b className="block text-[13.5px] text-[#161616]">Resta aggiornato</b>
-          <span className="block text-[11.5px] text-[#8a8a8a]">Iscriviti alla newsletter per ricevere aggiornamenti e novità sul tuo progetto.</span>
+          <span className="block text-[11.5px] text-[#6b6b6b]">Iscriviti alla newsletter per ricevere aggiornamenti e novità sul tuo progetto.</span>
           <label className="flex items-center gap-2.5 mt-2.5 cursor-pointer select-none">
             <span className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition ${busy ? 'opacity-50' : ''} border-stone-300 bg-white`}>
               {/* non spuntato finché non iscritto */}

@@ -68,7 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Main Navigation Links */}
       <nav className="flex flex-col gap-[3px] mt-1 text-left">
-        <span className="text-[10.5px] tracking-wider uppercase text-[#a8a8a8] font-bold px-3 py-1 mb-2">
+        <span className="text-[11.5px] tracking-wider uppercase text-[#a8a8a8] font-bold px-3 py-1 mb-2">
           Workspace
         </span>
 
@@ -91,7 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span className="flex-1 truncate text-left">{item.label}</span>
               {item.count > 0 && (
                 <span
-                  className={`text-[11px] font-bold min-w-[20px] h-[20px] px-1.5 rounded-full flex items-center justify-center ${
+                  className={`text-[12px] font-bold min-w-[20px] h-[20px] px-1.5 rounded-full flex items-center justify-center ${
                     isActive ? 'bg-white/20 text-[#eeeeee]' : 'bg-[#1b1b1b] text-white'
                   }`}
                 >
@@ -126,7 +126,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <b className="block text-[13.5px] font-bold text-[#161616] truncate leading-tight tracking-tight">
               {profile.name}
             </b>
-            <small className="block text-[11px] text-[#8a8a8a] capitalize truncate mt-[2px]">
+            <small className="block text-[12px] text-[#6b6b6b] capitalize truncate mt-[2px]">
               {profile.role === 'admin'
                 ? 'Amministratore'
                 : profile.role === 'manager'
@@ -136,7 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 : 'Cliente'}
             </small>
           </div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[16px] h-[16px] text-[#8a8a8a]">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[16px] h-[16px] text-[#6b6b6b]">
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>

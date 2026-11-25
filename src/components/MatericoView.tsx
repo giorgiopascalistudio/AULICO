@@ -117,7 +117,7 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
         <h2 className="text-[22px] font-black tracking-tight text-[#161616] leading-none flex items-center gap-2">
           <Inbox className="w-5 h-5" /> Materico — Richieste
         </h2>
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1.5">
+        <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1.5">
           Richieste clienti, inoltro ai partner, confronto offerte e invio al cliente.
         </p>
       </div>
@@ -125,7 +125,7 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
       {requests.length === 0 ? (
         <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
           <Inbox className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-          <p className="text-[13.5px] text-[#8a8a8a] font-semibold">Nessuna richiesta. Arriveranno qui quelle inviate dai clienti dal portale.</p>
+          <p className="text-[13.5px] text-[#6b6b6b] font-semibold">Nessuna richiesta. Arriveranno qui quelle inviate dai clienti dal portale.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -136,10 +136,10 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
               <div key={r.id} onClick={() => openRequest(r)} className="bg-white border border-[#e2e2e2] rounded-[22px] p-5 hover:border-black hover:shadow-md transition-all cursor-pointer flex flex-col gap-3 border-l-[5px]" style={{ borderLeftColor: '#c2410c' }}>
                 <div className="flex items-start justify-between gap-2">
                   <b className="text-[14.5px] text-[#161616] truncate">{r.title}</b>
-                  <span className={`text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full shrink-0 ${st.cls}`}>{st.label}</span>
+                  <span className={`text-[10px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full shrink-0 ${st.cls}`}>{st.label}</span>
                 </div>
-                <span className="text-[12px] text-[#8a8a8a]">{r.clientName}{r.category ? ` · ${r.category}` : ''}</span>
-                <div className="pt-2 border-t border-dashed border-[#ececec] flex items-center justify-between text-[11px] text-[#8a8a8a] font-bold">
+                <span className="text-[12px] text-[#6b6b6b]">{r.clientName}{r.category ? ` · ${r.category}` : ''}</span>
+                <div className="pt-2 border-t border-dashed border-[#ececec] flex items-center justify-between text-[12px] text-[#6b6b6b] font-bold">
                   <span>{(r.items || []).length} voci</span>
                   {nOffers > 0 && <span className="text-violet-700">{nOffers} offerte</span>}
                   {r.clientPrice ? <span className="text-[#161616]">{eur(r.clientPrice)}</span> : null}
@@ -157,8 +157,8 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="min-w-0">
                 <h3 className="text-[18px] font-black text-[#161616]">{active.title}</h3>
-                <p className="text-[12.5px] text-[#8a8a8a]">{active.clientName}{active.category ? ` · ${active.category}` : ''}</p>
-                <span className={`inline-block mt-2 text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${(STATUS[active.status] || STATUS.nuova).cls}`}>{(STATUS[active.status] || STATUS.nuova).label}</span>
+                <p className="text-[12.5px] text-[#6b6b6b]">{active.clientName}{active.category ? ` · ${active.category}` : ''}</p>
+                <span className={`inline-block mt-2 text-[10px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${(STATUS[active.status] || STATUS.nuova).cls}`}>{(STATUS[active.status] || STATUS.nuova).label}</span>
               </div>
               <button onClick={() => setOpenId(null)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
             </div>
@@ -168,7 +168,7 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
             {/* Voci richieste */}
             {(active.items || []).length > 0 && (
               <div className="mb-4">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#8a8a8a] flex items-center gap-1.5 mb-2"><Layers className="w-3.5 h-3.5" /> Quantità richieste</span>
+                <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#6b6b6b] flex items-center gap-1.5 mb-2"><Layers className="w-3.5 h-3.5" /> Quantità richieste</span>
                 <div className="flex flex-col gap-1.5">
                   {active.items!.map((it) => (
                     <div key={it.id} className="flex items-center justify-between text-[13px] bg-gray-50 border border-[#f0f0f0] rounded-lg px-3 py-2">
@@ -186,21 +186,21 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
                 ))}
               </div>
             )}
-            {active.note && <p className="text-[12px] italic text-[#8a8a8a] mb-4">Note: {active.note}</p>}
+            {active.note && <p className="text-[12px] italic text-[#6b6b6b] mb-4">Note: {active.note}</p>}
 
             {/* STEP 1: inoltro ai partner */}
             {(active.status === 'nuova' || active.status === 'inoltrata') && (
               <div className="border border-[#ececec] rounded-2xl p-4 mb-4">
                 <b className="text-[13px] text-[#161616] flex items-center gap-1.5 mb-2"><Building2 className="w-4 h-4" /> Partner consigliati</b>
                 {suggested.length === 0 ? (
-                  <p className="text-[12px] italic text-[#8a8a8a]">Nessun partner in rubrica. Aggiungili dal CRM → Fornitori.</p>
+                  <p className="text-[12px] italic text-[#6b6b6b]">Nessun partner in rubrica. Aggiungili dal CRM → Fornitori.</p>
                 ) : (
                   <div className="flex flex-col gap-1.5 mb-3">
                     {suggested.map((s) => (
                       <label key={s.id} className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
                         <input type="checkbox" checked={!!picked[s.id]} onChange={(e) => setPicked((p) => ({ ...p, [s.id]: e.target.checked }))} />
                         <span className="text-[13px] text-[#161616] font-semibold">{s.name}</span>
-                        {s.category && <span className="text-[11px] text-[#8a8a8a]">· {s.category}</span>}
+                        {s.category && <span className="text-[12px] text-[#6b6b6b]">· {s.category}</span>}
                       </label>
                     ))}
                   </div>
@@ -222,7 +222,7 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
                         <input type="radio" name="sel" checked={selPartner === o.partnerUid} onChange={() => setSelPartner(o.partnerUid)} />
                         <div className="min-w-0">
                           <b className="text-[13px] text-[#161616] block truncate">{i === 0 ? '🏆 ' : ''}{o.partnerName}</b>
-                          {o.note && <span className="text-[11px] text-[#8a8a8a] truncate block">{o.note}</span>}
+                          {o.note && <span className="text-[12px] text-[#6b6b6b] truncate block">{o.note}</span>}
                         </div>
                       </div>
                       <b className="text-[14px] text-[#161616] shrink-0">{eur(o.amount)}</b>
@@ -230,9 +230,9 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
                   ))}
                 </div>
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[12px] font-bold text-[#8a8a8a]">Margine Materico</span>
+                  <span className="text-[12px] font-bold text-[#6b6b6b]">Margine Materico</span>
                   <input value={margin} onChange={(e) => setMargin(e.target.value)} inputMode="decimal" className="w-16 h-9 border border-[#e2e2e2] rounded-lg px-2 text-[13px] text-center" />
-                  <span className="text-[12px] font-bold text-[#8a8a8a]">%</span>
+                  <span className="text-[12px] font-bold text-[#6b6b6b]">%</span>
                   {selPartner && (active.offers || {})[selPartner] && (
                     <span className="ml-auto text-[13px] font-extrabold text-[#161616]">
                       Al cliente: {eur(Math.round((active.offers![selPartner].amount) * (1 + (Number(margin.replace(/,/g, '.')) || 0) / 100)))}
@@ -249,7 +249,7 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
             {active.contractText && (
               <div className="border border-[#ececec] rounded-2xl p-4 mb-4">
                 <b className="text-[13px] text-[#161616] flex items-center gap-1.5 mb-2"><FileText className="w-4 h-4" /> Bozza contratto</b>
-                <pre className="text-[11px] text-[#333] whitespace-pre-wrap font-sans bg-gray-50 border border-[#f0f0f0] rounded-lg p-3 max-h-[180px] overflow-y-auto">{active.contractText}</pre>
+                <pre className="text-[12px] text-[#333] whitespace-pre-wrap font-sans bg-gray-50 border border-[#f0f0f0] rounded-lg p-3 max-h-[180px] overflow-y-auto">{active.contractText}</pre>
               </div>
             )}
 
@@ -264,13 +264,13 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
                   <b className="text-[13px] text-[#161616] flex items-center gap-1.5 mb-3"><AlertTriangle className="w-4 h-4 text-amber-600" /> Penali per ritardo</b>
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <label className="flex flex-col gap-1">
-                      <span className="text-[11px] font-bold text-[#8a8a8a]">Scadenza concordata</span>
+                      <span className="text-[12px] font-bold text-[#6b6b6b]">Scadenza concordata</span>
                       <input type="date" value={active.agreedDeliveryDate || ''} disabled={applied}
                         onChange={(e) => onUpdateRequest({ ...active, agreedDeliveryDate: e.target.value || null })}
                         className="h-9 border border-[#e2e2e2] rounded-lg px-2 text-[13px]" />
                     </label>
                     <label className="flex flex-col gap-1">
-                      <span className="text-[11px] font-bold text-[#8a8a8a]">Consegna effettiva</span>
+                      <span className="text-[12px] font-bold text-[#6b6b6b]">Consegna effettiva</span>
                       <input type="date" value={active.completedDate || ''} disabled={applied}
                         onChange={(e) => onUpdateRequest({ ...active, completedDate: e.target.value || null })}
                         className="h-9 border border-[#e2e2e2] rounded-lg px-2 text-[13px]" />
@@ -284,7 +284,7 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <span className="text-[12.5px] text-[#333]">
                         Ritardo <b>{days} gg</b> → penale proposta <b>{eur(calc.amount)}</b>
-                        <span className="text-[#8a8a8a]"> ({calc.pctPerDay}%/gg su {eur(base)}{calc.capped ? `, tetto ${calc.capPct}%` : ''})</span>
+                        <span className="text-[#6b6b6b]"> ({calc.pctPerDay}%/gg su {eur(base)}{calc.capped ? `, tetto ${calc.capPct}%` : ''})</span>
                       </span>
                       {onApplyPenalty && (
                         <button onClick={() => onApplyPenalty(active.id)} className="text-[12.5px] font-bold px-3 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white cursor-pointer border-none">
@@ -293,7 +293,7 @@ export const MatericoView: React.FC<MatericoViewProps> = ({
                       )}
                     </div>
                   ) : (
-                    <p className="text-[12px] text-[#8a8a8a]">Nessun ritardo: imposta le date per calcolare l'eventuale penale.</p>
+                    <p className="text-[12px] text-[#6b6b6b]">Nessun ritardo: imposta le date per calcolare l'eventuale penale.</p>
                   )}
                 </div>
               );

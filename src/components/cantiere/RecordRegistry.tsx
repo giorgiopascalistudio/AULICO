@@ -104,7 +104,7 @@ export const RecordRegistry: React.FC<RecordRegistryProps> = ({ items, columns, 
       )}
 
       {list.length === 0 ? (
-        <p className="text-[12.5px] italic text-[#9a9a9a] py-3">{emptyText || 'Nessuna voce.'}</p>
+        <p className="text-[12.5px] italic text-[#767676] py-3">{emptyText || 'Nessuna voce.'}</p>
       ) : (
         <div className="flex flex-col gap-1.5">
           {list.map((r) => (
@@ -112,9 +112,9 @@ export const RecordRegistry: React.FC<RecordRegistryProps> = ({ items, columns, 
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-[12.5px] font-bold text-[#161616] truncate">{r.title}</span>
-                  {r.status && <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0 ${statusStyle(r.status)}`}>{r.status}</span>}
+                  {r.status && <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold shrink-0 ${statusStyle(r.status)}`}>{r.status}</span>}
                 </div>
-                <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5 text-[11px] text-[#9a9a9a]">
+                <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5 text-[12px] text-[#767676]">
                   {r.date && <span>{fmtDay(r.date)}{r.dateEnd ? ` → ${fmtDay(r.dateEnd)}` : ''}</span>}
                   {columns.filter((c) => !SPECIAL.has(c.key)).map((c) => r.fields?.[c.key] ? <span key={c.key}>{c.label}: {r.fields[c.key]}</span> : null)}
                 </div>

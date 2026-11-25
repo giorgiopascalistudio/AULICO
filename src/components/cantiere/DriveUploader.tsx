@@ -44,7 +44,7 @@ export const DriveUploader: React.FC<{
       {linkMode && (
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 flex-1 px-3 py-2 rounded-xl border border-[#e2e2e2] bg-white">
-            <LinkIcon className="w-4 h-4 text-[#9a9a9a]" />
+            <LinkIcon className="w-4 h-4 text-[#767676]" />
             <input
               value={link}
               onChange={(e) => setLink(e.target.value)}
@@ -62,9 +62,9 @@ export const DriveUploader: React.FC<{
           </button>
         </div>
       )}
-      {err && <span className="inline-flex items-center gap-1 text-[11px] text-amber-700"><AlertTriangle className="w-3 h-3" /> {err}</span>}
+      {err && <span className="inline-flex items-center gap-1 text-[12px] text-amber-700"><AlertTriangle className="w-3 h-3" /> {err}</span>}
       {!linkMode && driveAvailable() && (
-        <button type="button" onClick={() => setLinkMode(true)} className="self-start text-[11px] text-[#9a9a9a] underline">
+        <button type="button" onClick={() => setLinkMode(true)} className="self-start text-[12px] text-[#767676] underline">
           oppure incolla un link
         </button>
       )}

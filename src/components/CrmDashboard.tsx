@@ -36,7 +36,7 @@ const invTime = (i: any): number | undefined => {
 
 const Card: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-5 shadow-sm">
-    <div className="text-[11px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-3">{title}</div>
+    <div className="text-[12px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-3">{title}</div>
     {children}
   </div>
 );
@@ -109,7 +109,7 @@ export const CrmDashboard: React.FC<Props> = ({ clients, leads, projects = [], q
                 <span className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${k.color}15`, color: k.color }}><Icon className="w-4 h-4" /></span>
               </div>
               <div className="text-[21px] font-extrabold tracking-tight text-[#161616] leading-none mt-2.5">{k.value}</div>
-              <div className="text-[11px] text-[#8a8a8a] mt-1 font-semibold">{k.label}</div>
+              <div className="text-[12px] text-[#6b6b6b] mt-1 font-semibold">{k.label}</div>
               <div className="mt-1.5 -mx-1"><Spark data={k.spark} color={k.color} /></div>
             </div>
           );
@@ -161,7 +161,7 @@ export const CrmDashboard: React.FC<Props> = ({ clients, leads, projects = [], q
                 </PieChart>
               </ResponsiveContainer>
               <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 justify-center">
-                {perStato.map((s, i) => <span key={s.name} className="inline-flex items-center gap-1 text-[11px] text-[#6b6b6b] font-semibold capitalize"><span className="w-2 h-2 rounded-full" style={{ background: STAGE_COLORS[i % STAGE_COLORS.length] }} />{s.name} ({s.value})</span>)}
+                {perStato.map((s, i) => <span key={s.name} className="inline-flex items-center gap-1 text-[12px] text-[#6b6b6b] font-semibold capitalize"><span className="w-2 h-2 rounded-full" style={{ background: STAGE_COLORS[i % STAGE_COLORS.length] }} />{s.name} ({s.value})</span>)}
               </div>
             </>
           )}
@@ -174,7 +174,7 @@ export const CrmDashboard: React.FC<Props> = ({ clients, leads, projects = [], q
           <div className="flex items-center justify-between gap-3 mb-4">
             <div>
               <h3 className="text-[18px] font-black text-[#161616]">Report settimanale CRM</h3>
-              <p className="text-[12px] text-[#8a8a8a]">Generato il {new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+              <p className="text-[12px] text-[#6b6b6b]">Generato il {new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
             </div>
             <button onClick={() => window.print()} className="no-print inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[#e2e2e2] hover:border-black text-[#161616] text-[12.5px] font-bold cursor-pointer bg-white">
               <Printer className="w-4 h-4" /> Stampa / PDF
@@ -184,7 +184,7 @@ export const CrmDashboard: React.FC<Props> = ({ clients, leads, projects = [], q
             {[['Contatti', String(clients.length)], ['Nuovi (7 gg)', String(nuoviSett.length)], ['Lead aperti', String(openLeads.length)], ['Preventivi', String(quotes.length)], ['Incassi 6m', fmtEuro(incassi6)]].map(([l, v]) => (
               <div key={l} className="bg-[#fafafa] border border-[#f0f0f0] rounded-xl p-3">
                 <div className="text-[18px] font-extrabold text-[#161616]">{v}</div>
-                <div className="text-[11px] text-[#8a8a8a] font-semibold">{l}</div>
+                <div className="text-[12px] text-[#6b6b6b] font-semibold">{l}</div>
               </div>
             ))}
           </div>

@@ -842,7 +842,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div>
-            <span className="text-[10px] uppercase tracking-widest font-black text-stone-400">AMMINISTRAZIONE ONIRICO TECHNOLOGY Suite</span>
+            <span className="text-[11px] uppercase tracking-widest font-black text-stone-500">AMMINISTRAZIONE ONIRICO TECHNOLOGY Suite</span>
             <h1 className="text-[24px] md:text-[28px] font-black tracking-tight mt-0.5">Controllo Finanziario Multidivisione</h1>
             <p className="text-[12.5px] text-stone-300 mt-1 max-w-xl font-medium leading-normal">
               Contabilità generale integrata con preventivi, fatture SDI attive/passive, controllo cash-flow, scadenziari e collegamento SAL tecnici.
@@ -850,9 +850,9 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2 bg-[#2d2d2d] hover:bg-[#3d3d3d] transition-colors p-2.5 rounded-2xl self-start md:self-auto">
-            <Sliders className="w-5 h-5 text-stone-400" />
+            <Sliders className="w-5 h-5 text-stone-500" />
             <div className="text-[11.5px] font-bold">
-              <span className="block text-stone-400 uppercase text-[9px] font-black tracking-widest">Modalità contabile</span>
+              <span className="block text-stone-500 uppercase text-[10px] font-black tracking-widest">Modalità contabile</span>
               <span className="text-white block mt-0.5">Semplificata & SDI Elettronica</span>
             </div>
           </div>
@@ -863,12 +863,12 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full md:w-auto">
             {/* Sector selectors */}
             <div className="flex flex-col gap-1 w-full sm:w-auto text-left">
-              <label className="text-[10px] uppercase font-black tracking-wider text-stone-400">Società</label>
+              <label className="text-[11px] uppercase font-black tracking-wider text-stone-500">Società</label>
               <div className="pillbar flex bg-[#161616] rounded-xl p-1 mt-1 border border-stone-800 whitespace-nowrap">
                 {allFinanceSectors && (
                   <button
                     onClick={() => setSelectedSector('all')}
-                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                    className={`text-[12px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
                       selectedSector === 'all' ? 'bg-[#333] text-white font-black' : 'text-stone-400 hover:text-white'
                     }`}
                   >
@@ -878,7 +878,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 {canSeeSector('studio') && (
                   <button
                     onClick={() => setSelectedSector('studio')}
-                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                    className={`text-[12px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
                       selectedSector === 'studio' ? 'bg-[#333] text-white font-black' : 'text-[#85aed4] hover:text-white'
                     }`}
                   >
@@ -888,7 +888,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 {canSeeSector('strategico') && (
                   <button
                     onClick={() => setSelectedSector('strategico')}
-                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                    className={`text-[12px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
                       selectedSector === 'strategico' ? 'bg-[#333] text-white font-black' : 'text-[#b9a5e8] hover:text-white'
                     }`}
                   >
@@ -898,7 +898,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 {canSeeSector('materico') && (
                   <button
                     onClick={() => setSelectedSector('materico')}
-                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                    className={`text-[12px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
                       selectedSector === 'materico' ? 'bg-[#333] text-white font-black' : 'text-[#f2bc88] hover:text-white'
                     }`}
                   >
@@ -908,7 +908,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 {canSeeSector('unico') && (
                   <button
                     onClick={() => setSelectedSector('unico')}
-                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                    className={`text-[12px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
                       selectedSector === 'unico' ? 'bg-[#333] text-white font-black' : 'text-[#a5b4fc] hover:text-white'
                     }`}
                   >
@@ -918,7 +918,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 {allFinanceSectors && (
                   <button
                     onClick={() => setSelectedSector('consolidato')}
-                    className={`text-[11px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
+                    className={`text-[12px] font-extrabold px-3.5 py-1.5 rounded-lg transition-all ${
                       selectedSector === 'consolidato' ? 'bg-emerald-700 text-white font-black' : 'text-emerald-400 hover:text-white'
                     }`}
                   >
@@ -930,7 +930,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
 
             {/* Client selector */}
             <div className="flex flex-col gap-1 w-full sm:w-auto text-left">
-              <label className="text-[10px] uppercase font-black tracking-wider text-stone-400">Cliente Committente</label>
+              <label className="text-[11px] uppercase font-black tracking-wider text-stone-500">Cliente Committente</label>
               <select
                 value={selectedClient}
                 onChange={(e) => setSelectedClient(e.target.value)}
@@ -945,7 +945,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
           </div>
 
           <div className="text-left md:text-right">
-            <span className="text-[10px] uppercase font-black text-stone-400 block tracking-wider">Mostrando per filtri</span>
+            <span className="text-[11px] uppercase font-black text-stone-500 block tracking-wider">Mostrando per filtri</span>
             <b className="text-[14px] text-green-400 block font-extrabold mt-0.5">
               {selectedSector !== 'all' ? selectedSector.toUpperCase() : 'Tutti i settori'} 
               {selectedClient !== 'all' ? ` — ${selectedClient}` : ''}
@@ -1069,27 +1069,27 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
           {/* KPI Display Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-4 shadow-sm">
-              <span className="text-[10px] uppercase font-black text-[#8a8a8a] tracking-widest block">Fatturato per Filtro</span>
+              <span className="text-[11px] uppercase font-black text-[#6b6b6b] tracking-widest block">Fatturato per Filtro</span>
               <div className="text-[22px] font-black text-[#1b1b1b] mt-1">{eur(totalInvoiced)}</div>
-              <p className="text-[11px] text-[#666] mt-0.5">Fatturato attivo valido</p>
+              <p className="text-[12px] text-[#666] mt-0.5">Fatturato attivo valido</p>
             </div>
 
             <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-4 shadow-sm">
-              <span className="text-[10px] uppercase font-black text-green-600 tracking-widest block">Incassato Reale</span>
+              <span className="text-[11px] uppercase font-black text-green-600 tracking-widest block">Incassato Reale</span>
               <div className="text-[22px] font-black text-green-700 mt-1">{eur(totalInterestsPaid)}</div>
-              <p className="text-[11px] text-[#666] mt-0.5">Importi già riconciliati</p>
+              <p className="text-[12px] text-[#666] mt-0.5">Importi già riconciliati</p>
             </div>
 
             <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-4 shadow-sm">
-              <span className="text-[10px] uppercase font-black text-amber-600 tracking-widest block">Crediti Eccezionali</span>
+              <span className="text-[11px] uppercase font-black text-amber-600 tracking-widest block">Crediti Eccezionali</span>
               <div className="text-[22px] font-black text-amber-700 mt-1">{eur(currentOutstandingAccounts)}</div>
-              <p className="text-[11px] text-[#666] mt-0.5">In attesa di incasso o sollecito</p>
+              <p className="text-[12px] text-[#666] mt-0.5">In attesa di incasso o sollecito</p>
             </div>
 
             <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-4 shadow-sm">
-              <span className="text-[10px] uppercase font-black text-red-600 tracking-widest block">Fatturato Passivo Spese</span>
+              <span className="text-[11px] uppercase font-black text-red-600 tracking-widest block">Fatturato Passivo Spese</span>
               <div className="text-[22px] font-black text-red-700 mt-1">{eur(totalExpenses)}</div>
-              <p className="text-[11px] text-[#666] mt-0.5">Uscite passive registrate</p>
+              <p className="text-[12px] text-[#666] mt-0.5">Uscite passive registrate</p>
             </div>
           </div>
 
@@ -1097,10 +1097,10 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
           <div className="bg-white border border-[#e2e2e2] rounded-[28px] p-5 md:p-6 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
-                <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest block">Analisi Previsionale Economica <span className="text-amber-600">· Simulato</span></span>
+                <span className="text-[11px] font-black text-blue-600 uppercase tracking-widest block">Analisi Previsionale Economica <span className="text-amber-600">· Simulato</span></span>
                 <h3 className="text-[17px] font-extrabold text-[#1a1a1a] tracking-tight">Proiezione Cash Flow Aziendale Globale (6 Mesi)</h3>
               </div>
-              <div className="text-left sm:text-right text-[11px] font-bold text-stone-500">
+              <div className="text-left sm:text-right text-[12px] font-bold text-stone-500">
                 Stima basata su scadenze contrattuali e fatture attive in essere.
               </div>
             </div>
@@ -1122,8 +1122,8 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center group relative cursor-help">
                       {/* Tooltip */}
-                      <div className="absolute bottom-full mb-2 bg-[#1b1b1b] text-white text-[10px] p-2.5 rounded-xl hidden group-hover:block z-25 min-w-[130px] font-sans shadow-md border border-stone-850">
-                        <b className="block text-stone-400 uppercase tracking-wide text-[8px]">{item.m}</b>
+                      <div className="absolute bottom-full mb-2 bg-[#1b1b1b] text-white text-[11px] p-2.5 rounded-xl hidden group-hover:block z-25 min-w-[130px] font-sans shadow-md border border-stone-850">
+                        <b className="block text-stone-500 uppercase tracking-wide text-[8px]">{item.m}</b>
                         <span className="block mt-1 font-semibold">Cassa Proiettata: <span className="text-green-400 font-extrabold">{eur(item.cash)}</span></span>
                         <span className="block text-red-300">Spese Previste: <span className="font-extrabold">{eur(item.out)}</span></span>
                       </div>
@@ -1142,14 +1142,14 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                           }`} 
                         />
                       </div>
-                      <span className="text-[10px] font-black text-stone-500 mt-2 block">{item.m}</span>
+                      <span className="text-[11px] font-black text-stone-500 mt-2 block">{item.m}</span>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-4 items-center justify-center mt-3 text-[11px] font-bold text-stone-500">
+            <div className="flex flex-wrap gap-4 items-center justify-center mt-3 text-[12px] font-bold text-stone-500">
               <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-zinc-800 inline-block" /> Cassa Prevista Attiva</span>
               <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-zinc-400 inline-block" /> Mesi futuri stimati</span>
               <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-red-400 inline-block" /> Uscite monetarie stimate</span>
@@ -1162,10 +1162,10 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
             <div className="lg:col-span-8 bg-white border border-[#e2e2e2] rounded-[28px] p-5 md:p-6 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
-                  <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest block">Integrazione Multi-Cash Privata</span>
+                  <span className="text-[11px] font-black text-blue-600 uppercase tracking-widest block">Integrazione Multi-Cash Privata</span>
                   <div className="flex items-center gap-2 mt-0.5">
                     <h3 className="text-[16px] font-black text-[#1a1a1a]">Flusso Bancario d'Impresa UNICREDIT (Simulato)</h3>
-                    <span className="bg-green-100 text-green-800 text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">● Connesso API</span>
+                    <span className="bg-green-100 text-green-800 text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider">● Connesso API</span>
                   </div>
                 </div>
                 
@@ -1184,10 +1184,10 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 <table className="w-full border-collapse text-left">
                   <thead>
                     <tr className="border-b border-[#e2e2e2] bg-[#fafafa]">
-                      <th className="py-2.5 px-3 text-[10px] font-black text-stone-500 uppercase tracking-wider">Data</th>
-                      <th className="py-2.5 px-3 text-[10px] font-black text-stone-500 uppercase tracking-wider">Causale Movimento</th>
-                      <th className="py-2.5 px-3 text-right text-[10px] font-black text-stone-500 uppercase tracking-wider">Importo (€)</th>
-                      <th className="py-2.5 px-3 text-center text-[10px] font-black text-stone-500 uppercase tracking-wider">Riconciliazione SDI</th>
+                      <th className="py-2.5 px-3 text-[11px] font-black text-stone-500 uppercase tracking-wider">Data</th>
+                      <th className="py-2.5 px-3 text-[11px] font-black text-stone-500 uppercase tracking-wider">Causale Movimento</th>
+                      <th className="py-2.5 px-3 text-right text-[11px] font-black text-stone-500 uppercase tracking-wider">Importo (€)</th>
+                      <th className="py-2.5 px-3 text-center text-[11px] font-black text-stone-500 uppercase tracking-wider">Riconciliazione SDI</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1205,7 +1205,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                           <td className="py-3 px-3 text-[12px] font-semibold text-[#1a1a1a]">
                             <span>{bm.desc}</span>
                             {bm.reconciled && (
-                              <span className="block text-[10px] text-zinc-500 mt-0.5">
+                              <span className="block text-[11px] text-zinc-500 mt-0.5">
                                 Codice collegato: <span className="font-extrabold text-blue-800 bg-blue-50 px-1 py-0.2 rounded">{bm.linkedInvoiceId || 'FP-01'}</span>
                               </span>
                             )}
@@ -1217,7 +1217,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                           </td>
                           <td className="py-3 px-3 text-center whitespace-nowrap">
                             {bm.reconciled ? (
-                              <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-green-700 bg-green-50 px-2 py-0.5 rounded-lg border border-green-200">
+                              <span className="inline-flex items-center gap-1 text-[12px] font-extrabold text-green-700 bg-green-50 px-2 py-0.5 rounded-lg border border-green-200">
                                 <Check className="w-3 h-3" /> Riconciliato
                               </span>
                             ) : (
@@ -1225,12 +1225,12 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                                 {matchedInvoice ? (
                                   <button
                                     onClick={() => reconcileMovement(bm.id, matchedInvoice.id)}
-                                    className="text-[11px] font-extrabold whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-lg shadow-xs cursor-pointer flex items-center gap-1 transition-all"
+                                    className="text-[12px] font-extrabold whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-lg shadow-xs cursor-pointer flex items-center gap-1 transition-all"
                                   >
                                     <Link2 className="w-3 h-3" /> Associa a {matchedInvoice.id}
                                   </button>
                                 ) : (
-                                  <span className="text-[11px] font-bold text-[#8a8a8a] bg-stone-100 border border-stone-200 px-2 py-0.5 rounded-lg">
+                                  <span className="text-[12px] font-bold text-[#6b6b6b] bg-stone-100 border border-stone-200 px-2 py-0.5 rounded-lg">
                                     Generico / Manuale
                                   </span>
                                 )}
@@ -1263,15 +1263,15 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                       <div>
                         <p className="text-[13px] font-black text-[#1a1a1a]">{bm.desc}</p>
                         {bm.reconciled && (
-                          <span className="inline-block text-[10.5px] text-stone-500 mt-1.5 font-medium">
+                          <span className="inline-block text-[11.5px] text-stone-500 mt-1.5 font-medium">
                             Codice collegato: <span className="font-extrabold text-blue-800 bg-blue-50 px-1.5 py-0.5 rounded font-mono">{bm.linkedInvoiceId || 'FP-01'}</span>
                           </span>
                         )}
                       </div>
                       <div className="flex justify-between items-center pt-2.5 border-t border-stone-150 bg-stone-100/50 -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
-                        <span className="text-[10px] uppercase font-bold text-stone-400">Riconciliazione SDI</span>
+                        <span className="text-[11px] uppercase font-bold text-stone-500">Riconciliazione SDI</span>
                         {bm.reconciled ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-green-700 bg-green-50 px-2 py-0.5 rounded-lg border border-green-200">
+                          <span className="inline-flex items-center gap-1 text-[12px] font-extrabold text-green-700 bg-green-50 px-2 py-0.5 rounded-lg border border-green-200">
                             <Check className="w-3 h-3" /> Riconciliato
                           </span>
                         ) : (
@@ -1279,12 +1279,12 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                             {matchedInvoice ? (
                               <button
                                 onClick={() => reconcileMovement(bm.id, matchedInvoice.id)}
-                                className="text-[11px] font-extrabold bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-lg shadow-xs cursor-pointer flex items-center gap-1 transition-all"
+                                className="text-[12px] font-extrabold bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 rounded-lg shadow-xs cursor-pointer flex items-center gap-1 transition-all"
                               >
                                 <Link2 className="w-3 h-3" /> Associa a {matchedInvoice.id}
                               </button>
                             ) : (
-                              <span className="text-[11px] font-extrabold text-stone-500 bg-stone-100 border border-stone-200 px-2.5 py-0.5 rounded-lg">
+                              <span className="text-[12px] font-extrabold text-stone-500 bg-stone-100 border border-stone-200 px-2.5 py-0.5 rounded-lg">
                                 Generico / Manuale
                               </span>
                             )}
@@ -1300,14 +1300,14 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
             {/* Quick Summary of Cash Burn & Runway Info */}
             <div className="lg:col-span-4 bg-white border border-[#e2e2e2] rounded-[28px] p-5 shadow-sm flex flex-col justify-between">
               <div>
-                <span className="text-[10px] font-black text-[#8a8a8a] uppercase tracking-widest block">Metrica di Sostenibilità <span className="text-amber-600">· Simulato</span></span>
+                <span className="text-[11px] font-black text-[#6b6b6b] uppercase tracking-widest block">Metrica di Sostenibilità <span className="text-amber-600">· Simulato</span></span>
                 <h4 className="text-[15px] font-black text-[#1a1a1a] mt-0.5">Cash Runway & Burn Rate</h4>
                 <p className="text-[12px] text-stone-500 mt-1 leading-normal">
                   Indicatore basato sul tasso medio di uscite fisse dei fornitori del mese corrente.
                 </p>
 
                 <div className="bg-[#fcfdfc] border border-green-200 p-4 rounded-2xl mt-4">
-                  <span className="text-[10.5px] font-bold text-green-800 uppercase block">Runway in Mesi</span>
+                  <span className="text-[11.5px] font-bold text-green-800 uppercase block">Runway in Mesi</span>
                   <div className="text-[28px] font-black text-green-900 mt-1">24.5 Mesi</div>
                   <p className="text-[11.5px] text-stone-600 mt-1 leading-normal">
                     La liquidità attuale consente l’operatività anche in assenza di nuovi contratti stipulati.
@@ -1320,7 +1320,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                   <ShieldCheck className="text-[#1a1a1a] w-5 h-5 flex-shrink-0" />
                   <span>Protocollo Fiscale Certificato SDI</span>
                 </div>
-                <p className="text-[11px] text-stone-500 mt-1">
+                <p className="text-[12px] text-stone-500 mt-1">
                   Tracciamento digitale in linea con le direttive Agenzia delle Entrate per il regime forfettario e ordinario 2026.
                 </p>
               </div>
@@ -1334,9 +1334,9 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
         <div className="bg-white border border-[#e2e2e2] rounded-[28px] p-5 md:p-6 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-stone-100">
             <div>
-              <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Redazione Tecnica Estimativa</span>
+              <span className="text-[11px] font-black text-stone-500 uppercase tracking-widest block">Redazione Tecnica Estimativa</span>
               <h2 className="text-[19px] font-extrabold tracking-tight text-[#161616]">Computo Metrico Estimativo e Finiture</h2>
-              <span className="text-[12.5px] text-[#8a8a8a]">Gestisci e personalizza le voci per tipologia di lavoro dei progetti attivi</span>
+              <span className="text-[12.5px] text-[#6b6b6b]">Gestisci e personalizza le voci per tipologia di lavoro dei progetti attivi</span>
             </div>
             
             {/* Inizializza Computo */}
@@ -1380,7 +1380,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                   <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4">
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="bg-zinc-805 text-white px-2 py-0.5 rounded text-[10px] uppercase font-black tracking-wider">
+                        <span className="bg-zinc-805 text-white px-2 py-0.5 rounded text-[11px] uppercase font-black tracking-wider">
                           {correlatedProj?.division || 'Studio'}
                         </span>
                         <h3 className="text-[15px] font-black text-[#1b1b1b]">{comp.title}</h3>
@@ -1391,7 +1391,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                     </div>
 
                     <div className="text-right">
-                      <span className="text-[10px] uppercase font-black text-stone-400 block tracking-wider">Importo Totale Computato</span>
+                      <span className="text-[11px] uppercase font-black text-stone-500 block tracking-wider">Importo Totale Computato</span>
                       <strong className="text-[18px] font-black text-green-700">{eur(sumTotal)}</strong>
                     </div>
                   </div>
@@ -1401,11 +1401,11 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                     <table className="w-full border-collapse text-left">
                       <thead>
                         <tr className="border-b border-[#e2e2e2] bg-[#fdfdfd]">
-                          <th className="py-2 px-3 text-[11px] font-bold text-stone-500">Descrizione dell'intervento / Lavoro</th>
-                          <th className="py-2 px-3 text-[11px] font-bold text-stone-500">Categoria</th>
-                          <th className="py-2 px-3 text-right text-[11px] font-bold text-stone-500">Q.tà</th>
-                          <th className="py-2 px-3 text-right text-[11px] font-bold text-stone-500">P. Unitario</th>
-                          <th className="py-2 px-3 text-right text-[11px] font-bold text-stone-500">Totale voce</th>
+                          <th className="py-2 px-3 text-[12px] font-bold text-stone-500">Descrizione dell'intervento / Lavoro</th>
+                          <th className="py-2 px-3 text-[12px] font-bold text-stone-500">Categoria</th>
+                          <th className="py-2 px-3 text-right text-[12px] font-bold text-stone-500">Q.tà</th>
+                          <th className="py-2 px-3 text-right text-[12px] font-bold text-stone-500">P. Unitario</th>
+                          <th className="py-2 px-3 text-right text-[12px] font-bold text-stone-500">Totale voce</th>
                           <th className="py-2 px-3"></th>
                         </tr>
                       </thead>
@@ -1414,7 +1414,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                           <tr key={it.id} className="border-b border-[#f3f3f3] hover:bg-[#fafafa] last:border-0 test-row">
                             <td className="py-2.5 px-3 text-[12.5px] font-bold text-[#1a1a1a]">{it.desc}</td>
                             <td className="py-2.5 px-3 whitespace-nowrap">
-                              <span className="text-[10px] font-extrabold bg-stone-100 text-stone-700 px-2 py-0.5 rounded">
+                              <span className="text-[11px] font-extrabold bg-stone-100 text-stone-700 px-2 py-0.5 rounded">
                                 {it.category}
                               </span>
                             </td>
@@ -1449,21 +1449,21 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                           </button>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-extrabold bg-stone-100 text-stone-700 px-2.5 py-0.5 rounded-lg border border-stone-200 uppercase">
+                          <span className="text-[11px] font-extrabold bg-stone-100 text-stone-700 px-2.5 py-0.5 rounded-lg border border-stone-200 uppercase">
                             {it.category}
                           </span>
                         </div>
                         <div className="grid grid-cols-3 gap-2 mt-2 pt-2.5 border-t border-stone-150 font-mono text-[12px]">
                           <div>
-                            <span className="text-[9px] uppercase tracking-wider font-extrabold text-stone-400 block mb-0.5">Q.tà</span>
+                            <span className="text-[10px] uppercase tracking-wider font-extrabold text-stone-500 block mb-0.5">Q.tà</span>
                             <b className="text-stone-700">{it.quantity}</b>
                           </div>
                           <div>
-                            <span className="text-[9px] uppercase tracking-wider font-extrabold text-stone-400 block mb-0.5">P. Unitario</span>
+                            <span className="text-[10px] uppercase tracking-wider font-extrabold text-stone-500 block mb-0.5">P. Unitario</span>
                             <b className="text-stone-700">{eur(it.unitPrice)}</b>
                           </div>
                           <div className="text-right">
-                            <span className="text-[9px] uppercase tracking-wider font-extrabold text-stone-400 block mb-0.5">Totale</span>
+                            <span className="text-[10px] uppercase tracking-wider font-extrabold text-stone-500 block mb-0.5">Totale</span>
                             <b className="text-emerald-700 font-black">{eur(it.quantity * it.unitPrice)}</b>
                           </div>
                         </div>
@@ -1474,7 +1474,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                   {/* FORM TO ADD A ROW TO THE COMPUTO */}
                   <div className="bg-white border border-[#e5e5e5] rounded-xl p-4 mt-3 grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                     <div className="md:col-span-4 flex flex-col gap-1 text-left">
-                      <label className="text-[10px] font-bold text-stone-500 uppercase">Descrizione lavoro personalizzabile</label>
+                      <label className="text-[11px] font-bold text-stone-500 uppercase">Descrizione lavoro personalizzabile</label>
                       <input
                         type="text"
                         placeholder="Es. Rasatura intonaco o Fornitura rubinetteria"
@@ -1485,7 +1485,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                     </div>
 
                     <div className="md:col-span-2 flex flex-col gap-1 text-left">
-                      <label className="text-[10px] font-bold text-stone-500 uppercase">Categoria</label>
+                      <label className="text-[11px] font-bold text-stone-500 uppercase">Categoria</label>
                       <select
                         value={newCompCat}
                         onChange={(e) => setNewCompCat(e.target.value)}
@@ -1504,7 +1504,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                     </div>
 
                     <div className="md:col-span-2 flex flex-col gap-1 text-left">
-                      <label className="text-[10px] font-bold text-stone-500 uppercase">Q.tà</label>
+                      <label className="text-[11px] font-bold text-stone-500 uppercase">Q.tà</label>
                       <input
                         type="number"
                         placeholder="es. 10"
@@ -1515,7 +1515,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                     </div>
 
                     <div className="md:col-span-2 flex flex-col gap-1 text-left">
-                      <label className="text-[10px] font-bold text-stone-500 uppercase">Prezzo (€)</label>
+                      <label className="text-[11px] font-bold text-stone-500 uppercase">Prezzo (€)</label>
                       <input
                         type="number"
                         placeholder="es. 45"
@@ -1528,7 +1528,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                     <div className="md:col-span-2">
                       <button
                         onClick={() => handleAddComputoItem(comp.id)}
-                        className="btn bg-[#1b1b1b] text-white hover:bg-black text-[11px] font-bold w-full h-8 flex items-center justify-center gap-1 cursor-pointer"
+                        className="btn bg-[#1b1b1b] text-white hover:bg-black text-[12px] font-bold w-full h-8 flex items-center justify-center gap-1 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" /> Aggiungi Riga
                       </button>
@@ -1541,10 +1541,10 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                       <Upload className="w-4 h-4 text-stone-500" />
                       <span>Importa voci da <b>CSV</b> · Excel/PDF allegati come riferimento</span>
                       {comp.sourceFileName && (
-                        <span className="text-[10.5px] bg-stone-100 border border-stone-200 px-2 py-0.5 rounded font-bold text-stone-700">📎 {comp.sourceFileName}</span>
+                        <span className="text-[11.5px] bg-stone-100 border border-stone-200 px-2 py-0.5 rounded font-bold text-stone-700">📎 {comp.sourceFileName}</span>
                       )}
                     </div>
-                    <label className="btn text-[11px] py-1.5 px-3 bg-stone-100 hover:bg-stone-200 text-stone-850 rounded-xl flex items-center gap-1 border-0 cursor-pointer">
+                    <label className="btn text-[12px] py-1.5 px-3 bg-stone-100 hover:bg-stone-200 text-stone-850 rounded-xl flex items-center gap-1 border-0 cursor-pointer">
                       <Upload className="w-3.5 h-3.5" /> Carica file
                       <input
                         type="file"
@@ -1559,8 +1559,8 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                   {importComputoId === comp.id && importSheet && importMapping && (
                     <div className="bg-amber-50/40 border border-amber-200 rounded-xl p-4 mt-3">
                       <div className="flex items-center justify-between mb-2">
-                        <b className="text-[12.5px] text-stone-850">Mappa le colonne del file <span className="font-mono text-[11px]">{importFileName}</span></b>
-                        <span className="text-[10.5px] text-stone-500">{importSheet.rows.length} righe rilevate</span>
+                        <b className="text-[12.5px] text-stone-850">Mappa le colonne del file <span className="font-mono text-[12px]">{importFileName}</span></b>
+                        <span className="text-[11.5px] text-stone-500">{importSheet.rows.length} righe rilevate</span>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         {([
@@ -1570,7 +1570,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                           { key: 'unitPrice', label: 'Prezzo unit.' }
                         ] as { key: keyof ColumnMapping; label: string }[]).map(({ key, label }) => (
                           <div key={key} className="flex flex-col gap-1 text-left">
-                            <label className="text-[10px] font-bold text-stone-500 uppercase">{label}</label>
+                            <label className="text-[11px] font-bold text-stone-500 uppercase">{label}</label>
                             <select
                               value={importMapping[key]}
                               onChange={(e) => setImportMapping({ ...importMapping, [key]: Number(e.target.value) })}
@@ -1585,8 +1585,8 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                         ))}
                       </div>
                       <div className="flex justify-end gap-2 mt-3">
-                        <button onClick={cancelImport} className="btn text-[11px] py-1.5 px-3 bg-stone-100 hover:bg-stone-200 rounded-xl border-0 cursor-pointer">Annulla</button>
-                        <button onClick={confirmImport} className="btn text-[11px] py-1.5 px-3 bg-[#1b1b1b] hover:bg-black text-white rounded-xl border-0 cursor-pointer flex items-center gap-1">
+                        <button onClick={cancelImport} className="btn text-[12px] py-1.5 px-3 bg-stone-100 hover:bg-stone-200 rounded-xl border-0 cursor-pointer">Annulla</button>
+                        <button onClick={confirmImport} className="btn text-[12px] py-1.5 px-3 bg-[#1b1b1b] hover:bg-black text-white rounded-xl border-0 cursor-pointer flex items-center gap-1">
                           <Check className="w-3.5 h-3.5" /> Importa voci
                         </button>
                       </div>
@@ -1620,9 +1620,9 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
         <div className="bg-white border border-[#e2e2e2] rounded-[28px] p-5 md:p-6 shadow-sm">
           <div className="pb-4 border-b border-stone-100 flex items-center justify-between flex-wrap gap-4">
             <div>
-              <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest block">Calcolo automatico onorari Studio</span>
+              <span className="text-[11px] font-black text-indigo-600 uppercase tracking-widest block">Calcolo automatico onorari Studio</span>
               <h2 className="text-[19px] font-extrabold tracking-tight text-[#161616]">Parcelle & Onorari di commessa</h2>
-              <span className="text-[12.5px] text-[#8a8a8a]">
+              <span className="text-[12.5px] text-[#6b6b6b]">
                 15% su (computo lavori + arredi fissi e finiture) + 20% sugli arredi mobili se gestiti dallo Studio.
                 Concorrono solo gli arredi <b>confermati</b>. Pagamento a SAL.
               </span>
@@ -1641,45 +1641,45 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                   <div className="flex justify-between items-start gap-3 border-b border-stone-150 pb-3 mb-4">
                     <div>
                       <h4 className="text-[15px] font-black text-[#1a1a1a]">{proj.name}</h4>
-                      <span className="text-[11px] text-stone-500 font-semibold">{proj.client || 'Cliente Studio'}</span>
+                      <span className="text-[12px] text-stone-500 font-semibold">{proj.client || 'Cliente Studio'}</span>
                     </div>
-                    <span className="text-[10.5px] bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-lg font-black uppercase">
+                    <span className="text-[11.5px] bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-lg font-black uppercase">
                       {COMPANY_LABEL[projCompany(proj)]}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <div className="bg-white border border-stone-200 rounded-xl p-3">
-                      <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">Computo lavori</span>
+                      <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">Computo lavori</span>
                       <b className="text-[14px] font-black text-[#1a1a1a]">{eur(computoTot)}</b>
                     </div>
                     <div className="bg-white border border-stone-200 rounded-xl p-3">
-                      <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">Arredi fissi e finiture</span>
+                      <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">Arredi fissi e finiture</span>
                       <b className="text-[14px] font-black text-[#1a1a1a]">{eur(parc.arrediFissi)}</b>
-                      <span className="text-[9px] text-stone-400 block mt-0.5">solo confermati</span>
+                      <span className="text-[10px] text-stone-500 block mt-0.5">solo confermati</span>
                     </div>
                     <div className="bg-white border border-stone-200 rounded-xl p-3">
-                      <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">Base opera</span>
+                      <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">Base opera</span>
                       <b className="text-[14px] font-black text-[#1a1a1a]">{eur(parc.baseOpera)}</b>
                     </div>
                     <div className="bg-indigo-50/60 border border-indigo-200 rounded-xl p-3">
-                      <span className="text-[9.5px] uppercase font-black text-indigo-700 tracking-wider block">Onorari {Math.round(parc.feePct * 100)}%</span>
+                      <span className="text-[10.5px] uppercase font-black text-indigo-700 tracking-wider block">Onorari {Math.round(parc.feePct * 100)}%</span>
                       <b className="text-[14px] font-black text-indigo-800">{eur(parc.onorari)}</b>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
                     <div className="bg-white border border-stone-200 rounded-xl p-3">
-                      <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">Arredi mobili <span className="normal-case text-stone-300">(confermati)</span></span>
+                      <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">Arredi mobili <span className="normal-case text-stone-300">(confermati)</span></span>
                       <b className="text-[14px] font-black text-[#1a1a1a]">{eur(parc.arrediMobili)}</b>
-                      <span className="text-[10px] text-stone-500 block mt-0.5">{parc.managesMobili ? `Gestiti dallo Studio · fee ${Math.round(parc.mobiliFeePct * 100)}%` : 'Gestiti dal cliente · nessuna fee'}</span>
+                      <span className="text-[11px] text-stone-500 block mt-0.5">{parc.managesMobili ? `Gestiti dallo Studio · fee ${Math.round(parc.mobiliFeePct * 100)}%` : 'Gestiti dal cliente · nessuna fee'}</span>
                     </div>
                     <div className="bg-white border border-stone-200 rounded-xl p-3">
-                      <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">Fee arredi mobili</span>
+                      <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">Fee arredi mobili</span>
                       <b className="text-[14px] font-black text-indigo-800">{eur(parc.feeMobili)}</b>
                     </div>
                     <div className="bg-[#1b1b1b] text-white rounded-xl p-3 flex flex-col justify-center">
-                      <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">Totale parcella Studio</span>
+                      <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">Totale parcella Studio</span>
                       <b className="text-[18px] font-black text-green-400">{eur(parc.totaleParcella)}</b>
                     </div>
                   </div>
@@ -1687,7 +1687,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                   <div className="flex justify-end mt-3">
                     <button
                       onClick={() => setActiveTab('sal')}
-                      className="text-[11px] font-extrabold bg-stone-100 hover:bg-stone-200 text-stone-850 px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1"
+                      className="text-[12px] font-extrabold bg-stone-100 hover:bg-stone-200 text-stone-850 px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1"
                     >
                       <Layers className="w-3.5 h-3.5" /> Genera SAL dalla parcella
                     </button>
@@ -1706,7 +1706,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
           <div className="lg:col-span-7 bg-white border border-[#e2e2e2] rounded-[28px] p-5 md:p-6 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-stone-100">
               <div>
-                <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest block">SDI Registro Fatture Attive</span>
+                <span className="text-[11px] font-black text-blue-600 uppercase tracking-widest block">SDI Registro Fatture Attive</span>
                 <h3 className="text-[17px] font-extrabold text-[#1a1a1a] tracking-tight">Fatturazione Elettronica Attiva</h3>
               </div>
               <ExportMenu
@@ -1732,12 +1732,12 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                   <div key={inv.id} className="border border-stone-200 rounded-xl p-4 bg-stone-50/50 hover:bg-stone-50 transition-all flex flex-col sm:flex-row justify-between sm:items-center gap-3.5">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[11px] font-black text-stone-850 uppercase bg-stone-200 px-2 py-0.5 rounded">
+                        <span className="text-[12px] font-black text-stone-850 uppercase bg-stone-200 px-2 py-0.5 rounded">
                           {inv.id}
                         </span>
-                        <span className="text-[11px] text-stone-500 font-semibold">{fmtDay(inv.date)}</span>
+                        <span className="text-[12px] text-stone-500 font-semibold">{fmtDay(inv.date)}</span>
                         {inv.isSal && (
-                          <span className="bg-blue-50 text-blue-800 text-[10px] font-black px-1.5 py-0.5 rounded-full border border-blue-200">
+                          <span className="bg-blue-50 text-blue-800 text-[11px] font-black px-1.5 py-0.5 rounded-full border border-blue-200">
                             SAL {inv.salNumber}
                           </span>
                         )}
@@ -1745,10 +1745,10 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                       
                       <div className="mt-2 text-left">
                         <b className="text-[14px] font-black text-[#1a1a1a] tracking-tight">{inv.clientName}</b>
-                        <span className="block text-[11px] text-stone-500 truncate mt-0.5">{inv.projectName}</span>
+                        <span className="block text-[12px] text-stone-500 truncate mt-0.5">{inv.projectName}</span>
                       </div>
 
-                      <div className="mt-2 text-[10.5px] text-zinc-500 font-bold text-left">
+                      <div className="mt-2 text-[11.5px] text-zinc-500 font-bold text-left">
                         Cod. SDI: <span className="font-mono bg-stone-100 text-[#121212] px-1 rounded">{inv.sdiCode}</span> | IVA: {inv.taxRate > 0 ? `${inv.taxRate}%` : 'no'}{(inv.cassaPct || 0) > 0 ? ` | Cassa: ${inv.cassaPct}%` : ''}
                       </div>
                     </div>
@@ -1757,9 +1757,9 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                       <div className="text-left sm:text-right">
                         <div className="text-[15px] font-black text-[#1b1b1b] sm:mb-0.5">{eur(inv.amount)}</div>
                         {(inv.taxRate > 0 || (inv.cassaPct || 0) > 0) && (
-                          <div className="text-[10px] font-bold text-stone-500 sm:mb-0.5">tot. doc. {eur(invoiceTotals(inv).totale)}</div>
+                          <div className="text-[11px] font-bold text-stone-500 sm:mb-0.5">tot. doc. {eur(invoiceTotals(inv).totale)}</div>
                         )}
-                        <span className={`text-[9.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full inline-block ${badgeClass}`}>
+                        <span className={`text-[10.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full inline-block ${badgeClass}`}>
                           {inv.status}
                         </span>
                       </div>
@@ -1767,7 +1767,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                       {inv.status === 'bozza' && (
                         <button
                           onClick={() => handleTransmitSDI(inv.id)}
-                          className="text-[11px] font-extrabold text-blue-600 bg-blue-50/50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-xl cursor-pointer transition-colors"
+                          className="text-[12px] font-extrabold text-blue-600 bg-blue-50/50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-xl cursor-pointer transition-colors"
                         >
                           Invia a SDI 🚀
                         </button>
@@ -1778,7 +1778,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
               })}
 
               {filteredActiveInvoices.length === 0 && (
-                <div className="text-center py-8 text-[#8a8a8a]">
+                <div className="text-center py-8 text-[#6b6b6b]">
                   Nessuna fattura attiva individuata per la selezione corrente.
                 </div>
               )}
@@ -1789,11 +1789,11 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
               <h4 className="text-[13px] font-black text-stone-850 flex items-center gap-1">
                 <Plus className="w-4 h-4 text-stone-550" /> Generatore Bozza Fattura Elettronica SDI
               </h4>
-              <p className="text-[11px] text-stone-500 mt-0.5">Emetti bozza di fattura da trasmettere elettronicamente all’agenzia entrate.</p>
+              <p className="text-[12px] text-stone-500 mt-0.5">Emetti bozza di fattura da trasmettere elettronicamente all’agenzia entrate.</p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3.5">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold text-stone-500 uppercase">Seleziona Cliente</label>
+                  <label className="text-[11px] font-bold text-stone-500 uppercase">Seleziona Cliente</label>
                   <select
                     value={invClient}
                     onChange={(e) => {
@@ -1812,7 +1812,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold text-stone-500 uppercase">Commessa Progetto</label>
+                  <label className="text-[11px] font-bold text-stone-500 uppercase">Commessa Progetto</label>
                   <select
                     value={invProjId}
                     onChange={(e) => setInvProjId(e.target.value)}
@@ -1826,7 +1826,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold text-stone-500 uppercase">Importo Imponibile (€)</label>
+                  <label className="text-[11px] font-bold text-stone-500 uppercase">Importo Imponibile (€)</label>
                   <input
                     type="number"
                     placeholder="es. 3200"
@@ -1837,7 +1837,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold text-stone-500 uppercase">Codice Destinatario SDI</label>
+                  <label className="text-[11px] font-bold text-stone-500 uppercase">Codice Destinatario SDI</label>
                   <input
                     type="text"
                     value={invSdi}
@@ -1868,12 +1868,12 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                     inputMode="decimal"
                     className="w-[52px] text-right text-[11.5px] font-extrabold bg-transparent border border-stone-200 rounded-lg px-1.5 py-0.5 outline-none disabled:opacity-40"
                   />
-                  <span className="text-[11px] font-bold text-stone-500">%</span>
+                  <span className="text-[12px] font-bold text-stone-500">%</span>
                 </label>
               </div>
 
               <div className="flex items-center justify-between gap-4 mt-4">
-                <span className="text-[11px] text-stone-500 font-semibold">
+                <span className="text-[12px] text-stone-500 font-semibold">
                   {(() => {
                     const val = parseFloat(invAmount) || 0;
                     if (!val) return 'Totale documento: —';
@@ -1896,7 +1896,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
           <div className="lg:col-span-5 bg-white border border-[#e2e2e2] rounded-[28px] p-5 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <span className="text-[10px] font-black text-red-600 uppercase tracking-widest block">Uscite passive e subappalti</span>
+                <span className="text-[11px] font-black text-red-600 uppercase tracking-widest block">Uscite passive e subappalti</span>
                 <h3 className="text-[17px] font-extrabold text-[#1a1a1a] tracking-tight">Fatturazione Passiva (Fornitori)</h3>
               </div>
               <ExportMenu
@@ -1915,18 +1915,18 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 return (
                   <div key={fp.id} className="border border-stone-250 p-3.5 rounded-2xl bg-stone-50/20 hover:bg-stone-50/50 transition-colors">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[11px] font-extrabold bg-[#ffebeb] text-red-700 px-2 py-0.5 rounded">
+                      <span className="text-[12px] font-extrabold bg-[#ffebeb] text-red-700 px-2 py-0.5 rounded">
                         {fp.id}
                       </span>
                       <span className="text-[12px] font-extrabold text-stone-700">{eur(fp.amount)}</span>
                     </div>
 
                     <div className="mt-2 text-[13px] font-extrabold text-[#1a1a1a]">{fp.supplierName}</div>
-                    <p className="text-[11px] text-stone-500 mt-0.5 italic">{fp.description}</p>
+                    <p className="text-[12px] text-stone-500 mt-0.5 italic">{fp.description}</p>
                     
-                    <div className="mt-2.5 flex items-center justify-between text-[10.5px] text-stone-500 font-semibold border-t border-stone-100 pt-2">
+                    <div className="mt-2.5 flex items-center justify-between text-[11.5px] text-stone-500 font-semibold border-t border-stone-100 pt-2">
                       <span>Scadenza: {fmtDay(fp.dueDate)}</span>
-                      <span className={`uppercase font-black block text-[9.5px] ${fp.status === 'pagata' ? 'text-green-700' : 'text-red-700'}`}>
+                      <span className={`uppercase font-black block text-[10.5px] ${fp.status === 'pagata' ? 'text-green-700' : 'text-red-700'}`}>
                         {fp.status}
                       </span>
                     </div>
@@ -1935,7 +1935,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
               })}
 
               {filteredPassiveInvoices.length === 0 && (
-                <div className="text-center py-6 text-[#8a8a8a]">
+                <div className="text-center py-6 text-[#6b6b6b]">
                   Nessuna fattura passiva trovata per la selezione.
                 </div>
               )}
@@ -1943,12 +1943,12 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
 
             {/* Form to submit a passive invoice */}
             <form onSubmit={handleAddPassiveInvoice} className="bg-stone-50 border border-stone-200 rounded-2xl p-4 mt-6">
-              <span className="text-[10px] uppercase font-black tracking-widest text-[#8a8a8a] block">Registra Documento Fornitore</span>
+              <span className="text-[11px] uppercase font-black tracking-widest text-[#6b6b6b] block">Registra Documento Fornitore</span>
               <h4 className="text-[13.5px] font-black text-stone-750 mt-0.5">Sottomissione Fattura Passiva</h4>
 
               <div className="flex flex-col gap-3 mt-3.5">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10.5px] font-bold text-stone-500">Ragione Sociale Fornitore Partner</label>
+                  <label className="text-[11.5px] font-bold text-stone-500">Ragione Sociale Fornitore Partner</label>
                   <input
                     type="text"
                     placeholder="Es. Resine d'Arte Apulia o Alluminio d'Apulia"
@@ -1959,7 +1959,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold text-stone-500 uppercase">Commessa Associata</label>
+                  <label className="text-[11px] font-bold text-stone-500 uppercase">Commessa Associata</label>
                   <select
                     value={pasProjId}
                     onChange={(e) => setPasProjId(e.target.value)}
@@ -1974,7 +1974,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
 
                 <div className="grid grid-cols-2 gap-2">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold text-stone-500">Importo Tot. Lordo (€)</label>
+                    <label className="text-[11px] font-bold text-stone-500">Importo Tot. Lordo (€)</label>
                     <input
                       type="number"
                       placeholder="es. 1400"
@@ -1985,7 +1985,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold text-stone-500">Categoria Costo</label>
+                    <label className="text-[11px] font-bold text-stone-500">Categoria Costo</label>
                     <select
                       value={pasCat}
                       onChange={(e) => setPasCat(e.target.value)}
@@ -2000,7 +2000,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold text-stone-500">Descrizione sintetica della fornitura</label>
+                  <label className="text-[11px] font-bold text-stone-500">Descrizione sintetica della fornitura</label>
                   <input
                     type="text"
                     placeholder="Sostituzione infissi o materiali posa"
@@ -2027,9 +2027,9 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
         <div className="bg-white border border-[#e2e2e2] rounded-[28px] p-5 md:p-6 shadow-sm">
           <div className="pb-4 border-b border-stone-100 flex items-center justify-between flex-wrap gap-4">
             <div>
-              <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest block">Scadenze Cronologiche Monetarie</span>
+              <span className="text-[11px] font-black text-stone-500 uppercase tracking-widest block">Scadenze Cronologiche Monetarie</span>
               <h2 className="text-[19px] font-extrabold text-[#161616]">Scadenziario Pagamenti (Incassi e Uscite)</h2>
-              <span className="text-[12.5px] text-[#8a8a8a]">Flusso temporale dei flussi di cassa programmati ed eseguiti</span>
+              <span className="text-[12.5px] text-[#6b6b6b]">Flusso temporale dei flussi di cassa programmati ed eseguiti</span>
             </div>
             <ExportMenu
               filename={`Scadenziario_${selectedSector}`}
@@ -2055,12 +2055,12 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                     <div key={sc.id} className="border border-stone-200 p-4 rounded-2xl bg-white flex flex-col sm:flex-row justify-between sm:items-center gap-3.5 transition-all hover:border-stone-300">
                       <div className="text-left flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                          <span className={`text-[11px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
                             sc.status === 'pagato' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
                           }`}>
                             {sc.status === 'pagato' ? 'Incassato' : 'In attesa'}
                           </span>
-                          <span className="text-[11px] text-stone-400 font-bold">Scad. {fmtDay(sc.dueDate)}</span>
+                          <span className="text-[12px] text-stone-500 font-bold">Scad. {fmtDay(sc.dueDate)}</span>
                         </div>
                         <div className="text-[13.5px] font-black text-[#111] mt-2 leading-snug">{sc.desc}</div>
                         <span className="text-[11.5px] text-stone-500 font-semibold block mt-0.5">{sc.clientOrSupplier}</span>
@@ -2071,7 +2071,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                         {sc.status !== 'pagato' && (
                           <button
                             onClick={() => handleRegisterPaymentFromScadenza(sc.id)}
-                            className="bg-green-700 hover:bg-green-900 text-white text-[10.5px] font-bold px-3 py-1.5 rounded-xl cursor-pointer shadow-xs transition-colors"
+                            className="bg-green-700 hover:bg-green-900 text-white text-[11.5px] font-bold px-3 py-1.5 rounded-xl cursor-pointer shadow-xs transition-colors"
                           >
                             Registra Incasso ✔
                           </button>
@@ -2096,12 +2096,12 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                     <div key={sc.id} className="border border-stone-200 p-4 rounded-2xl bg-white flex flex-col sm:flex-row justify-between sm:items-center gap-3.5 transition-all hover:border-stone-300">
                       <div className="text-left flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                          <span className={`text-[11px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
                             sc.status === 'pagato' ? 'bg-green-100 text-green-800' : 'bg-red-50 text-red-700'
                           }`}>
                             {sc.status === 'pagato' ? 'Saldato' : 'Da pagare'}
                           </span>
-                          <span className="text-[11px] text-stone-400 font-bold">Scad. {fmtDay(sc.dueDate)}</span>
+                          <span className="text-[12px] text-stone-500 font-bold">Scad. {fmtDay(sc.dueDate)}</span>
                         </div>
                         <div className="text-[13.5px] font-black text-[#111] mt-2 leading-snug">{sc.desc}</div>
                         <span className="text-[11.5px] text-stone-500 font-semibold block mt-0.5">{sc.clientOrSupplier}</span>
@@ -2112,7 +2112,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                         {sc.status !== 'pagato' && (
                           <button
                             onClick={() => handleRegisterPaymentFromScadenza(sc.id)}
-                            className="bg-red-700 hover:bg-red-900 text-white text-[10.5px] font-bold px-3 py-1.5 rounded-xl cursor-pointer shadow-xs transition-colors"
+                            className="bg-red-700 hover:bg-red-900 text-white text-[11.5px] font-bold px-3 py-1.5 rounded-xl cursor-pointer shadow-xs transition-colors"
                           >
                             Saldato ✔
                           </button>
@@ -2132,9 +2132,9 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
         <div className="bg-white border border-[#e2e2e2] rounded-[28px] p-5 md:p-6 shadow-sm animate-fadeIn">
           <div className="pb-4 border-b border-stone-100 flex items-center justify-between flex-wrap gap-4">
             <div>
-              <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest block">Asseverazione e Fatturazione a tappe</span>
+              <span className="text-[11px] font-black text-orange-600 uppercase tracking-widest block">Asseverazione e Fatturazione a tappe</span>
               <h2 className="text-[19px] font-extrabold tracking-tight text-[#161616]">SAL Finanziari Collegati ai SAL Tecnici</h2>
-              <span className="text-[12.5px] text-[#8a8a8a]">Verifica l'avanzamento dei lavori reali e genera istantaneamente lo stato di cassa corrispondente</span>
+              <span className="text-[12.5px] text-[#6b6b6b]">Verifica l'avanzamento dei lavori reali e genera istantaneamente lo stato di cassa corrispondente</span>
             </div>
           </div>
 
@@ -2151,7 +2151,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                     <div className="text-[12.5px]">
                       <span className="font-black text-[#161616]">{proj.name}</span>
                       <span className="text-stone-500"> · SAL {sal.number}{sal.descrizione ? ` — ${sal.descrizione}` : ''}</span>
-                      <span className="block text-[11px] text-stone-500">{sal.importo != null ? eur(sal.importo) : 'importo non indicato'} · {COMPANY_LABEL[projCompany(proj)]}</span>
+                      <span className="block text-[12px] text-stone-500">{sal.importo != null ? eur(sal.importo) : 'importo non indicato'} · {COMPANY_LABEL[projCompany(proj)]}</span>
                     </div>
                     <button
                       onClick={() => handleGenerateCantiereSalInvoice(cid, sal, proj)}
@@ -2183,13 +2183,13 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                   <div className="flex justify-between items-center border-b border-stone-150 pb-3 mb-4">
                     <div>
                       <h4 className="text-[15px] font-black text-[#1a1a1a]">{proj.name}</h4>
-                      <span className="text-[11px] text-stone-500 font-semibold">{proj.client}</span>
+                      <span className="text-[12px] text-stone-500 font-semibold">{proj.client}</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[11px] bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-lg font-bold block">
+                      <span className="text-[12px] bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-lg font-bold block">
                         {COMPANY_LABEL[projCompany(proj)]}
                       </span>
-                      <span className="text-[10.5px] text-stone-500 font-bold block mt-1">Parcella: <b className="text-[#161616]">{eur(parcellaTot)}</b></span>
+                      <span className="text-[11.5px] text-stone-500 font-bold block mt-1">Parcella: <b className="text-[#161616]">{eur(parcellaTot)}</b></span>
                     </div>
                   </div>
 
@@ -2216,13 +2216,13 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                           <div key={ph.id || idx} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-white p-4 rounded-xl border border-stone-150 text-left">
                             {/* Phase Header */}
                             <div className="md:col-span-4 min-w-0">
-                              <span className="text-[11px] font-bold text-stone-400 block">Fase {idx + 1}</span>
+                              <span className="text-[12px] font-bold text-stone-500 block">Fase {idx + 1}</span>
                               <b className="text-[13.5px] font-black text-[#1a1a1a] block truncate mt-0.5">{ph.name}</b>
                             </div>
 
                             {/* Technical Progress (SAL LOGIC) */}
                             <div className="md:col-span-3">
-                              <span className="text-[10px] uppercase font-black tracking-wider text-green-700 block">Progresso Tecnico Cantiere</span>
+                              <span className="text-[11px] uppercase font-black tracking-wider text-green-700 block">Progresso Tecnico Cantiere</span>
                               <div className="flex items-center gap-2 mt-1">
                                 <span className="text-[12px] font-bold text-stone-700">{techPercent}%</span>
                                 <div className="flex-1 h-2 bg-stone-100 rounded-full overflow-hidden max-w-[120px]">
@@ -2236,21 +2236,21 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
 
                             {/* Financial SAL Correlated Step */}
                             <div className="md:col-span-3">
-                              <span className="text-[10px] uppercase font-black text-rose-600 tracking-wider block">Quota SAL (da parcella)</span>
+                              <span className="text-[11px] uppercase font-black text-rose-600 tracking-wider block">Quota SAL (da parcella)</span>
                               <span className="text-[13px] font-extrabold block text-stone-850 mt-0.5">{eur(phaseEstimatedInflow)}</span>
                             </div>
 
                             {/* Trigger action to link */}
                             <div className="md:col-span-2 text-left md:text-right flex md:block justify-between items-center pt-2 md:pt-0 border-t md:border-t-0 border-stone-200/60 w-full md:w-auto">
-                              <span className="md:hidden text-[10px] font-bold text-stone-400 uppercase">Stato Azione</span>
+                              <span className="md:hidden text-[11px] font-bold text-stone-500 uppercase">Stato Azione</span>
                               {isAlreadyInvoiced ? (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-lg border border-green-200">
+                                <span className="inline-flex items-center gap-1 text-[12px] font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-lg border border-green-200">
                                   ✓ SDI Inviato
                                 </span>
                               ) : (
                                 <button
                                   onClick={() => handleGenerateSalInvoice(proj.id, ph.name, phaseEstimatedInflow, idx)}
-                                  className="text-[10.5px] font-extrabold bg-[#1b1b1b] hover:bg-black text-white px-3 py-1.5 rounded-xl cursor-pointer transition-colors flex items-center gap-1 inline-flex"
+                                  className="text-[11.5px] font-extrabold bg-[#1b1b1b] hover:bg-black text-white px-3 py-1.5 rounded-xl cursor-pointer transition-colors flex items-center gap-1 inline-flex"
                                 >
                                   Emetti 1° SAL ⚡
                                 </button>
@@ -2273,9 +2273,9 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
         <div className="bg-white border border-[#e2e2e2] rounded-[28px] p-5 md:p-6 shadow-sm">
           <div className="pb-4 border-b border-stone-100 flex items-center justify-between flex-wrap gap-4">
             <div>
-              <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest block">Marginalità & Redditualità Commessa</span>
+              <span className="text-[11px] font-black text-blue-600 uppercase tracking-widest block">Marginalità & Redditualità Commessa</span>
               <h2 className="text-[19px] font-extrabold text-[#161616]">Conto Economico di Commessa (Costi vs Ricavi)</h2>
-              <span className="text-[12.5px] text-[#8a8a8a]">Dettaglio economico analitico e calcolo dei margini operativi lordi per singolo lavoro</span>
+              <span className="text-[12.5px] text-[#6b6b6b]">Dettaglio economico analitico e calcolo dei margini operativi lordi per singolo lavoro</span>
             </div>
           </div>
 
@@ -2292,19 +2292,19 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                 const dim = selectedSector !== 'all' && selectedSector !== 'consolidato' && selectedSector !== b.company;
                 return (
                   <div key={b.company} className={`bg-white border rounded-xl p-3 ${dim ? 'opacity-40 border-stone-150' : 'border-stone-200'}`}>
-                    <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">{COMPANY_LABEL[b.company]}</span>
+                    <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">{COMPANY_LABEL[b.company]}</span>
                     <b className="text-[14px] font-black text-[#1a1a1a] block">{eur(b.netto)}</b>
-                    <span className="text-[10px] text-stone-500 block mt-0.5">R {eur(b.ricavi)} · C {eur(b.costi)}</span>
+                    <span className="text-[11px] text-stone-500 block mt-0.5">R {eur(b.ricavi)} · C {eur(b.costi)}</span>
                   </div>
                 );
               })}
               <div className="bg-[#1b1b1b] text-white rounded-xl p-3">
-                <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">Totale Gruppo</span>
+                <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">Totale Gruppo</span>
                 <b className="text-[14px] font-black text-green-400 block">{eur(consolidatedBooks.totale.netto)}</b>
-                <span className="text-[10px] text-stone-400 block mt-0.5">R {eur(consolidatedBooks.totale.ricavi)} · C {eur(consolidatedBooks.totale.costi)}</span>
+                <span className="text-[11px] text-stone-500 block mt-0.5">R {eur(consolidatedBooks.totale.ricavi)} · C {eur(consolidatedBooks.totale.costi)}</span>
               </div>
             </div>
-            <p className="text-[10.5px] text-stone-400 mt-2">
+            <p className="text-[11.5px] text-stone-500 mt-2">
               Materico = margine sulle richieste inviate/accettate; Unico = rivendita attesa − acquisto − ristrutturazione (proiezione).
             </p>
           </div>
@@ -2314,12 +2314,12 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-b border-[#e2e2e2] bg-[#fafafa]">
-                  <th className="py-3 px-4 text-[11px] font-bold text-stone-500 uppercase tracking-wider">Commessa Progetto</th>
-                  <th className="py-3 px-4 text-[11px] font-bold text-stone-500 uppercase tracking-wider">Divisione</th>
-                  <th className="py-3 px-4 text-right text-[11px] font-bold text-stone-500 uppercase tracking-wider">Ricavi Attivi (€)</th>
-                  <th className="py-3 px-4 text-right text-[11px] font-bold text-stone-500 uppercase tracking-wider">Costi Forniture (€)</th>
-                  <th className="py-3 px-4 text-right text-[11px] font-bold text-stone-500 uppercase tracking-wider">Utile Netto (€)</th>
-                  <th className="py-3 px-4 text-center text-[11px] font-bold text-stone-500 uppercase tracking-wider">Margine Operativo</th>
+                  <th className="py-3 px-4 text-[12px] font-bold text-stone-500 uppercase tracking-wider">Commessa Progetto</th>
+                  <th className="py-3 px-4 text-[12px] font-bold text-stone-500 uppercase tracking-wider">Divisione</th>
+                  <th className="py-3 px-4 text-right text-[12px] font-bold text-stone-500 uppercase tracking-wider">Ricavi Attivi (€)</th>
+                  <th className="py-3 px-4 text-right text-[12px] font-bold text-stone-500 uppercase tracking-wider">Costi Forniture (€)</th>
+                  <th className="py-3 px-4 text-right text-[12px] font-bold text-stone-500 uppercase tracking-wider">Utile Netto (€)</th>
+                  <th className="py-3 px-4 text-center text-[12px] font-bold text-stone-500 uppercase tracking-wider">Margine Operativo</th>
                 </tr>
               </thead>
               <tbody>
@@ -2357,7 +2357,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                         <span className="text-[11.5px] text-stone-500 mt-0.5">{proj.client}</span>
                       </td>
                       <td className="py-3.5 px-4 text-left">
-                        <span className={`text-[10.5px] font-black rounded-lg px-2 py-0.5 uppercase tracking-wide inline-block ${divBg}`}>
+                        <span className={`text-[11.5px] font-black rounded-lg px-2 py-0.5 uppercase tracking-wide inline-block ${divBg}`}>
                           {proj.division || 'Studio'}
                         </span>
                       </td>
@@ -2420,32 +2420,32 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
                       <b className="text-[14px] font-black text-[#1a1a1a] block leading-snug">{proj.name}</b>
                       <span className="text-[11.5px] text-stone-500 mt-0.5 block">{proj.client}</span>
                     </div>
-                    <span className={`text-[10px] font-black rounded-lg px-2.5 py-0.5 uppercase tracking-wide inline-block ${divBg}`}>
+                    <span className={`text-[11px] font-black rounded-lg px-2.5 py-0.5 uppercase tracking-wide inline-block ${divBg}`}>
                       {proj.division || 'Studio'}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3.5 pt-2 border-t border-stone-150 font-mono text-[12.5px]">
                     <div>
-                      <span className="text-[9px] uppercase tracking-wider font-extrabold text-stone-400 block mb-0.5">Ricavi Attivi</span>
+                      <span className="text-[10px] uppercase tracking-wider font-extrabold text-stone-500 block mb-0.5">Ricavi Attivi</span>
                       <b className="text-green-700 font-extrabold">{eur(ricavi)}</b>
                     </div>
                     <div>
-                      <span className="text-[9px] uppercase tracking-wider font-extrabold text-stone-400 block mb-0.5">Costi Forniture</span>
+                      <span className="text-[10px] uppercase tracking-wider font-extrabold text-stone-500 block mb-0.5">Costi Forniture</span>
                       <b className="text-red-700 font-extrabold">{eur(costi)}</b>
                     </div>
                   </div>
 
                   <div className="flex justify-between items-center border-t border-dashed border-stone-150 pt-2.5 bg-stone-100/50 -mx-4 -mb-4 px-4 py-3 rounded-b-2xl">
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-[9px] uppercase tracking-wider font-extrabold text-stone-400 block">Utile Netto</span>
+                      <span className="text-[10px] uppercase tracking-wider font-extrabold text-stone-500 block">Utile Netto</span>
                       <b className={`text-[13.5px] font-black ${utile >= 0 ? 'text-green-800' : 'text-red-800'}`}>
                         {utile > 0 ? '+' : ''}{eur(utile)}
                       </b>
                     </div>
                     <div className="text-right">
-                      <span className="text-[9px] uppercase tracking-wider font-extrabold text-stone-400 block mb-0.5">Margine</span>
-                      <span className={`inline-block py-0.5 px-2 rounded-lg text-[11px] font-extrabold ${
+                      <span className="text-[10px] uppercase tracking-wider font-extrabold text-stone-500 block mb-0.5">Margine</span>
+                      <span className={`inline-block py-0.5 px-2 rounded-lg text-[12px] font-extrabold ${
                         marginPercent > 35 ? 'bg-green-150 text-green-900' : (marginPercent > 0 ? 'bg-amber-100 text-amber-850' : 'bg-red-100 text-red-900')
                       }`}>
                         {marginPercent > 0 ? `+${marginPercent}%` : `${marginPercent}%`}
@@ -2458,7 +2458,7 @@ export const FinanzeView: React.FC<FinanzeViewProps> = ({
           </div>
 
           <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 mt-5 flex items-start gap-2 text-[12px] text-stone-600">
-            <Info className="w-5 h-5 text-stone-400 flex-shrink-0 mt-0.5" />
+            <Info className="w-5 h-5 text-stone-500 flex-shrink-0 mt-0.5" />
             <p className="leading-normal">
               La marginalità della commessa tiene conto delle fatture attive saldate e di quelle trasmesse al SDI, sottratte delle fatture di subappaltatori, noleggi cantiere e spese speciali. I costi generali dello studio (consulenze generali, spese telefoniche) non influiscono sul calcolo delle singole marginalità.
             </p>

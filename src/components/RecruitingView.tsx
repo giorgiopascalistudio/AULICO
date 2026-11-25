@@ -51,7 +51,7 @@ interface Props {
   onDelete?: (id: string) => void;
 }
 const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white disabled:bg-[#f7f7f5]';
-const lbl = 'text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]';
+const lbl = 'text-[11px] font-bold uppercase tracking-wider text-[#767676]';
 
 export const RecruitingView: React.FC<Props> = ({ items, color = '#b45309', canEdit = false, onSave, onDelete }) => {
   const [tab, setTab] = React.useState<RecruitKind>('annuncio');
@@ -70,7 +70,7 @@ export const RecruitingView: React.FC<Props> = ({ items, color = '#b45309', canE
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><UserPlus className="w-5.5 h-5.5 text-[#161616]" /> Recruiting</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Annunci, pipeline candidati e piani di inserimento a 6 mesi — l'onboarding del gruppo, gestito da Strategico.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Annunci, pipeline candidati e piani di inserimento a 6 mesi — l'onboarding del gruppo, gestito da Strategico.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
@@ -90,9 +90,9 @@ export const RecruitingView: React.FC<Props> = ({ items, color = '#b45309', canE
               <button key={a.id} onClick={() => setEditing(a)} className="text-left bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm hover:border-[#161616] cursor-pointer">
                 <div className="flex items-start justify-between gap-2">
                   <b className="text-[14px] text-[#161616]">{a.title || 'Annuncio'}</b>
-                  <span className={`text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${a.status === 'pubblicato' ? 'bg-emerald-50 text-emerald-700' : a.status === 'chiuso' ? 'bg-gray-100 text-gray-500' : 'bg-amber-50 text-amber-700'}`}>{a.status || 'bozza'}</span>
+                  <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${a.status === 'pubblicato' ? 'bg-emerald-50 text-emerald-700' : a.status === 'chiuso' ? 'bg-gray-100 text-gray-500' : 'bg-amber-50 text-amber-700'}`}>{a.status || 'bozza'}</span>
                 </div>
-                <p className="text-[11.5px] text-[#8a8a8a] mt-0.5">{a.sede || 'Ostuni (BR)'} · {of('candidato').filter((c) => c.annuncioId === a.id).length} candidati</p>
+                <p className="text-[11.5px] text-[#6b6b6b] mt-0.5">{a.sede || 'Ostuni (BR)'} · {of('candidato').filter((c) => c.annuncioId === a.id).length} candidati</p>
                 {a.body && <p className="text-[12px] text-[#555] mt-1.5 line-clamp-3">{a.body}</p>}
               </button>
             ))}
@@ -107,22 +107,22 @@ export const RecruitingView: React.FC<Props> = ({ items, color = '#b45309', canE
             const col = of('candidato').filter((c) => (c.status || 'candidatura') === st);
             return (
               <div key={st} className="min-w-[230px] w-[230px] shrink-0 flex flex-col gap-2">
-                <div className="flex items-center gap-1.5 px-1"><span className="w-2.5 h-2.5 rounded-full" style={{ background: STAGE_COLOR[st] }} /><span className="text-[12px] font-extrabold text-[#161616] capitalize">{st}</span><span className="text-[#b0b0b0] font-bold text-[11px]">({col.length})</span></div>
+                <div className="flex items-center gap-1.5 px-1"><span className="w-2.5 h-2.5 rounded-full" style={{ background: STAGE_COLOR[st] }} /><span className="text-[12px] font-extrabold text-[#161616] capitalize">{st}</span><span className="text-[#8f8f8f] font-bold text-[12px]">({col.length})</span></div>
                 <div className="flex flex-col gap-2 bg-[#f6f6f4] border border-[#eee] rounded-[16px] p-2 min-h-[120px]">
                   {col.map((c) => (
                     <div key={c.id} onClick={() => setEditing(c)} className="bg-white border border-[#e6e6e6] rounded-[12px] p-2.5 shadow-sm cursor-pointer hover:border-[#cfcfcf]">
                       <b className="text-[12.5px] text-[#161616] block leading-tight">{c.title || 'Candidato'}</b>
-                      <span className="text-[10.5px] text-[#9a9a9a]">{c.ruolo || '—'}</span>
+                      <span className="text-[11.5px] text-[#767676]">{c.ruolo || '—'}</span>
                       {canEdit && st !== 'inserito' && st !== 'scartato' && (
                         <div className="flex items-center gap-1 mt-1.5 flex-wrap" onClick={(e) => e.stopPropagation()}>
                           {STAGES.filter((s) => s !== st).slice(0, 4).map((s) => (
-                            <button key={s} onClick={() => onSave?.({ ...c, status: s, updatedAt: Date.now() })} title={`→ ${s}`} className="text-[9px] font-bold px-1.5 py-0.5 rounded-full cursor-pointer border-none text-white capitalize" style={{ background: STAGE_COLOR[s] }}>{s[0].toUpperCase()}</button>
+                            <button key={s} onClick={() => onSave?.({ ...c, status: s, updatedAt: Date.now() })} title={`→ ${s}`} className="text-[10px] font-bold px-1.5 py-0.5 rounded-full cursor-pointer border-none text-white capitalize" style={{ background: STAGE_COLOR[s] }}>{s[0].toUpperCase()}</button>
                           ))}
                         </div>
                       )}
                     </div>
                   ))}
-                  {col.length === 0 && <p className="text-[11px] text-[#b0b0b0] text-center py-4">—</p>}
+                  {col.length === 0 && <p className="text-[12px] text-[#8f8f8f] text-center py-4">—</p>}
                 </div>
               </div>
             );
@@ -139,9 +139,9 @@ export const RecruitingView: React.FC<Props> = ({ items, color = '#b45309', canE
               return (
                 <button key={p.id} onClick={() => setEditing(p)} className="text-left bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm hover:border-[#161616] cursor-pointer">
                   <b className="text-[14px] text-[#161616]">{p.title || 'Risorsa'}</b>
-                  <p className="text-[11.5px] text-[#8a8a8a] mt-0.5">{[p.ruolo, p.tutor ? `tutor ${p.tutor}` : null, p.startDate ? `dal ${new Date(p.startDate).toLocaleDateString('it-IT')}` : null].filter(Boolean).join(' · ') || '—'}</p>
+                  <p className="text-[11.5px] text-[#6b6b6b] mt-0.5">{[p.ruolo, p.tutor ? `tutor ${p.tutor}` : null, p.startDate ? `dal ${new Date(p.startDate).toLocaleDateString('it-IT')}` : null].filter(Boolean).join(' · ') || '—'}</p>
                   <div className="mt-2 h-2 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(filled / PIANO_SECTIONS.length) * 100}%`, background: '#161616' }} /></div>
-                  <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-1">{filled}/{PIANO_SECTIONS.length} sezioni compilate</p>
+                  <p className="text-[11.5px] text-[#767676] font-semibold mt-1">{filled}/{PIANO_SECTIONS.length} sezioni compilate</p>
                 </button>
               );
             })}
@@ -154,7 +154,7 @@ export const RecruitingView: React.FC<Props> = ({ items, color = '#b45309', canE
   );
 };
 
-const Empty: React.FC<{ msg: string }> = ({ msg }) => <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">{msg}</p>;
+const Empty: React.FC<{ msg: string }> = ({ msg }) => <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">{msg}</p>;
 
 const RecruitEditor: React.FC<{ item: RecruitItem; annunci: RecruitItem[]; canEdit: boolean; color: string; onClose: () => void; onSave: (i: RecruitItem) => void; onDelete?: (id: string) => void }> = ({ item, annunci, canEdit, color, onClose, onSave, onDelete }) => {
   const [d, setD] = React.useState<RecruitItem>({ ...item, piano: { ...(item.piano || {}) } });
@@ -201,7 +201,7 @@ const RecruitEditor: React.FC<{ item: RecruitItem; annunci: RecruitItem[]; canEd
           )}
           {K === 'inserimento' && PIANO_SECTIONS.map((s) => (
             <label key={s.key} className="flex flex-col gap-1">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6b6b6b]">{s.label}</span>
+              <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#6b6b6b]">{s.label}</span>
               <textarea disabled={!canEdit} value={d.piano?.[s.key] || ''} onChange={(e) => set({ piano: { ...(d.piano || {}), [s.key]: e.target.value } })} rows={3} placeholder={s.hint} className={`${inp} resize-y`} />
             </label>
           ))}

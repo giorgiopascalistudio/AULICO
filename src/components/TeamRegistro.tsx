@@ -72,17 +72,17 @@ export const TeamRegistro: React.FC<Props> = ({ members, pending, tasks = [], po
       <div className="lg:w-[40%] xl:w-[34%] flex flex-col bg-white border border-[#e2e2e2] rounded-[22px] overflow-hidden shadow-sm">
         <div className="p-3.5 border-b border-[#f0f0f0] flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
-            <h3 className="inline-flex items-center gap-2 text-[14px] font-extrabold text-[#161616]"><Users className="w-4.5 h-4.5" /> Team & Permessi <span className="text-[#b0b0b0] font-bold">({list.length})</span></h3>
+            <h3 className="inline-flex items-center gap-2 text-[14px] font-extrabold text-[#161616]"><Users className="w-4.5 h-4.5" /> Team & Permessi <span className="text-[#8f8f8f] font-bold">({list.length})</span></h3>
             {canManage && <button onClick={onNewUser} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><Plus className="w-3.5 h-3.5" /> Nuovo</button>}
           </div>
           <div className="relative">
-            <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#8f8f8f] absolute left-3 top-1/2 -translate-y-1/2" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cerca nome, email, ruolo…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616]" />
           </div>
           <div className="flex items-center gap-2">
             <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
               {(['attivi', 'attesa', 'tutti'] as const).map((s) => (
-                <button key={s} onClick={() => setStatus(s)} className={`text-[11px] font-bold px-2.5 py-1 rounded-full cursor-pointer border-none transition-all ${status === s ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>
+                <button key={s} onClick={() => setStatus(s)} className={`text-[12px] font-bold px-2.5 py-1 rounded-full cursor-pointer border-none transition-all ${status === s ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>
                   {s === 'attivi' ? 'Attivi' : s === 'attesa' ? `In attesa${pending.length ? ` (${pending.length})` : ''}` : 'Tutti'}
                 </button>
               ))}
@@ -92,12 +92,12 @@ export const TeamRegistro: React.FC<Props> = ({ members, pending, tasks = [], po
                 <option value="all">Tutti i ruoli</option>
                 {(['admin', 'manager', 'staff'] as const).map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
               </select>
-              <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-[#767676] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto divide-y divide-[#f3f3f3] max-h-[520px]">
-          {list.length === 0 ? <div className="p-8 text-center text-[#9a9a9a] text-[13px]">Nessun membro coi filtri correnti.</div> : list.map((u) => {
+          {list.length === 0 ? <div className="p-8 text-center text-[#767676] text-[13px]">Nessun membro coi filtri correnti.</div> : list.map((u) => {
             const isSel = selId === u.uid;
             const dot = u._pending ? 'bg-amber-500 animate-pulse' : u.active === false ? 'bg-gray-300' : 'bg-emerald-500';
             return (
@@ -108,12 +108,12 @@ export const TeamRegistro: React.FC<Props> = ({ members, pending, tasks = [], po
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <h4 className="text-[13.5px] font-bold text-[#161616] truncate">{u.name}{u.uid === myUid && <span className="text-[10px] font-bold text-[#b0b0b0]"> · tu</span>}</h4>
-                    {u._pending ? <span className="text-[9px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full shrink-0">In attesa</span>
-                      : <span className="text-[9px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full shrink-0">{ROLE_LABEL[u.role] || u.role}</span>}
+                    <h4 className="text-[13.5px] font-bold text-[#161616] truncate">{u.name}{u.uid === myUid && <span className="text-[11px] font-bold text-[#8f8f8f]"> · tu</span>}</h4>
+                    {u._pending ? <span className="text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full shrink-0">In attesa</span>
+                      : <span className="text-[10px] font-extrabold uppercase tracking-wider bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full shrink-0">{ROLE_LABEL[u.role] || u.role}</span>}
                   </div>
-                  {u.title && <p className="text-[11.5px] text-[#8a8a8a] truncate mt-0.5 font-medium">{u.title}</p>}
-                  {u.email && <p className="text-[11px] text-[#a0a0a0] truncate mt-0.5">{u.email}</p>}
+                  {u.title && <p className="text-[11.5px] text-[#6b6b6b] truncate mt-0.5 font-medium">{u.title}</p>}
+                  {u.email && <p className="text-[12px] text-[#a0a0a0] truncate mt-0.5">{u.email}</p>}
                 </div>
               </div>
             );
@@ -123,7 +123,7 @@ export const TeamRegistro: React.FC<Props> = ({ members, pending, tasks = [], po
 
       {/* ===== DETTAGLIO (scheda) ===== */}
       <div className="flex-1 bg-white border border-[#e2e2e2] rounded-[22px] overflow-hidden shadow-sm flex flex-col">
-        {!sel ? <div className="flex-1 flex items-center justify-center p-10 text-center text-[#9a9a9a] text-[13.5px]">Seleziona un membro dalla lista.</div>
+        {!sel ? <div className="flex-1 flex items-center justify-center p-10 text-center text-[#767676] text-[13.5px]">Seleziona un membro dalla lista.</div>
           : <MemberDetail key={sel.uid} sel={sel} isPending={!!sel._pending} tasks={tasks} pointEvents={pointEvents} canManage={canManage} canMakeAdmin={canMakeAdmin} isMe={sel.uid === myUid}
               onApprove={onApprove} onReject={onReject} onChangeRole={onChangeRole} onToggleActive={onToggleActive} onSaveAccess={onSaveAccess} onEditUser={onEditUser} onPreview={onPreview} />}
       </div>
@@ -133,7 +133,7 @@ export const TeamRegistro: React.FC<Props> = ({ members, pending, tasks = [], po
 
 const Box: React.FC<{ title: string; children: React.ReactNode; icon?: any }> = ({ title, children, icon: Icon }) => (
   <div className="bg-[#fafafa] border border-[#f0f0f0] rounded-[16px] p-4 flex flex-col gap-2.5">
-    <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0] inline-flex items-center gap-1.5">{Icon && <Icon className="w-3.5 h-3.5" />} {title}</p>
+    <p className="text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0] inline-flex items-center gap-1.5">{Icon && <Icon className="w-3.5 h-3.5" />} {title}</p>
     {children}
   </div>
 );
@@ -198,9 +198,9 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="text-[18px] font-black text-[#161616] leading-tight truncate">{sel.name}</h3>
-            <span className={`text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${statusPill.c}`}>{statusPill.t}</span>
+            <span className={`text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${statusPill.c}`}>{statusPill.t}</span>
           </div>
-          <p className="text-[12.5px] text-[#8a8a8a] mt-0.5">{ROLE_LABEL[sel.role] || sel.role}{sel.title ? ` · ${sel.title}` : ''}</p>
+          <p className="text-[12.5px] text-[#6b6b6b] mt-0.5">{ROLE_LABEL[sel.role] || sel.role}{sel.title ? ` · ${sel.title}` : ''}</p>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {onPreview && !isPending && <button onClick={() => onPreview(sel.uid)} title="Anteprima come" className="p-2 rounded-lg hover:bg-gray-100 text-[#666] cursor-pointer bg-transparent border-none"><Eye className="w-4 h-4" /></button>}
@@ -211,18 +211,18 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
       <div className="p-5 flex flex-col gap-4 overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Box title="Contatti" icon={Mail}>
-            {sel.email && <a href={`mailto:${sel.email}`} className="text-[13px] text-[#161616] hover:underline inline-flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-[#b0b0b0]" /> {sel.email}</a>}
-            {sel.telefono && <a href={`tel:${sel.telefono}`} className="text-[13px] text-[#161616] hover:underline inline-flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-[#b0b0b0]" /> {sel.telefono}</a>}
-            {fns.length > 0 && <div className="mt-1"><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Mansioni</p><div className="flex flex-wrap gap-1">{fns.map((f) => <span key={f} className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-white border border-[#e2e2e2] text-[#555]">{f}</span>)}</div></div>}
+            {sel.email && <a href={`mailto:${sel.email}`} className="text-[13px] text-[#161616] hover:underline inline-flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-[#8f8f8f]" /> {sel.email}</a>}
+            {sel.telefono && <a href={`tel:${sel.telefono}`} className="text-[13px] text-[#161616] hover:underline inline-flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-[#8f8f8f]" /> {sel.telefono}</a>}
+            {fns.length > 0 && <div className="mt-1"><p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Mansioni</p><div className="flex flex-wrap gap-1">{fns.map((f) => <span key={f} className="text-[11.5px] font-bold px-2 py-0.5 rounded-full bg-white border border-[#e2e2e2] text-[#555]">{f}</span>)}</div></div>}
           </Box>
           <Box title="Merito & bonus" icon={Award}>
             <div className="flex items-center gap-2">
               <span className="text-[12px] font-extrabold px-2.5 py-1 rounded-full text-white" style={{ background: tier.color }}>{tier.label}</span>
-              <span className="text-[20px] font-black text-[#161616]">{pts}</span><span className="text-[11px] text-[#9a9a9a]">punti</span>
+              <span className="text-[20px] font-black text-[#161616]">{pts}</span><span className="text-[12px] text-[#767676]">punti</span>
             </div>
-            <p className="text-[11.5px] text-[#8a8a8a]">Bonus fascia: <b className="text-[#161616]">{tier.bonusPct}%</b>{tier.perk ? ` · ${tier.perk}` : ''}</p>
-            <p className="text-[11.5px] text-[#8a8a8a]">Erogato (valore attività): <b className="text-[#161616]">{eur(erogato)}</b></p>
-            {nxt && <p className="text-[11px] text-[#a0a0a0]">Ancora <b>{nxt.remaining}</b> punti per {nxt.tier.label}.</p>}
+            <p className="text-[11.5px] text-[#6b6b6b]">Bonus fascia: <b className="text-[#161616]">{tier.bonusPct}%</b>{tier.perk ? ` · ${tier.perk}` : ''}</p>
+            <p className="text-[11.5px] text-[#6b6b6b]">Erogato (valore attività): <b className="text-[#161616]">{eur(erogato)}</b></p>
+            {nxt && <p className="text-[12px] text-[#a0a0a0]">Ancora <b>{nxt.remaining}</b> punti per {nxt.tier.label}.</p>}
           </Box>
         </div>
 
@@ -234,7 +234,7 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
             </div>
             <span className="text-[14px] font-black text-[#161616]">{prof.pct}%</span>
           </div>
-          {prof.missing.length > 0 ? <p className="text-[11.5px] text-[#8a8a8a]">Mancano: {prof.missing.join(', ')}.</p> : <p className="text-[11.5px] text-emerald-600 font-semibold">Profilo completo.</p>}
+          {prof.missing.length > 0 ? <p className="text-[11.5px] text-[#6b6b6b]">Mancano: {prof.missing.join(', ')}.</p> : <p className="text-[11.5px] text-emerald-600 font-semibold">Profilo completo.</p>}
         </Box>
 
         {/* Produttività */}
@@ -243,7 +243,7 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
             {[['Aperti', open, '#161616'], ['Urgenti', urgent, '#dc2626'], ['Scaduti', overdue, '#ea580c'], ['Completati', completed, '#059669']].map(([l, v, c]) => (
               <div key={l as string} className="text-center bg-white border border-[#f0f0f0] rounded-xl py-2">
                 <p className="text-[20px] font-black" style={{ color: c as string }}>{v as number}</p>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">{l as string}</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0]">{l as string}</p>
               </div>
             ))}
           </div>
@@ -260,7 +260,7 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
                     <select value={approveRole} onChange={(e) => setApproveRole(e.target.value as UserRole)} className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold bg-white outline-none focus:border-[#161616] cursor-pointer">
                       {roleOpts(canMakeAdmin).map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
                     </select>
-                    <ChevronDown className="w-4 h-4 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <ChevronDown className="w-4 h-4 text-[#767676] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
                   <button onClick={() => onApprove(sel.uid, approveRole)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[12.5px] font-bold cursor-pointer border-none"><CheckCircle2 className="w-4 h-4" /> Approva</button>
                   <button onClick={() => onReject(sel.uid)} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-rose-400 text-rose-600 text-[12.5px] font-bold cursor-pointer"><XCircle className="w-4 h-4" /> Rifiuta</button>
@@ -270,26 +270,26 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
               <div className="flex flex-col gap-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Ruolo</p>
+                    <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Ruolo</p>
                     <div className="relative">
                       <select disabled={isMe} value={sel.role} onChange={(e) => onChangeRole(sel.uid, e.target.value as UserRole)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold bg-white outline-none focus:border-[#161616] cursor-pointer disabled:opacity-60">
                         {roleOpts(canMakeAdmin || sel.role === 'admin').map((r) => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
                       </select>
-                      <ChevronDown className="w-4 h-4 text-[#9a9a9a] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <ChevronDown className="w-4 h-4 text-[#767676] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
                   <div>
-                    <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase mb-1">Stato</p>
+                    <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase mb-1">Stato</p>
                     <button disabled={isMe} onClick={() => onToggleActive(sel.uid, !(sel.active !== false))} className={`w-full px-3 py-2 rounded-xl text-[12.5px] font-bold border cursor-pointer disabled:opacity-60 ${sel.active !== false ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-50 text-gray-600 border-[#e2e2e2]'}`}>{sel.active !== false ? 'Attivo (clic per sospendere)' : 'Sospeso (clic per attivare)'}</button>
                   </div>
                 </div>
                 {/* Permessi granulari per società */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase inline-flex items-center gap-1"><UserCog className="w-3 h-3" /> Permessi per società</p>
-                    {Object.keys(access).length > 0 && <button onClick={() => { setAccess({}); setDirty(true); }} className="text-[11px] font-bold text-[#b45309] hover:underline cursor-pointer bg-transparent border-none p-0">Ripristina dal ruolo</button>}
+                    <p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase inline-flex items-center gap-1"><UserCog className="w-3 h-3" /> Permessi per società</p>
+                    {Object.keys(access).length > 0 && <button onClick={() => { setAccess({}); setDirty(true); }} className="text-[12px] font-bold text-[#b45309] hover:underline cursor-pointer bg-transparent border-none p-0">Ripristina dal ruolo</button>}
                   </div>
-                  <p className="text-[11px] text-[#9a9a9a] mb-2">"Predefinito" usa i permessi del ruolo. Il livello società vale per tutte le sue sezioni; con "Sezioni" scendi nel dettaglio (Nascosta / Visualizza / Opera). Un livello su una riga <b>in grassetto</b> (gruppo, es. Marketing) vale per tutte le sue voci; le singole voci possono comunque sovrascriverlo. Es.: società "Nessuno" + gruppo Marketing "Opera" = l'utente vede SOLO il Marketing di quella società.</p>
+                  <p className="text-[12px] text-[#767676] mb-2">"Predefinito" usa i permessi del ruolo. Il livello società vale per tutte le sue sezioni; con "Sezioni" scendi nel dettaglio (Nascosta / Visualizza / Opera). Un livello su una riga <b>in grassetto</b> (gruppo, es. Marketing) vale per tutte le sue voci; le singole voci possono comunque sovrascriverlo. Es.: società "Nessuno" + gruppo Marketing "Opera" = l'utente vede SOLO il Marketing di quella società.</p>
                   <div className="flex flex-col gap-1.5">
                     {SOCIETA.map((s) => {
                       const soc = SOCIETY_REGISTRY.find((x) => x.id === s);
@@ -305,12 +305,12 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
                                 <option value="">Predefinito</option>
                                 {LEVELS.map((lv) => <option key={lv} value={lv}>{LEVEL_LABEL[lv]}</option>)}
                               </select>
-                              <ChevronDown className="w-3.5 h-3.5 text-[#9a9a9a] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <ChevronDown className="w-3.5 h-3.5 text-[#767676] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
                             </div>
                           </div>
                           {secs.length > 0 && (
                             <details className="border-t border-[#f3f3f3]">
-                              <summary className="px-3 py-1.5 text-[10.5px] font-bold text-[#8a8a8a] cursor-pointer select-none hover:text-[#161616]">
+                              <summary className="px-3 py-1.5 text-[11.5px] font-bold text-[#6b6b6b] cursor-pointer select-none hover:text-[#161616]">
                                 Sezioni ({secs.length}){overrides ? ` · ${overrides} personalizzate` : ''}
                               </summary>
                               <div className="px-3 pb-2 flex flex-col gap-1 max-h-[260px] overflow-y-auto">
@@ -320,7 +320,7 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
                                     <select
                                       value={access[s]?.sections?.[sec.id] || ''}
                                       onChange={(e) => setSectionLevel(s, sec.id, e.target.value as AccessLevel | '')}
-                                      className={`appearance-none px-2 py-1 rounded-lg border text-[10.5px] font-semibold bg-white outline-none focus:border-[#161616] cursor-pointer shrink-0 ${access[s]?.sections?.[sec.id] ? 'border-[#161616]' : 'border-[#e2e2e2] text-[#9a9a9a]'}`}
+                                      className={`appearance-none px-2 py-1 rounded-lg border text-[11.5px] font-semibold bg-white outline-none focus:border-[#161616] cursor-pointer shrink-0 ${access[s]?.sections?.[sec.id] ? 'border-[#161616]' : 'border-[#e2e2e2] text-[#767676]'}`}
                                     >
                                       <option value="">Eredita</option>
                                       <option value="none">Nascosta</option>
@@ -342,7 +342,7 @@ const MemberDetail: React.FC<{ sel: Member; isPending: boolean; tasks: Task[]; p
             )}
           </Box>
         ) : (
-          <Box title="Accessi & permessi" icon={ShieldCheck}><p className="text-[12.5px] text-[#9a9a9a] inline-flex items-center gap-1.5"><Clock className="w-4 h-4" /> Solo admin/manager (Risorse Umane) possono gestire ruoli e permessi.</p></Box>
+          <Box title="Accessi & permessi" icon={ShieldCheck}><p className="text-[12.5px] text-[#767676] inline-flex items-center gap-1.5"><Clock className="w-4 h-4" /> Solo admin/manager (Risorse Umane) possono gestire ruoli e permessi.</p></Box>
         )}
       </div>
     </>

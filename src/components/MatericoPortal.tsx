@@ -88,9 +88,9 @@ export const MatericoPortal: React.FC<MatericoPortalProps> = ({
     return (
       <div className="bg-white border border-[#e2e2e2] rounded-[26px] p-5 shadow-sm mb-6">
         <h3 className="text-[16px] font-extrabold text-[#161616] flex items-center gap-2 mb-1"><ClipboardList className="w-4 h-4" /> {t('mat.partner.title')}</h3>
-        <p className="text-[12px] text-[#8a8a8a] mb-4">{t('mat.partner.sub')}</p>
+        <p className="text-[12px] text-[#6b6b6b] mb-4">{t('mat.partner.sub')}</p>
         {requests.length === 0 ? (
-          <p className="text-[12.5px] italic text-[#8a8a8a]">{t('mat.partner.empty')}</p>
+          <p className="text-[12.5px] italic text-[#6b6b6b]">{t('mat.partner.empty')}</p>
         ) : (
           <div className="flex flex-col gap-3">
             {requests.map((r) => {
@@ -99,7 +99,7 @@ export const MatericoPortal: React.FC<MatericoPortalProps> = ({
                 <div key={r.id} className="border border-[#ececec] rounded-2xl p-4">
                   <div className="flex items-center justify-between gap-2">
                     <b className="text-[14px] text-[#161616]">{r.title}</b>
-                    {r.category && <span className="text-[11px] text-[#8a8a8a]">{r.category}</span>}
+                    {r.category && <span className="text-[12px] text-[#6b6b6b]">{r.category}</span>}
                   </div>
                   {r.description && <p className="text-[12.5px] text-[#555] mt-1">{r.description}</p>}
                   {(r.items || []).length > 0 && (
@@ -148,16 +148,16 @@ export const MatericoPortal: React.FC<MatericoPortalProps> = ({
       </div>
 
       {(tab === 'richieste' ? inRichiesta : inCorso).length === 0 ? (
-        <p className="text-[12.5px] italic text-[#8a8a8a]">{tab === 'richieste' ? t('mat.client.emptyRequests') : t('mat.client.emptyWorks')}</p>
+        <p className="text-[12.5px] italic text-[#6b6b6b]">{tab === 'richieste' ? t('mat.client.emptyRequests') : t('mat.client.emptyWorks')}</p>
       ) : (
         <div className="flex flex-col gap-3">
           {(tab === 'richieste' ? inRichiesta : inCorso).map((r) => (
             <div key={r.id} className="border border-[#ececec] rounded-2xl p-4">
               <div className="flex items-center justify-between gap-2">
                 <b className="text-[14px] text-[#161616]">{r.title}</b>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#8a8a8a] bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-full">{t('mat.status.' + r.status)}</span>
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6b6b6b] bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-full">{t('mat.status.' + r.status)}</span>
               </div>
-              {r.category && <span className="text-[11.5px] text-[#8a8a8a]">{r.category}</span>}
+              {r.category && <span className="text-[11.5px] text-[#6b6b6b]">{r.category}</span>}
 
               {r.status === 'inviata_cliente' && r.clientPrice != null && (
                 <div className="mt-3 bg-sky-50 border border-sky-200 rounded-xl p-3">
@@ -204,7 +204,7 @@ export const MatericoPortal: React.FC<MatericoPortalProps> = ({
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] flex items-center gap-1.5"><Layers className="w-3.5 h-3.5" /> {t('mat.form.quantity')}</span>
+                  <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b] flex items-center gap-1.5"><Layers className="w-3.5 h-3.5" /> {t('mat.form.quantity')}</span>
                   <button onClick={addItem} className="text-[12px] font-bold text-[#161616] hover:underline bg-transparent border-none cursor-pointer flex items-center gap-1"><Plus className="w-3.5 h-3.5" /> {t('mat.form.addItem')}</button>
                 </div>
                 <div className="flex flex-col gap-2">

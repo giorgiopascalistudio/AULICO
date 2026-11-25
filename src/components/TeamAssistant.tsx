@@ -107,14 +107,14 @@ export const TeamAssistant: React.FC<{
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#ececec] shrink-0">
             <b className="text-[14px] inline-flex items-center gap-2"><Sparkles className="w-4 h-4 text-[#b45309]" /> Assistente Aulico</b>
             <div className="flex items-center gap-1">
-              {msgs.length > 0 && <button onClick={() => setMsgs([])} className="text-[11px] font-bold text-stone-400 hover:text-[#161616] bg-transparent border-none cursor-pointer px-1">Pulisci</button>}
+              {msgs.length > 0 && <button onClick={() => setMsgs([])} className="text-[12px] font-bold text-stone-500 hover:text-[#161616] bg-transparent border-none cursor-pointer px-1">Pulisci</button>}
               <button onClick={() => setOpen(false)} className="w-7 h-7 rounded-lg hover:bg-stone-100 flex items-center justify-center text-stone-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
             </div>
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-3.5 flex flex-col gap-2.5">
             {msgs.length === 0 && (
-              <div className="text-[12.5px] text-[#8a8a8a] leading-relaxed">
+              <div className="text-[12.5px] text-[#6b6b6b] leading-relaxed">
                 Ciao {(/** primo nome */ profile.name || '').split(' ')[0]}! Chiedimi un consiglio sui tuoi impegni, informazioni sui progetti/clienti, oppure "come funziona…" una parte dell'app.
                 <div className="flex flex-wrap gap-1.5 mt-3">
                   {['Cosa faccio oggi?', 'Quali task sono in ritardo?', 'Come funziona il Cantiere?'].map((s) => (

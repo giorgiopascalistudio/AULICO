@@ -38,9 +38,9 @@ const expiryBadge = (expiry?: string | null) => {
   if (!expiry) return null;
   const days = Math.ceil((new Date(expiry).getTime() - Date.now()) / 86400000);
   if (isNaN(days)) return null;
-  if (days < 0) return <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-50 text-rose-700">Scaduto {fmtDay(expiry)}</span>;
-  if (days <= 30) return <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700">Scade {fmtDay(expiry)}</span>;
-  return <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700">Valido al {fmtDay(expiry)}</span>;
+  if (days < 0) return <span className="text-[11px] px-2 py-0.5 rounded-full font-bold bg-rose-50 text-rose-700">Scaduto {fmtDay(expiry)}</span>;
+  if (days <= 30) return <span className="text-[11px] px-2 py-0.5 rounded-full font-bold bg-amber-50 text-amber-700">Scade {fmtDay(expiry)}</span>;
+  return <span className="text-[11px] px-2 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700">Valido al {fmtDay(expiry)}</span>;
 };
 
 export const DocRegistry: React.FC<DocRegistryProps> = ({ items, folderName, canWrite, canDelete, onAdd, onDelete, categories, withExpiry, emptyText }) => {
@@ -82,18 +82,18 @@ export const DocRegistry: React.FC<DocRegistryProps> = ({ items, folderName, can
       )}
 
       {list.length === 0 ? (
-        <p className="text-[12.5px] italic text-[#9a9a9a] py-3">{emptyText || 'Nessun documento.'}</p>
+        <p className="text-[12.5px] italic text-[#767676] py-3">{emptyText || 'Nessun documento.'}</p>
       ) : (
         <div className="flex flex-col gap-1.5">
           {list.map((d) => (
             <div key={d.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-[#eee]">
               <a href={safeUrl(d.driveUrl || d.link) || '#'} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[12.5px] font-medium text-[#161616] min-w-0">
-                <FileText className="w-4 h-4 text-[#9a9a9a] shrink-0" />
+                <FileText className="w-4 h-4 text-[#767676] shrink-0" />
                 <span className="truncate">{d.name}</span>
-                {d.category && <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#f1f1f1] text-[#6b6b6b] font-bold shrink-0">{d.category}</span>}
+                {d.category && <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#f1f1f1] text-[#6b6b6b] font-bold shrink-0">{d.category}</span>}
               </a>
               <div className="flex items-center gap-2 shrink-0">
-                {withExpiry ? expiryBadge(d.expiry) : <span className="text-[11px] text-[#9a9a9a]">{fmtDay(new Date(d.at).toISOString().slice(0, 10))}</span>}
+                {withExpiry ? expiryBadge(d.expiry) : <span className="text-[12px] text-[#767676]">{fmtDay(new Date(d.at).toISOString().slice(0, 10))}</span>}
                 {(!canDelete || canDelete(d)) && canWrite && (
                   <button onClick={() => onDelete(d.id)} className="text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>
                 )}
@@ -104,7 +104,7 @@ export const DocRegistry: React.FC<DocRegistryProps> = ({ items, folderName, can
       )}
       {!canWrite && list.length === 0 && null}
       {withExpiry && canWrite && list.length === 0 && (
-        <span className="inline-flex items-center gap-1 text-[11px] text-[#b0b0b0]"><AlertTriangle className="w-3 h-3" /> Carica i documenti con la relativa scadenza per tenere monitorate le validità.</span>
+        <span className="inline-flex items-center gap-1 text-[12px] text-[#8f8f8f]"><AlertTriangle className="w-3 h-3" /> Carica i documenti con la relativa scadenza per tenere monitorate le validità.</span>
       )}
     </div>
   );

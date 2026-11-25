@@ -204,7 +204,7 @@ export const DailyQuiz: React.FC<{ profile: UserProfile; projects: Project[]; em
         <p className="text-[13px] text-[#555] mt-1">{alreadyDone ? 'Hai già completato il quiz di oggi.' : 'Quiz completato!'} Punteggio: <b>{last}/{questions.length}</b>{quizState.streak ? ` · serie di ${quizState.streak} giorni 🔥` : ''}</p>
 
         {/* Riepilogo con le risposte corrette + spiegazione */}
-        <div className="mt-4 flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[#8a8a8a]">
+        <div className="mt-4 flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">
           <BookOpen className="w-[15px] h-[15px]" /> Le risposte corrette
         </div>
         <div className="mt-2 flex flex-col gap-2.5">
@@ -219,7 +219,7 @@ export const DailyQuiz: React.FC<{ profile: UserProfile; projects: Project[]; em
             </div>
           ))}
         </div>
-        <p className="text-[12px] text-[#8a8a8a] mt-3">Torna domani per nuove domande sul mondo delle costruzioni e sul tuo progetto.</p>
+        <p className="text-[12px] text-[#6b6b6b] mt-3">Torna domani per nuove domande sul mondo delle costruzioni e sul tuo progetto.</p>
       </Card>
     );
   }
@@ -229,7 +229,7 @@ export const DailyQuiz: React.FC<{ profile: UserProfile; projects: Project[]; em
     <Card>
       <div className={`flex items-center mb-3 ${embedded ? 'justify-end' : 'justify-between'}`}>
         {!embedded && <div className="flex items-center gap-2"><HelpCircle className="w-[18px] h-[18px] text-[#b45309]" /><b className="text-[15px]">Quiz del giorno</b></div>}
-        <span className="text-[11.5px] text-[#8a8a8a]">Domanda {idx + 1} / {questions.length}</span>
+        <span className="text-[11.5px] text-[#6b6b6b]">Domanda {idx + 1} / {questions.length}</span>
       </div>
       <p className="text-[14px] font-semibold text-[#161616] mb-3">{cur.q}</p>
       <div className="flex flex-col gap-2">

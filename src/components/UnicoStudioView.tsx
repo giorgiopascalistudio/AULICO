@@ -144,7 +144,7 @@ export const UnicoStudioView: React.FC<Props> = ({ deals, onSave, projects, user
             const active = tab === t.id;
             return (
               <button key={t.id} onClick={() => setTab(t.id)}
-                className={`relative text-[12px] font-extrabold px-4 py-1.5 rounded-full transition-colors border-none bg-transparent cursor-pointer ${active ? 'text-[#161616]' : 'text-[#8a8a8a] hover:text-[#161616]'}`}>
+                className={`relative text-[12px] font-extrabold px-4 py-1.5 rounded-full transition-colors border-none bg-transparent cursor-pointer ${active ? 'text-[#161616]' : 'text-[#6b6b6b] hover:text-[#161616]'}`}>
                 {active && <motion.div layoutId="unicoSubTab" transition={{ type: 'spring', stiffness: 420, damping: 32 }} className="absolute inset-0 bg-white rounded-full z-0 shadow-xs" />}
                 <span className="relative z-10">{t.label}</span>
               </button>
@@ -152,7 +152,7 @@ export const UnicoStudioView: React.FC<Props> = ({ deals, onSave, projects, user
           })}
         </div>
         {canEdit && tab === 'operazioni' && (
-          <button onClick={openNew} className="flex items-center gap-1.5 bg-[#4338ca] hover:bg-[#3730a3] text-white font-bold text-[13px] h-10 px-4 rounded-xl border-none cursor-pointer transition-all active:scale-95">
+          <button onClick={openNew} className="flex items-center gap-1.5 bg-[#161616] hover:bg-black text-white font-bold text-[13px] h-10 px-4 rounded-xl border-none cursor-pointer transition-all active:scale-95">
             <Plus className="w-4 h-4" /> Nuova operazione
           </button>
         )}
@@ -203,9 +203,9 @@ export const UnicoStudioView: React.FC<Props> = ({ deals, onSave, projects, user
 /* ---------- KPI ---------- */
 const Kpi: React.FC<{ icon: React.ReactNode; label: string; value: string; sub?: string; accent?: string }> = ({ icon, label, value, sub, accent }) => (
   <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-    <span className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wide text-stone-400">{icon}{label}</span>
+    <span className="flex items-center gap-1.5 text-[11.5px] font-bold uppercase tracking-wide text-stone-500">{icon}{label}</span>
     <b className="block text-[22px] mt-1.5 leading-none tracking-tight" style={accent ? { color: accent } : undefined}>{value}</b>
-    {sub && <span className="text-[11px] text-stone-400 mt-1 inline-block">{sub}</span>}
+    {sub && <span className="text-[12px] text-stone-500 mt-1 inline-block">{sub}</span>}
   </div>
 );
 
@@ -219,11 +219,11 @@ const DealCard: React.FC<{ deal: UnicoDeal; canEdit: boolean; onEdit: () => void
     <div className="bg-white border border-[#e2e2e2] rounded-[22px] p-5 shadow-sm hover:shadow-md transition-all border-l-[5px]" style={{ borderLeftColor: st.dot }}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <span className="text-[10.5px] font-bold uppercase tracking-wide text-stone-400">{d.type}</span>
+          <span className="text-[11.5px] font-bold uppercase tracking-wide text-stone-500">{d.type}</span>
           <b className="block text-[16px] tracking-tight truncate">{d.title || 'Senza nome'}</b>
           <span className="flex items-center gap-1 text-[12px] text-stone-500 mt-0.5"><MapPin className="w-3.5 h-3.5" /> {d.location || '—'}</span>
         </div>
-        <span className={`shrink-0 text-[10.5px] font-bold px-2.5 py-1 rounded-full border ${st.cls}`}>{st.label}</span>
+        <span className={`shrink-0 text-[11.5px] font-bold px-2.5 py-1 rounded-full border ${st.cls}`}>{st.label}</span>
       </div>
 
       <div className="grid grid-cols-3 gap-2 mt-4 text-center">
@@ -241,7 +241,7 @@ const DealCard: React.FC<{ deal: UnicoDeal; canEdit: boolean; onEdit: () => void
         <div className="h-1.5 w-full bg-[#eee] rounded-full overflow-hidden">
           <div className="h-full rounded-full" style={{ width: `${fundedPct}%`, background: '#4338ca' }} />
         </div>
-        <div className="flex items-center justify-between text-[11px] text-stone-500 mt-1.5 font-semibold">
+        <div className="flex items-center justify-between text-[12px] text-stone-500 mt-1.5 font-semibold">
           <span>{eur(raised)} / {eur(d.capitalGoal)}</span>
           <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {d.investors?.length || 0}</span>
         </div>
@@ -268,7 +268,7 @@ const DealCard: React.FC<{ deal: UnicoDeal; canEdit: boolean; onEdit: () => void
 
 const Mini: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div className="bg-[#fafafa] border border-[#ececec] rounded-xl py-2">
-    <span className="block text-[9.5px] uppercase tracking-wide text-stone-400 font-bold">{label}</span>
+    <span className="block text-[10.5px] uppercase tracking-wide text-stone-500 font-bold">{label}</span>
     <b className="block text-[12.5px] mt-0.5">{value}</b>
   </div>
 );
@@ -281,13 +281,13 @@ const InvestorsTable: React.FC<{ deals: UnicoDeal[] }> = ({ deals }) => {
   const total = rows.reduce((s, r) => s + (Number(r.amount) || 0), 0);
 
   if (rows.length === 0) {
-    return <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center text-stone-400 text-[13.5px]">Nessun investitore registrato. Aggiungili dal dettaglio di un’operazione.</div>;
+    return <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center text-stone-500 text-[13.5px]">Nessun investitore registrato. Aggiungili dal dettaglio di un’operazione.</div>;
   }
   return (
     <div className="bg-white border border-[#e2e2e2] rounded-[20px] overflow-hidden">
       <div className="overflow-x-auto">
         <div className="min-w-[480px]">
-          <div className="grid grid-cols-[1.4fr_1.4fr_0.9fr_0.7fr] gap-2 px-4 py-3 bg-[#fafafa] border-b border-[#ececec] text-[10.5px] font-bold uppercase tracking-wide text-stone-400">
+          <div className="grid grid-cols-[1.4fr_1.4fr_0.9fr_0.7fr] gap-2 px-4 py-3 bg-[#fafafa] border-b border-[#ececec] text-[11.5px] font-bold uppercase tracking-wide text-stone-500">
             <span>Investitore</span><span>Operazione</span><span className="text-right">Conferito</span><span className="text-right">Quota</span>
           </div>
           {rows.map((r) => {
@@ -317,7 +317,7 @@ const RendicontoView: React.FC<{ deals: UnicoDeal[] }> = ({ deals }) => {
   const totDistributed = deals.reduce((s, d) => s + distributedOf(d), 0);
 
   if (withInvestors.length === 0) {
-    return <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center text-stone-400 text-[13.5px]">Nessuna operazione con investitori. Aggiungi investitori dal dettaglio di un'operazione per vedere il rendiconto.</div>;
+    return <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center text-stone-500 text-[13.5px]">Nessuna operazione con investitori. Aggiungi investitori dal dettaglio di un'operazione per vedere il rendiconto.</div>;
   }
   return (
     <div className="flex flex-col gap-4">
@@ -334,13 +334,13 @@ const RendicontoView: React.FC<{ deals: UnicoDeal[] }> = ({ deals }) => {
             <div className="flex items-center justify-between gap-2 px-4 py-3 bg-[#fafafa] border-b border-[#ececec]">
               <div className="min-w-0">
                 <b className="text-[14px] truncate block">{d.title || 'Senza nome'}</b>
-                <span className="text-[11.5px] text-stone-400">{STATUS[d.status].label} · profitto atteso {eur(profit)}{d.spvName ? ` · ${d.spvName}` : ''}</span>
+                <span className="text-[11.5px] text-stone-500">{STATUS[d.status].label} · profitto atteso {eur(profit)}{d.spvName ? ` · ${d.spvName}` : ''}</span>
               </div>
               <span className="text-[12px] font-bold text-emerald-700 shrink-0">Erogato {eur(distributedOf(d))}</span>
             </div>
             <div className="overflow-x-auto">
               <div className="min-w-[520px]">
-                <div className="grid grid-cols-[1.4fr_0.8fr_1fr_1fr_1fr] gap-2 px-4 py-2 text-[10.5px] font-bold uppercase tracking-wide text-stone-400 border-b border-[#f3f3f3]">
+                <div className="grid grid-cols-[1.4fr_0.8fr_1fr_1fr_1fr] gap-2 px-4 py-2 text-[11.5px] font-bold uppercase tracking-wide text-stone-500 border-b border-[#f3f3f3]">
                   <span>Investitore</span><span className="text-right">Quota</span><span className="text-right">Conferito</span><span className="text-right">Rend. atteso</span><span className="text-right">Distribuito</span>
                 </div>
                 {(d.investors || []).map((i) => {
@@ -372,7 +372,7 @@ const Empty: React.FC<{ onNew?: () => void }> = ({ onNew }) => (
     <b className="block text-[16px]">Nessuna operazione immobiliare</b>
     <p className="text-[13px] text-stone-500 mt-1.5 max-w-[420px] mx-auto">Crea la prima operazione Unico: acquisto, ristrutturazione e rivendita con investitori.</p>
     {onNew && (
-      <button onClick={onNew} className="inline-flex items-center gap-1.5 bg-[#4338ca] hover:bg-[#3730a3] text-white font-bold text-[13px] h-10 px-5 rounded-xl border-none cursor-pointer mt-4">
+      <button onClick={onNew} className="inline-flex items-center gap-1.5 bg-[#161616] hover:bg-black text-white font-bold text-[13px] h-10 px-5 rounded-xl border-none cursor-pointer mt-4">
         <Plus className="w-4 h-4" /> Nuova operazione
       </button>
     )}
@@ -491,7 +491,7 @@ const DealModal: React.FC<{
 
           {/* Numeri operazione */}
           <div className="border-t border-[#ececec] pt-4">
-            <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><Coins className="w-3.5 h-3.5" /> Economics</span>
+            <span className="text-[12px] font-extrabold uppercase tracking-wide text-stone-500 flex items-center gap-1.5"><Coins className="w-3.5 h-3.5" /> Economics</span>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
               <FieldEl label="Acquisto €"><input type="number" className={IN} value={d.acquisitionCost || ''} onChange={(e) => set({ acquisitionCost: num(e.target.value) })} disabled={!canEdit} /></FieldEl>
               <FieldEl label="Ristrutt. €"><input type="number" className={IN} value={d.renovationBudget || ''} onChange={(e) => set({ renovationBudget: num(e.target.value) })} disabled={!canEdit} /></FieldEl>
@@ -507,12 +507,12 @@ const DealModal: React.FC<{
           {/* Cascata ROE + commesse interne intercompany */}
           <div className="border-t border-[#ececec] pt-4">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><HandCoins className="w-3.5 h-3.5" /> Cascata ROE · commesse interne</span>
+              <span className="text-[12px] font-extrabold uppercase tracking-wide text-stone-500 flex items-center gap-1.5"><HandCoins className="w-3.5 h-3.5" /> Cascata ROE · commesse interne</span>
               {canEdit && !d.roe && (
                 <button onClick={() => set({ roe: roeDefaults() })} className="text-[11.5px] font-bold text-[#4338ca] hover:underline cursor-pointer bg-transparent border-none">+ Attiva cascata</button>
               )}
               {canEdit && d.roe && (
-                <button onClick={() => set({ roe: undefined })} className="text-[11.5px] font-bold text-stone-400 hover:text-red-600 cursor-pointer bg-transparent border-none">Disattiva</button>
+                <button onClick={() => set({ roe: undefined })} className="text-[11.5px] font-bold text-stone-500 hover:text-red-600 cursor-pointer bg-transparent border-none">Disattiva</button>
               )}
             </div>
             {!d.roe ? (
@@ -566,13 +566,13 @@ const DealModal: React.FC<{
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
                         {canEdit && o.status === 'bozza' && onConfirmOrder && (
-                          <button onClick={() => onConfirmOrder(o.id)} className="text-[11.5px] font-bold px-2.5 py-1.5 rounded-lg bg-[#4338ca] text-white cursor-pointer border-none hover:bg-[#3730a3]">Conferma</button>
+                          <button onClick={() => onConfirmOrder(o.id)} className="text-[11.5px] font-bold px-2.5 py-1.5 rounded-lg bg-[#161616] text-white cursor-pointer border-none hover:bg-black">Conferma</button>
                         )}
                         {o.status === 'confermata' && (
-                          <span className="text-[11px] font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">✓</span>
+                          <span className="text-[12px] font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">✓</span>
                         )}
                         {canEdit && onDeleteOrder && (
-                          <button onClick={() => onDeleteOrder(o.id)} className="w-7 h-7 rounded-lg hover:bg-red-50 text-stone-400 hover:text-red-600 flex items-center justify-center cursor-pointer border-none bg-transparent"><Trash2 className="w-4 h-4" /></button>
+                          <button onClick={() => onDeleteOrder(o.id)} className="w-7 h-7 rounded-lg hover:bg-red-50 text-stone-500 hover:text-red-600 flex items-center justify-center cursor-pointer border-none bg-transparent"><Trash2 className="w-4 h-4" /></button>
                         )}
                       </div>
                     </div>
@@ -584,7 +584,7 @@ const DealModal: React.FC<{
 
           {/* SPV — società veicolo + cap table */}
           <div className="border-t border-[#ececec] pt-4">
-            <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><Landmark className="w-3.5 h-3.5" /> SPV · società veicolo</span>
+            <span className="text-[12px] font-extrabold uppercase tracking-wide text-stone-500 flex items-center gap-1.5"><Landmark className="w-3.5 h-3.5" /> SPV · società veicolo</span>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
               <FieldEl label="Ragione sociale SPV"><input className={IN} value={d.spvName || ''} onChange={(e) => set({ spvName: e.target.value })} placeholder="Es. Unico Cisternino S.r.l." disabled={!canEdit} /></FieldEl>
               <FieldEl label="P.IVA / CF SPV"><input className={IN} value={d.spvVat || ''} onChange={(e) => set({ spvVat: e.target.value })} disabled={!canEdit} /></FieldEl>
@@ -599,7 +599,7 @@ const DealModal: React.FC<{
 
           {/* Parametri vetrina */}
           <div className="border-t border-[#ececec] pt-4">
-            <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><Tag className="w-3.5 h-3.5" /> Parametri vetrina (investitori)</span>
+            <span className="text-[12px] font-extrabold uppercase tracking-wide text-stone-500 flex items-center gap-1.5"><Tag className="w-3.5 h-3.5" /> Parametri vetrina (investitori)</span>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
               <FieldEl label="Quota minima €"><input type="number" className={IN} value={d.minInvestment || ''} onChange={(e) => set({ minInvestment: num(e.target.value) })} disabled={!canEdit} /></FieldEl>
               <FieldEl label="ROI atteso %/anno"><input type="number" className={IN} value={d.targetRoi || ''} onChange={(e) => set({ targetRoi: num(e.target.value) })} disabled={!canEdit} /></FieldEl>
@@ -614,10 +614,10 @@ const DealModal: React.FC<{
           {/* Fasi dell'operazione — monitoraggio del portale investitore (doc "UNICO il processo") */}
           <div className="border-t border-[#ececec] pt-4">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" /> Fasi dell'operazione</span>
+              <span className="text-[12px] font-extrabold uppercase tracking-wide text-stone-500 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" /> Fasi dell'operazione</span>
               <span className="text-[12px] font-bold text-[#4338ca]">{unicoFasiAvg(d.fasi)}% complessivo</span>
             </div>
-            <p className="text-[11.5px] text-stone-400 mt-1.5">Le % di completamento sono visibili agli investitori collegati nel portale ("I miei investimenti").</p>
+            <p className="text-[11.5px] text-stone-500 mt-1.5">Le % di completamento sono visibili agli investitori collegati nel portale ("I miei investimenti").</p>
             <div className="flex flex-col gap-2 mt-3">
               {UNICO_FASI.map((f) => {
                 const v = Number((d.fasi || {})[f.id]) || 0;
@@ -665,7 +665,7 @@ const DealModal: React.FC<{
           {/* Investitori */}
           <div className="border-t border-[#ececec] pt-4">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><PiggyBank className="w-3.5 h-3.5" /> Investitori</span>
+              <span className="text-[12px] font-extrabold uppercase tracking-wide text-stone-500 flex items-center gap-1.5"><PiggyBank className="w-3.5 h-3.5" /> Investitori</span>
               <span className="text-[12px] font-bold text-[#4338ca]">{eur(raised)} / {eur(d.capitalGoal)} · {fundedPct}%</span>
             </div>
             <div className="h-1.5 w-full bg-[#eee] rounded-full overflow-hidden mt-2">
@@ -677,13 +677,13 @@ const DealModal: React.FC<{
                 const quota = d.capitalGoal ? ((Number(i.amount) || 0) / d.capitalGoal) * 100 : 0;
                 return (
                   <div key={i.id} className="flex items-center gap-2 bg-[#fafafa] border border-[#ececec] rounded-xl px-3 py-2">
-                    <Users className="w-4 h-4 text-stone-400 shrink-0" />
+                    <Users className="w-4 h-4 text-stone-500 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <b className="text-[13px] truncate flex items-center gap-1.5">
                         {i.name}
                         {i.investorUid && <Link2 className="w-3 h-3 text-[#4338ca]" />}
                       </b>
-                      <span className="text-[11px] text-stone-400">
+                      <span className="text-[12px] text-stone-500">
                         {quota.toFixed(1)}% quota{i.units != null ? ` · ${i.units} quote` : ''}{i.email ? ` · ${i.email}` : ''}
                       </span>
                     </div>
@@ -692,7 +692,7 @@ const DealModal: React.FC<{
                   </div>
                 );
               })}
-              {(d.investors || []).length === 0 && <span className="text-[12.5px] italic text-stone-400">Nessun investitore.</span>}
+              {(d.investors || []).length === 0 && <span className="text-[12.5px] italic text-stone-500">Nessun investitore.</span>}
             </div>
 
             {canEdit && (
@@ -715,35 +715,35 @@ const DealModal: React.FC<{
                     <Plus className="w-4 h-4" /> Aggiungi
                   </button>
                 </div>
-                <span className="text-[11px] text-stone-400">Collegando un account, l'investitore vedrà la propria posizione nel portale.</span>
+                <span className="text-[12px] text-stone-500">Collegando un account, l'investitore vedrà la propria posizione nel portale.</span>
               </div>
             )}
           </div>
 
           {/* Aggiornamenti agli investitori */}
           <div className="border-t border-[#ececec] pt-4">
-            <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><Megaphone className="w-3.5 h-3.5" /> Aggiornamenti agli investitori</span>
+            <span className="text-[12px] font-extrabold uppercase tracking-wide text-stone-500 flex items-center gap-1.5"><Megaphone className="w-3.5 h-3.5" /> Aggiornamenti agli investitori</span>
             <div className="flex flex-col gap-2 mt-3">
               {(d.updates || []).map((u) => (
                 <div key={u.id} className="bg-[#fafafa] border border-[#ececec] rounded-xl px-3 py-2">
                   <div className="flex items-center gap-2">
                     <b className="text-[13px] flex-1 truncate">{u.title}</b>
-                    <span className="text-[11px] text-stone-400 shrink-0">{new Date(u.at).toLocaleDateString('it-IT')}</span>
+                    <span className="text-[12px] text-stone-500 shrink-0">{new Date(u.at).toLocaleDateString('it-IT')}</span>
                     {canEdit && <button onClick={() => removeUpdate(u.id)} className="w-6 h-6 rounded-lg hover:bg-red-50 text-red-500 flex items-center justify-center shrink-0"><X className="w-3.5 h-3.5" /></button>}
                   </div>
                   <p className="text-[12px] text-stone-600 mt-0.5 whitespace-pre-wrap">{u.body}</p>
                 </div>
               ))}
-              {(d.updates || []).length === 0 && <span className="text-[12.5px] italic text-stone-400">Nessun aggiornamento pubblicato.</span>}
+              {(d.updates || []).length === 0 && <span className="text-[12.5px] italic text-stone-500">Nessun aggiornamento pubblicato.</span>}
             </div>
             {canEdit && (
               <div className="bg-white border border-[#ececec] rounded-xl p-3 mt-3 flex flex-col gap-2">
                 <input className={IN} value={updTitle} onChange={(e) => setUpdTitle(e.target.value)} placeholder="Titolo aggiornamento (es. Avanzamento lavori 60%)" />
                 <textarea className={`${IN} h-auto py-2 min-h-[56px]`} value={updBody} onChange={(e) => setUpdBody(e.target.value)} placeholder="Testo dell'aggiornamento…" />
-                <button onClick={addUpdate} disabled={!updTitle.trim() || !updBody.trim()} className="self-end h-9 px-4 rounded-lg bg-[#4338ca] hover:bg-[#3730a3] text-white font-bold text-[12.5px] border-none cursor-pointer flex items-center gap-1.5 disabled:opacity-50">
+                <button onClick={addUpdate} disabled={!updTitle.trim() || !updBody.trim()} className="self-end h-9 px-4 rounded-lg bg-[#161616] hover:bg-black text-white font-bold text-[12.5px] border-none cursor-pointer flex items-center gap-1.5 disabled:opacity-50">
                   <Plus className="w-4 h-4" /> Aggiungi aggiornamento
                 </button>
-                <span className="text-[11px] text-stone-400">Al salvataggio, gli investitori collegati riceveranno una notifica.</span>
+                <span className="text-[12px] text-stone-500">Al salvataggio, gli investitori collegati riceveranno una notifica.</span>
               </div>
             )}
           </div>
@@ -751,22 +751,22 @@ const DealModal: React.FC<{
           {/* Distribuzioni / rendimenti */}
           <div className="border-t border-[#ececec] pt-4">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><HandCoins className="w-3.5 h-3.5" /> Distribuzioni</span>
+              <span className="text-[12px] font-extrabold uppercase tracking-wide text-stone-500 flex items-center gap-1.5"><HandCoins className="w-3.5 h-3.5" /> Distribuzioni</span>
               <span className="text-[12px] font-bold text-emerald-700">Erogato {eur(distributedOf(d))}</span>
             </div>
             <div className="flex flex-col gap-2 mt-3">
               {(d.distributions || []).map((x) => (
                 <div key={x.id} className="flex items-center gap-2 bg-[#fafafa] border border-[#ececec] rounded-xl px-3 py-2">
-                  <HandCoins className="w-4 h-4 text-stone-400 shrink-0" />
+                  <HandCoins className="w-4 h-4 text-stone-500 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <b className="text-[13px] truncate">{invName_(x.investorId)}</b>
-                    <span className="text-[11px] text-stone-400 block capitalize">{x.kind} · {new Date(x.date).toLocaleDateString('it-IT')}</span>
+                    <span className="text-[12px] text-stone-500 block capitalize">{x.kind} · {new Date(x.date).toLocaleDateString('it-IT')}</span>
                   </div>
                   <span className="text-[13px] font-semibold shrink-0">{eur(x.amount)}</span>
                   {canEdit && <button onClick={() => removeDistribution(x.id)} className="w-7 h-7 rounded-lg hover:bg-red-50 text-red-500 flex items-center justify-center shrink-0"><X className="w-4 h-4" /></button>}
                 </div>
               ))}
-              {(d.distributions || []).length === 0 && <span className="text-[12.5px] italic text-stone-400">Nessuna distribuzione registrata.</span>}
+              {(d.distributions || []).length === 0 && <span className="text-[12.5px] italic text-stone-500">Nessuna distribuzione registrata.</span>}
             </div>
             {canEdit && (d.investors || []).length > 0 && (
               <div className="flex flex-wrap items-center gap-2 mt-3">
@@ -795,7 +795,7 @@ const DealModal: React.FC<{
         {canEdit && (
           <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-[#ececec] sticky bottom-0 bg-white">
             <button onClick={onClose} className="h-10 px-4 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#161616] font-bold text-[13px] border-none cursor-pointer">Annulla</button>
-            <button onClick={() => onSave(d)} disabled={!d.title.trim()} className="h-10 px-5 rounded-xl bg-[#4338ca] hover:bg-[#3730a3] text-white font-bold text-[13px] border-none cursor-pointer flex items-center gap-1.5 disabled:opacity-50">
+            <button onClick={() => onSave(d)} disabled={!d.title.trim()} className="h-10 px-5 rounded-xl bg-[#161616] hover:bg-black text-white font-bold text-[13px] border-none cursor-pointer flex items-center gap-1.5 disabled:opacity-50">
               <ArrowUpRight className="w-4 h-4" /> Salva operazione
             </button>
           </div>
@@ -807,7 +807,7 @@ const DealModal: React.FC<{
 
 const FieldEl: React.FC<{ label: string; children: React.ReactNode; full?: boolean }> = ({ label, children, full }) => (
   <div className={`flex flex-col gap-1 ${full ? 'col-span-2 sm:col-span-4' : ''}`}>
-    <label className="text-[11px] font-bold text-[#555]">{label}</label>
+    <label className="text-[12px] font-bold text-[#555]">{label}</label>
     {children}
   </div>
 );

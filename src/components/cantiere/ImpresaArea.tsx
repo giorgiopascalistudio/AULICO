@@ -77,7 +77,7 @@ export const ImpresaArea: React.FC<ImpresaAreaProps> = ({ uid, canWrite, docs, r
     <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-4">
       <div className="mb-3">
         <h3 className="inline-flex items-center gap-2 text-[15px] font-extrabold text-[#161616]"><HardHat className="w-5 h-5" /> La mia impresa</h3>
-        <p className="text-[12px] text-[#9a9a9a] mt-0.5">Anagrafiche, documenti e sicurezza dell'impresa — riutilizzati automaticamente in tutti i cantieri assegnati.</p>
+        <p className="text-[12px] text-[#767676] mt-0.5">Anagrafiche, documenti e sicurezza dell'impresa — riutilizzati automaticamente in tutti i cantieri assegnati.</p>
       </div>
       <div className="flex gap-1 overflow-x-auto mb-3">
         {SECS.map((s) => {

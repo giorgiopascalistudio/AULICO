@@ -160,7 +160,7 @@ const Hub: React.FC<{ profile: UserProfile; properties: VetrinaProperty[]; onOpe
   return (
   <>
     <div className="mt-2 mb-7">
-      <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-stone-500">
+      <span className="inline-flex items-center gap-1.5 text-[12px] font-extrabold uppercase tracking-[0.18em] text-stone-500">
         <Sparkles className="w-3.5 h-3.5" /> {t('svc.discoverServices')}
       </span>
       <h1 className="font-serif text-[clamp(28px,5vw,40px)] tracking-tight mt-3 leading-tight">
@@ -181,7 +181,7 @@ const Hub: React.FC<{ profile: UserProfile; properties: VetrinaProperty[]; onOpe
         <img loading="lazy" decoding="async" src={unico.image} alt="Unico" referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute left-5 bottom-4 text-white">
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-extrabold uppercase tracking-wide bg-[#4338ca] px-2.5 py-1 rounded-full">
+          <span className="inline-flex items-center gap-1.5 text-[11.5px] font-extrabold uppercase tracking-wide bg-[#4338ca] px-2.5 py-1 rounded-full">
             <Gem className="w-3 h-3" /> {t('svc.unicoBadge')}
           </span>
           <h2 className="font-serif text-[26px] md:text-[30px] tracking-tight mt-2 drop-shadow">{t('svc.unicoFeatureTitle')}</h2>
@@ -225,7 +225,7 @@ const Hub: React.FC<{ profile: UserProfile; properties: VetrinaProperty[]; onOpe
               </div>
             </div>
             <div className="p-5">
-              <span className="block text-[11px] font-bold uppercase tracking-wide text-stone-400">{s.tagline}</span>
+              <span className="block text-[12px] font-bold uppercase tracking-wide text-stone-500">{s.tagline}</span>
               <p className="text-[13.5px] text-stone-600 mt-1.5 leading-relaxed">{s.intro}</p>
               <span className="inline-flex items-center gap-1 text-[12.5px] font-bold mt-3 group-hover:gap-2 transition-all" style={{ color: s.color }}>
                 {s.cta} <ArrowRight className="w-3.5 h-3.5" />
@@ -321,7 +321,7 @@ const UnicoVetrina: React.FC<{ properties: VetrinaProperty[]; onBackHub: () => v
       </span>
       <div>
         <h1 className="font-serif text-[30px] tracking-tight leading-none">{t('svc.investUnico')}</h1>
-        <span className="text-[12px] font-bold uppercase tracking-wide text-stone-400">{t('svc.fineProps')}</span>
+        <span className="text-[12px] font-bold uppercase tracking-wide text-stone-500">{t('svc.fineProps')}</span>
       </div>
     </div>
     <p className="text-[14px] text-stone-600 mt-3 max-w-[660px] leading-relaxed">
@@ -344,18 +344,18 @@ const UnicoVetrina: React.FC<{ properties: VetrinaProperty[]; onBackHub: () => v
           >
             <div className="h-40 w-full overflow-hidden relative">
               <img loading="lazy" decoding="async" src={p.image} alt={p.title} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              <span className={`absolute top-3 left-3 text-[10.5px] font-bold px-2.5 py-1 rounded-full border ${stCls}`}>{t('psstatus.' + p.status)}</span>
-              <span className="absolute top-3 right-3 text-[10.5px] font-bold px-2.5 py-1 rounded-full bg-white/90 text-[#161616] border border-white/60 flex items-center gap-1">
+              <span className={`absolute top-3 left-3 text-[11.5px] font-bold px-2.5 py-1 rounded-full border ${stCls}`}>{t('psstatus.' + p.status)}</span>
+              <span className="absolute top-3 right-3 text-[11.5px] font-bold px-2.5 py-1 rounded-full bg-white/90 text-[#161616] border border-white/60 flex items-center gap-1">
                 <TrendingUp className="w-3 h-3" /> {t('svc.roiPerYear', { roi: p.targetRoi })}
               </span>
               {hasCinema && (
-                <span className="absolute bottom-3 left-3 text-[10.5px] font-bold px-2.5 py-1 rounded-full bg-stone-950/80 text-white border border-white/20 flex items-center gap-1">
+                <span className="absolute bottom-3 left-3 text-[11.5px] font-bold px-2.5 py-1 rounded-full bg-stone-950/80 text-white border border-white/20 flex items-center gap-1">
                   <Film className="w-3 h-3" /> {t('svc.videoTour')}
                 </span>
               )}
             </div>
             <div className="p-4 flex flex-col flex-1">
-              <span className="text-[10.5px] font-bold uppercase tracking-wide text-stone-400">{p.type}</span>
+              <span className="text-[11.5px] font-bold uppercase tracking-wide text-stone-500">{p.type}</span>
               <b className="block text-[16px] tracking-tight mt-0.5">{p.title}</b>
               <span className="flex items-center gap-1 text-[12px] text-stone-500 mt-1"><MapPin className="w-3.5 h-3.5" /> {p.location}</span>
 
@@ -363,7 +363,7 @@ const UnicoVetrina: React.FC<{ properties: VetrinaProperty[]; onBackHub: () => v
                 <div className="h-1.5 w-full bg-[#eee] rounded-full overflow-hidden">
                   <div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#4338ca' }} />
                 </div>
-                <div className="flex items-center justify-between text-[11px] text-stone-500 mt-1.5 font-semibold">
+                <div className="flex items-center justify-between text-[12px] text-stone-500 mt-1.5 font-semibold">
                   <span>{t('svc.pctRaised', { pct })}</span>
                   <span>{t('svc.investorsCount', { n: p.investors })}</span>
                 </div>
@@ -371,7 +371,7 @@ const UnicoVetrina: React.FC<{ properties: VetrinaProperty[]; onBackHub: () => v
 
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#f0f0f0]">
                 <div>
-                  <span className="block text-[10px] uppercase tracking-wide text-stone-400 font-bold">{t('svc.minQuota')}</span>
+                  <span className="block text-[11px] uppercase tracking-wide text-stone-500 font-bold">{t('svc.minQuota')}</span>
                   <b className="text-[14px]">{eur(p.minInvestment)}</b>
                 </div>
                 <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-[#4338ca] group-hover:gap-2 transition-all">
@@ -416,7 +416,7 @@ const PropertyDetail: React.FC<{ property: VetrinaProperty; demo?: boolean; onCl
             <X className="w-4.5 h-4.5" />
           </button>
           <div className="absolute left-5 bottom-4 text-white">
-            <span className={`inline-block text-[10.5px] font-bold px-2.5 py-1 rounded-full border ${stCls}`}>{t('psstatus.' + p.status)}</span>
+            <span className={`inline-block text-[11.5px] font-bold px-2.5 py-1 rounded-full border ${stCls}`}>{t('psstatus.' + p.status)}</span>
             <h2 className="font-serif text-[28px] tracking-tight mt-2 drop-shadow">{p.title}</h2>
             <span className="flex items-center gap-1 text-[12.5px] font-semibold mt-0.5"><MapPin className="w-3.5 h-3.5" /> {p.location}</span>
           </div>
@@ -442,12 +442,12 @@ const PropertyDetail: React.FC<{ property: VetrinaProperty; demo?: boolean; onCl
             <div className="h-2 w-full bg-[#e8e8e8] rounded-full overflow-hidden mt-2">
               <div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#4338ca' }} />
             </div>
-            <span className="text-[11px] font-bold text-[#4338ca] mt-1.5 inline-block">{t('svc.pctCompleted', { pct })}</span>
+            <span className="text-[12px] font-bold text-[#4338ca] mt-1.5 inline-block">{t('svc.pctCompleted', { pct })}</span>
           </div>
 
           {/* Highlights */}
           <div className="mt-5">
-            <b className="text-[13px] uppercase tracking-wide text-stone-400">{t('svc.strengths')}</b>
+            <b className="text-[13px] uppercase tracking-wide text-stone-500">{t('svc.strengths')}</b>
             <div className="grid sm:grid-cols-2 gap-2 mt-2.5">
               {p.highlights.map((h) => (
                 <div key={h} className="flex items-start gap-2 text-[13px] text-stone-700">
@@ -476,14 +476,14 @@ const PropertyDetail: React.FC<{ property: VetrinaProperty; demo?: boolean; onCl
                   <div className="flex flex-col gap-1.5 mb-3">
                     <label className="text-[11.5px] font-bold text-[#555]">{t('svc.howMuch')}</label>
                     <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 font-bold">€</span>
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500 font-bold">€</span>
                       <input
                         type="number" min={p.minInvestment} step={1000}
                         value={amount} onChange={(e) => setAmount(e.target.value)}
                         className="input w-full h-11 pl-8 pr-3.5 text-[14px]"
                       />
                     </div>
-                    <span className="text-[11px] text-stone-400">{t('svc.minQuotaInline', { amount: eur(p.minInvestment) })}</span>
+                    <span className="text-[12px] text-stone-500">{t('svc.minQuotaInline', { amount: eur(p.minInvestment) })}</span>
                   </div>
                 )}
                 <button
@@ -493,7 +493,7 @@ const PropertyDetail: React.FC<{ property: VetrinaProperty; demo?: boolean; onCl
                 >
                   {soon ? t('svc.notifyOpen') : t('svc.expressInterest')} <ArrowRight className="w-4 h-4" />
                 </button>
-                <p className="text-[11px] text-stone-400 text-center mt-2.5 leading-snug">
+                <p className="text-[12px] text-stone-500 text-center mt-2.5 leading-snug">
                   {t('svc.noCommit')}
                   {demo && t('svc.demoData')}
                 </p>
@@ -508,8 +508,8 @@ const PropertyDetail: React.FC<{ property: VetrinaProperty; demo?: boolean; onCl
 
 const Metric: React.FC<{ icon: React.ReactNode; label: string; value: string; sub?: string }> = ({ icon, label, value, sub }) => (
   <div className="bg-[#fafafa] border border-[#ececec] rounded-2xl p-3">
-    <span className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-wide text-stone-400">{icon}{label}</span>
+    <span className="flex items-center gap-1.5 text-[11.5px] font-bold uppercase tracking-wide text-stone-500">{icon}{label}</span>
     <b className="block text-[15px] mt-1 leading-none">{value}</b>
-    {sub && <span className="text-[10.5px] text-stone-400">{sub}</span>}
+    {sub && <span className="text-[11.5px] text-stone-500">{sub}</span>}
   </div>
 );

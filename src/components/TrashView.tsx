@@ -152,29 +152,29 @@ export const TrashView: React.FC<TrashViewProps> = ({ trash, onRestore, onDelete
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] leading-none flex items-center gap-2">
             <Trash2 className="w-5 h-5" /> Cestino
           </h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1.5">
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1.5">
             Gli elementi eliminati restano qui {TRASH_RETENTION_DAYS} giorni, poi vengono rimossi definitivamente in automatico.
           </p>
         </div>
-        <span className="text-[11px] font-extrabold text-[#161616] bg-[#f0f0f0] border border-[#e2e2e2] px-3 py-1.5 rounded-full">
+        <span className="text-[12px] font-extrabold text-[#161616] bg-[#f0f0f0] border border-[#e2e2e2] px-3 py-1.5 rounded-full">
           {all.length} {all.length === 1 ? 'elemento' : 'elementi'}
         </span>
       </div>
 
       {/* Barra di ricerca */}
       <div className="relative w-full sm:max-w-[380px]">
-        <Search className="w-4 h-4 text-[#8a8a8a] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <Search className="w-4 h-4 text-[#6b6b6b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Cerca nel cestino (nome, sezione, chi ha eliminato…)"
-          className="w-full bg-white border border-[#e2e2e2] rounded-full pl-10 pr-9 py-2.5 text-[13px] font-semibold text-[#161616] placeholder:text-[#b0b0b0] outline-none focus:border-[#161616] transition-colors"
+          className="w-full bg-white border border-[#e2e2e2] rounded-full pl-10 pr-9 py-2.5 text-[13px] font-semibold text-[#161616] placeholder:text-[#8f8f8f] outline-none focus:border-[#161616] transition-colors"
         />
         {query && (
           <button
             onClick={() => setQuery('')}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#f0f0f0] hover:bg-[#e2e2e2] flex items-center justify-center text-[#8a8a8a] cursor-pointer border-none"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#f0f0f0] hover:bg-[#e2e2e2] flex items-center justify-center text-[#6b6b6b] cursor-pointer border-none"
             title="Pulisci ricerca"
           >
             <X className="w-3 h-3" />
@@ -200,7 +200,7 @@ export const TrashView: React.FC<TrashViewProps> = ({ trash, onRestore, onDelete
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ background: companyColor(c) }} />
                 )}
                 {c === 'tutte' ? 'Tutte' : COMPANY_LABEL[c]}
-                <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20 text-white' : 'bg-[#e2e2e2] text-[#6b6b6b]'}`}>
+                <span className={`text-[11px] font-extrabold px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20 text-white' : 'bg-[#e2e2e2] text-[#6b6b6b]'}`}>
                   {count}
                 </span>
               </button>
@@ -235,7 +235,7 @@ export const TrashView: React.FC<TrashViewProps> = ({ trash, onRestore, onDelete
       {list.length === 0 ? (
         <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
           <Trash2 className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-          <p className="text-[13.5px] text-[#8a8a8a] font-semibold">
+          <p className="text-[13.5px] text-[#6b6b6b] font-semibold">
             {q ? `Nessun risultato per “${query.trim()}”.` : 'Il cestino è vuoto.'}
           </p>
         </div>
@@ -247,7 +247,7 @@ export const TrashView: React.FC<TrashViewProps> = ({ trash, onRestore, onDelete
               {effSection === 'tutti' && (
                 <div className="flex items-center gap-2 px-1">
                   <h3 className="text-[12px] font-extrabold uppercase tracking-wider text-[#6b6b6b]">{sectionLabel(sec)}</h3>
-                  <span className="text-[10px] font-extrabold bg-[#ececec] text-[#8a8a8a] px-1.5 py-0.5 rounded-full">{items.length}</span>
+                  <span className="text-[11px] font-extrabold bg-[#ececec] text-[#6b6b6b] px-1.5 py-0.5 rounded-full">{items.length}</span>
                 </div>
               )}
               {items.map((t) => {
@@ -256,18 +256,18 @@ export const TrashView: React.FC<TrashViewProps> = ({ trash, onRestore, onDelete
                   <div key={t.id} className="bg-white border border-[#e2e2e2] rounded-[22px] p-4 flex items-center justify-between gap-3 flex-wrap">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#f1f1f1] text-[#555]">
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#f1f1f1] text-[#555]">
                           <span className="w-1.5 h-1.5 rounded-full" style={{ background: companyColor(t._company) }} />{COMPANY_LABEL[t._company]}
                         </span>
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider bg-[#f0f0f0] text-[#6b6b6b] px-2 py-0.5 rounded-full">
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider bg-[#f0f0f0] text-[#6b6b6b] px-2 py-0.5 rounded-full">
                           {sectionLabel(t.section)}
                         </span>
                         <b className="text-[13.5px] font-extrabold text-[#161616] truncate">{t.label}</b>
                       </div>
-                      <div className="text-[11.5px] text-[#8a8a8a] mt-1 flex items-center gap-2 flex-wrap">
+                      <div className="text-[11.5px] text-[#6b6b6b] mt-1 flex items-center gap-2 flex-wrap">
                         <span>Eliminato il {fmtWhen(t.deletedAt)}{t.deletedByName ? ` da ${t.deletedByName}` : ''}</span>
                         {t.detail && <span>· {t.detail}</span>}
-                        <span className={`inline-flex items-center gap-1 font-bold ${left <= 7 ? 'text-rose-600' : 'text-[#8a8a8a]'}`}>
+                        <span className={`inline-flex items-center gap-1 font-bold ${left <= 7 ? 'text-rose-600' : 'text-[#6b6b6b]'}`}>
                           <Clock className="w-3 h-3" /> {left === 0 ? 'in eliminazione' : `${left} ${left === 1 ? 'giorno' : 'giorni'} rimasti`}
                         </span>
                       </div>

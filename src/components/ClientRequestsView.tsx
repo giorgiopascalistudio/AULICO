@@ -73,7 +73,7 @@ export const ClientRequestsView: React.FC<ClientRequestsViewProps> = ({
         </span>
         <div>
           <h1 className="text-[22px] font-extrabold text-[#161616] tracking-tight">Richieste clienti</h1>
-          <p className="text-[12.5px] text-[#8a8a8a]">Le idee inviate dai clienti dal portale. Valutale e convertile in progetti.</p>
+          <p className="text-[12.5px] text-[#6b6b6b]">Le idee inviate dai clienti dal portale. Valutale e convertile in progetti.</p>
         </div>
       </div>
 
@@ -89,7 +89,7 @@ export const ClientRequestsView: React.FC<ClientRequestsViewProps> = ({
               className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[12.5px] font-bold border transition-all ${on ? 'bg-[#1b1b1b] text-white border-[#1b1b1b]' : 'bg-white text-[#161616] border-[#e2e2e2] hover:border-stone-400'}`}
             >
               {f.label}
-              {badge && <span className="w-4 h-4 rounded-full bg-amber-500 text-white text-[9px] flex items-center justify-center">{newCount}</span>}
+              {badge && <span className="w-4 h-4 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center">{newCount}</span>}
             </button>
           );
         })}
@@ -99,7 +99,7 @@ export const ClientRequestsView: React.FC<ClientRequestsViewProps> = ({
         <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-10 text-center">
           <Inbox className="w-8 h-8 text-[#cfcfcf] mx-auto mb-2" />
           <b className="block text-[#161616] text-[15px]">Nessuna richiesta</b>
-          <p className="text-[12.5px] text-[#8a8a8a] mt-1">Qui arriveranno le idee inviate dai clienti dal loro portale.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] mt-1">Qui arriveranno le idee inviate dai clienti dal loro portale.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -118,14 +118,14 @@ export const ClientRequestsView: React.FC<ClientRequestsViewProps> = ({
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} title={m.name} />
                       <b className="text-[15px] text-[#161616]">{r.title}</b>
-                      <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded-full border ${st.cls}`}>{st.label}</span>
+                      <span className={`text-[11.5px] font-bold px-2 py-0.5 rounded-full border ${st.cls}`}>{st.label}</span>
                       {(r.moodboard || []).length > 0 && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-md px-1.5 py-0.5">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-md px-1.5 py-0.5">
                           <Box className="w-3 h-3" /> Moodboard 3D
                         </span>
                       )}
                     </div>
-                    <span className="text-[11.5px] text-[#8a8a8a]">
+                    <span className="text-[11.5px] text-[#6b6b6b]">
                       {m.name} · {r.clientName} · {new Date(r.createdAt).toLocaleDateString('it-IT')}
                     </span>
                   </div>
@@ -135,7 +135,7 @@ export const ClientRequestsView: React.FC<ClientRequestsViewProps> = ({
 
                 {r.draftImage && (
                   <div className="mt-3">
-                    <span className="text-[11px] font-bold text-[#b45309] flex items-center gap-1.5 mb-1.5"><Box className="w-3.5 h-3.5" /> Bozza immagine del cliente (AI)</span>
+                    <span className="text-[12px] font-bold text-[#b45309] flex items-center gap-1.5 mb-1.5"><Box className="w-3.5 h-3.5" /> Bozza immagine del cliente (AI)</span>
                     <img src={r.draftImage} alt="bozza cliente" className="max-w-[260px] w-full rounded-xl border border-[#e2e2e2]" />
                   </div>
                 )}

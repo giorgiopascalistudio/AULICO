@@ -192,7 +192,7 @@ export const EditorialCalendar: React.FC<Props> = ({
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
             <CalendarDays className="w-5.5 h-5.5 text-[#161616]" /> Calendario editoriale
           </h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">
             {canEdit
               ? 'Anteprima di pubblicazione per canale · trascina immagini o post tra i giorni · click sul giorno per vedere e aggiungere contenuti.'
               : 'Anteprima di pubblicazione per canale · sola consultazione, click sul giorno per il dettaglio.'}
@@ -225,13 +225,13 @@ export const EditorialCalendar: React.FC<Props> = ({
           <button onClick={() => { const d = new Date(); setCursor(new Date(d.getFullYear(), d.getMonth(), 1)); }} className="ml-1 px-3 h-9 rounded-xl border border-[#e2e2e2] bg-white hover:bg-[#f5f5f3] text-[12px] font-bold cursor-pointer">Oggi</button>
         </div>
         <span className="text-[16px] font-black text-[#161616] capitalize">{monthLabel}</span>
-        <span className="text-[11.5px] text-[#9a9a9a] font-semibold">{visible.length} contenuti</span>
+        <span className="text-[11.5px] text-[#767676] font-semibold">{visible.length} contenuti</span>
       </div>
 
       {/* Griglia calendario */}
       <div className="rounded-[20px] border border-[#e6e6e6] overflow-hidden bg-white">
         <div className="grid grid-cols-7 bg-[#f7f6f4] border-b border-[#eee]">
-          {WEEKDAYS.map((w) => <div key={w} className="px-2 py-2 text-[10.5px] font-extrabold uppercase tracking-wider text-[#9a9a9a] text-center">{w}</div>)}
+          {WEEKDAYS.map((w) => <div key={w} className="px-2 py-2 text-[11.5px] font-extrabold uppercase tracking-wider text-[#767676] text-center">{w}</div>)}
         </div>
         <div className="grid grid-cols-7">
           {cells.map((d, i) => {
@@ -248,15 +248,15 @@ export const EditorialCalendar: React.FC<Props> = ({
                 className={`min-h-[104px] border-b border-r border-[#f0f0f0] p-1.5 flex flex-col gap-1 ${inMonth ? 'bg-white' : 'bg-[#fafafa]'} cursor-pointer hover:bg-[#faf9f7] ${(i + 1) % 7 === 0 ? 'border-r-0' : ''}`}
               >
                 <div className="flex items-center justify-between">
-                  <span className={`text-[11px] font-bold w-5 h-5 flex items-center justify-center rounded-full ${isToday ? 'bg-[#161616] text-white' : inMonth ? 'text-[#555]' : 'text-[#c0c0c0]'}`}>{d.getDate()}</span>
-                  {dayPosts.length > 0 && <span className="text-[9.5px] font-bold text-[#b0b0b0]">{dayPosts.length}</span>}
+                  <span className={`text-[12px] font-bold w-5 h-5 flex items-center justify-center rounded-full ${isToday ? 'bg-[#161616] text-white' : inMonth ? 'text-[#555]' : 'text-[#c0c0c0]'}`}>{d.getDate()}</span>
+                  {dayPosts.length > 0 && <span className="text-[10.5px] font-bold text-[#8f8f8f]">{dayPosts.length}</span>}
                 </div>
                 <div className="flex flex-col gap-1">
                   {dayPosts.slice(0, 3).map((p) => (
                     <PostChip key={p.id} post={p} canEdit={canEdit} channel={channel === 'Tutti' ? channelOf(p) : null} onOpen={(e) => { e.stopPropagation(); setEditing(p); }} onDragStart={() => setDragId(p.id)} />
                   ))}
                   {dayPosts.length > 3 && (
-                    <button onClick={(e) => { e.stopPropagation(); setOpenDay(dISO); }} className="text-[10px] text-[#4338ca] font-bold pl-1 text-left cursor-pointer bg-transparent border-none hover:underline">
+                    <button onClick={(e) => { e.stopPropagation(); setOpenDay(dISO); }} className="text-[11px] text-[#4338ca] font-bold pl-1 text-left cursor-pointer bg-transparent border-none hover:underline">
                       +{dayPosts.length - 3} altri…
                     </button>
                   )}
@@ -269,7 +269,7 @@ export const EditorialCalendar: React.FC<Props> = ({
 
       {/* Legenda stati */}
       <div className="flex items-center gap-3 flex-wrap">
-        {STATUS.map((s) => <span key={s.id} className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: s.color }} />{s.label}</span>)}
+        {STATUS.map((s) => <span key={s.id} className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#6b6b6b]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: s.color }} />{s.label}</span>)}
       </div>
 
       {/* PANNELLO-GIORNO — tutti i contenuti del giorno (anche oltre i 3 in cella) + aggiungi */}
@@ -295,13 +295,13 @@ export const EditorialCalendar: React.FC<Props> = ({
                     {cover ? (
                       <img src={imgSrc(cover.url)} alt="" className="w-14 h-14 object-cover shrink-0 bg-[#f0f0f0]" />
                     ) : hasVid ? (
-                      <span className="w-14 h-14 shrink-0 bg-[#f5f5f3] flex items-center justify-center text-[#c0c0c0]"><Video className="w-5 h-5" /></span>
+                      <span className="w-14 h-14 shrink-0 bg-[#f5f5f3] flex items-center justify-center text-[#9a9a9a]"><Video className="w-5 h-5" /></span>
                     ) : null}
                     <span className="min-w-0 flex-1 px-2.5 py-1.5 flex flex-col justify-center">
                       <b className="text-[12.5px] text-[#161616] truncate">{p.topic || p.caption || 'Senza titolo'}</b>
-                      <span className="text-[10.5px] text-[#9a9a9a] truncate">{[p.time, p.platform, st.label].filter(Boolean).join(' · ')}</span>
+                      <span className="text-[11.5px] text-[#767676] truncate">{[p.time, p.platform, st.label].filter(Boolean).join(' · ')}</span>
                       {ch && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#8a8a8a] mt-0.5">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#6b6b6b] mt-0.5">
                           <span className="w-2 h-2 rounded-full shrink-0" style={{ background: ch.color || '#8a8a8a' }} /> {ch.label}
                         </span>
                       )}
@@ -310,7 +310,7 @@ export const EditorialCalendar: React.FC<Props> = ({
                 );
               })}
               {(byDay[openDay] || []).length === 0 && (
-                <p className="text-[12.5px] text-[#9a9a9a] bg-[#fafafa] border border-[#ececec] rounded-xl p-4 text-center">Nessun contenuto pianificato in questo giorno.</p>
+                <p className="text-[12.5px] text-[#767676] bg-[#fafafa] border border-[#ececec] rounded-xl p-4 text-center">Nessun contenuto pianificato in questo giorno.</p>
               )}
             </div>
             {canEdit && (
@@ -368,11 +368,11 @@ const PostChip: React.FC<{ post: EditorialPost; canEdit: boolean; channel?: Edit
             {media.length > 1 && <span className="absolute top-0.5 right-0.5 bg-black/70 text-white text-[8px] font-bold px-1 rounded inline-flex items-center gap-0.5"><Layers className="w-2 h-2" />{media.length}</span>}
           </div>
         ) : hasVideo ? (
-          <div className="w-9 h-9 shrink-0 bg-[#f5f5f3] flex items-center justify-center text-[#c0c0c0]"><Video className="w-4 h-4" /></div>
+          <div className="w-9 h-9 shrink-0 bg-[#f5f5f3] flex items-center justify-center text-[#9a9a9a]"><Video className="w-4 h-4" /></div>
         ) : null}
         <div className="min-w-0 flex-1 px-1.5 py-1">
-          <b className="block text-[10.5px] leading-tight text-[#161616] truncate">{post.topic || post.caption || 'Senza titolo'}</b>
-          <span className="block text-[9px] text-[#9a9a9a] truncate">
+          <b className="block text-[11.5px] leading-tight text-[#161616] truncate">{post.topic || post.caption || 'Senza titolo'}</b>
+          <span className="block text-[10px] text-[#767676] truncate">
             {channel && <span className="inline-flex items-center gap-0.5 mr-1"><span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: channel.color || '#8a8a8a' }} />{channel.label}</span>}
             {[post.platform, post.time].filter(Boolean).join(' · ') || st.label}
           </span>
@@ -450,7 +450,7 @@ const PostEditor: React.FC<{
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-[16px] font-extrabold text-[#161616] inline-flex items-center gap-2">
             <CalendarDays className="w-4.5 h-4.5" /> {post.topic || post.caption ? 'Modifica contenuto' : 'Nuovo contenuto'}
-            {isCarousel && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 inline-flex items-center gap-1"><Layers className="w-3 h-3" /> Carosello · {media.length}</span>}
+            {isCarousel && <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 inline-flex items-center gap-1"><Layers className="w-3 h-3" /> Carosello · {media.length}</span>}
           </h3>
           <div className="flex items-center gap-1">
             {canEdit && (post.topic || post.caption) && onDelete && <button onClick={() => onDelete(d.id)} className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-4 h-4" /></button>}
@@ -472,7 +472,7 @@ const PostEditor: React.FC<{
                   {m.type === 'image' && imgSrc(m.url) ? (
                     <img src={imgSrc(m.url)} alt={m.name || ''} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-[#9a9a9a] gap-1"><Video className="w-5 h-5" /><span className="text-[8px] px-1 text-center truncate w-full">{m.name || 'video'}</span></div>
+                    <div className="w-full h-full flex flex-col items-center justify-center text-[#767676] gap-1"><Video className="w-5 h-5" /><span className="text-[8px] px-1 text-center truncate w-full">{m.name || 'video'}</span></div>
                   )}
                   <span className="absolute top-0.5 left-0.5 bg-black/60 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{idx + 1}</span>
                   {m.source === 'project' && <span className="absolute bottom-0.5 left-0.5 bg-emerald-600 text-white text-[7px] font-bold px-1 rounded">pratica</span>}
@@ -487,16 +487,16 @@ const PostEditor: React.FC<{
               ))}
             </div>
           ) : (
-            <div className="text-center py-3 text-[#9a9a9a]"><UploadCloud className="w-7 h-7 mx-auto mb-1 opacity-50" /><p className="text-[12px] font-semibold text-[#8a8a8a]">Contenuto visivo <span className="text-[#b0b0b0]">(facoltativo)</span></p><p className="text-[10.5px]">Trascina immagini o usa i pulsanti — oppure salva solo testo (idea/bozza). Più immagini = carosello · video via link.</p></div>
+            <div className="text-center py-3 text-[#767676]"><UploadCloud className="w-7 h-7 mx-auto mb-1 opacity-50" /><p className="text-[12px] font-semibold text-[#6b6b6b]">Contenuto visivo <span className="text-[#8f8f8f]">(facoltativo)</span></p><p className="text-[11.5px]">Trascina immagini o usa i pulsanti — oppure salva solo testo (idea/bozza). Più immagini = carosello · video via link.</p></div>
           )}
           {canEdit && (
             <div className="flex items-center gap-2 flex-wrap mt-1">
               <button onClick={() => fileRef.current?.click()} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[11.5px] font-bold cursor-pointer border-none"><UploadCloud className="w-3.5 h-3.5" /> Dal dispositivo</button>
               <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { addFiles(Array.from(e.target.files || [])); e.currentTarget.value = ''; }} />
               <div className="inline-flex items-center gap-1 bg-white border border-[#e2e2e2] rounded-lg px-1.5 py-1">
-                <Link2 className="w-3.5 h-3.5 text-[#9a9a9a]" />
+                <Link2 className="w-3.5 h-3.5 text-[#767676]" />
                 <input value={linkVal} onChange={(e) => setLinkVal(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addLink()} placeholder="Link immagine/video…" className="text-[11.5px] outline-none w-[150px]" />
-                <button onClick={addLink} className="text-[11px] font-bold text-[#161616] px-1.5 cursor-pointer bg-transparent border-none">Aggiungi</button>
+                <button onClick={addLink} className="text-[12px] font-bold text-[#161616] px-1.5 cursor-pointer bg-transparent border-none">Aggiungi</button>
               </div>
               {importProjects.length > 0 && (
                 <button onClick={() => setImporting((v) => !v)} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[11.5px] font-bold cursor-pointer"><FolderInput className="w-3.5 h-3.5" /> Da pratica</button>
@@ -507,17 +507,17 @@ const PostEditor: React.FC<{
           {/* Import da documenti pratica (consent-gated a monte) */}
           {importing && canEdit && (
             <div className="mt-2 rounded-xl border border-[#e6e6e6] bg-white p-2 max-h-[220px] overflow-y-auto">
-              <p className="text-[10.5px] text-[#9a9a9a] font-semibold px-1 pb-1">Solo pratiche con consenso marketing del cliente.</p>
+              <p className="text-[11.5px] text-[#767676] font-semibold px-1 pb-1">Solo pratiche con consenso marketing del cliente.</p>
               {importProjects.map((pr) => (
                 <div key={pr.id} className="mb-1.5">
                   <div className="text-[11.5px] font-bold text-[#161616] px-1">{pr.name}</div>
-                  {pr.docs.length === 0 ? <p className="text-[10.5px] text-[#b0b0b0] px-1">Nessun documento.</p> : (
+                  {pr.docs.length === 0 ? <p className="text-[11.5px] text-[#8f8f8f] px-1">Nessun documento.</p> : (
                     <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 mt-1">
                       {pr.docs.map((doc) => {
                         const isImg = !(doc.type || '').startsWith('video') && !!imgSrc(doc.url);
                         return (
                           <button key={doc.id} onClick={() => addFromDoc(pr.id, doc)} title={doc.name} className="aspect-square rounded-lg border border-[#e6e6e6] overflow-hidden bg-[#f0f0f0] hover:border-[#161616] cursor-pointer p-0">
-                            {isImg ? <img src={imgSrc(doc.url)} alt="" className="w-full h-full object-cover" /> : <span className="w-full h-full flex items-center justify-center text-[#9a9a9a]"><ImageIcon className="w-4 h-4" /></span>}
+                            {isImg ? <img src={imgSrc(doc.url)} alt="" className="w-full h-full object-cover" /> : <span className="w-full h-full flex items-center justify-center text-[#767676]"><ImageIcon className="w-4 h-4" /></span>}
                           </button>
                         );
                       })}
@@ -531,45 +531,45 @@ const PostEditor: React.FC<{
 
         {/* CAMPI */}
         <div className="grid grid-cols-2 gap-2.5">
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Canale / account</span>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Canale / account</span>
             <select disabled={!canEdit || lockChannel} value={d.channel} onChange={(e) => set({ channel: e.target.value })} className={inp}>
               {!channels.some((c) => c.key === d.channel) && <option value={d.channel}>{d.channel}</option>}
               {channels.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
             </select>
           </label>
           {isNew ? (
-            <div className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Piattaforme <span className="normal-case font-semibold">(anche più di una)</span></span>
+            <div className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Piattaforme <span className="normal-case font-semibold">(anche più di una)</span></span>
               <div className="flex flex-wrap gap-1">
                 {PLATFORMS.map((p) => (
                   <button key={p} type="button" disabled={!canEdit} onClick={() => togglePlatform(p)}
-                    className={`px-2 py-1 rounded-lg text-[11px] font-bold border cursor-pointer ${platforms.includes(p) ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#555] border-[#e2e2e2]'}`}>{p}</button>
+                    className={`px-2 py-1 rounded-lg text-[12px] font-bold border cursor-pointer ${platforms.includes(p) ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#555] border-[#e2e2e2]'}`}>{p}</button>
                 ))}
               </div>
             </div>
           ) : (
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Piattaforma</span>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Piattaforma</span>
             <select disabled={!canEdit} value={d.platform || ''} onChange={(e) => set({ platform: e.target.value || null })} className={inp}><option value="">—</option>{PLATFORMS.map((p) => <option key={p} value={p}>{p}</option>)}</select>
           </label>
           )}
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Data</span>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Data</span>
             <input disabled={!canEdit} type="date" value={d.dateISO} onChange={(e) => set({ dateISO: e.target.value })} className={inp} /></label>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Ora</span>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Ora</span>
             <input disabled={!canEdit} type="time" value={d.time || ''} onChange={(e) => set({ time: e.target.value || null })} className={inp} /></label>
-          <label className="flex flex-col gap-1 col-span-2"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Argomento</span>
+          <label className="flex flex-col gap-1 col-span-2"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Argomento</span>
             <input disabled={!canEdit} value={d.topic || ''} onChange={(e) => set({ topic: e.target.value || null })} placeholder="Es. Trullo restaurato, dettaglio…" className={inp} /></label>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Stato</span>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Stato</span>
             <select disabled={!canEdit} value={d.status} onChange={(e) => set({ status: e.target.value as EditorialStatus })} className={inp}>{STATUS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}</select></label>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a] inline-flex items-center gap-1"><Hash className="w-3 h-3" /> Hashtag</span>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676] inline-flex items-center gap-1"><Hash className="w-3 h-3" /> Hashtag</span>
             <input disabled={!canEdit} value={d.hashtags || ''} onChange={(e) => set({ hashtags: e.target.value || null })} placeholder="#onirico #puglia" className={inp} /></label>
-          <label className="flex flex-col gap-1 col-span-2"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Caption</span>
+          <label className="flex flex-col gap-1 col-span-2"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Caption</span>
             <textarea disabled={!canEdit} value={d.caption || ''} onChange={(e) => set({ caption: e.target.value || null })} rows={3} className={`${inp} resize-none`} /></label>
-          <label className="flex flex-col gap-1 col-span-2"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Note operative</span>
+          <label className="flex flex-col gap-1 col-span-2"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Note operative</span>
             <input disabled={!canEdit} value={d.notes || ''} onChange={(e) => set({ notes: e.target.value || null })} className={inp} /></label>
         </div>
 
         {/* WORKFLOW 9 FASI — pallini rosso/verde (lo stato macro si aggiorna da solo) */}
         <div className="mt-3 rounded-[14px] border border-[#e6e6e6] bg-[#fafaf8] p-3">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a] mb-2">Workflow del contenuto</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#767676] mb-2">Workflow del contenuto</p>
           <div className="flex flex-wrap gap-1.5">
             {ED_PHASES.map((ph) => {
               const done = !!(d.workflow || {})[ph.id];
@@ -580,7 +580,7 @@ const PostEditor: React.FC<{
                   disabled={!canEdit}
                   onClick={() => togglePhase(ph.id)}
                   title={ph.label}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[10.5px] font-bold border cursor-pointer transition-colors ${done ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-white border-[#e2e2e2] text-[#8a8a8a] hover:border-[#c0c0c0]'} disabled:cursor-default`}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11.5px] font-bold border cursor-pointer transition-colors ${done ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-white border-[#e2e2e2] text-[#6b6b6b] hover:border-[#c0c0c0]'} disabled:cursor-default`}
                 >
                   <span className={`w-2 h-2 rounded-full ${done ? 'bg-emerald-500' : 'bg-rose-400'}`} />
                   {ph.short}

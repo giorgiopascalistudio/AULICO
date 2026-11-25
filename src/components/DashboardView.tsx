@@ -137,7 +137,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="flex items-center justify-between gap-2 pb-3 sticky top-0 bg-white z-10">
           <div className="min-w-0">
             <b className="block text-[16px] tracking-tight text-[#161616] truncate">{title}</b>
-            <span className="text-[11.5px] text-[#8a8a8a]">{sub}</span>
+            <span className="text-[11.5px] text-[#6b6b6b]">{sub}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {action}
@@ -157,7 +157,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <h1 className="text-[24px] sm:text-[30px] lg:text-[34px] font-extrabold tracking-tight text-[#161616] leading-tight font-sans">
           {greeting}{firstName ? `, ${firstName}` : ''}.
         </h1>
-        <div className="text-[12.5px] sm:text-[14px] text-[#8a8a8a] capitalize mt-0.5 sm:mt-1 font-semibold">
+        <div className="text-[12.5px] sm:text-[14px] text-[#6b6b6b] capitalize mt-0.5 sm:mt-1 font-semibold">
           {fmtDayLong(new Date())}
         </div>
       </div>
@@ -171,8 +171,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="mt-auto">
             <div className="text-[26px] font-black tracking-tight text-[#161616] leading-none">{pendingToday.length}</div>
-            <div className="text-[10.5px] text-[#8a8a8a] mt-1 font-bold uppercase tracking-wider">Da fare oggi</div>
-            <div className="text-[10.5px] text-[#9a9a9a] font-semibold">{doneToday.length} completat{doneToday.length === 1 ? 'o' : 'i'}{todaysLeaves.length > 0 ? ` · ${todaysLeaves.length} assent${todaysLeaves.length === 1 ? 'e' : 'i'}` : ''}</div>
+            <div className="text-[11.5px] text-[#6b6b6b] mt-1 font-bold uppercase tracking-wider">Da fare oggi</div>
+            <div className="text-[11.5px] text-[#767676] font-semibold">{doneToday.length} completat{doneToday.length === 1 ? 'o' : 'i'}{todaysLeaves.length > 0 ? ` · ${todaysLeaves.length} assent${todaysLeaves.length === 1 ? 'e' : 'i'}` : ''}</div>
           </div>
         </button>
 
@@ -183,8 +183,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="mt-auto">
             <div className="text-[26px] font-black tracking-tight text-[#161616] leading-none">{unreadCount}</div>
-            <div className="text-[10.5px] text-[#8a8a8a] mt-1 font-bold uppercase tracking-wider">Messaggi</div>
-            <div className="text-[10.5px] text-[#9a9a9a] font-semibold">{appointmentRequests.length > 0 ? `${appointmentRequests.length} richieste appuntamento` : 'notifiche recenti'}</div>
+            <div className="text-[11.5px] text-[#6b6b6b] mt-1 font-bold uppercase tracking-wider">Messaggi</div>
+            <div className="text-[11.5px] text-[#767676] font-semibold">{appointmentRequests.length > 0 ? `${appointmentRequests.length} richieste appuntamento` : 'notifiche recenti'}</div>
           </div>
         </button>
 
@@ -195,8 +195,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="mt-auto">
             <div className="text-[26px] font-black tracking-tight text-[#161616] leading-none">{projectCards.length}</div>
-            <div className="text-[10.5px] text-[#8a8a8a] mt-1 font-bold uppercase tracking-wider">Progetti attivi</div>
-            <div className="text-[10.5px] text-[#9a9a9a] font-semibold">tocca per l'elenco</div>
+            <div className="text-[11.5px] text-[#6b6b6b] mt-1 font-bold uppercase tracking-wider">Progetti attivi</div>
+            <div className="text-[11.5px] text-[#767676] font-semibold">tocca per l'elenco</div>
           </div>
         </button>
 
@@ -207,8 +207,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <div className="mt-auto">
             <div className={`text-[26px] font-black tracking-tight leading-none ${overdueCount > 0 ? 'text-rose-700' : 'text-[#161616]'}`}>{overdueCount}</div>
-            <div className="text-[10.5px] text-[#8a8a8a] mt-1 font-bold uppercase tracking-wider">Task scaduti</div>
-            <div className="text-[10.5px] text-[#9a9a9a] font-semibold">vai all'agenda</div>
+            <div className="text-[11.5px] text-[#6b6b6b] mt-1 font-bold uppercase tracking-wider">Task scaduti</div>
+            <div className="text-[11.5px] text-[#767676] font-semibold">vai all'agenda</div>
           </div>
         </button>
       </div>
@@ -217,18 +217,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="md:hidden bg-white border border-[#e2e2e2] rounded-[20px] p-4 text-left">
         <div className="flex items-center justify-between mb-1.5">
           <b className="text-[15px] font-extrabold tracking-tight text-[#161616]">Agenda di oggi</b>
-          <button onClick={() => setDashModal('agenda')} className="text-[11.5px] font-bold text-[#8a8a8a] bg-transparent border-none cursor-pointer inline-flex items-center gap-0.5 p-0">
+          <button onClick={() => setDashModal('agenda')} className="text-[11.5px] font-bold text-[#6b6b6b] bg-transparent border-none cursor-pointer inline-flex items-center gap-0.5 p-0">
             Tutti ({todaysTasks.length}) <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
         {todaysLeaves.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-2">
             {todaysLeaves.slice(0, 3).map(l => (
-              <span key={l.id} className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[10.5px] font-bold ${LEAVE_STYLE[l.type]}`}>
+              <span key={l.id} className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[11.5px] font-bold ${LEAVE_STYLE[l.type]}`}>
                 {LEAVE_LABEL[l.type]} · {l.uid === profile.uid ? 'Io' : (l.name || '').split(' ')[0]}
               </span>
             ))}
-            {todaysLeaves.length > 3 && <span className="text-[10.5px] font-bold text-[#9a9a9a] self-center">+{todaysLeaves.length - 3}</span>}
+            {todaysLeaves.length > 3 && <span className="text-[11.5px] font-bold text-[#767676] self-center">+{todaysLeaves.length - 3}</span>}
           </div>
         )}
         {pendingToday.length > 0 ? (
@@ -241,18 +241,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   aria-label="Completa"
                 />
                 <span className="flex-1 min-w-0 text-[13px] font-semibold text-[#161616] truncate">{t.title}</span>
-                {t.time && <span className="bg-[#ececec] text-[#333] font-mono text-[11px] px-1.5 py-0.5 rounded-md shrink-0">{t.time}</span>}
+                {t.time && <span className="bg-[#ececec] text-[#333] font-mono text-[12px] px-1.5 py-0.5 rounded-md shrink-0">{t.time}</span>}
                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${t.priority === 'alta' ? 'bg-red-600' : t.priority === 'media' ? 'bg-amber-500' : 'bg-gray-300'}`} />
               </div>
             ))}
             {pendingToday.length > 3 && (
-              <button onClick={() => setDashModal('agenda')} className="text-left text-[11.5px] font-bold text-[#8a8a8a] pt-2 bg-transparent border-none cursor-pointer p-0">
+              <button onClick={() => setDashModal('agenda')} className="text-left text-[11.5px] font-bold text-[#6b6b6b] pt-2 bg-transparent border-none cursor-pointer p-0">
                 +{pendingToday.length - 3} altri impegni…
               </button>
             )}
           </div>
         ) : (
-          <div className="flex items-center gap-2 py-2 text-[12.5px] text-[#8a8a8a] font-semibold">
+          <div className="flex items-center gap-2 py-2 text-[12.5px] text-[#6b6b6b] font-semibold">
             <CheckSquare className="w-4 h-4 text-emerald-600" /> {todaysTasks.length > 0 ? 'Tutto completato per oggi.' : 'Nessun impegno per oggi.'}
           </div>
         )}
@@ -270,7 +270,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div key={a.id} className="bg-white border border-amber-200/70 rounded-xl p-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <b className="text-[13px] text-[#161616] block truncate">{a.createdByName || 'Cliente'}</b>
-                  <span className="text-[11.5px] text-[#8a8a8a]">
+                  <span className="text-[11.5px] text-[#6b6b6b]">
                     {a.date}{a.time ? ` · ${a.time}` : ''}{a.note ? ` · ${a.note}` : ''}
                   </span>
                 </div>
@@ -299,7 +299,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <Clock className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-[11px] text-[#8a8a8a] mt-1.5 font-bold uppercase tracking-wider">Rimasti oggi</div>
+          <div className="text-[12px] text-[#6b6b6b] mt-1.5 font-bold uppercase tracking-wider">Rimasti oggi</div>
         </div>
 
         <div className="bg-white border border-[#e2e2e2] rounded-xl p-3 shadow-xs text-left relative overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs">
@@ -311,7 +311,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <CheckSquare className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-[11px] text-[#8a8a8a] mt-1.5 font-bold uppercase tracking-wider">Completati</div>
+          <div className="text-[12px] text-[#6b6b6b] mt-1.5 font-bold uppercase tracking-wider">Completati</div>
         </div>
 
         <div className="bg-white border border-[#e2e2e2] rounded-xl p-3 shadow-xs text-left relative overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs">
@@ -323,7 +323,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <Folder className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-[11px] text-[#8a8a8a] mt-1.5 font-bold uppercase tracking-wider">Progetti attivi</div>
+          <div className="text-[12px] text-[#6b6b6b] mt-1.5 font-bold uppercase tracking-wider">Progetti attivi</div>
         </div>
 
         <div className="bg-white border border-[#e2e2e2] rounded-xl p-3 shadow-xs text-left relative overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs">
@@ -335,7 +335,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <Calendar className="w-3.5 h-3.5" />
             </div>
           </div>
-          <div className="text-[11px] text-[#8a8a8a] mt-1.5 font-bold uppercase tracking-wider">Totali oggi</div>
+          <div className="text-[12px] text-[#6b6b6b] mt-1.5 font-bold uppercase tracking-wider">Totali oggi</div>
         </div>
       </div>
 
@@ -352,7 +352,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <button
             onClick={() => onNav('calendario')}
-            className="bg-[#161616] hover:bg-black text-[#eeeeee] font-extrabold text-[11px] py-1.5 px-3.5 rounded-lg flex-shrink-0 cursor-pointer transition-all active:scale-95 border-none"
+            className="bg-[#161616] hover:bg-black text-[#eeeeee] font-extrabold text-[12px] py-1.5 px-3.5 rounded-lg flex-shrink-0 cursor-pointer transition-all active:scale-95 border-none"
           >
             Rivedi
           </button>
@@ -368,7 +368,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="text-[19px] font-extrabold tracking-tight text-[#161616]">Agenda di oggi</h2>
-              <span className="text-[12px] text-[#8a8a8a]">Lista attività giornaliere</span>
+              <span className="text-[12px] text-[#6b6b6b]">Lista attività giornaliere</span>
             </div>
             <button
               onClick={onNewTask}
@@ -421,16 +421,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </button>
 
                     <div className="flex-1 min-w-0">
-                      <b className={`block text-[14.5px] font-semibold text-[#161616] leading-tight ${done ? 'line-through text-[#8a8a8a]' : ''}`}>
+                      <b className={`block text-[14.5px] font-semibold text-[#161616] leading-tight ${done ? 'line-through text-[#6b6b6b]' : ''}`}>
                         {t.title}
                       </b>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap text-[#8a8a8a] text-[11.5px] font-medium">
-                        <span className={`inline-flex items-center gap-1 ${t.priority === 'alta' ? 'text-red-700' : t.priority === 'media' ? 'text-amber-700' : 'text-[#8a8a8a]'}`}>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap text-[#6b6b6b] text-[11.5px] font-medium">
+                        <span className={`inline-flex items-center gap-1 ${t.priority === 'alta' ? 'text-red-700' : t.priority === 'media' ? 'text-amber-700' : 'text-[#6b6b6b]'}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${t.priority === 'alta' ? 'bg-red-700' : t.priority === 'media' ? 'bg-amber-600' : 'bg-gray-400'}`} />
                           {t.priority === 'alta' ? 'Alta' : t.priority === 'media' ? 'Media' : 'Bassa'}
                         </span>
                         {t.frequency !== 'once' && (
-                          <span className="bg-[#f0f0f0] text-[#161616] px-1.5 py-0.5 rounded text-[10px] uppercase font-bold">
+                          <span className="bg-[#f0f0f0] text-[#161616] px-1.5 py-0.5 rounded text-[11px] uppercase font-bold">
                             Ricorrente
                           </span>
                         )}
@@ -451,7 +451,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
                     <button
                       onClick={() => onEditTask(t.id)}
-                      className="w-[30px] h-[30px] rounded-lg flex items-center justify-center text-[#8a8a8a] hover:bg-[#ececec] hover:text-[#161616] cursor-pointer"
+                      className="w-[30px] h-[30px] rounded-lg flex items-center justify-center text-[#6b6b6b] hover:bg-[#ececec] hover:text-[#161616] cursor-pointer"
                     >
                       <MoreHorizontal className="w-[16px] h-[16px]" />
                     </button>
@@ -459,7 +459,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 );
               })
             ) : (
-              <div className="text-center py-[42px] px-5 text-[#8a8a8a]">
+              <div className="text-center py-[42px] px-5 text-[#6b6b6b]">
                 <CheckSquare className="w-10 h-10 opacity-30 mx-auto mb-3" />
                 <b className="block text-[#161616] text-[15px] font-semibold mb-1">Nessun task per oggi</b>
                 <p className="text-[13px] max-w-[340px] mx-auto">L'agenda di oggi è libera. Aggiungi un task personale o di studio.</p>
@@ -473,7 +473,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="text-[19px] font-extrabold tracking-tight text-[#161616]">Messaggi & richieste</h2>
-              <span className="text-[12px] text-[#8a8a8a]">Notifiche e richieste recenti</span>
+              <span className="text-[12px] text-[#6b6b6b]">Notifiche e richieste recenti</span>
             </div>
             {messages.filter(m => !m.read).length > 0 && (
               <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full bg-[#161616] text-white text-[11.5px] font-extrabold">
@@ -493,13 +493,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${m.read ? 'bg-[#d6d6d6]' : 'bg-orange-500'}`} />
                   <span className="flex-1 min-w-0">
                     <b className="block text-[13.5px] font-bold text-[#161616] leading-tight truncate">{m.title}</b>
-                    {m.text && <span className="block text-[12px] text-[#8a8a8a] leading-snug mt-0.5 line-clamp-2">{m.text}</span>}
+                    {m.text && <span className="block text-[12px] text-[#6b6b6b] leading-snug mt-0.5 line-clamp-2">{m.text}</span>}
                   </span>
-                  <span className="text-[10.5px] text-[#9a9a9a] font-semibold shrink-0 mt-0.5">{m.time}</span>
+                  <span className="text-[11.5px] text-[#767676] font-semibold shrink-0 mt-0.5">{m.time}</span>
                 </button>
               ))
             ) : (
-              <div className="text-center py-8 px-5 text-[#8a8a8a]">
+              <div className="text-center py-8 px-5 text-[#6b6b6b]">
                 <Inbox className="w-9 h-9 opacity-30 mx-auto mb-2.5" />
                 <b className="block text-[#161616] text-[14px] font-semibold mb-1">Nessun messaggio</b>
                 <p className="text-[12.5px] max-w-[320px] mx-auto">Le richieste e le notifiche recenti compariranno qui.</p>
@@ -514,7 +514,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="text-[19px] font-extrabold tracking-tight text-[#161616]">Progetti attivi</h2>
-              <span className="text-[12px] text-[#8a8a8a]">Lavori in corso di esecuzione</span>
+              <span className="text-[12px] text-[#6b6b6b]">Lavori in corso di esecuzione</span>
             </div>
             <button
               onClick={() => onNav('progetti')}
@@ -543,14 +543,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <b className="block text-[14.5px] font-bold text-[#161616] truncate leading-snug">
                         {p.name}
                       </b>
-                      <small className="block text-[11.5px] text-[#8a8a8a] truncate mt-0.5">
+                      <small className="block text-[11.5px] text-[#6b6b6b] truncate mt-0.5">
                         <span className="font-extrabold" style={{ color: col }}>{COMPANY_LABEL[p.company]}</span> · {p.client} · {p.isMkt ? 'marketing' : `${p.tot} task`}
                       </small>
                     </div>
 
                     {p.isMkt ? (
                       <div className="text-right flex-shrink-0">
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-full" style={{ color: col, background: `${col}14` }}>Marketing</span>
+                        <span className="text-[11px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-full" style={{ color: col, background: `${col}14` }}>Marketing</span>
                       </div>
                     ) : (
                       <div className="text-right flex-shrink-0">
@@ -567,7 +567,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 );
               })
             ) : (
-              <div className="text-center py-10 px-5 text-[#8a8a8a]">
+              <div className="text-center py-10 px-5 text-[#6b6b6b]">
                 <Folder className="w-10 h-10 opacity-30 mx-auto mb-3" />
                 <b className="block text-[#161616] text-[15px] font-semibold mb-1">Nessun progetto attivo</b>
                 <p className="text-[13px] max-w-[340px] mx-auto">Non ci sono progetti attivi registrati. Crea una nuova commessa da un template.</p>
@@ -605,19 +605,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       {done && <Check className="w-3.5 h-3.5" />}
                     </button>
                     <div className="flex-1 min-w-0">
-                      <b className={`block text-[14px] font-semibold text-[#161616] leading-tight truncate ${done ? 'line-through text-[#8a8a8a]' : ''}`}>{t.title}</b>
-                      <span className={`text-[11px] font-bold ${t.priority === 'alta' ? 'text-red-700' : t.priority === 'media' ? 'text-amber-700' : 'text-[#9a9a9a]'}`}>
+                      <b className={`block text-[14px] font-semibold text-[#161616] leading-tight truncate ${done ? 'line-through text-[#6b6b6b]' : ''}`}>{t.title}</b>
+                      <span className={`text-[12px] font-bold ${t.priority === 'alta' ? 'text-red-700' : t.priority === 'media' ? 'text-amber-700' : 'text-[#767676]'}`}>
                         {t.priority === 'alta' ? 'Alta' : t.priority === 'media' ? 'Media' : 'Bassa'}{t.frequency !== 'once' ? ' · ricorrente' : ''}
                       </span>
                     </div>
                     {t.time && <span className="bg-[#ececec] text-[#333] font-mono text-[11.5px] font-medium px-2 py-0.5 rounded-lg shrink-0">{t.time}</span>}
-                    <button onClick={() => { setDashModal(null); onEditTask(t.id); }} className="w-8 h-8 rounded-lg flex items-center justify-center text-[#8a8a8a] hover:bg-[#ececec] cursor-pointer bg-transparent border-none shrink-0"><MoreHorizontal className="w-4 h-4" /></button>
+                    <button onClick={() => { setDashModal(null); onEditTask(t.id); }} className="w-8 h-8 rounded-lg flex items-center justify-center text-[#6b6b6b] hover:bg-[#ececec] cursor-pointer bg-transparent border-none shrink-0"><MoreHorizontal className="w-4 h-4" /></button>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="text-center py-8 text-[#8a8a8a]">
+            <div className="text-center py-8 text-[#6b6b6b]">
               <CheckSquare className="w-9 h-9 opacity-30 mx-auto mb-2.5" />
               <b className="block text-[#161616] text-[14px] font-semibold mb-1">Nessun task per oggi</b>
               <p className="text-[12.5px]">L'agenda di oggi è libera.</p>
@@ -640,7 +640,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div key={a.id} className="bg-white border border-amber-200/70 rounded-xl p-2.5 flex items-center justify-between gap-2">
                     <div className="min-w-0">
                       <b className="text-[12.5px] text-[#161616] block truncate">{a.createdByName || 'Cliente'}</b>
-                      <span className="text-[11px] text-[#8a8a8a]">{a.date}{a.time ? ` · ${a.time}` : ''}</span>
+                      <span className="text-[12px] text-[#6b6b6b]">{a.date}{a.time ? ` · ${a.time}` : ''}</span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <button onClick={() => onConfirmAppointment?.(a.id)} className="w-8 h-8 rounded-lg bg-[#1b1b1b] text-white flex items-center justify-center cursor-pointer border-none"><Check className="w-4 h-4" /></button>
@@ -658,14 +658,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${m.read ? 'bg-[#d6d6d6]' : 'bg-orange-500'}`} />
                   <span className="flex-1 min-w-0">
                     <b className="block text-[13px] font-bold text-[#161616] leading-tight truncate">{m.title}</b>
-                    {m.text && <span className="block text-[11.5px] text-[#8a8a8a] leading-snug mt-0.5 line-clamp-2">{m.text}</span>}
+                    {m.text && <span className="block text-[11.5px] text-[#6b6b6b] leading-snug mt-0.5 line-clamp-2">{m.text}</span>}
                   </span>
-                  <span className="text-[10px] text-[#9a9a9a] font-semibold shrink-0 mt-0.5">{m.time}</span>
+                  <span className="text-[11px] text-[#767676] font-semibold shrink-0 mt-0.5">{m.time}</span>
                 </button>
               ))}
             </div>
           ) : appointmentRequests.length === 0 ? (
-            <div className="text-center py-8 text-[#8a8a8a]">
+            <div className="text-center py-8 text-[#6b6b6b]">
               <Inbox className="w-9 h-9 opacity-30 mx-auto mb-2.5" />
               <b className="block text-[#161616] text-[14px] font-semibold mb-1">Nessun messaggio</b>
               <p className="text-[12.5px]">Le notifiche recenti compariranno qui.</p>
@@ -691,12 +691,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <span className="relative w-9 h-9 rounded-xl bg-[#f5f5f3] text-[#161616] flex items-center justify-center shrink-0"><Folder className="w-4 h-4" /><span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white" style={{ background: col }} /></span>
                   <span className="flex-1 min-w-0">
                     <b className="block text-[13.5px] font-bold text-[#161616] truncate leading-snug">{p.name}</b>
-                    <small className="block text-[11px] text-[#8a8a8a] truncate mt-0.5">
+                    <small className="block text-[12px] text-[#6b6b6b] truncate mt-0.5">
                       <span className="font-extrabold" style={{ color: col }}>{COMPANY_LABEL[p.company]}</span> · {p.client}
                     </small>
                   </span>
                   {p.isMkt ? (
-                    <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-full shrink-0" style={{ color: col, background: `${col}14` }}>MKT</span>
+                    <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-full shrink-0" style={{ color: col, background: `${col}14` }}>MKT</span>
                   ) : (
                     <span className="font-mono text-[12px] font-extrabold text-[#161616] shrink-0">{p.pc}%</span>
                   )}
@@ -705,7 +705,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             })}
           </div>
         ) : (
-          <div className="text-center py-8 text-[#8a8a8a]">
+          <div className="text-center py-8 text-[#6b6b6b]">
             <Folder className="w-9 h-9 opacity-30 mx-auto mb-2.5" />
             <b className="block text-[#161616] text-[14px] font-semibold mb-1">Nessun progetto attivo</b>
             <p className="text-[12.5px]">Le commesse attive compariranno qui.</p>

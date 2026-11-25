@@ -55,7 +55,7 @@ export const MieCommesseView: React.FC<Props> = (p) => {
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[20px] font-black text-[#161616]">Le mie commesse</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Solo quello di cui sei responsabile: commesse, cantieri, ritardi e attività da fare.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Solo quello di cui sei responsabile: commesse, cantieri, ritardi e attività da fare.</p>
         </div>
         {p.isBoss && (
           <label className="inline-flex items-center gap-2 text-[12px] font-bold text-[#555]"><User className="w-4 h-4" />
@@ -75,15 +75,15 @@ export const MieCommesseView: React.FC<Props> = (p) => {
         ].map((k, i) => (
           <motion.div key={k.l} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className={card}>
             <div className="text-[22px] font-black text-[#161616]">{k.v}</div>
-            <div className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">{k.l}</div>
+            <div className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">{k.l}</div>
           </motion.div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className={card}>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-3 flex items-center gap-1.5"><HardHat className="w-4 h-4" /> Cantieri</p>
-          {myCantieri.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Nessun cantiere aperto. Nasce da solo quando un contratto con l'impresa viene firmato.</p> : (
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-3 flex items-center gap-1.5"><HardHat className="w-4 h-4" /> Cantieri</p>
+          {myCantieri.length === 0 ? <p className="text-[12.5px] text-[#767676]">Nessun cantiere aperto. Nasce da solo quando un contratto con l'impresa viene firmato.</p> : (
             <div className="flex flex-col gap-2.5">
               {myCantieri.map((c) => {
                 const d = mineDeals.find((x) => x.cantiereId === c.id || x.projectId === c.projectId);
@@ -92,10 +92,10 @@ export const MieCommesseView: React.FC<Props> = (p) => {
                   <a key={c.id} href={`#progetto/${c.projectId}`} className="block p-3 rounded-xl border border-[#efefef] hover:border-[#cfcfcf] no-underline">
                     <div className="flex items-center justify-between gap-2">
                       <b className="text-[13.5px] text-[#161616] truncate">{c.name}</b>
-                      {d?.discipline && <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-[#f1f1f1] text-[#555]">{DISC[d.discipline]}</span>}
+                      {d?.discipline && <span className="text-[11.5px] font-bold px-2 py-0.5 rounded-full bg-[#f1f1f1] text-[#555]">{DISC[d.discipline]}</span>}
                     </div>
                     <div className="h-1.5 rounded-full bg-[#f0f0ee] mt-2 overflow-hidden"><motion.div className="h-full bg-[#161616]" initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.6 }} /></div>
-                    <p className="text-[11px] text-[#9a9a9a] font-semibold mt-1">{pct}%{c.dueDate ? ` · fine prevista ${new Date(c.dueDate + 'T00:00').toLocaleDateString('it-IT')}` : ''}</p>
+                    <p className="text-[12px] text-[#767676] font-semibold mt-1">{pct}%{c.dueDate ? ` · fine prevista ${new Date(c.dueDate + 'T00:00').toLocaleDateString('it-IT')}` : ''}</p>
                   </a>
                 );
               })}
@@ -113,8 +113,8 @@ export const MieCommesseView: React.FC<Props> = (p) => {
         </div>
 
         <div className={card}>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-3 flex items-center gap-1.5"><ListChecks className="w-4 h-4" /> Da fare</p>
-          {todo.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Tutto fatto.</p> : (
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-3 flex items-center gap-1.5"><ListChecks className="w-4 h-4" /> Da fare</p>
+          {todo.length === 0 ? <p className="text-[12.5px] text-[#767676]">Tutto fatto.</p> : (
             <div className="flex flex-col gap-1.5">
               {todo.slice(0, 30).map((t) => {
                 const overdue = t.due && t.due < today();
@@ -123,9 +123,9 @@ export const MieCommesseView: React.FC<Props> = (p) => {
                     {who === p.myUid && <button onClick={() => p.onToggleTask(t.id, t.due || today())} className="w-5 h-5 rounded-md border-2 border-[#8a8a8a] bg-white cursor-pointer shrink-0" aria-label="Fatto" />}
                     <div className="min-w-0 flex-1">
                       <p className="text-[13px] font-bold text-[#161616] truncate">{t.title}</p>
-                      {t.proj && <p className="text-[11px] text-[#9a9a9a] truncate">{t.proj}</p>}
+                      {t.proj && <p className="text-[12px] text-[#767676] truncate">{t.proj}</p>}
                     </div>
-                    {t.due && <span className={`text-[11px] font-bold inline-flex items-center gap-1 ${overdue ? 'text-rose-600' : 'text-[#8a8a8a]'}`}><CalendarClock className="w-3.5 h-3.5" />{new Date(t.due + 'T00:00').toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}</span>}
+                    {t.due && <span className={`text-[12px] font-bold inline-flex items-center gap-1 ${overdue ? 'text-rose-600' : 'text-[#6b6b6b]'}`}><CalendarClock className="w-3.5 h-3.5" />{new Date(t.due + 'T00:00').toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}</span>}
                   </div>
                 );
               })}
@@ -136,9 +136,9 @@ export const MieCommesseView: React.FC<Props> = (p) => {
 
       {mineDeals.length > 0 && (
         <div className={card}>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-3">Commesse</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-3">Commesse</p>
           <div className="flex flex-wrap gap-2">
-            {mineDeals.map((d) => <span key={d.id} className="px-3 py-1.5 rounded-xl bg-[#f5f5f3] text-[12.5px] font-bold text-[#161616]">{d.title} <span className="text-[#9a9a9a] font-semibold">· {d.stage}</span></span>)}
+            {mineDeals.map((d) => <span key={d.id} className="px-3 py-1.5 rounded-xl bg-[#f5f5f3] text-[12.5px] font-bold text-[#161616]">{d.title} <span className="text-[#767676] font-semibold">· {d.stage}</span></span>)}
           </div>
         </div>
       )}

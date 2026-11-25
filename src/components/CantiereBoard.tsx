@@ -168,7 +168,7 @@ export const CantiereBoard: React.FC<CantiereBoardProps> = (props) => {
         )}
 
         {cantieri.length === 0 ? (
-          <p className="text-[12.5px] italic text-[#9a9a9a] py-2">Nessun cantiere in questo progetto. Creane uno.</p>
+          <p className="text-[12.5px] italic text-[#767676] py-2">Nessun cantiere in questo progetto. Creane uno.</p>
         ) : (
           <div className="pillbar flex gap-2 pb-1">
             {cantieri.map((c) => {
@@ -181,9 +181,9 @@ export const CantiereBoard: React.FC<CantiereBoardProps> = (props) => {
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-[13px] font-bold truncate">{c.name}</span>
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${active ? 'bg-white/20 text-white' : STATUS_STYLE[c.status]}`}>{STATUS_LABEL[c.status]}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${active ? 'bg-white/20 text-white' : STATUS_STYLE[c.status]}`}>{STATUS_LABEL[c.status]}</span>
                   </div>
-                  <div className={`text-[10.5px] mt-1 ${active ? 'text-white/70' : 'text-[#9a9a9a]'}`}>
+                  <div className={`text-[11.5px] mt-1 ${active ? 'text-white/70' : 'text-[#9a9a9a]'}`}>
                     {Object.keys(c.partnerUids || {}).length} partner · {c.progressPct || 0}%
                   </div>
                 </button>
@@ -430,9 +430,9 @@ const CantiereDetail: React.FC<CantiereBoardProps & {
         <div>
           <div className="flex items-center gap-2">
             <h4 className="text-[16px] font-extrabold text-[#161616]">{c.name}</h4>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${STATUS_STYLE[c.status]}`}>{STATUS_LABEL[c.status]}</span>
+            <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${STATUS_STYLE[c.status]}`}>{STATUS_LABEL[c.status]}</span>
           </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11.5px] text-[#9a9a9a]">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11.5px] text-[#767676]">
             {c.location && <span className="inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> {c.location}</span>}
             {c.dueDate && <span className="inline-flex items-center gap-1"><CalIcon className="w-3 h-3" /> consegna {fmtDay(c.dueDate)}</span>}
             <span className="inline-flex items-center gap-1"><Users className="w-3 h-3" /> {Object.keys(c.partnerUids || {}).length + Object.keys(c.partnerRecordIds || {}).length} imprese</span>
@@ -440,7 +440,7 @@ const CantiereDetail: React.FC<CantiereBoardProps & {
         </div>
         {isStudio && (
           <div className="flex items-center gap-2 flex-wrap">
-            <label className="flex items-center gap-1.5 text-[11px] font-bold text-[#9a9a9a]">
+            <label className="flex items-center gap-1.5 text-[12px] font-bold text-[#767676]">
               Stato
               <select
                 value={c.status}
@@ -472,7 +472,7 @@ const CantiereDetail: React.FC<CantiereBoardProps & {
           <div>
             <p className="text-[12px] font-bold text-[#161616] mb-1.5">Imprese con portale partner</p>
             {(p.partnerAccounts || []).length === 0 ? (
-              <p className="text-[12px] italic text-[#9a9a9a]">Nessuna impresa con account portale. Le imprese si registrano dalla pagina di accesso (tipo account "team" non serve: usare invito partner) oppure aggiungile dalla rubrica qui sotto.</p>
+              <p className="text-[12px] italic text-[#767676]">Nessuna impresa con account portale. Le imprese si registrano dalla pagina di accesso (tipo account "team" non serve: usare invito partner) oppure aggiungile dalla rubrica qui sotto.</p>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {(p.partnerAccounts || []).map((pa) => {
@@ -481,7 +481,7 @@ const CantiereDetail: React.FC<CantiereBoardProps & {
                     <label key={pa.uid} className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-white border border-[#eee] cursor-pointer">
                       <span className="text-[12.5px] font-medium text-[#161616] min-w-0 truncate">
                         {pa.companyName || pa.name}
-                        <span className="ml-1.5 text-[9.5px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">portale</span>
+                        <span className="ml-1.5 text-[10.5px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">portale</span>
                       </span>
                       <input
                         type="checkbox"
@@ -508,8 +508,8 @@ const CantiereDetail: React.FC<CantiereBoardProps & {
                       <span className="text-[12.5px] font-medium text-[#161616] min-w-0 truncate">
                         {rec.companyName || rec.name}
                         {linkedUid
-                          ? <span className="ml-1.5 text-[9.5px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">portale collegato</span>
-                          : <span className="ml-1.5 text-[9.5px] font-extrabold uppercase tracking-wider text-[#9a9a9a] bg-[#f1f1f1] px-1.5 py-0.5 rounded">senza portale</span>}
+                          ? <span className="ml-1.5 text-[10.5px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">portale collegato</span>
+                          : <span className="ml-1.5 text-[10.5px] font-extrabold uppercase tracking-wider text-[#767676] bg-[#f1f1f1] px-1.5 py-0.5 rounded">senza portale</span>}
                       </span>
                       <input
                         type="checkbox"
@@ -564,8 +564,8 @@ const CantiereDetail: React.FC<CantiereBoardProps & {
           (posizioni stabili e scansionabili, niente "muro" di pill a larghezza variabile) */}
       <div className="mb-3 p-2.5 rounded-2xl bg-[#fafafa] border border-[#f2f2f2]">
         <div className="flex items-center gap-1.5 mb-2 px-1">
-          <Wrench className="w-3 h-3 text-[#b0b0b0]" />
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#b0b0b0]">Strumenti · {AREAS.find((a) => a.id === area)?.label}</span>
+          <Wrench className="w-3 h-3 text-[#8f8f8f]" />
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#8f8f8f]">Strumenti · {AREAS.find((a) => a.id === area)?.label}</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1.5">
           {areaSections.map((s) => {
@@ -588,11 +588,11 @@ const CantiereDetail: React.FC<CantiereBoardProps & {
       {/* selettore impresa (solo studio, Area Impresa con più partner) */}
       {area === 'impresa' && isStudio && assignedUids.length > 0 && (
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-[11.5px] font-bold text-[#9a9a9a]">Impresa:</span>
+          <span className="text-[11.5px] font-bold text-[#767676]">Impresa:</span>
           <select value={impUid} onChange={(e) => setImpUid(e.target.value)} className="px-2.5 py-1.5 rounded-xl border border-[#e2e2e2] text-[12px] font-bold outline-none">
             {assignedUids.map((uid) => <option key={uid} value={uid}>{partnerName(uid)}</option>)}
           </select>
-          <span className="text-[11px] text-[#b0b0b0]">(profilo riusato su tutti i cantieri dell'impresa, sola lettura)</span>
+          <span className="text-[12px] text-[#8f8f8f]">(profilo riusato su tutti i cantieri dell'impresa, sola lettura)</span>
         </div>
       )}
 
@@ -631,15 +631,15 @@ const NewImpresaInline: React.FC<{ onCreate: (rec: ClientRecord) => void }> = ({
   }
   return (
     <div className="p-3 rounded-xl bg-white border border-[#e2e2e2] flex flex-wrap gap-2 items-end">
-      <label className="flex flex-col gap-1 flex-1 min-w-[160px] text-[11px] font-bold text-[#6b6b6b]">
+      <label className="flex flex-col gap-1 flex-1 min-w-[160px] text-[12px] font-bold text-[#6b6b6b]">
         Ragione sociale *
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Es. Edil Salento srl" className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] outline-none font-normal" />
       </label>
-      <label className="flex flex-col gap-1 w-44 text-[11px] font-bold text-[#6b6b6b]">
+      <label className="flex flex-col gap-1 w-44 text-[12px] font-bold text-[#6b6b6b]">
         Email
         <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="impresa@pec.it" className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] outline-none font-normal" />
       </label>
-      <label className="flex flex-col gap-1 w-36 text-[11px] font-bold text-[#6b6b6b]">
+      <label className="flex flex-col gap-1 w-36 text-[12px] font-bold text-[#6b6b6b]">
         Telefono
         <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+39…" className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] outline-none font-normal" />
       </label>
@@ -657,7 +657,7 @@ type TabProps = CantiereBoardProps & {
   delEntity: (coll: string, id: string) => void;
 };
 
-const sectionEmpty = (txt: string) => <p className="text-[12.5px] italic text-[#9a9a9a] py-3">{txt}</p>;
+const sectionEmpty = (txt: string) => <p className="text-[12.5px] italic text-[#767676] py-3">{txt}</p>;
 
 // -------------------- Presenze --------------------
 const PresenzeTab: React.FC<TabProps> = (p) => {
@@ -688,9 +688,9 @@ const PresenzeTab: React.FC<TabProps> = (p) => {
         <div className="flex flex-col gap-1.5">
           {list.map((r) => (
             <div key={r.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-[#eee]">
-              <div className="text-[12.5px]"><span className="font-bold text-[#161616]">{r.lavoratore}</span>{r.mansione ? <span className="text-[#9a9a9a]"> · {r.mansione}</span> : null}</div>
+              <div className="text-[12.5px]"><span className="font-bold text-[#161616]">{r.lavoratore}</span>{r.mansione ? <span className="text-[#767676]"> · {r.mansione}</span> : null}</div>
               <div className="flex items-center gap-3">
-                <span className="text-[11.5px] text-[#9a9a9a]">{fmtDay(r.date)}</span>
+                <span className="text-[11.5px] text-[#767676]">{fmtDay(r.date)}</span>
                 <span className="text-[12px] font-bold text-[#161616]">{r.ore}h</span>
                 {(isStudio || r.partnerUid === myUid) && <button onClick={() => delEntity('cantierePresenze', r.id)} className="text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>}
               </div>
@@ -734,13 +734,13 @@ const FotoTab: React.FC<TabProps> = (p) => {
             const mapUrl = hasGeo ? safeUrl(`https://www.google.com/maps?q=${f.lat},${f.lng}`) : '';
             return (
               <div key={f.id} className="relative group rounded-2xl border border-[#eee] overflow-hidden bg-[#fafafa] aspect-square flex items-center justify-center">
-                <a href={url} target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center gap-1 text-[11px] text-[#6b6b6b] p-2 text-center">
+                <a href={url} target="_blank" rel="noreferrer" className="flex flex-col items-center justify-center gap-1 text-[12px] text-[#6b6b6b] p-2 text-center">
                   <ImageIcon className="w-6 h-6 text-[#c9c9c9]" />
                   <span className="truncate max-w-full">{f.caption || 'Foto'}</span>
-                  <span className="text-[10px] text-[#9a9a9a]">{new Date(when).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
+                  <span className="text-[11px] text-[#767676]">{new Date(when).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
                 </a>
                 {hasGeo && (
-                  <a href={mapUrl} target="_blank" rel="noreferrer" title="Posizione su mappa" className="absolute bottom-1 left-1 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-white/90 text-[9.5px] font-bold text-[#161616] border border-[#e2e2e2]">
+                  <a href={mapUrl} target="_blank" rel="noreferrer" title="Posizione su mappa" className="absolute bottom-1 left-1 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-white/90 text-[10.5px] font-bold text-[#161616] border border-[#e2e2e2]">
                     <MapPin className="w-3 h-3" /> GPS
                   </a>
                 )}
@@ -790,10 +790,10 @@ const MaterialiTab: React.FC<TabProps> = (p) => {
         <div className="flex flex-col gap-1.5">
           {list.map((m) => (
             <div key={m.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-[#eee]">
-              <div className="text-[12.5px]"><span className="font-bold text-[#161616]">{m.desc}</span> <span className="text-[#9a9a9a]">· {m.qty} {m.unit}</span></div>
+              <div className="text-[12.5px]"><span className="font-bold text-[#161616]">{m.desc}</span> <span className="text-[#767676]">· {m.qty} {m.unit}</span></div>
               <div className="flex items-center gap-3">
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${m.tipo === 'consegna' ? 'bg-indigo-50 text-indigo-700' : 'bg-amber-50 text-amber-700'}`}>{m.tipo}</span>
-                <span className="text-[11.5px] text-[#9a9a9a]">{fmtDay(m.date)}</span>
+                <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${m.tipo === 'consegna' ? 'bg-indigo-50 text-indigo-700' : 'bg-amber-50 text-amber-700'}`}>{m.tipo}</span>
+                <span className="text-[11.5px] text-[#767676]">{fmtDay(m.date)}</span>
                 {(isStudio || m.by === myUid) && <button onClick={() => delEntity('cantiereMateriali', m.id)} className="text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>}
               </div>
             </div>
@@ -835,7 +835,7 @@ const ChecklistTab: React.FC<TabProps> = (p) => {
             <div key={it.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-[#eee]">
               <button onClick={() => toggle(it)} className={`flex items-center gap-2 text-[12.5px] ${!isStudio ? 'cursor-default' : ''}`}>
                 {it.done ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <CircleSlash className="w-4 h-4 text-[#c9c9c9]" />}
-                <span className={it.done ? 'line-through text-[#9a9a9a]' : 'text-[#161616] font-medium'}>{it.title}</span>
+                <span className={it.done ? 'line-through text-[#767676]' : 'text-[#161616] font-medium'}>{it.title}</span>
               </button>
               {isStudio && <button onClick={() => delEntity('cantiereChecklist', it.id)} className="text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>}
             </div>
@@ -860,7 +860,7 @@ const ChatTab: React.FC<TabProps> = (p) => {
           return (
             <div key={m.id} className={`max-w-[80%] ${mine ? 'self-end' : 'self-start'}`}>
               <div className={`px-3 py-2 rounded-2xl text-[12.5px] ${mine ? 'bg-[#161616] text-white' : 'bg-[#f3f3f3] text-[#161616]'}`}>{m.text}</div>
-              <div className={`flex items-center gap-1 text-[10px] text-[#9a9a9a] mt-0.5 ${mine ? 'justify-end' : ''}`}>
+              <div className={`flex items-center gap-1 text-[11px] text-[#767676] mt-0.5 ${mine ? 'justify-end' : ''}`}>
                 {m.name} · {new Date(m.at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                 {mine && p.onDeleteMessage && (
                   <ChatDeleteButton at={m.at} onDelete={() => p.onDeleteMessage!(c.id, m.id)} />
@@ -944,7 +944,7 @@ const ClienteTab: React.FC<TabProps> = (p) => {
 
 const Field: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div className="px-3 py-2 rounded-xl border border-[#eee] bg-[#fafafa]">
-    <div className="text-[10.5px] font-bold uppercase tracking-wide text-[#9a9a9a]">{label}</div>
+    <div className="text-[11.5px] font-bold uppercase tracking-wide text-[#767676]">{label}</div>
     <div className="text-[12.5px] font-medium text-[#161616] mt-0.5 whitespace-pre-wrap">{value}</div>
   </div>
 );
@@ -1003,7 +1003,7 @@ const SalTab: React.FC<TabProps> = (p) => {
           <span className="inline-flex items-center gap-1.5 text-[12px] font-bold text-[#161616]"><TrendingUp className="w-4 h-4" /> Avanzamento lavori</span>
           <span className="text-[15px] font-extrabold text-[#161616]">{progress}%</span>
         </div>
-        <p className="text-[11px] text-[#9a9a9a] mb-2">
+        <p className="text-[12px] text-[#767676] mb-2">
           {isStudio
             ? 'Percentuale di completamento del cantiere, aggiornata dallo studio. Si allinea automaticamente alla % dell\'ultimo SAL approvato; puoi anche regolarla a mano col cursore.'
             : 'Percentuale di completamento del cantiere, aggiornata dallo studio (sola lettura).'}
@@ -1023,7 +1023,7 @@ const SalTab: React.FC<TabProps> = (p) => {
             {lastApproved?.progressPct != null && lastApproved.progressPct !== (c.progressPct || 0) && (
               <button
                 onClick={() => p.onSaveCantiere?.({ ...c, progressPct: Math.min(100, lastApproved.progressPct!), updatedAt: Date.now() })}
-                className="mt-1.5 px-2.5 py-1 rounded-full bg-white border border-[#e2e2e2] text-[11px] font-bold text-[#6b6b6b] hover:bg-[#f5f5f3]"
+                className="mt-1.5 px-2.5 py-1 rounded-full bg-white border border-[#e2e2e2] text-[12px] font-bold text-[#6b6b6b] hover:bg-[#f5f5f3]"
               >
                 Allinea all'ultimo SAL approvato ({lastApproved.progressPct}%)
               </button>
@@ -1034,7 +1034,7 @@ const SalTab: React.FC<TabProps> = (p) => {
 
       {/* riepilogo SAL */}
       {list.length > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
+        <div className="flex flex-wrap items-center gap-1.5 text-[12px] font-bold">
           <span className="px-2.5 py-1 rounded-full bg-[#f3f3f3] text-[#6b6b6b]">{list.length} SAL</span>
           <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">{approvati.length} approvati{totApprovato > 0 ? ` · ${eur(totApprovato)}` : ''}</span>
           {fatturati > 0 && <span className="px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">{fatturati} fatturati</span>}
@@ -1059,7 +1059,7 @@ const SalTab: React.FC<TabProps> = (p) => {
             <LabeledInput label="Importo lavori (€, imponibile)" value={importo} onChange={setImporto} />
             <LabeledInput label={`Avanzamento raggiunto % (ora ${c.progressPct || 0}%)`} value={prog} onChange={setProg} />
           </div>
-          <p className="text-[11px] text-[#9a9a9a]">
+          <p className="text-[12px] text-[#767676]">
             Il SAL nasce in <b>bozza</b>. Con l'approvazione l'avanzamento del cantiere si allinea alla % indicata
             e il SAL diventa fatturabile da <b>Finanze → SAL</b>.
           </p>
@@ -1077,11 +1077,11 @@ const SalTab: React.FC<TabProps> = (p) => {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-[13px] font-bold text-[#161616]">SAL {s.number}{s.descrizione ? ` — ${s.descrizione}` : ''}</span>
                 <div className="flex items-center gap-2">
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${s.status === 'approvato' ? 'bg-emerald-50 text-emerald-700' : s.status === 'inviato' ? 'bg-amber-50 text-amber-700' : 'bg-[#f1f1f1] text-[#6b6b6b]'}`}>{s.status}</span>
-                  {s.linkedInvoiceId && <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-indigo-50 text-indigo-700">fatturato</span>}
+                  <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${s.status === 'approvato' ? 'bg-emerald-50 text-emerald-700' : s.status === 'inviato' ? 'bg-amber-50 text-amber-700' : 'bg-[#f1f1f1] text-[#6b6b6b]'}`}>{s.status}</span>
+                  {s.linkedInvoiceId && <span className="text-[11px] px-2 py-0.5 rounded-full font-bold bg-indigo-50 text-indigo-700">fatturato</span>}
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-[11.5px] text-[#9a9a9a]">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-[11.5px] text-[#767676]">
                 {(s.periodFrom || s.periodTo) && <span className="inline-flex items-center gap-1"><CalIcon className="w-3 h-3" /> {s.periodFrom ? fmtDay(s.periodFrom) : '…'} → {s.periodTo ? fmtDay(s.periodTo) : '…'}</span>}
                 {s.importo != null && <span className="font-bold text-[#161616]">{eur(s.importo)}</span>}
                 {s.progressPct != null && <span className="inline-flex items-center gap-1"><TrendingUp className="w-3 h-3" /> {s.progressPct}% avanzamento</span>}
@@ -1093,7 +1093,7 @@ const SalTab: React.FC<TabProps> = (p) => {
                 </div>
               )}
               {isStudio && s.status === 'approvato' && !s.linkedInvoiceId && (
-                <p className="mt-2 text-[11px] text-emerald-700 inline-flex items-center gap-1"><Check className="w-3 h-3" /> Approvato — emetti la bozza fattura da Finanze → SAL.</p>
+                <p className="mt-2 text-[12px] text-emerald-700 inline-flex items-center gap-1"><Check className="w-3 h-3" /> Approvato — emetti la bozza fattura da Finanze → SAL.</p>
               )}
             </div>
           ))}
@@ -1112,10 +1112,10 @@ const StoricoTab: React.FC<TabProps> = (p) => {
     <div className="flex flex-col gap-1.5">
       {list.map((l) => (
         <div key={l.id} className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[#eee] text-[12px]">
-          <Clock className="w-3.5 h-3.5 text-[#9a9a9a]" />
+          <Clock className="w-3.5 h-3.5 text-[#767676]" />
           <span className="font-bold text-[#161616]">{l.action}</span>
-          <span className="text-[#9a9a9a]">{l.detail || ''}</span>
-          <span className="ml-auto text-[11px] text-[#bdbdbd]">{new Date(l.at).toLocaleString('it-IT')}</span>
+          <span className="text-[#767676]">{l.detail || ''}</span>
+          <span className="ml-auto text-[12px] text-[#9a9a9a]">{new Date(l.at).toLocaleString('it-IT')}</span>
         </div>
       ))}
     </div>

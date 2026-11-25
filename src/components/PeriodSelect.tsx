@@ -17,7 +17,7 @@ export const PeriodSelect: React.FC<{ value: Period; onChange: (p: Period) => vo
         <button
           key={m}
           onClick={() => onChange(m === 'mese' ? monthPeriod(value.ym) : weekPeriod(weekIn(value.ym)))}
-          className={`px-3 py-1.5 rounded-[10px] text-[11.5px] font-bold capitalize cursor-pointer border-none ${value.mode === m ? 'bg-white text-[#161616] shadow-sm' : 'bg-transparent text-[#8a8a8a]'}`}
+          className={`px-3 py-1.5 rounded-[10px] text-[11.5px] font-bold capitalize cursor-pointer border-none ${value.mode === m ? 'bg-white text-[#161616] shadow-sm' : 'bg-transparent text-[#6b6b6b]'}`}
         >{m}</button>
       ))}
     </div>

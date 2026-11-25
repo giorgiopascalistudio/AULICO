@@ -46,19 +46,19 @@ export const MatericoListinoView: React.FC<Props> = ({ items, canEdit = false, o
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><ListChecks className="w-5.5 h-5.5" /> Listino interno Materico</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Costi imprese/materiali, prezzo di mercato e margini per elaborare computi e preventivi.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Costi imprese/materiali, prezzo di mercato e margini per elaborare computi e preventivi.</p>
         </div>
         {canEdit && <button onClick={() => setEditing(blank())} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuova voce</button>}
       </div>
 
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative flex-1 min-w-[180px] max-w-xs">
-          <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#8f8f8f] absolute left-3 top-1/2 -translate-y-1/2" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cerca voce…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white" />
         </div>
         <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] flex-wrap">
-          <button onClick={() => setCat('all')} className={`text-[11px] font-bold px-2.5 py-1 rounded-full cursor-pointer border-none ${cat === 'all' ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>Tutte</button>
-          {MACROS.map((m) => <button key={m} onClick={() => setCat(m)} className={`text-[11px] font-bold px-2.5 py-1 rounded-full cursor-pointer border-none ${cat === m ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{MACRO_LABEL[m]}</button>)}
+          <button onClick={() => setCat('all')} className={`text-[12px] font-bold px-2.5 py-1 rounded-full cursor-pointer border-none ${cat === 'all' ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>Tutte</button>
+          {MACROS.map((m) => <button key={m} onClick={() => setCat(m)} className={`text-[12px] font-bold px-2.5 py-1 rounded-full cursor-pointer border-none ${cat === m ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{MACRO_LABEL[m]}</button>)}
         </div>
       </div>
 
@@ -66,7 +66,7 @@ export const MatericoListinoView: React.FC<Props> = ({ items, canEdit = false, o
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[720px]">
             <thead>
-              <tr className="border-b border-[#f0f0f0] text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">
+              <tr className="border-b border-[#f0f0f0] text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0]">
                 <th className="py-3 px-4">Voce</th><th className="py-3 px-3">U.M.</th>
                 <th className="py-3 px-3 text-right">Imprese</th><th className="py-3 px-3 text-right">Materiali</th>
                 <th className="py-3 px-3 text-right">Mercato</th><th className="py-3 px-3 text-right">Marg.</th>
@@ -74,17 +74,17 @@ export const MatericoListinoView: React.FC<Props> = ({ items, canEdit = false, o
               </tr>
             </thead>
             <tbody>
-              {list.length === 0 ? <tr><td colSpan={8} className="py-10 text-center text-[13px] text-[#9a9a9a]">Nessuna voce in listino.</td></tr> : list.map((i) => {
+              {list.length === 0 ? <tr><td colSpan={8} className="py-10 text-center text-[13px] text-[#767676]">Nessuna voce in listino.</td></tr> : list.map((i) => {
                 const costo = (i.costoImprese || 0) + (i.costoMateriali || 0);
                 const prezzo = listinoPrezzo(i);
                 const belowMin = i.margineMinPct != null && (i.margineApplicatoPct || 0) < i.margineMinPct;
                 return (
                   <tr key={i.id} className="border-b border-[#f6f6f6] hover:bg-[#fafafa] cursor-pointer" onClick={() => canEdit && setEditing(i)}>
-                    <td className="py-2.5 px-4"><div className="text-[13px] font-bold text-[#161616]">{i.description || '—'}</div><div className="text-[10px] font-bold uppercase tracking-wider text-[#b0b0b0]">{MACRO_LABEL[i.category]}{i.code ? ` · ${i.code}` : ''}</div></td>
-                    <td className="py-2.5 px-3 text-[12px] text-[#8a8a8a]">{i.unit || '—'}</td>
+                    <td className="py-2.5 px-4"><div className="text-[13px] font-bold text-[#161616]">{i.description || '—'}</div><div className="text-[11px] font-bold uppercase tracking-wider text-[#8f8f8f]">{MACRO_LABEL[i.category]}{i.code ? ` · ${i.code}` : ''}</div></td>
+                    <td className="py-2.5 px-3 text-[12px] text-[#6b6b6b]">{i.unit || '—'}</td>
                     <td className="py-2.5 px-3 text-[12.5px] text-right text-[#444]">{eur(i.costoImprese || 0)}</td>
                     <td className="py-2.5 px-3 text-[12.5px] text-right text-[#444]">{eur(i.costoMateriali || 0)}</td>
-                    <td className="py-2.5 px-3 text-[12px] text-right text-[#9a9a9a]">{i.prezzoMercato != null ? eur(i.prezzoMercato) : '—'}</td>
+                    <td className="py-2.5 px-3 text-[12px] text-right text-[#767676]">{i.prezzoMercato != null ? eur(i.prezzoMercato) : '—'}</td>
                     <td className="py-2.5 px-3 text-right"><span className={`text-[11.5px] font-bold ${belowMin ? 'text-rose-600' : 'text-emerald-600'}`}>{i.margineApplicatoPct || 0}%</span></td>
                     <td className="py-2.5 px-3 text-[13px] text-right font-black text-[#161616]">{eur(prezzo)}</td>
                     <td className="py-2.5 px-3 text-right">{canEdit && <button onClick={(e) => { e.stopPropagation(); onDelete?.(i.id); }} className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-400 hover:text-rose-600 cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button>}</td>
@@ -113,22 +113,22 @@ const ListinoEditor: React.FC<{ item: MatericoPriceItem; onClose: () => void; on
         <div className="flex flex-col gap-3">
           <input value={d.description} onChange={(e) => set({ description: e.target.value })} placeholder="Descrizione lavorazione" className={inp} />
           <div className="grid grid-cols-3 gap-2">
-            <label className="flex flex-col gap-1 col-span-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Categoria</span>
+            <label className="flex flex-col gap-1 col-span-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Categoria</span>
               <select value={d.category} onChange={(e) => set({ category: e.target.value as QuoteMacro })} className={inp}>{MACROS.map((m) => <option key={m} value={m}>{MACRO_LABEL[m]}</option>)}</select>
             </label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Codice</span><input value={d.code || ''} onChange={(e) => set({ code: e.target.value || null })} className={inp} /></label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">U.M.</span><input value={d.unit || ''} onChange={(e) => set({ unit: e.target.value || null })} placeholder="mq, ml, cad…" className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Codice</span><input value={d.code || ''} onChange={(e) => set({ code: e.target.value || null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">U.M.</span><input value={d.unit || ''} onChange={(e) => set({ unit: e.target.value || null })} placeholder="mq, ml, cad…" className={inp} /></label>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Costo imprese €</span><input type="number" value={d.costoImprese ?? ''} onChange={(e) => set({ costoImprese: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Costo materiali €</span><input type="number" value={d.costoMateriali ?? ''} onChange={(e) => set({ costoMateriali: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Prezzo mercato €</span><input type="number" value={d.prezzoMercato ?? ''} onChange={(e) => set({ prezzoMercato: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Margine min %</span><input type="number" value={d.margineMinPct ?? ''} onChange={(e) => set({ margineMinPct: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Margine applicato %</span><input type="number" value={d.margineApplicatoPct ?? ''} onChange={(e) => set({ margineApplicatoPct: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Costo imprese €</span><input type="number" value={d.costoImprese ?? ''} onChange={(e) => set({ costoImprese: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Costo materiali €</span><input type="number" value={d.costoMateriali ?? ''} onChange={(e) => set({ costoMateriali: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Prezzo mercato €</span><input type="number" value={d.prezzoMercato ?? ''} onChange={(e) => set({ prezzoMercato: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Margine min %</span><input type="number" value={d.margineMinPct ?? ''} onChange={(e) => set({ margineMinPct: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Margine applicato %</span><input type="number" value={d.margineApplicatoPct ?? ''} onChange={(e) => set({ margineApplicatoPct: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
           </div>
           <div className="rounded-xl px-3 py-2.5 border border-[#e2e2e2] bg-[#fafafa] flex items-center justify-between">
             <span className="text-[12px] font-bold text-[#444]">Prezzo al cliente</span>
-            <span className="text-[16px] font-black text-[#161616]">{eur(prezzo)}{d.unit ? <span className="text-[11px] font-semibold text-[#9a9a9a]">/{d.unit}</span> : null}</span>
+            <span className="text-[16px] font-black text-[#161616]">{eur(prezzo)}{d.unit ? <span className="text-[12px] font-semibold text-[#767676]">/{d.unit}</span> : null}</span>
           </div>
           <button onClick={() => onSave({ ...d, description: d.description.trim(), updatedAt: Date.now() })} disabled={!d.description.trim()} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Salva voce</button>
         </div>

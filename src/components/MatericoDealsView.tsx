@@ -75,7 +75,7 @@ export const MatericoDealsView: React.FC<Props> = ({ deals, members, clients = [
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Target className="w-5.5 h-5.5" /> Potenziale Cantiere</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Pipeline delle commesse potenziali: valutazione tecnico-economica prima del preventivo.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Pipeline delle commesse potenziali: valutazione tecnico-economica prima del preventivo.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
@@ -95,9 +95,9 @@ export const MatericoDealsView: React.FC<Props> = ({ deals, members, clients = [
           { l: 'Acquisite', v: eur(wonVal), s: `${won.length} vinte`, i: Target },
         ].map((k) => { const Icon = k.i; return (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <div className="flex items-center justify-between"><p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p><Icon className="w-4 h-4 text-[#c9c9c9]" /></div>
+            <div className="flex items-center justify-between"><p className="text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p><Icon className="w-4 h-4 text-[#c9c9c9]" /></div>
             <p className="text-[20px] font-black text-[#161616] mt-1 leading-none">{k.v}</p>
-            <p className="text-[11px] text-[#9a9a9a] mt-1">{k.s}</p>
+            <p className="text-[12px] text-[#767676] mt-1">{k.s}</p>
           </div>
         ); })}
       </div>
@@ -110,11 +110,11 @@ export const MatericoDealsView: React.FC<Props> = ({ deals, members, clients = [
           return (
             <div key={st.id} className="min-w-[240px] w-[240px] shrink-0 flex flex-col gap-2">
               <div className="flex items-center justify-between px-1">
-                <span className="inline-flex items-center gap-1.5 text-[12px] font-extrabold text-[#161616]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: st.color }} /> {st.label} <span className="text-[#b0b0b0]">({col.length})</span></span>
-                <span className="text-[10.5px] font-bold text-[#9a9a9a]">{eur(colVal)}</span>
+                <span className="inline-flex items-center gap-1.5 text-[12px] font-extrabold text-[#161616]"><span className="w-2.5 h-2.5 rounded-full" style={{ background: st.color }} /> {st.label} <span className="text-[#8f8f8f]">({col.length})</span></span>
+                <span className="text-[11.5px] font-bold text-[#767676]">{eur(colVal)}</span>
               </div>
               <div className="flex flex-col gap-2 bg-[#f6f6f4] border border-[#eee] rounded-[16px] p-2 min-h-[120px]">
-                {col.length === 0 ? <p className="text-[11px] text-[#b0b0b0] text-center py-6">—</p> : col.map((d) => {
+                {col.length === 0 ? <p className="text-[12px] text-[#8f8f8f] text-center py-6">—</p> : col.map((d) => {
                   const mp = marginePct(d);
                   return (
                     <div key={d.id} onClick={() => setEditing(d)} className="bg-white border border-[#e6e6e6] rounded-[13px] p-2.5 shadow-sm cursor-pointer hover:border-[#cfcfcf]">
@@ -122,12 +122,12 @@ export const MatericoDealsView: React.FC<Props> = ({ deals, members, clients = [
                         <b className="text-[12.5px] text-[#161616] leading-tight">{d.title || 'Senza nome'}</b>
                         {d.discipline && <span className="text-[8.5px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 shrink-0">{d.discipline}</span>}
                       </div>
-                      {d.clientName && <p className="text-[11px] text-[#8a8a8a] truncate mt-0.5">{d.clientName}</p>}
+                      {d.clientName && <p className="text-[12px] text-[#6b6b6b] truncate mt-0.5">{d.clientName}</p>}
                       <div className="flex items-center justify-between mt-1.5">
                         <span className="text-[12px] font-bold text-[#161616]">{eur(d.valoreStimato || 0)}</span>
-                        {(d.valoreStimato || 0) > 0 && <span className={`text-[10.5px] font-extrabold ${mp >= 15 ? 'text-emerald-600' : mp > 0 ? 'text-amber-600' : 'text-rose-600'}`}>{mp.toFixed(0)}%</span>}
+                        {(d.valoreStimato || 0) > 0 && <span className={`text-[11.5px] font-extrabold ${mp >= 15 ? 'text-emerald-600' : mp > 0 ? 'text-amber-600' : 'text-rose-600'}`}>{mp.toFixed(0)}%</span>}
                       </div>
-                      {d.responsabileUid && <p className="text-[10px] text-[#a0a0a0] mt-1 inline-flex items-center gap-1"><User className="w-3 h-3" /> {memberName(d.responsabileUid)}</p>}
+                      {d.responsabileUid && <p className="text-[11px] text-[#a0a0a0] mt-1 inline-flex items-center gap-1"><User className="w-3 h-3" /> {memberName(d.responsabileUid)}</p>}
                       {canEdit && st.id !== 'persa' && (
                         <div className="flex items-center justify-end gap-1 mt-1.5" onClick={(e) => e.stopPropagation()}>
                           <button onClick={() => move(d, -1)} disabled={d.stage === 'nuovo'} className="w-6 h-6 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-[#666] cursor-pointer border-none disabled:opacity-30"><ChevronLeft className="w-3.5 h-3.5" /></button>
@@ -209,22 +209,22 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
         <div className="flex flex-col gap-3">
           <input disabled={!canEdit} value={d.title} onChange={(e) => set({ title: e.target.value })} placeholder="Nome commessa (es. Ristrutturazione Villa X)" className={inp} />
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Cliente</span>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Cliente</span>
               <input disabled={!canEdit} list="mdeal-clients" value={d.clientName || ''} onChange={(e) => { const c = clients.find((x) => x.name === e.target.value); set({ clientName: e.target.value || null, clientRecordId: c?.id || d.clientRecordId }); }} className={inp} />
               <datalist id="mdeal-clients">{clients.map((c) => <option key={c.id} value={c.name} />)}</datalist>
             </label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Stato</span>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Stato</span>
               <select disabled={!canEdit} value={d.stage} onChange={(e) => set({ stage: e.target.value as MatericoDealStage })} className={inp}>
                 {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
               </select>
             </label>
           </div>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a] inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> Indirizzo</span><input disabled={!canEdit} value={d.address || ''} onChange={(e) => set({ address: e.target.value || null })} className={inp} /></label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676] inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> Indirizzo</span><input disabled={!canEdit} value={d.address || ''} onChange={(e) => set({ address: e.target.value || null })} className={inp} /></label>
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Disciplina</span>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Disciplina</span>
               <select disabled={!canEdit} value={d.discipline || 'edile'} onChange={(e) => set({ discipline: e.target.value as MatericoDiscipline })} className={inp}>{DISC.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}</select>
             </label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Responsabile</span>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Responsabile</span>
               <select disabled={!canEdit} value={d.responsabileUid || ''} onChange={(e) => set({ responsabileUid: e.target.value || null })} className={inp}>
                 <option value="">—</option>{members.map((m) => <option key={m.uid} value={m.uid}>{m.name}</option>)}
               </select>
@@ -232,16 +232,16 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
           </div>
           {/* Valutazione economica + margine */}
           <div className="grid grid-cols-2 gap-2">
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Valore stimato €</span><input disabled={!canEdit} type="number" value={d.valoreStimato ?? ''} onChange={(e) => set({ valoreStimato: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
-            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Costo stimato €</span><input disabled={!canEdit} type="number" value={d.costoStimato ?? ''} onChange={(e) => set({ costoStimato: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Valore stimato €</span><input disabled={!canEdit} type="number" value={d.valoreStimato ?? ''} onChange={(e) => set({ valoreStimato: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Costo stimato €</span><input disabled={!canEdit} type="number" value={d.costoStimato ?? ''} onChange={(e) => set({ costoStimato: e.target.value ? Number(e.target.value) : null })} className={inp} /></label>
           </div>
           <div className={`rounded-xl px-3 py-2.5 border flex items-center justify-between ${mpct >= 15 ? 'bg-emerald-50 border-emerald-200' : mpct > 0 ? 'bg-amber-50 border-amber-200' : 'bg-rose-50 border-rose-200'}`}>
             <span className="text-[12px] font-bold text-[#444]">Margine atteso</span>
             <span className="text-[14px] font-black text-[#161616]">{eur(margine)} · <span className={mpct >= 15 ? 'text-emerald-700' : mpct > 0 ? 'text-amber-700' : 'text-rose-700'}>{mpct.toFixed(1)}%</span></span>
           </div>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Probabilità % (opz., sovrascrive quella dello stato)</span><input disabled={!canEdit} type="number" min={0} max={100} value={d.probability ?? ''} onChange={(e) => set({ probability: e.target.value ? Number(e.target.value) : null })} className={inp} placeholder={`Default per stato: ${STAGE_PROB[d.stage]}%`} /></label>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Note</span><textarea disabled={!canEdit} value={d.notes || ''} onChange={(e) => set({ notes: e.target.value || null })} rows={2} className={`${inp} resize-none`} /></label>
-          {hasComputo && <p className="text-[11px] text-[#9a9a9a]">Valore e costo sono allineati automaticamente dal computo al salvataggio.</p>}
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Probabilità % (opz., sovrascrive quella dello stato)</span><input disabled={!canEdit} type="number" min={0} max={100} value={d.probability ?? ''} onChange={(e) => set({ probability: e.target.value ? Number(e.target.value) : null })} className={inp} placeholder={`Default per stato: ${STAGE_PROB[d.stage]}%`} /></label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Note</span><textarea disabled={!canEdit} value={d.notes || ''} onChange={(e) => set({ notes: e.target.value || null })} rows={2} className={`${inp} resize-none`} /></label>
+          {hasComputo && <p className="text-[12px] text-[#767676]">Valore e costo sono allineati automaticamente dal computo al salvataggio.</p>}
           {canEdit && <button onClick={doSave} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Salva commessa</button>}
         </div>
         ) : tab === 'computo' ? (
@@ -258,16 +258,16 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
               <button onClick={addFree} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Plus className="w-3.5 h-3.5" /> Riga libera</button>
             </div>
           )}
-          {rows.length === 0 ? <p className="text-[13px] text-[#9a9a9a] text-center py-6 bg-[#fafafa] rounded-xl border border-[#eee]">Nessuna voce nel computo. Aggiungi dal listino o una riga libera.</p> : (
+          {rows.length === 0 ? <p className="text-[13px] text-[#767676] text-center py-6 bg-[#fafafa] rounded-xl border border-[#eee]">Nessuna voce nel computo. Aggiungi dal listino o una riga libera.</p> : (
             <div className="overflow-x-auto border border-[#eee] rounded-xl">
               <table className="w-full text-left border-collapse min-w-[620px]">
-                <thead><tr className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0] border-b border-[#f0f0f0]">
+                <thead><tr className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0] border-b border-[#f0f0f0]">
                   <th className="py-2 px-2.5">Lavorazione</th><th className="py-2 px-1.5 w-14">Q.tà</th><th className="py-2 px-1.5 w-20 text-right">Costo u.</th><th className="py-2 px-1.5 w-20 text-right">Prezzo u.</th><th className="py-2 px-1.5 w-20 text-right">Ricavo</th><th className="py-2 px-1"></th>
                 </tr></thead>
                 <tbody>
                   {rows.map((r) => (
                     <tr key={r.id} className="border-b border-[#f6f6f6]">
-                      <td className="py-1.5 px-2.5"><input disabled={!canEdit} value={r.description} onChange={(e) => setRow(r.id, { description: e.target.value })} placeholder="Descrizione" className="w-full px-2 py-1 rounded border border-[#eee] text-[12px] outline-none focus:border-[#161616] bg-white" />{r.unit && <span className="text-[10px] text-[#b0b0b0]">{r.unit}</span>}</td>
+                      <td className="py-1.5 px-2.5"><input disabled={!canEdit} value={r.description} onChange={(e) => setRow(r.id, { description: e.target.value })} placeholder="Descrizione" className="w-full px-2 py-1 rounded border border-[#eee] text-[12px] outline-none focus:border-[#161616] bg-white" />{r.unit && <span className="text-[11px] text-[#8f8f8f]">{r.unit}</span>}</td>
                       <td className="py-1.5 px-1.5"><input disabled={!canEdit} type="number" value={r.qty} onChange={(e) => setRow(r.id, { qty: Number(e.target.value) || 0 })} className="w-full px-1.5 py-1 rounded border border-[#eee] text-[12px] text-right outline-none focus:border-[#161616] bg-white" /></td>
                       <td className="py-1.5 px-1.5"><input disabled={!canEdit} type="number" value={r.costoUnit} onChange={(e) => setRow(r.id, { costoUnit: Number(e.target.value) || 0 })} className="w-full px-1.5 py-1 rounded border border-[#eee] text-[12px] text-right outline-none focus:border-[#161616] bg-white" /></td>
                       <td className="py-1.5 px-1.5"><input disabled={!canEdit} type="number" value={r.prezzoUnit} onChange={(e) => setRow(r.id, { prezzoUnit: Number(e.target.value) || 0 })} className="w-full px-1.5 py-1 rounded border border-[#eee] text-[12px] text-right outline-none focus:border-[#161616] bg-white" /></td>
@@ -286,12 +286,12 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
 
           {/* Controllo margini (§11) */}
           <div className="rounded-[16px] border border-[#e2e2e2] overflow-hidden">
-            <div className="bg-[#161616] text-white px-3 py-2 text-[11px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5 w-full"><Calculator className="w-3.5 h-3.5" /> Controllo margini</div>
+            <div className="bg-[#161616] text-white px-3 py-2 text-[12px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5 w-full"><Calculator className="w-3.5 h-3.5" /> Controllo margini</div>
             <div className="p-3 grid grid-cols-2 gap-y-1.5 gap-x-4 text-[12.5px]">
-              <span className="text-[#8a8a8a]">Costo diretto (imprese+materiali)</span><span className="text-right font-semibold text-[#161616]">{eur(costoDiretto)}</span>
-              <span className="text-[#8a8a8a]">Costi indiretti</span><span className="text-right font-semibold text-[#161616]">{eur(indiretti)}</span>
-              <span className="text-[#8a8a8a]">Costo totale</span><span className="text-right font-bold text-[#161616]">{eur(costoTotale)}</span>
-              <span className="text-[#8a8a8a]">Ricavo (preventivo)</span><span className="text-right font-bold text-[#161616]">{eur(ricavo)}</span>
+              <span className="text-[#6b6b6b]">Costo diretto (imprese+materiali)</span><span className="text-right font-semibold text-[#161616]">{eur(costoDiretto)}</span>
+              <span className="text-[#6b6b6b]">Costi indiretti</span><span className="text-right font-semibold text-[#161616]">{eur(indiretti)}</span>
+              <span className="text-[#6b6b6b]">Costo totale</span><span className="text-right font-bold text-[#161616]">{eur(costoTotale)}</span>
+              <span className="text-[#6b6b6b]">Ricavo (preventivo)</span><span className="text-right font-bold text-[#161616]">{eur(ricavo)}</span>
               <span className="text-[#444] font-bold pt-1 border-t border-[#f0f0f0]">Utile previsto</span><span className={`text-right font-black pt-1 border-t border-[#f0f0f0] ${utile >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>{eur(utile)}</span>
               <span className="text-[#444] font-bold">Margine %</span><span className={`text-right font-black ${mpctComputo >= 15 ? 'text-emerald-700' : mpctComputo > 0 ? 'text-amber-700' : 'text-rose-700'}`}>{mpctComputo.toFixed(1)}%</span>
             </div>
@@ -312,20 +312,20 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
           {([['entrata', 'Entrate', entrate, ['Acconto', 'SAL', 'Pagamento', 'Finanziamento']], ['uscita', 'Uscite', uscite, ['Imprese', 'Materiali', 'Fornitori', 'Consulenti', 'Costi tecnici', 'Costi amministrativi']]] as const).map(([kind, label, arr, cats]) => (
             <div key={kind}>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#9a9a9a]">{label}</span>
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#767676]">{label}</span>
                 {canEdit && <button onClick={() => addCash(kind)} className="text-[11.5px] font-bold text-[#161616] inline-flex items-center gap-1 cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Riga</button>}
               </div>
-              {arr.length === 0 ? <p className="text-[11.5px] text-[#b0b0b0] italic pb-1">Nessuna voce.</p> : (
+              {arr.length === 0 ? <p className="text-[11.5px] text-[#8f8f8f] italic pb-1">Nessuna voce.</p> : (
                 <div className="flex flex-col gap-1.5">
                   {arr.map((r) => (
                     <div key={r.id} className="flex items-center gap-1.5">
                       <input disabled={!canEdit} value={r.label} onChange={(e) => setCash(r.id, { label: e.target.value })} placeholder="Descrizione" className="flex-1 min-w-0 px-2 py-1.5 rounded-lg border border-[#eee] text-[12px] outline-none focus:border-[#161616] bg-white" />
-                      <select disabled={!canEdit} value={r.category || ''} onChange={(e) => setCash(r.id, { category: e.target.value || null })} className="w-28 px-1.5 py-1.5 rounded-lg border border-[#eee] text-[11px] outline-none focus:border-[#161616] bg-white">
+                      <select disabled={!canEdit} value={r.category || ''} onChange={(e) => setCash(r.id, { category: e.target.value || null })} className="w-28 px-1.5 py-1.5 rounded-lg border border-[#eee] text-[12px] outline-none focus:border-[#161616] bg-white">
                         <option value="">—</option>{cats.map((c) => <option key={c} value={c}>{c}</option>)}
                       </select>
                       <input disabled={!canEdit} type="number" value={r.amount || ''} onChange={(e) => setCash(r.id, { amount: Number(e.target.value) || 0 })} placeholder="€" className="w-24 px-2 py-1.5 rounded-lg border border-[#eee] text-[12px] text-right outline-none focus:border-[#161616] bg-white" />
-                      <input disabled={!canEdit} type="date" value={r.date || ''} onChange={(e) => setCash(r.id, { date: e.target.value || null })} className="w-32 px-1.5 py-1.5 rounded-lg border border-[#eee] text-[11px] outline-none focus:border-[#161616] bg-white" />
-                      <button disabled={!canEdit} onClick={() => setCash(r.id, { done: !r.done })} title={r.done ? (kind === 'entrata' ? 'Incassato' : 'Pagato') : 'Da fare'} className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 cursor-pointer border ${r.done ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-white text-[#c0c0c0] border-[#e2e2e2]'}`}><CheckCircle2 className="w-4 h-4" /></button>
+                      <input disabled={!canEdit} type="date" value={r.date || ''} onChange={(e) => setCash(r.id, { date: e.target.value || null })} className="w-32 px-1.5 py-1.5 rounded-lg border border-[#eee] text-[12px] outline-none focus:border-[#161616] bg-white" />
+                      <button disabled={!canEdit} onClick={() => setCash(r.id, { done: !r.done })} title={r.done ? (kind === 'entrata' ? 'Incassato' : 'Pagato') : 'Da fare'} className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 cursor-pointer border ${r.done ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-white text-[#9a9a9a] border-[#e2e2e2]'}`}><CheckCircle2 className="w-4 h-4" /></button>
                       {canEdit && <button onClick={() => rmCash(r.id)} className="text-rose-400 hover:text-rose-600 cursor-pointer bg-transparent border-none shrink-0"><X className="w-3.5 h-3.5" /></button>}
                     </div>
                   ))}
@@ -335,13 +335,13 @@ const DealEditor: React.FC<{ deal: MatericoDeal; members: Member[]; clients: Cli
           ))}
           {/* Riepilogo liquidità */}
           <div className="rounded-[16px] border border-[#e2e2e2] overflow-hidden">
-            <div className="bg-[#161616] text-white px-3 py-2 text-[11px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5 w-full"><Euro className="w-3.5 h-3.5" /> Liquidità commessa</div>
+            <div className="bg-[#161616] text-white px-3 py-2 text-[12px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5 w-full"><Euro className="w-3.5 h-3.5" /> Liquidità commessa</div>
             <div className="p-3 grid grid-cols-3 gap-y-1.5 gap-x-3 text-[12.5px]">
-              <span className="text-[#8a8a8a]" />
-              <span className="text-right font-bold text-[#a0a0a0] text-[10px] uppercase">Previsto</span>
-              <span className="text-right font-bold text-[#a0a0a0] text-[10px] uppercase">Realizzato</span>
-              <span className="text-[#8a8a8a]">Entrate</span><span className="text-right font-semibold text-emerald-700">{eur(entTot)}</span><span className="text-right font-semibold text-emerald-700">{eur(entDone)}</span>
-              <span className="text-[#8a8a8a]">Uscite</span><span className="text-right font-semibold text-rose-700">{eur(uscTot)}</span><span className="text-right font-semibold text-rose-700">{eur(uscDone)}</span>
+              <span className="text-[#6b6b6b]" />
+              <span className="text-right font-bold text-[#a0a0a0] text-[11px] uppercase">Previsto</span>
+              <span className="text-right font-bold text-[#a0a0a0] text-[11px] uppercase">Realizzato</span>
+              <span className="text-[#6b6b6b]">Entrate</span><span className="text-right font-semibold text-emerald-700">{eur(entTot)}</span><span className="text-right font-semibold text-emerald-700">{eur(entDone)}</span>
+              <span className="text-[#6b6b6b]">Uscite</span><span className="text-right font-semibold text-rose-700">{eur(uscTot)}</span><span className="text-right font-semibold text-rose-700">{eur(uscDone)}</span>
               <span className="text-[#444] font-bold pt-1 border-t border-[#f0f0f0]">Saldo</span>
               <span className={`text-right font-black pt-1 border-t border-[#f0f0f0] ${entTot - uscTot >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>{eur(entTot - uscTot)}</span>
               <span className={`text-right font-black pt-1 border-t border-[#f0f0f0] ${entDone - uscDone >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>{eur(entDone - uscDone)}</span>

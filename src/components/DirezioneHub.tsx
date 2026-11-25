@@ -38,7 +38,7 @@ const ymNow = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.g
 const ymLabel = (ym: string) => { const [y, m] = ym.split('-').map(Number); return new Date(y, (m || 1) - 1, 1).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' }); };
 const MESI = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white disabled:bg-[#f7f7f5]';
-const lbl = 'text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]';
+const lbl = 'text-[11px] font-bold uppercase tracking-wider text-[#767676]';
 const nfmt = (v: number) => v.toLocaleString('it-IT', { maximumFractionDigits: 0 });
 
 export const DIREZIONE_SOCS = ['studio', 'strategico', 'materico', 'unico', 'fantastico'] as const;
@@ -280,7 +280,7 @@ const Centro: React.FC<Props & { onOpen: (s: string, t?: WsTab) => void; onOpenC
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
             <Briefcase className="w-5.5 h-5.5 text-[#161616]" /> Centro Direzione
           </h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">
             Amministrazione & contabilità di tutte le società del gruppo — le sezioni della riunione strategica, per società.
           </p>
         </div>
@@ -307,7 +307,7 @@ const Centro: React.FC<Props & { onOpen: (s: string, t?: WsTab) => void; onOpenC
           { l: 'Scadenze aperte', v: String(openScad.length), c: lateScad.length ? '#e11d48' : undefined },
         ].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[20px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
           </div>
         ))}
@@ -316,7 +316,7 @@ const Centro: React.FC<Props & { onOpen: (s: string, t?: WsTab) => void; onOpenC
       {/* Alert */}
       {alerts.length > 0 && (
         <div className="bg-white border border-[#f3d9b1] rounded-[20px] p-4">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#b45309] inline-flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> Richiede attenzione</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#b45309] inline-flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> Richiede attenzione</p>
           <div className="flex flex-col gap-1.5">
             {alerts.slice(0, 7).map((a, i) => (
               <button key={i} onClick={() => onOpen(a.soc)} className="text-left text-[12.5px] text-[#555] hover:text-[#161616] cursor-pointer bg-transparent border-none p-0 font-semibold">· {a.text}</button>
@@ -340,11 +340,11 @@ const Centro: React.FC<Props & { onOpen: (s: string, t?: WsTab) => void; onOpenC
                 <span className="inline-flex items-center gap-2"><span className="w-3 h-3 rounded-full" style={{ background: socColor(soc) }} /><b className="text-[14.5px] text-[#161616]">{socLabel(soc)}</b></span>
                 {b.F > 0 ? (
                   b.sopra
-                    ? <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-emerald-700 bg-emerald-50 inline-flex items-center gap-1"><TrendingUp className="w-3 h-3" /> sopra BEP</span>
-                    : <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-rose-600 bg-rose-50 inline-flex items-center gap-1"><TrendingDown className="w-3 h-3" /> sotto BEP</span>
-                ) : <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-[#9a9a9a] bg-[#f3f3f1]">nessun dato mese</span>}
+                    ? <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-emerald-700 bg-emerald-50 inline-flex items-center gap-1"><TrendingUp className="w-3 h-3" /> sopra BEP</span>
+                    : <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-rose-600 bg-rose-50 inline-flex items-center gap-1"><TrendingDown className="w-3 h-3" /> sotto BEP</span>
+                ) : <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-[#767676] bg-[#f3f3f1]">nessun dato mese</span>}
               </div>
-              <div className="mt-2.5 grid grid-cols-2 gap-1 text-[11.5px] text-[#8a8a8a] font-semibold">
+              <div className="mt-2.5 grid grid-cols-2 gap-1 text-[11.5px] text-[#6b6b6b] font-semibold">
                 <span>Fatturato mese: <b className="text-[#555]">{eur(s.fatturato[mIdx])}</b></span>
                 <span>Incassato: <b className="text-[#555]">{eur(s.incassato[mIdx])}</b></span>
                 <span>Costi mese: <b className="text-[#555]">{eur(s.costi[mIdx])}</b></span>
@@ -353,14 +353,14 @@ const Centro: React.FC<Props & { onOpen: (s: string, t?: WsTab) => void; onOpenC
               {pct != null && (
                 <div className="mt-2.5">
                   <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${pct}%`, background: '#161616' }} /></div>
-                  <p className="text-[10px] text-[#9a9a9a] font-semibold mt-1">Obiettivo fatturato {year}: {eur(ytdF)} su {eur(t!.fatturato!)} ({Math.round(pct)}%)</p>
+                  <p className="text-[11px] text-[#767676] font-semibold mt-1">Obiettivo fatturato {year}: {eur(ytdF)} su {eur(t!.fatturato!)} ({Math.round(pct)}%)</p>
                 </div>
               )}
             </button>
           );
         })}
       </div>
-      <p className="text-[11px] text-[#a8a8a8] font-semibold">Il report della riunione strategica è dentro ogni società (tab "Report").</p>
+      <p className="text-[12px] text-[#a8a8a8] font-semibold">Il report della riunione strategica è dentro ogni società (tab "Report").</p>
     </div>
   );
 };
@@ -383,7 +383,7 @@ const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) =
           <button onClick={onBack} className="w-9 h-9 rounded-xl border border-[#e2e2e2] bg-white hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer shrink-0" title="Centro Direzione"><ArrowLeft className="w-4 h-4" /></button>
           <div className="min-w-0">
             <h2 className="text-[20px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><span className="w-3 h-3 rounded-full" style={{ background: socColor(soc) }} />{socLabel(soc)} · Direzione</h2>
-            <p className="text-[11.5px] text-[#8a8a8a] font-semibold">Le sezioni della riunione strategica contabilità.</p>
+            <p className="text-[11.5px] text-[#6b6b6b] font-semibold">Le sezioni della riunione strategica contabilità.</p>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -397,7 +397,7 @@ const Workspace: React.FC<Props & { soc: string; tab: WsTab; onTab: (t: WsTab) =
       </div>
       <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] flex-wrap self-start">
         {WS_TABS.map(({ id, label, icon: Icon }) => (
-          <button key={id} onClick={() => onTab(id)} className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-full cursor-pointer border-none ${tab === id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}><Icon className="w-3.5 h-3.5" /> {label}</button>
+          <button key={id} onClick={() => onTab(id)} className={`inline-flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1.5 rounded-full cursor-pointer border-none ${tab === id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}><Icon className="w-3.5 h-3.5" /> {label}</button>
         ))}
       </div>
 
@@ -470,29 +470,29 @@ const KpiTab: React.FC<{
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px] flex-wrap">
           {METRICS.map((m) => (
-            <button key={m.id} onClick={() => setMetric(m.id)} className={`text-[11px] font-bold px-2.5 py-1.5 rounded-full cursor-pointer border-none ${metric === m.id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{m.label}</button>
+            <button key={m.id} onClick={() => setMetric(m.id)} className={`text-[12px] font-bold px-2.5 py-1.5 rounded-full cursor-pointer border-none ${metric === m.id ? 'bg-[#161616] text-white' : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'}`}>{m.label}</button>
           ))}
         </div>
-        <p className="text-[11.5px] text-[#9a9a9a] font-semibold">Calcolato dai dati dell'app · la liquidità si inserisce a mano</p>
+        <p className="text-[11.5px] text-[#767676] font-semibold">Calcolato dai dati dell'app · la liquidità si inserisce a mano</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <div className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-          <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{metric === 'liquidita' ? 'Ultima liquidità' : `Totale ${year}`}</p>
+          <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{metric === 'liquidita' ? 'Ultima liquidità' : `Totale ${year}`}</p>
           <p className="text-[22px] font-black text-[#161616] mt-1 leading-none">{fmtV(totale)}</p>
         </div>
         <div className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-          <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">Obiettivo {year}</p>
+          <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">Obiettivo {year}</p>
           <p className="text-[22px] font-black text-[#161616] mt-1 leading-none">{targetVal ? fmtV(targetVal) : '—'}</p>
         </div>
         <div className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm col-span-2 md:col-span-1">
-          <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">Avanzamento</p>
+          <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">Avanzamento</p>
           {targetVal ? (
             <>
               <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden mt-2"><div className="h-full rounded-full bg-[#161616]" style={{ width: `${Math.min(100, (totale / targetVal) * 100)}%` }} /></div>
-              <p className="text-[11px] text-[#8a8a8a] font-semibold mt-1.5">{Math.round((totale / targetVal) * 100)}% dell'obiettivo</p>
+              <p className="text-[12px] text-[#6b6b6b] font-semibold mt-1.5">{Math.round((totale / targetVal) * 100)}% dell'obiettivo</p>
             </>
-          ) : <p className="text-[12px] text-[#9a9a9a] mt-2">Imposta l'obiettivo nella tab "Obiettivi".</p>}
+          ) : <p className="text-[12px] text-[#767676] mt-2">Imposta l'obiettivo nella tab "Obiettivi".</p>}
         </div>
       </div>
 
@@ -511,13 +511,13 @@ const KpiTab: React.FC<{
                       <div className="w-1/2 rounded-t-sm" style={{ height: `${Math.max(2, (f[i] / mx) * 90)}px`, background: '#161616' }} title={`Fatturato ${eur(f[i])}`} />
                       <div className="w-1/2 rounded-t-sm" style={{ height: `${Math.max(2, (inc[i] / mx) * 90)}px`, background: '#b45309' }} title={`Incassato ${eur(inc[i])}`} />
                     </div>
-                    <span className="text-[9px] font-bold text-[#b0b0b0]">{MESI[i].slice(0, 3)}</span>
+                    <span className="text-[10px] font-bold text-[#8f8f8f]">{MESI[i].slice(0, 3)}</span>
                   </div>
                 ))}
               </div>
               <div className="flex items-center gap-4 mb-3">
-                <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-sm bg-[#161616]" /> Fatturato</span>
-                <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-sm bg-[#b45309]" /> Incassato</span>
+                <span className="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-sm bg-[#161616]" /> Fatturato</span>
+                <span className="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-[#6b6b6b]"><span className="w-2.5 h-2.5 rounded-sm bg-[#b45309]" /> Incassato</span>
               </div>
             </>
           );
@@ -526,7 +526,7 @@ const KpiTab: React.FC<{
             {vals.map((v, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0">
                 <div className="w-full rounded-t-md" style={{ height: `${Math.max(3, (v / maxV) * 90)}px`, background: v ? '#161616' : '#f0f0f0', opacity: 0.85 }} title={fmtV(v)} />
-                <span className="text-[9px] font-bold text-[#b0b0b0]">{MESI[i].slice(0, 3)}</span>
+                <span className="text-[10px] font-bold text-[#8f8f8f]">{MESI[i].slice(0, 3)}</span>
               </div>
             ))}
           </div>
@@ -534,9 +534,9 @@ const KpiTab: React.FC<{
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[560px]">
             <thead><tr className="border-b border-[#eee] bg-[#f7f6f4]">
-              <th className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Mese</th>
-              <th className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] text-right">Valore</th>
-              <th className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] text-right">Δ mese prec.</th>
+              <th className="px-3 py-2 text-[11px] font-extrabold uppercase tracking-wider text-[#767676]">Mese</th>
+              <th className="px-3 py-2 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] text-right">Valore</th>
+              <th className="px-3 py-2 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] text-right">Δ mese prec.</th>
             </tr></thead>
             <tbody>
               {MESI.map((m, i) => {
@@ -551,7 +551,7 @@ const KpiTab: React.FC<{
                         <LiquidityCell soc={soc} ym={`${year}-${pad(i + 1)}`} value={s.liquidita[i]} onSave={onSaveLiquidity} />
                       ) : cur == null ? '—' : fmtV(cur)}
                     </td>
-                    <td className={`px-3 py-1.5 text-right text-[11.5px] font-extrabold ${delta == null || delta === 0 ? 'text-[#c0c0c0]' : delta > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+                    <td className={`px-3 py-1.5 text-right text-[11.5px] font-extrabold ${delta == null || delta === 0 ? 'text-[#9a9a9a]' : delta > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
                       {delta == null || delta === 0 ? '—' : `${delta > 0 ? '+' : ''}${isEur ? eur(delta) : nfmt(delta)}`}
                     </td>
                   </tr>
@@ -565,7 +565,7 @@ const KpiTab: React.FC<{
       {/* Approfondimenti per metrica */}
       {metric === 'preventivato' && (
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Analisi per fascia cliente · {year}</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">Analisi per fascia cliente · {year}</p>
           <div className="flex flex-wrap gap-x-6 gap-y-1 mb-3 text-[12.5px] text-[#555]">
             <span>Elaborati: <b className="text-[#161616]">{gen.tot}</b></span>
             <span>Accettati: <b className="text-emerald-700">{gen.acc.length}</b> ({eur(gen.acc.reduce((t, q) => t + (q.total || 0), 0))})</span>
@@ -574,7 +574,7 @@ const KpiTab: React.FC<{
           </div>
           <div className="overflow-x-auto"><table className="w-full min-w-[480px] text-left border-collapse">
             <thead><tr className="border-b border-[#eee]">
-              {['Fascia', 'N.', 'Accettati', 'Non accettati', 'In attesa'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i > 1 ? 'text-right' : ''}`}>{h}</th>)}
+              {['Fascia', 'N.', 'Accettati', 'Non accettati', 'In attesa'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] ${i > 1 ? 'text-right' : ''}`}>{h}</th>)}
             </tr></thead>
             <tbody>
               {fasce.map((f) => (
@@ -588,15 +588,15 @@ const KpiTab: React.FC<{
               ))}
             </tbody>
           </table></div>
-          {noTier.length > 0 && <p className="text-[10.5px] text-[#a8a8a8] font-semibold mt-2">{noTier.length} preventivi senza fascia (assegna la fascia al cliente in rubrica).</p>}
+          {noTier.length > 0 && <p className="text-[11.5px] text-[#a8a8a8] font-semibold mt-2">{noTier.length} preventivi senza fascia (assegna la fascia al cliente in rubrica).</p>}
         </div>
       )}
       {(metric === 'erogato' || metric === 'punti') && perColl.length > 0 && (
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Per collaboratore · {year}</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">Per collaboratore · {year}</p>
           <div className="overflow-x-auto"><table className="w-full min-w-[380px] text-left border-collapse">
             <thead><tr className="border-b border-[#eee]">
-              {['Collaboratore', 'Erogato', 'Punti'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
+              {['Collaboratore', 'Erogato', 'Punti'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
             </tr></thead>
             <tbody>
               {perColl.map((c) => (
@@ -650,10 +650,10 @@ const IvaTab: React.FC<{
   return (
     <div className="flex flex-col gap-4">
       <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-        <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Situazione IVA {year} (dalle fatture attive)</p>
+        <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">Situazione IVA {year} (dalle fatture attive)</p>
         <div className="overflow-x-auto"><table className="w-full min-w-[480px] text-left border-collapse">
           <thead><tr className="border-b border-[#eee]">
-            {['Trimestre', 'Imponibile fatturato', 'IVA a debito', 'Incassato'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
+            {['Trimestre', 'Imponibile fatturato', 'IVA a debito', 'Incassato'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
           </tr></thead>
           <tbody>
             {rows.map((r) => (
@@ -666,7 +666,7 @@ const IvaTab: React.FC<{
             ))}
           </tbody>
         </table></div>
-        <p className="text-[10.5px] text-[#a8a8a8] font-semibold mt-2">L'IVA sugli acquisti non è tracciata (le fatture passive sono registrate a imponibile): il saldo IVA effettivo va verificato col fiscalista. Le scadenze di versamento si pianificano qui sotto.</p>
+        <p className="text-[11.5px] text-[#a8a8a8] font-semibold mt-2">L'IVA sugli acquisti non è tracciata (le fatture passive sono registrate a imponibile): il saldo IVA effettivo va verificato col fiscalista. Le scadenze di versamento si pianificano qui sotto.</p>
       </div>
       <FiscaleView items={fiscale.filter((i) => i.soc === soc)} soc={soc} socLabel={socLabel(soc)} color={socColor(soc)} canEdit={canEdit} onSave={onSaveFiscale} onDelete={onDeleteFiscale} />
     </div>
@@ -723,7 +723,7 @@ const CostPlanPanel: React.FC<{
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Uscite previste del mese (modello Excel): spunta le voci quando vengono sostenute.</p>
+        <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Uscite previste del mese (modello Excel): spunta le voci quando vengono sostenute.</p>
         <div className="flex items-center gap-2">
           <input type="month" value={ym} onChange={(e) => setYm(e.target.value || ymNow())} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white" />
           {canEdit && rows.length === 0 && <button onClick={copyPrev} className="px-3.5 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-[#161616] text-[11.5px] font-bold cursor-pointer">Copia dal mese precedente</button>}
@@ -736,7 +736,7 @@ const CostPlanPanel: React.FC<{
           { l: 'Registrati in contabilità', v: eur(registrati) },
         ].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[18px] font-black text-[#161616] mt-1 leading-none">{k.v}</p>
           </div>
         ))}
@@ -752,13 +752,13 @@ const CostPlanPanel: React.FC<{
         </div>
       )}
       {rows.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna voce programmata per {ymLabel(ym)}.</p>
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna voce programmata per {ymLabel(ym)}.</p>
       ) : (
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 flex flex-col gap-3">
           {[...byCat, ...(other.length ? [{ c: 'ALTRO', list: other }] : [])].map(({ c, list }) => (
             <div key={c}>
               <div className="flex items-center justify-between border-b border-[#eee] pb-1 mb-1">
-                <p className="text-[10.5px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">{c}</p>
+                <p className="text-[11.5px] font-extrabold uppercase tracking-wider text-[#767676]">{c}</p>
                 <p className="text-[11.5px] font-extrabold text-[#161616]">{eur(list.reduce((s, i) => s + i.amount, 0))}</p>
               </div>
               {list.map((i) => (
@@ -787,7 +787,7 @@ const BepTab: React.FC<{ year: number; rows: ReturnType<typeof bepRows> }> = ({ 
   const maxV = Math.max(1, ...rows.flatMap((r) => [r.F, r.bep === Infinity ? 0 : r.bep]));
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-[12.5px] text-[#8a8a8a] font-semibold">
+      <p className="text-[12.5px] text-[#6b6b6b] font-semibold">
         Break Even Point {year}: sotto la soglia sei in perdita, sopra sei in utile. {fromPiano ? 'Costi fissi/variabili dal Piano finanziario (consuntivo).' : 'Piano finanziario non compilato: tutti i costi registrati sono trattati come fissi.'}
       </p>
 
@@ -802,21 +802,21 @@ const BepTab: React.FC<{ year: number; rows: ReturnType<typeof bepRows> }> = ({ 
                   <div className="w-full rounded-t-md" style={{ height: `${Math.max(2, (r.F / maxV) * 100)}%`, background: r.F === 0 ? '#f0f0f0' : r.sopra ? '#161616' : '#e11d48', opacity: 0.85 }} title={`Fatturato ${eur(r.F)}`} />
                   {bepPct != null && <div className="absolute left-[-2px] right-[-2px] border-t-2 border-dashed border-[#b45309]" style={{ bottom: `${bepPct}%` }} title={`BEP ${eur(r.bep)}`} />}
                 </div>
-                <span className="text-[9px] font-bold text-[#b0b0b0]">{MESI[r.m].slice(0, 3)}</span>
+                <span className="text-[10px] font-bold text-[#8f8f8f]">{MESI[r.m].slice(0, 3)}</span>
               </div>
             );
           })}
         </div>
         <div className="flex items-center gap-4 mt-2 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-sm bg-[#161616]" /> Fatturato (sopra BEP)</span>
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-sm bg-[#e11d48]" /> Fatturato (sotto BEP)</span>
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] font-bold text-[#8a8a8a]"><span className="w-4 border-t-2 border-dashed border-[#b45309]" /> Soglia BEP</span>
+          <span className="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-[#8a8a8a]"><span className="w-2.5 h-2.5 rounded-sm bg-[#161616]" /> Fatturato (sopra BEP)</span>
+          <span className="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-[#6b6b6b]"><span className="w-2.5 h-2.5 rounded-sm bg-[#e11d48]" /> Fatturato (sotto BEP)</span>
+          <span className="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-[#6b6b6b]"><span className="w-4 border-t-2 border-dashed border-[#b45309]" /> Soglia BEP</span>
         </div>
       </div>
       <div className="bg-white border border-[#e2e2e2] rounded-[20px] overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[820px]">
           <thead><tr className="border-b border-[#eee] bg-[#f7f6f4]">
-            {['Mese', 'Costi fissi', 'Costi variabili', 'Fatturato', 'MC', 'MC %', 'BEP', 'Esito'].map((h, i) => <th key={h} className={`px-3 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
+            {['Mese', 'Costi fissi', 'Costi variabili', 'Fatturato', 'MC', 'MC %', 'BEP', 'Esito'].map((h, i) => <th key={h} className={`px-3 py-2.5 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
           </tr></thead>
           <tbody>
             {rows.map((r) => (
@@ -829,9 +829,9 @@ const BepTab: React.FC<{ year: number; rows: ReturnType<typeof bepRows> }> = ({ 
                 <td className="px-3 py-2 text-right text-[12px] text-[#555]">{r.F > 0 ? `${Math.round(r.mcPct * 1000) / 10}%` : '—'}</td>
                 <td className="px-3 py-2 text-right text-[12.5px] font-bold text-[#161616]">{r.bep === Infinity ? '—' : eur(r.bep)}</td>
                 <td className="px-3 py-2 text-right">
-                  {r.F === 0 && r.CF === 0 ? <span className="text-[10px] font-bold text-[#c0c0c0]">—</span>
-                    : r.sopra ? <span className="text-[10px] font-extrabold text-emerald-700 inline-flex items-center gap-1"><TrendingUp className="w-3 h-3" /> UTILE</span>
-                      : <span className="text-[10px] font-extrabold text-rose-600 inline-flex items-center gap-1"><TrendingDown className="w-3 h-3" /> PERDITA</span>}
+                  {r.F === 0 && r.CF === 0 ? <span className="text-[11px] font-bold text-[#9a9a9a]">—</span>
+                    : r.sopra ? <span className="text-[11px] font-extrabold text-emerald-700 inline-flex items-center gap-1"><TrendingUp className="w-3 h-3" /> UTILE</span>
+                      : <span className="text-[11px] font-extrabold text-rose-600 inline-flex items-center gap-1"><TrendingDown className="w-3 h-3" /> PERDITA</span>}
                 </td>
               </tr>
             ))}
@@ -856,24 +856,24 @@ const BudgetTab: React.FC<{
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Budget {year} per area aziendale vs consuntivo (modello riunione). Accanto, i costi registrati in contabilità per il confronto.</p>
+        <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Budget {year} per area aziendale vs consuntivo (modello riunione). Accanto, i costi registrati in contabilità per il confronto.</p>
         {canEdit && rows.length === 0 && <button onClick={seed} className="px-3 py-2 rounded-xl bg-[#161616] text-white text-[11.5px] font-bold cursor-pointer border-none">Carica aree standard</button>}
       </div>
       <div className="grid grid-cols-3 gap-3">
         {[{ l: `Budget ${year}`, v: eur(totB) }, { l: 'Consuntivo', v: eur(totC), c: totB && totC > totB ? '#e11d48' : undefined }, { l: 'Costi registrati in app', v: eur(costiAnno) }].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[20px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
           </div>
         ))}
       </div>
       {rows.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna area budget per il {year}.</p>
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna area budget per il {year}.</p>
       ) : (
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[620px]">
             <thead><tr className="border-b border-[#eee] bg-[#f7f6f4]">
-              {['Area', `Budget ${year}`, 'Consuntivo', 'Scostamento', ''].map((h, i) => <th key={h} className={`px-3 py-2.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
+              {['Area', `Budget ${year}`, 'Consuntivo', 'Scostamento', ''].map((h, i) => <th key={h} className={`px-3 py-2.5 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
             </tr></thead>
             <tbody>
               {rows.map((b) => {
@@ -883,7 +883,7 @@ const BudgetTab: React.FC<{
                     <td className="px-3 py-1.5 text-[12.5px] font-bold text-[#161616]">{b.area}</td>
                     <td className="px-3 py-1.5 text-right"><NumCell value={b.budget} disabled={!canEdit} onCommit={(n) => onSave?.({ ...b, budget: n, updatedAt: Date.now() })} /></td>
                     <td className="px-3 py-1.5 text-right"><NumCell value={b.consuntivo ?? null} disabled={!canEdit} onCommit={(n) => onSave?.({ ...b, consuntivo: n, updatedAt: Date.now() })} /></td>
-                    <td className={`px-3 py-1.5 text-right text-[12px] font-extrabold ${diff > 0 ? 'text-rose-600' : diff < 0 ? 'text-emerald-700' : 'text-[#c0c0c0]'}`}>{b.consuntivo == null ? '—' : `${diff > 0 ? '+' : ''}${eur(diff)}`}</td>
+                    <td className={`px-3 py-1.5 text-right text-[12px] font-extrabold ${diff > 0 ? 'text-rose-600' : diff < 0 ? 'text-emerald-700' : 'text-[#9a9a9a]'}`}>{b.consuntivo == null ? '—' : `${diff > 0 ? '+' : ''}${eur(diff)}`}</td>
                     <td className="px-2 py-1.5 text-right">{canEdit && onDelete && <button onClick={() => onDelete(b.id)} className="p-1 rounded hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button>}</td>
                   </tr>
                 );
@@ -930,8 +930,8 @@ const CicliTab: React.FC<{ soc: string; cicli: FinCiclo[]; canEdit: boolean; onS
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Dossier amministrativi aperti (struttura societaria, immobili, ottimizzazioni, acquisti…): la lista che si rivede a ogni riunione.</p>
-        <label className="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-[#8a8a8a] cursor-pointer"><input type="checkbox" checked={showClosed} onChange={(e) => setShowClosed(e.target.checked)} className="w-3.5 h-3.5 accent-[#161616]" /> mostra chiusi</label>
+        <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Dossier amministrativi aperti (struttura societaria, immobili, ottimizzazioni, acquisti…): la lista che si rivede a ogni riunione.</p>
+        <label className="inline-flex items-center gap-1.5 text-[11.5px] font-bold text-[#6b6b6b] cursor-pointer"><input type="checkbox" checked={showClosed} onChange={(e) => setShowClosed(e.target.checked)} className="w-3.5 h-3.5 accent-[#161616]" /> mostra chiusi</label>
       </div>
       {canEdit && (
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 grid grid-cols-2 md:grid-cols-[220px_1fr_auto] gap-2 items-end">
@@ -943,7 +943,7 @@ const CicliTab: React.FC<{ soc: string; cicli: FinCiclo[]; canEdit: boolean; onS
         </div>
       )}
       {rows.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessun ciclo aperto.</p>
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessun ciclo aperto.</p>
       ) : (
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 flex flex-col gap-3">
           {groups.map((g) => {
@@ -951,7 +951,7 @@ const CicliTab: React.FC<{ soc: string; cicli: FinCiclo[]; canEdit: boolean; onS
             if (!list.length) return null;
             return (
               <div key={g}>
-                <p className="text-[10.5px] font-extrabold uppercase tracking-wider text-[#9a9a9a] border-b border-[#eee] pb-1 mb-1">{g}</p>
+                <p className="text-[11.5px] font-extrabold uppercase tracking-wider text-[#767676] border-b border-[#eee] pb-1 mb-1">{g}</p>
                 {list.map((c) => (
                   <div key={c.id} className="flex items-center gap-2 py-1">
                     <button
@@ -961,7 +961,7 @@ const CicliTab: React.FC<{ soc: string; cicli: FinCiclo[]; canEdit: boolean; onS
                       className={`w-4.5 h-4.5 rounded-full border-2 cursor-pointer shrink-0 flex items-center justify-center ${c.status === 'chiuso' ? 'bg-emerald-500 border-emerald-500' : 'bg-white border-[#c9c9c9]'}`}
                     >{c.status === 'chiuso' && <CheckCircle2 className="w-3 h-3 text-white" />}</button>
                     <span className={`flex-1 text-[13px] ${c.status === 'chiuso' ? 'text-[#a0a0a0] line-through' : 'text-[#161616] font-semibold'}`}>{c.title}</span>
-                    {c.notes && <span className="text-[11px] text-[#9a9a9a] truncate max-w-[220px]">{c.notes}</span>}
+                    {c.notes && <span className="text-[12px] text-[#767676] truncate max-w-[220px]">{c.notes}</span>}
                     {canEdit && onDelete && <button onClick={() => onDelete(c.id)} className="p-1 rounded hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button>}
                   </div>
                 ))}
@@ -986,7 +986,7 @@ const ObiettiviTab: React.FC<{ soc: string; year: number; s: KpiSeries; targets:
   const dirty = JSON.stringify(d) !== JSON.stringify(targets || { id: `${soc}-${year}`, soc, year });
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Obiettivi {year} (ultima slide della riunione): imposta i target — le tabelle KPI e le card del Centro mostrano l'avanzamento.</p>
+      <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Obiettivi {year} (ultima slide della riunione): imposta i target — le tabelle KPI e le card del Centro mostrano l'avanzamento.</p>
       <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         {TARGET_FIELDS.map((f) => {
           const v = (d as any)[f.key];
@@ -996,7 +996,7 @@ const ObiettiviTab: React.FC<{ soc: string; year: number; s: KpiSeries; targets:
           return (
             <div key={String(f.key)} className="border border-[#efefef] rounded-[14px] p-3">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">{f.label}</span>
+                <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">{f.label}</span>
                 <input
                   disabled={!canEdit} type="number" value={v ?? ''} placeholder="—"
                   onChange={(e) => setD((p) => ({ ...p, [f.key]: e.target.value === '' ? null : Number(e.target.value) }))}
@@ -1004,7 +1004,7 @@ const ObiettiviTab: React.FC<{ soc: string; year: number; s: KpiSeries; targets:
                 />
               </div>
               <div className="mt-2 h-2 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full bg-[#161616]" style={{ width: `${pct ?? 0}%` }} /></div>
-              <p className="text-[10.5px] text-[#8a8a8a] font-semibold mt-1">{isPts ? nfmt(act) : eur(act)} {v ? `su ${isPts ? nfmt(v) : eur(v)} (${Math.round(pct!)}%)` : '· nessun target'}</p>
+              <p className="text-[11.5px] text-[#6b6b6b] font-semibold mt-1">{isPts ? nfmt(act) : eur(act)} {v ? `su ${isPts ? nfmt(v) : eur(v)} (${Math.round(pct!)}%)` : '· nessun target'}</p>
             </div>
           );
         })}
@@ -1046,7 +1046,7 @@ const ReportTab: React.FC<Props & { soc: string; year: number; s: KpiSeries; bep
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2 flex-wrap no-print">
-        <p className="text-[12.5px] text-[#8a8a8a] font-semibold">Report della riunione strategica contabilità — le 8 sezioni del modello, precompilate dai dati.</p>
+        <p className="text-[12.5px] text-[#6b6b6b] font-semibold">Report della riunione strategica contabilità — le 8 sezioni del modello, precompilate dai dati.</p>
         <div className="flex items-center gap-2">
           <input type="month" value={ym} onChange={(e) => setYm(e.target.value || ymNow())} className="px-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] font-bold outline-none bg-white" />
           <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Printer className="w-4 h-4" /> Stampa / PDF</button>
@@ -1054,21 +1054,21 @@ const ReportTab: React.FC<Props & { soc: string; year: number; s: KpiSeries; bep
       </div>
       <div className="print-area bg-white border border-[#e2e2e2] rounded-[22px] p-6 flex flex-col gap-5">
         <div>
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Strategico · Riunione strategica contabilità</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Strategico · Riunione strategica contabilità</p>
           <h3 className="text-[22px] font-black text-[#161616] capitalize">{socLabel(soc)} — {ymLabel(ym)}</h3>
         </div>
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">1 · Statistiche KPI</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">1 · Statistiche KPI</p>
           <div className="overflow-x-auto"><table className="w-full min-w-[480px] text-left border-collapse">
             <thead><tr className="border-b border-[#eee]">
-              {['Voce', 'Mese', 'Δ prec.', 'Anno', 'Obiettivo'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
+              {['Voce', 'Mese', 'Δ prec.', 'Anno', 'Obiettivo'].map((h, i) => <th key={h} className={`px-2 py-1.5 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] ${i > 0 ? 'text-right' : ''}`}>{h}</th>)}
             </tr></thead>
             <tbody>
               {kpiRows.map((r) => (
                 <tr key={r.label} className="border-b border-[#f3f3f3] last:border-none">
                   <td className="px-2 py-1 text-[12px] font-bold text-[#161616]">{r.label}</td>
                   <td className="px-2 py-1 text-right text-[12px] font-extrabold text-[#161616]">{r.cur}</td>
-                  <td className={`px-2 py-1 text-right text-[11.5px] font-extrabold ${!r.delta ? 'text-[#c0c0c0]' : r.delta > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>{!r.delta ? '—' : `${r.delta > 0 ? '+' : ''}${r.isEurV ? eur(r.delta) : nfmt(r.delta)}`}</td>
+                  <td className={`px-2 py-1 text-right text-[11.5px] font-extrabold ${!r.delta ? 'text-[#9a9a9a]' : r.delta > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>{!r.delta ? '—' : `${r.delta > 0 ? '+' : ''}${r.isEurV ? eur(r.delta) : nfmt(r.delta)}`}</td>
                   <td className="px-2 py-1 text-right text-[12px] text-[#555]">{r.ytd}</td>
                   <td className="px-2 py-1 text-right text-[12px] text-[#555]">{r.target}</td>
                 </tr>
@@ -1077,24 +1077,24 @@ const ReportTab: React.FC<Props & { soc: string; year: number; s: KpiSeries; bep
           </table></div>
         </div>
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-1">2 · Piano finanziario (mese)</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-1">2 · Piano finanziario (mese)</p>
           <p className="text-[12.5px] text-[#555]">Fatturato <b className="text-[#161616]">{eur(s.fatturato[mIdx])}</b> · Costi <b className="text-[#161616]">{eur(s.costi[mIdx])}</b> · Risultato del mese <b className={s.fatturato[mIdx] - s.costi[mIdx] >= 0 ? 'text-emerald-700' : 'text-rose-600'}>{eur(s.fatturato[mIdx] - s.costi[mIdx])}</b></p>
         </div>
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-1">3 · IVA</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-1">3 · IVA</p>
           <p className="text-[12.5px] text-[#555]">IVA a debito del trimestre in corso: <b className="text-[#161616]">{eur(p.invA.filter((i) => i.sector === soc && i.status !== 'bozza' && Math.floor(monthIn(year, i.date) / 3) === Math.floor(mIdx / 3) && monthIn(year, i.date) >= 0).reduce((t, i) => t + (Number(i.amount) || 0) * ((Number(i.taxRate) || 0) / 100), 0))}</b> (dettaglio nella tab IVA & Fiscale).</p>
         </div>
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-1">4 · Programmazione finanziaria</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-1">4 · Programmazione finanziaria</p>
           <p className="text-[12.5px] text-[#555]">Fatturazione programmata: <b className="text-[#161616]">{eur(fatMese.reduce((t, i) => t + (i.amount || 0), 0))}</b> ({fatMese.length} voci, {fatMese.filter((i) => i.status === 'emessa').length} emesse) · Costi programmati: <b className="text-[#161616]">{eur(cpMese.reduce((t, i) => t + (i.amount || 0), 0))}</b> ({cpMese.length} voci)</p>
         </div>
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-1">5 · Break Even Point</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-1">5 · Break Even Point</p>
           <p className="text-[12.5px] text-[#555]">BEP {MESI[mIdx].toLowerCase()}: <b className="text-[#161616]">{b.bep === Infinity ? '—' : eur(b.bep)}</b> · fatturato <b className="text-[#161616]">{eur(b.F)}</b> → {b.F === 0 && b.CF === 0 ? 'nessun dato' : b.sopra ? <b className="text-emerald-700">sopra la soglia (utile)</b> : <b className="text-rose-600">sotto la soglia (perdita)</b>}</p>
         </div>
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-1">6 · Budget aziendale {year}</p>
-          {budRows.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Budget non compilato.</p> : (
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-1">6 · Budget aziendale {year}</p>
+          {budRows.length === 0 ? <p className="text-[12.5px] text-[#767676]">Budget non compilato.</p> : (
             <div className="flex flex-col gap-0.5">
               {budRows.map((x) => (
                 <p key={x.id} className="text-[12.5px] text-[#555]">· {x.area}: budget <b className="text-[#161616]">{eur(x.budget)}</b>{x.consuntivo != null ? <> · consuntivo <b className={x.consuntivo > x.budget ? 'text-rose-600' : 'text-[#161616]'}>{eur(x.consuntivo)}</b></> : null}</p>
@@ -1103,19 +1103,19 @@ const ReportTab: React.FC<Props & { soc: string; year: number; s: KpiSeries; bep
           )}
         </div>
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-1">7 · Cicli aperti</p>
-          {cicliAperti.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a]">Nessun ciclo aperto.</p> : (
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-1">7 · Cicli aperti</p>
+          {cicliAperti.length === 0 ? <p className="text-[12.5px] text-[#767676]">Nessun ciclo aperto.</p> : (
             <div className="flex flex-col gap-0.5">{cicliAperti.map((c) => <p key={c.id} className="text-[12.5px] text-[#555]">· {c.group ? `${c.group} — ` : ''}{c.title}</p>)}</div>
           )}
         </div>
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-1">8 · Obiettivi {year}</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-1">8 · Obiettivi {year}</p>
           {targets ? (
             <p className="text-[12.5px] text-[#555]">{TARGET_FIELDS.filter((f) => (targets as any)[f.key]).map((f) => `${f.label} ${f.key === 'punti' ? nfmt((targets as any)[f.key]) : eur((targets as any)[f.key])}`).join(' · ') || 'Nessun target impostato.'}</p>
-          ) : <p className="text-[12.5px] text-[#9a9a9a]">Obiettivi non impostati.</p>}
+          ) : <p className="text-[12.5px] text-[#767676]">Obiettivi non impostati.</p>}
         </div>
         <div>
-          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-1">Conclusioni</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-1">Conclusioni</p>
           <textarea
             disabled={!canEdit} value={conclusions} rows={4}
             onChange={(e) => setConclusions(e.target.value)}

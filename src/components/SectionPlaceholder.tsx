@@ -22,14 +22,14 @@ export const SectionPlaceholder: React.FC<Props> = ({ section, societyLabel, col
         <div className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center mb-4 bg-[#f5f5f3] text-[#161616]">
           <Icon className="w-7 h-7" />
         </div>
-        <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-1">
+        <div className="flex items-center justify-center gap-1.5 text-[12px] font-bold uppercase tracking-wider text-[#a8a8a8] mb-1">
           <span className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />{societyLabel}
         </div>
         <h2 className="text-[20px] font-extrabold text-[#161616] tracking-tight">{section.label}</h2>
         <p className="text-[13.5px] text-[#6e6e6e] mt-2 leading-relaxed">
           {section.note || 'Questa sezione è in preparazione.'}
         </p>
-        <div className="inline-flex items-center gap-1.5 mt-5 text-[12px] font-bold text-[#8a8a8a] bg-[#f5f5f3] rounded-full px-3 py-1.5">
+        <div className="inline-flex items-center gap-1.5 mt-5 text-[12px] font-bold text-[#6b6b6b] bg-[#f5f5f3] rounded-full px-3 py-1.5">
           <Hammer className="w-3.5 h-3.5" /> In costruzione
         </div>
       </div>

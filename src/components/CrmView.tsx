@@ -424,7 +424,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] leading-none flex items-center gap-2">
             <Target className="w-5 h-5" /> CRM
           </h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1.5">
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1.5">
             Pipeline commerciale, fornitori e storico delle interazioni.
           </p>
         </div>
@@ -462,7 +462,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
           })}
         </div>
         {tab === 'pipeline' && (
-          <span className="text-[11px] font-mono font-bold text-[#8a8a8a] bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-full uppercase tracking-wider">
+          <span className="text-[12px] font-mono font-bold text-[#6b6b6b] bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-full uppercase tracking-wider">
             Pipeline: {eur(pipelineValue)}
           </span>
         )}
@@ -470,7 +470,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
 
       {/* DASHBOARD (grafici andamento + report settimanale) */}
       {tab === 'dashboard' && (
-        <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico i grafici…</div>}>
+        <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico i grafici…</div>}>
           <CrmDashboard clients={Object.values(clients)} leads={leads} projects={projects} quotes={quotes} invoices={finInvoicesActive} societies={CRM_SOCIETIES} roleLabel={ROLE_LABEL} />
         </React.Suspense>
       )}
@@ -483,8 +483,8 @@ export const CrmView: React.FC<CrmViewProps> = ({
             return (
               <div key={st.id} className="bg-[#f6f6f4] border border-[#ececec] rounded-2xl p-2.5 flex flex-col gap-2 min-h-[120px]">
                 <div className="flex items-center justify-between px-1">
-                  <span className="text-[10.5px] font-extrabold uppercase tracking-wider text-[#8a8a8a]">{st.label}</span>
-                  <span className="text-[10px] font-extrabold text-[#161616] bg-white border border-[#e2e2e2] rounded-full px-1.5">{colLeads.length}</span>
+                  <span className="text-[11.5px] font-extrabold uppercase tracking-wider text-[#6b6b6b]">{st.label}</span>
+                  <span className="text-[11px] font-extrabold text-[#161616] bg-white border border-[#e2e2e2] rounded-full px-1.5">{colLeads.length}</span>
                 </div>
                 {colLeads.map((l) => (
                   <div
@@ -493,12 +493,12 @@ export const CrmView: React.FC<CrmViewProps> = ({
                     className="bg-white border border-[#e2e2e2] rounded-xl p-3 cursor-pointer hover:border-black hover:shadow-sm transition-all flex flex-col gap-2"
                   >
                     <b className="text-[12.5px] text-[#161616] truncate">{l.name}</b>
-                    {l.company && <span className="text-[11px] text-[#8a8a8a] truncate">{l.company}</span>}
+                    {l.company && <span className="text-[12px] text-[#6b6b6b] truncate">{l.company}</span>}
                     <div className="flex items-center justify-between gap-1">
                       <span className={`text-[8.5px] font-extrabold uppercase tracking-wider border px-1.5 py-0.5 rounded-full ${sectorBadge(l.sector)}`}>
                         {sectorLabel(l.sector)}
                       </span>
-                      {l.value ? <span className="text-[11px] font-bold text-[#161616]">{eur(l.value)}</span> : null}
+                      {l.value ? <span className="text-[12px] font-bold text-[#161616]">{eur(l.value)}</span> : null}
                     </div>
                     {canEdit && (
                       <div className="flex items-center justify-between pt-1 border-t border-dashed border-[#f0f0f0]">
@@ -521,7 +521,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
       {/* FORNITORI — onDelete SENZA askDelete: handleDeleteClient (App) apre già la doppia
           conferma; due askDelete annidati si annullavano e l'eliminazione non partiva mai. */}
       {tab === 'fornitori' && (
-        <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico il registro…</div>}>
+        <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico il registro…</div>}>
           <CrmRegistro
             title="Fornitori & Subappaltatori"
             variant="fornitori"
@@ -544,7 +544,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
 
       {/* CLIENTI / PARTNER (rubrica) */}
       {tab === 'clienti' && (
-        <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico il registro…</div>}>
+        <React.Suspense fallback={<div className="text-[13px] text-[#6b6b6b] p-8 text-center">Carico il registro…</div>}>
           <CrmRegistro
             canEdit={canEdit}
             clients={Object.values(clients)}
@@ -582,9 +582,9 @@ export const CrmView: React.FC<CrmViewProps> = ({
             <div>
               <h3 className="text-[18px] font-black text-[#161616] leading-tight">{activeClient.name}</h3>
               <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                {activeClient.category === 'partner' && <span className="text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border-purple-200">Partner / Impresa</span>}
-                <span className="text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-700 border-zinc-200">{activeClient.type === 'azienda' ? 'Azienda' : 'Privato'}</span>
-                {activeClient.category !== 'partner' && activeClient.tier && <span className={`text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${tierBadge(activeClient.tier)}`}>Fascia {activeClient.tier}</span>}
+                {activeClient.category === 'partner' && <span className="text-[10px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border-purple-200">Partner / Impresa</span>}
+                <span className="text-[10px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full bg-zinc-50 text-zinc-700 border-zinc-200">{activeClient.type === 'azienda' ? 'Azienda' : 'Privato'}</span>
+                {activeClient.category !== 'partner' && activeClient.tier && <span className={`text-[10px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${tierBadge(activeClient.tier)}`}>Fascia {activeClient.tier}</span>}
               </div>
             </div>
             <button onClick={() => setOpenClient(null)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
@@ -613,9 +613,9 @@ export const CrmView: React.FC<CrmViewProps> = ({
             <div className="mt-3 flex flex-col gap-2">
               {onKeys(activeClient.societies).length > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#8a8a8a] mr-1">Società</span>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6b6b6b] mr-1">Società</span>
                   {CRM_SOCIETIES.filter((s) => activeClient.societies?.[s.id]).map((s) => (
-                    <span key={s.id} className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full border" style={{ background: `${s.color}12`, color: s.color, borderColor: `${s.color}33` }}>
+                    <span key={s.id} className="inline-flex items-center gap-1 text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full border" style={{ background: `${s.color}12`, color: s.color, borderColor: `${s.color}33` }}>
                       <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.color }} /> {s.label}
                     </span>
                   ))}
@@ -623,17 +623,17 @@ export const CrmView: React.FC<CrmViewProps> = ({
               )}
               {onKeys(activeClient.roles).length > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#8a8a8a] mr-1">Tipo</span>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6b6b6b] mr-1">Tipo</span>
                   {onKeys(activeClient.roles).map((r) => (
-                    <span key={r} className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 border border-gray-200">{ROLE_LABEL(r)}</span>
+                    <span key={r} className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-50 text-gray-600 border border-gray-200">{ROLE_LABEL(r)}</span>
                   ))}
                 </div>
               )}
               {(activeClient.targetTags || []).length > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#8a8a8a] mr-1">Target</span>
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6b6b6b] mr-1">Target</span>
                   {(activeClient.targetTags || []).map((t) => (
-                    <span key={t} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">{t}</span>
+                    <span key={t} className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">{t}</span>
                   ))}
                 </div>
               )}
@@ -642,13 +642,13 @@ export const CrmView: React.FC<CrmViewProps> = ({
 
           {/* Storico progetti */}
           <div className="mt-4">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#8a8a8a] block mb-2">Storico progetti ({projs.length})</span>
-            {projs.length === 0 ? <p className="text-[12px] italic text-[#9a9a9a]">Nessun progetto collegato.</p> : (
+            <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#6b6b6b] block mb-2">Storico progetti ({projs.length})</span>
+            {projs.length === 0 ? <p className="text-[12px] italic text-[#767676]">Nessun progetto collegato.</p> : (
               <div className="flex flex-col gap-1.5">
                 {projs.map((p) => (
                   <div key={p.id} className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-gray-50 border border-[#f0f0f0]">
                     <span className="text-[12.5px] font-medium text-[#161616] truncate flex items-center gap-1.5"><FolderOpen className="w-3.5 h-3.5 text-gray-400" /> {p.name}</span>
-                    <span className="text-[10px] font-bold text-gray-500 shrink-0">{p.status}</span>
+                    <span className="text-[11px] font-bold text-gray-500 shrink-0">{p.status}</span>
                   </div>
                 ))}
               </div>
@@ -657,15 +657,15 @@ export const CrmView: React.FC<CrmViewProps> = ({
 
           {/* Quadro pagamenti */}
           <div className="mt-4">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#8a8a8a] block mb-2">Quadro pagamenti</span>
+            <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#6b6b6b] block mb-2">Quadro pagamenti</span>
             <div className="grid grid-cols-3 gap-2">
-              <div className="px-3 py-2 rounded-xl bg-gray-50 border border-[#f0f0f0]"><div className="text-[9.5px] font-bold uppercase text-[#9a9a9a]">Fatturato</div><div className="text-[13px] font-black text-[#161616]">{eur(pay.fatturato)}</div></div>
-              <div className="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-100"><div className="text-[9.5px] font-bold uppercase text-emerald-700/70">Incassato</div><div className="text-[13px] font-black text-emerald-700">{eur(pay.incassato)}</div></div>
-              <div className="px-3 py-2 rounded-xl bg-amber-50 border border-amber-100"><div className="text-[9.5px] font-bold uppercase text-amber-700/70">Da incassare</div><div className="text-[13px] font-black text-amber-700">{eur(pay.daIncassare)}</div></div>
+              <div className="px-3 py-2 rounded-xl bg-gray-50 border border-[#f0f0f0]"><div className="text-[10.5px] font-bold uppercase text-[#767676]">Fatturato</div><div className="text-[13px] font-black text-[#161616]">{eur(pay.fatturato)}</div></div>
+              <div className="px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-100"><div className="text-[10.5px] font-bold uppercase text-emerald-700/70">Incassato</div><div className="text-[13px] font-black text-emerald-700">{eur(pay.incassato)}</div></div>
+              <div className="px-3 py-2 rounded-xl bg-amber-50 border border-amber-100"><div className="text-[10.5px] font-bold uppercase text-amber-700/70">Da incassare</div><div className="text-[13px] font-black text-amber-700">{eur(pay.daIncassare)}</div></div>
             </div>
             {pay.scadOpen.length > 0 && (
               <div className="mt-2 flex flex-col gap-1.5">
-                <span className="text-[10.5px] font-bold text-rose-600">Scadenze aperte ({pay.scadOpen.length}) — da sollecitare:</span>
+                <span className="text-[11.5px] font-bold text-rose-600">Scadenze aperte ({pay.scadOpen.length}) — da sollecitare:</span>
                 {pay.scadOpen.slice(0, 4).map((s: any) => (
                   <div key={s.id} className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg bg-rose-50/50 border border-rose-100 text-[11.5px]">
                     <span className="text-[#161616]">{s.desc || 'Scadenza'} · {s.dueDate}</span>
@@ -806,7 +806,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
             )}
             {/* Pratica & Registro clienti */}
             <div className="border-t border-[#f0f0f0] pt-3 mt-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Pratica & registro</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Pratica & registro</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Stato">
                   <select value={clDraft.stato || ''} onChange={(e) => setClDraft((d) => ({ ...d, stato: (e.target.value || null) as any }))} className="crm-input">
@@ -830,7 +830,7 @@ export const CrmView: React.FC<CrmViewProps> = ({
 
             {/* Codice referral */}
             <div className="border-t border-[#f0f0f0] pt-3">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Referral</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0] mb-2">Referral</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Codice referral (proprio)">
                   <div className="flex items-center gap-1.5">
@@ -854,11 +854,11 @@ export const CrmView: React.FC<CrmViewProps> = ({
           <div className="flex items-start justify-between gap-3 mb-4">
             <div>
               <h3 className="text-[18px] font-black text-[#161616] leading-none">{activeLead.name}</h3>
-              {activeLead.company && <p className="text-[12.5px] text-[#8a8a8a] mt-1">{activeLead.company}</p>}
+              {activeLead.company && <p className="text-[12.5px] text-[#6b6b6b] mt-1">{activeLead.company}</p>}
               <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className={`text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${sectorBadge(activeLead.sector)}`}>{sectorLabel(activeLead.sector)}</span>
-                <span className="text-[10px] font-bold text-[#161616] bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-full">{stageLabel(activeLead.stage)}</span>
-                {activeLead.value ? <span className="text-[11px] font-bold flex items-center gap-1"><Euro className="w-3 h-3" />{eur(activeLead.value)}</span> : null}
+                <span className={`text-[10px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${sectorBadge(activeLead.sector)}`}>{sectorLabel(activeLead.sector)}</span>
+                <span className="text-[11px] font-bold text-[#161616] bg-gray-100 border border-gray-200 px-2 py-0.5 rounded-full">{stageLabel(activeLead.stage)}</span>
+                {activeLead.value ? <span className="text-[12px] font-bold flex items-center gap-1"><Euro className="w-3 h-3" />{eur(activeLead.value)}</span> : null}
               </div>
             </div>
             <button onClick={() => { setOpenLead(null); setNoteDraft(''); }} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
@@ -870,11 +870,11 @@ export const CrmView: React.FC<CrmViewProps> = ({
               {activeLead.routed ? (
                 <div className="flex items-center gap-1.5 text-[12px] text-emerald-700 font-bold">
                   <CheckCircle2 className="w-4 h-4" /> Assegnato a {sectorLabel(activeLead.sector)}
-                  <span className="font-normal text-[#8a8a8a]">{activeLead.routedByName ? ` · ${activeLead.routedByName}` : ''}{activeLead.routedAt ? ` · ${fmtWhen(activeLead.routedAt)}` : ''}</span>
+                  <span className="font-normal text-[#6b6b6b]">{activeLead.routedByName ? ` · ${activeLead.routedByName}` : ''}{activeLead.routedAt ? ` · ${fmtWhen(activeLead.routedAt)}` : ''}</span>
                 </div>
               ) : (
                 <>
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a] inline-flex items-center gap-1.5 mb-1.5"><Split className="w-3.5 h-3.5" /> Smista alla società</div>
+                  <div className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b] inline-flex items-center gap-1.5 mb-1.5"><Split className="w-3.5 h-3.5" /> Smista alla società</div>
                   <div className="text-[12px] text-[#555] mb-2">Suggerito: <b>{sectorLabel(suggestSector(activeLead))}</b></div>
                   <div className="flex flex-wrap gap-1.5">
                     {(['studio', 'strategico', 'materico'] as const).map((s) => {
@@ -923,8 +923,8 @@ export const CrmView: React.FC<CrmViewProps> = ({
           <div className="flex items-start justify-between gap-3 mb-4">
             <div>
               <h3 className="text-[18px] font-black text-[#161616] leading-none">{activeSupplier.name}</h3>
-              {activeSupplier.category && <p className="text-[12.5px] text-[#8a8a8a] mt-1">{activeSupplier.category}</p>}
-              <div className="mt-2"><span className={`text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${sectorBadge(activeSupplier.sector)}`}>{sectorLabel(activeSupplier.sector)}</span></div>
+              {activeSupplier.category && <p className="text-[12.5px] text-[#6b6b6b] mt-1">{activeSupplier.category}</p>}
+              <div className="mt-2"><span className={`text-[10px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${sectorBadge(activeSupplier.sector)}`}>{sectorLabel(activeSupplier.sector)}</span></div>
             </div>
             <button onClick={() => { setOpenSupplier(null); setNoteDraft(''); }} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 border-none bg-transparent cursor-pointer"><X className="w-4 h-4" /></button>
           </div>
@@ -1005,13 +1005,13 @@ const FormHeader: React.FC<{ title: string; onClose: () => void }> = ({ title, o
 );
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1.5">
-    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">{label}</span>
+    <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">{label}</span>
     {children}
   </label>
 );
 const ClientRow: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl bg-gray-50 border border-[#f0f0f0]">
-    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">{label}</span>
+    <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">{label}</span>
     <span className="text-[12.5px] font-medium text-[#161616] text-right">{value}</span>
   </div>
 );
@@ -1024,7 +1024,7 @@ const SectorSelect: React.FC<{ value: string; onChange: (v: any) => void }> = ({
 );
 const NotesPanel: React.FC<{ notes?: CrmNote[]; draft: string; setDraft: (s: string) => void; onAdd?: () => void }> = ({ notes, draft, setDraft, onAdd }) => (
   <div>
-    <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#8a8a8a] block mb-2">Storico interazioni</span>
+    <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#6b6b6b] block mb-2">Storico interazioni</span>
     {onAdd && (
       <div className="flex items-center gap-2 mb-3">
         <input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && onAdd()} placeholder="Aggiungi nota / interazione…" className="crm-input flex-grow" />
@@ -1036,12 +1036,12 @@ const NotesPanel: React.FC<{ notes?: CrmNote[]; draft: string; setDraft: (s: str
         {[...notes].sort((a, b) => b.at - a.at).map((n, i) => (
           <div key={i} className="p-3 rounded-xl bg-gray-50 border border-[#f0f0f0]">
             <p className="text-[13px] text-[#161616]">{n.text}</p>
-            <span className="text-[10.5px] text-[#8a8a8a] font-semibold">{[n.by, fmtWhen(n.at)].filter(Boolean).join(' · ')}</span>
+            <span className="text-[11.5px] text-[#6b6b6b] font-semibold">{[n.by, fmtWhen(n.at)].filter(Boolean).join(' · ')}</span>
           </div>
         ))}
       </div>
     ) : (
-      <p className="text-[12.5px] italic text-[#8a8a8a]">Nessuna interazione registrata.</p>
+      <p className="text-[12.5px] italic text-[#6b6b6b]">Nessuna interazione registrata.</p>
     )}
   </div>
 );

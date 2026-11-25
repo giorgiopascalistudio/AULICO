@@ -112,7 +112,7 @@ export const AppleSwitch: React.FC<AppleSwitchProps> = ({
       {switchBtn}
       <span className="flex flex-col gap-[1px]">
         {label && <span className="text-[14px] font-semibold text-[#161616]">{label}</span>}
-        {desc && <span className="text-[12px] text-[#8a8a8a]">{desc}</span>}
+        {desc && <span className="text-[12px] text-[#6b6b6b]">{desc}</span>}
       </span>
     </label>
   );

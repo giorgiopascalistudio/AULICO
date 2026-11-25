@@ -91,7 +91,7 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
         <Icon className={`w-[16px] h-[16px] shrink-0 ${isActive ? 'opacity-100' : 'opacity-70'}`} />
         <span className="flex-1 truncate text-left">{sec.label}</span>
         {badge > 0 && (
-          <span className={`text-[11px] font-bold min-w-[19px] h-[19px] px-1.5 rounded-full flex items-center justify-center ${
+          <span className={`text-[12px] font-bold min-w-[19px] h-[19px] px-1.5 rounded-full flex items-center justify-center ${
             isActive ? 'bg-white/20 text-[#eeeeee]' : 'bg-[#1b1b1b] text-white'
           }`}>{badge}</span>
         )}
@@ -129,7 +129,7 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
                 <span className="flex-1 truncate text-left text-[11.5px] font-extrabold uppercase tracking-wider text-[#5b5b5b]">
                   {society.label}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-[#9a9a9a] transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-[#767676] transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
               </button>
 
               <AnimatePresence initial={false}>
@@ -169,7 +169,7 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
                           >
                             <SubIcon className={`w-[16px] h-[16px] shrink-0 ${active ? 'opacity-100' : 'opacity-70'}`} />
                             <span className="flex-1 truncate text-left">{top.label}</span>
-                            <ChevronRight className={`w-4 h-4 ${active ? 'opacity-80' : 'text-[#bdbdbd]'}`} />
+                            <ChevronRight className={`w-4 h-4 ${active ? 'opacity-80' : 'text-[#9a9a9a]'}`} />
                           </button>
                         );
                       })}
@@ -186,7 +186,7 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
       {onFeedback && (
         <button
           onClick={onFeedback}
-          className="mt-auto flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-bold text-[#8a8a8a] hover:text-[#161616] hover:bg-[#ececec] transition-colors w-full text-left cursor-pointer bg-transparent border-none"
+          className="mt-auto flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-bold text-[#6b6b6b] hover:text-[#161616] hover:bg-[#ececec] transition-colors w-full text-left cursor-pointer bg-transparent border-none"
         >
           <Bug className="w-4 h-4" /> Segnala un problema
         </button>
@@ -206,11 +206,11 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
           </span>
           <div className="min-w-0 flex-1">
             <b className="block text-[13.5px] font-bold text-[#161616] truncate leading-tight tracking-tight">{profile.name}</b>
-            <small className="block text-[11px] text-[#8a8a8a] capitalize truncate mt-[2px]">
+            <small className="block text-[12px] text-[#6b6b6b] capitalize truncate mt-[2px]">
               {profile.role === 'admin' ? 'Amministratore' : profile.role === 'manager' ? 'Project Manager' : profile.role === 'staff' ? 'Operatore' : 'Cliente'}
             </small>
           </div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[16px] h-[16px] text-[#8a8a8a]">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-[16px] h-[16px] text-[#6b6b6b]">
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>

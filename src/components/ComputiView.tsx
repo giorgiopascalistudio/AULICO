@@ -111,7 +111,7 @@ export const ComputiView: React.FC<Props> = ({ projects, socLabel, color = '#161
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
             <Calculator className="w-5.5 h-5.5 text-[#161616]" /> Computi metrici
           </h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">
             Un computo per ogni progetto di {socLabel}: voci a mano o importate da CSV. Il valore opera alimenta parcelle e contabilità di commessa.
           </p>
         </div>
@@ -123,7 +123,7 @@ export const ComputiView: React.FC<Props> = ({ projects, socLabel, color = '#161
             { l: 'Progetti senza computo', v: String(withoutComputo.length), c: withoutComputo.length ? '#d97706' : undefined },
           ].map((k) => (
             <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[16px] px-3.5 py-2 shadow-sm text-center">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
               <p className="text-[17px] font-black leading-none mt-0.5" style={{ color: k.c || '#161616' }}>{k.v}</p>
             </div>
           ))}
@@ -132,7 +132,7 @@ export const ComputiView: React.FC<Props> = ({ projects, socLabel, color = '#161
 
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-[340px]">
-          <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#8f8f8f] absolute left-3 top-1/2 -translate-y-1/2" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cerca computo o progetto…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white" />
         </div>
         {canEdit && withoutComputo.length > 0 && (
@@ -144,7 +144,7 @@ export const ComputiView: React.FC<Props> = ({ projects, socLabel, color = '#161
       </div>
 
       {list.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">
           {mine.length === 0 ? `Nessun computo per i progetti di ${socLabel}.${canEdit && withoutComputo.length ? ' Creane uno con "+ Nuovo computo per…".' : ''}` : 'Nessun computo corrisponde alla ricerca.'}
         </p>
       ) : (
@@ -152,9 +152,9 @@ export const ComputiView: React.FC<Props> = ({ projects, socLabel, color = '#161
           {list.map((c) => (
             <button key={c.id} onClick={() => setOpenId(c.id)} className="text-left bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
               <b className="text-[14px] text-[#161616] block truncate">{c.title}</b>
-              <p className="text-[11.5px] text-[#8a8a8a] mt-0.5 truncate">{projById[c.projectId]?.name || '—'}</p>
+              <p className="text-[11.5px] text-[#6b6b6b] mt-0.5 truncate">{projById[c.projectId]?.name || '—'}</p>
               <p className="text-[18px] font-black mt-2 text-[#161616]">{eur(computoTotal(c))}</p>
-              <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-0.5">
+              <p className="text-[11.5px] text-[#767676] font-semibold mt-0.5">
                 {(c.items || []).length} voci{c.sourceFileName ? ` · da ${c.sourceFileName}` : ''}
               </p>
             </button>
@@ -243,7 +243,7 @@ const ComputoEditor: React.FC<{
           <button onClick={onBack} className="w-9 h-9 rounded-xl border border-[#e2e2e2] bg-white hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer shrink-0"><ArrowLeft className="w-4 h-4" /></button>
           <div className="min-w-0 flex-1">
             <input disabled={!canEdit} value={c.title} onChange={(e) => onChange({ title: e.target.value })} className="w-full text-[20px] font-black tracking-tight text-[#161616] bg-transparent border-none outline-none p-0" />
-            <p className="text-[11.5px] text-[#8a8a8a] font-semibold truncate">{projectName}{c.sourceFileName ? ` · file: ${c.sourceFileName}` : ''}</p>
+            <p className="text-[11.5px] text-[#6b6b6b] font-semibold truncate">{projectName}{c.sourceFileName ? ` · file: ${c.sourceFileName}` : ''}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -272,11 +272,11 @@ const ComputoEditor: React.FC<{
         <div className="lg:col-span-2 flex flex-col gap-3">
           <p className="hidden print:block text-[16px] font-black">{c.title} — {projectName}</p>
           {items.length === 0 ? (
-            <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna voce. Aggiungila qui sotto o importa un CSV.</p>
+            <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna voce. Aggiungila qui sotto o importa un CSV.</p>
           ) : cats.map((cat) => (
             <div key={cat} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">{cat}</p>
+                <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">{cat}</p>
                 <p className="text-[11.5px] font-extrabold text-[#161616]">{eur(items.filter((it) => (it.category || 'Altro') === cat).reduce((s, it) => s + (Number(it.quantity) || 0) * (Number(it.unitPrice) || 0), 0))}</p>
               </div>
               <div className="flex flex-col gap-1.5">
@@ -296,7 +296,7 @@ const ComputoEditor: React.FC<{
           {/* Nuova voce */}
           {canEdit && (
             <div className="no-print bg-white border border-dashed border-[#cfcfcf] rounded-[20px] p-4">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Nuova voce</p>
+              <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">Nuova voce</p>
               <div className="flex items-center gap-2 flex-wrap">
                 <input value={nDesc} onChange={(e) => setNDesc(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addItem()} placeholder="Descrizione lavorazione…" className={`${inp} flex-1 min-w-[180px]`} />
                 <select value={nCat} onChange={(e) => setNCat(e.target.value)} className={`${inp} w-[130px]`}>
@@ -313,13 +313,13 @@ const ComputoEditor: React.FC<{
         {/* Totale live */}
         <div className="flex flex-col gap-3">
           <div className="bg-white border-2 rounded-[22px] p-5 lg:sticky lg:top-4" style={{ borderColor: color }}>
-            <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Valore opera (computo)</p>
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#767676]">Valore opera (computo)</p>
             <p className="text-[32px] font-black leading-tight text-[#161616]">{eur(total)}</p>
-            <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-1.5">{items.length} voci · importi imponibili. Il valore alimenta parcella e contabilità di commessa.</p>
+            <p className="text-[11.5px] text-[#767676] font-semibold mt-1.5">{items.length} voci · importi imponibili. Il valore alimenta parcella e contabilità di commessa.</p>
           </div>
           <div className="no-print bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-1.5 inline-flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Import da file</p>
-            <p className="text-[11.5px] text-[#8a8a8a] leading-snug">CSV/TSV con intestazioni (descrizione, categoria, quantità, prezzo): mappatura colonne automatica e correggibile. Excel/PDF restano allegati come riferimento.</p>
+            <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-1.5 inline-flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Import da file</p>
+            <p className="text-[11.5px] text-[#6b6b6b] leading-snug">CSV/TSV con intestazioni (descrizione, categoria, quantità, prezzo): mappatura colonne automatica e correggibile. Excel/PDF restano allegati come riferimento.</p>
           </div>
         </div>
       </div>
@@ -332,7 +332,7 @@ const ComputoEditor: React.FC<{
               <h3 className="text-[16px] font-extrabold text-[#161616]">Importa "{fileName}"</h3>
               <button onClick={() => setSheet(null)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button>
             </div>
-            <p className="text-[12px] text-[#8a8a8a] font-semibold mb-3">{sheet.rows.length} righe trovate. Controlla a quale colonna corrisponde ogni campo:</p>
+            <p className="text-[12px] text-[#6b6b6b] font-semibold mb-3">{sheet.rows.length} righe trovate. Controlla a quale colonna corrisponde ogni campo:</p>
             <div className="flex flex-col gap-2.5">
               {([['desc', 'Descrizione'], ['category', 'Categoria'], ['quantity', 'Quantità'], ['unitPrice', 'Prezzo unitario']] as const).map(([k, lbl]) => (
                 <label key={k} className="flex items-center gap-3">

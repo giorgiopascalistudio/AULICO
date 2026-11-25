@@ -114,7 +114,7 @@ export const TimeReportView: React.FC<Props> = ({
             <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616] flex items-center gap-2">
               <FileText className="w-5 h-5" /> Report di profilo
             </h2>
-            <p className="text-[12.5px] text-[#8a8a8a] font-medium">Cosa ha fatto una persona nella settimana o nel mese: attività svolte + conclusione, da stampare.</p>
+            <p className="text-[12.5px] text-[#6b6b6b] font-medium">Cosa ha fatto una persona nella settimana o nel mese: attività svolte + conclusione, da stampare.</p>
           </div>
           <TabSwitch tab={tab} onTab={setTab} />
         </div>
@@ -145,7 +145,7 @@ export const TimeReportView: React.FC<Props> = ({
           <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616] flex items-center gap-2">
             <BarChart3 className="w-5 h-5" /> Report & Tempi
           </h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-medium">Report automatici dai cronometri e dalle attività — nessuna compilazione manuale.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-medium">Report automatici dai cronometri e dalle attività — nessuna compilazione manuale.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap justify-end">
           {me && <TabSwitch tab={tab} onTab={setTab} />}
@@ -173,7 +173,7 @@ export const TimeReportView: React.FC<Props> = ({
           <div key={i} className="bg-white border border-[#e2e2e2] rounded-[22px] p-4">
             <span className="w-9 h-9 rounded-xl bg-[#f5f5f3] flex items-center justify-center mb-2"><k.icon className="w-4.5 h-4.5 text-[#161616]" /></span>
             <div className="text-[22px] font-black text-[#161616] leading-none">{k.value}</div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-[#9a9a9a] mt-1">{k.label}</div>
+            <div className="text-[12px] font-bold uppercase tracking-wider text-[#767676] mt-1">{k.label}</div>
           </div>
         ))}
       </div>
@@ -183,12 +183,12 @@ export const TimeReportView: React.FC<Props> = ({
         <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-4">
           <h3 className="text-[14.5px] font-extrabold text-[#161616] mb-3 flex items-center gap-2"><Clock className="w-4.5 h-4.5" /> Tempo medio per tipo di attività</h3>
           {tipoRows.length === 0 ? (
-            <p className="text-[12.5px] italic text-[#9a9a9a] py-4">Nessuna rilevazione nel periodo. Usa il cronometro (Avvia/Ferma) sulle attività dell'agenda.</p>
+            <p className="text-[12.5px] italic text-[#767676] py-4">Nessuna rilevazione nel periodo. Usa il cronometro (Avvia/Ferma) sulle attività dell'agenda.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-[12.5px]">
                 <thead>
-                  <tr className="text-[10.5px] uppercase tracking-wider text-[#9a9a9a] text-left border-b border-[#eee]">
+                  <tr className="text-[11.5px] uppercase tracking-wider text-[#767676] text-left border-b border-[#eee]">
                     <th className="py-2 font-bold">Tipo</th>
                     <th className="py-2 font-bold text-right">Media</th>
                     <th className="py-2 font-bold text-right">Rilevazioni</th>
@@ -214,7 +214,7 @@ export const TimeReportView: React.FC<Props> = ({
         <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-4">
           <h3 className="text-[14.5px] font-extrabold text-[#161616] mb-3 flex items-center gap-2"><Users className="w-4.5 h-4.5" /> Distribuzione ore per collaboratore</h3>
           {whoRows.length === 0 ? (
-            <p className="text-[12.5px] italic text-[#9a9a9a] py-4">Nessuna ora tracciata nel periodo.</p>
+            <p className="text-[12.5px] italic text-[#767676] py-4">Nessuna ora tracciata nel periodo.</p>
           ) : (
             <div className="flex flex-col gap-2.5">
               {whoRows.map(([uid, v]) => (
@@ -243,7 +243,7 @@ export const TimeReportView: React.FC<Props> = ({
             </button>
           )}
         </div>
-        <p className="text-[11.5px] text-[#9a9a9a] mb-3 no-print">La base delle riunioni: apri la lista di ciascuno, controlla lo stato e riassegna con un tap.</p>
+        <p className="text-[11.5px] text-[#767676] mb-3 no-print">La base delle riunioni: apri la lista di ciascuno, controlla lo stato e riassegna con un tap.</p>
         <div className="flex flex-col gap-2">
           {members.map((u) => {
             const s = tasksFor(u.uid);
@@ -256,23 +256,23 @@ export const TimeReportView: React.FC<Props> = ({
                   className="w-full flex items-center justify-between gap-3 px-3.5 py-3 bg-[#fafafa] hover:bg-[#f5f5f3] cursor-pointer border-none text-left"
                 >
                   <span className="flex items-center gap-2.5 min-w-0">
-                    <span className="w-8 h-8 rounded-full bg-[#161616] text-white flex items-center justify-center text-[10px] font-bold shrink-0">{initials(u.name)}</span>
+                    <span className="w-8 h-8 rounded-full bg-[#161616] text-white flex items-center justify-center text-[11px] font-bold shrink-0">{initials(u.name)}</span>
                     <span className="min-w-0">
                       <b className="text-[13px] text-[#161616] block truncate">{u.name}</b>
-                      <span className="text-[11px] text-[#9a9a9a]">{s.aperti.length} aperti · {trackedMin ? fmtDuration(trackedMin) + ' tracciate' : 'nessuna ora'}</span>
+                      <span className="text-[12px] text-[#767676]">{s.aperti.length} aperti · {trackedMin ? fmtDuration(trackedMin) + ' tracciate' : 'nessuna ora'}</span>
                     </span>
                   </span>
                   <span className="flex items-center gap-2 shrink-0">
-                    {s.urgenti.length > 0 && <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">{s.urgenti.length} urg.</span>}
-                    {s.scaduti.length > 0 && <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">{s.scaduti.length} scad.</span>}
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">{s.completati.length} fatti</span>
-                    <ChevronDown className={`w-4 h-4 text-[#9a9a9a] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                    {s.urgenti.length > 0 && <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">{s.urgenti.length} urg.</span>}
+                    {s.scaduti.length > 0 && <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">{s.scaduti.length} scad.</span>}
+                    <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">{s.completati.length} fatti</span>
+                    <ChevronDown className={`w-4 h-4 text-[#767676] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                   </span>
                 </button>
                 {isOpen && (
                   <div className="px-3.5 py-3 flex flex-col gap-1.5">
                     {s.aperti.length === 0 ? (
-                      <p className="text-[12px] italic text-[#9a9a9a] py-1">Nessuna attività aperta.</p>
+                      <p className="text-[12px] italic text-[#767676] py-1">Nessuna attività aperta.</p>
                     ) : (
                       s.aperti
                         .sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'))
@@ -284,14 +284,14 @@ export const TimeReportView: React.FC<Props> = ({
                                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${t.priority === 'urgente' ? 'bg-rose-600' : t.priority === 'alta' ? 'bg-orange-500' : t.priority === 'media' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
                                 <span className="min-w-0">
                                   <b className="text-[12.5px] text-[#161616] block truncate">{t.title}</b>
-                                  <span className="text-[10.5px] text-[#9a9a9a]">
+                                  <span className="text-[11.5px] text-[#767676]">
                                     {t.tipo ? t.tipo + ' · ' : ''}{t.date ? <span className={overdue ? 'text-amber-600 font-bold' : ''}>{t.date}</span> : 'senza data'}
                                     {t.estMinutes ? ` · stima ${fmtDuration(t.estMinutes)}` : ''}{t.actualMinutes ? ` · reale ${fmtDuration(t.actualMinutes)}` : ''}
                                   </span>
                                 </span>
                               </span>
                               {onEditTask && (
-                                <button onClick={() => onEditTask(t.id)} className="no-print text-[11px] font-bold px-2.5 py-1 rounded-lg border border-[#e2e2e2] bg-white hover:border-black cursor-pointer shrink-0">
+                                <button onClick={() => onEditTask(t.id)} className="no-print text-[12px] font-bold px-2.5 py-1 rounded-lg border border-[#e2e2e2] bg-white hover:border-black cursor-pointer shrink-0">
                                   Apri
                                 </button>
                               )}
@@ -311,12 +311,12 @@ export const TimeReportView: React.FC<Props> = ({
       <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-4">
         <h3 className="text-[14.5px] font-extrabold text-[#161616] mb-3 flex items-center gap-2"><Play className="w-4.5 h-4.5" /> Storico rilevazioni</h3>
         {recent.length === 0 ? (
-          <p className="text-[12.5px] italic text-[#9a9a9a] py-2">Ancora nessuna rilevazione.</p>
+          <p className="text-[12.5px] italic text-[#767676] py-2">Ancora nessuna rilevazione.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-[12px] min-w-[520px]">
               <thead>
-                <tr className="text-[10.5px] uppercase tracking-wider text-[#9a9a9a] text-left border-b border-[#eee]">
+                <tr className="text-[11.5px] uppercase tracking-wider text-[#767676] text-left border-b border-[#eee]">
                   <th className="py-2 font-bold">Quando</th>
                   <th className="py-2 font-bold">Chi</th>
                   <th className="py-2 font-bold">Tipo / Attività</th>
@@ -328,7 +328,7 @@ export const TimeReportView: React.FC<Props> = ({
                   <tr key={e.id} className="border-b border-[#f4f4f4]">
                     <td className="py-2 text-[#6b6b6b] whitespace-nowrap">{fmtWhen(e.end)}</td>
                     <td className="py-2 font-semibold text-[#161616]">{e.whoName || nameByUid(e.whoUid)}</td>
-                    <td className="py-2 text-[#161616] truncate max-w-[220px]"><span className="capitalize">{e.tipo}</span>{e.taskTitle && e.taskTitle !== e.tipo ? <span className="text-[#9a9a9a]"> · {e.taskTitle}</span> : null}</td>
+                    <td className="py-2 text-[#161616] truncate max-w-[220px]"><span className="capitalize">{e.tipo}</span>{e.taskTitle && e.taskTitle !== e.tipo ? <span className="text-[#767676]"> · {e.taskTitle}</span> : null}</td>
                     <td className="py-2 text-right font-extrabold tabular-nums">{fmtDuration(e.minutes)}</td>
                   </tr>
                 ))}

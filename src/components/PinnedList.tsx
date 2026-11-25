@@ -74,7 +74,7 @@ export function PinnedList<T>({
                   className={`absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                     isPinned
                       ? 'bg-orange-50 text-orange-600 opacity-100'
-                      : 'bg-gray-50 text-[#8a8a8a] opacity-0 group-hover:opacity-100 hover:bg-gray-100 hover:text-[#161616]'
+                      : 'bg-gray-50 text-[#6b6b6b] opacity-0 group-hover:opacity-100 hover:bg-gray-100 hover:text-[#161616]'
                   }`}
                 >
                   {isPinned ? (
@@ -87,7 +87,7 @@ export function PinnedList<T>({
             );
           })
         ) : (
-          <div className="text-center py-8 text-[#8a8a8a] text-[13.5px] italic">
+          <div className="text-center py-8 text-[#6b6b6b] text-[13.5px] italic">
             {emptyMessage}
           </div>
         )}

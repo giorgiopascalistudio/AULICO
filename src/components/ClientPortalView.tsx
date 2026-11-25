@@ -453,7 +453,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             <div className="relative overflow-hidden bg-[#161616] text-white">
               <div className="absolute inset-0 opacity-[0.18]" style={{ background: 'radial-gradient(120% 120% at 80% 0%, #b45309 0%, transparent 55%), radial-gradient(120% 120% at 0% 100%, #4338ca 0%, transparent 55%)' }} />
               <div className="relative max-w-[920px] mx-auto px-6 py-14 sm:py-20 text-center">
-                <span className="inline-block text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/60">
+                <span className="inline-block text-[12px] font-extrabold uppercase tracking-[0.2em] text-white/60">
                   {profile.name ? `Benvenuto, ${profile.name.split(' ')[0]}` : 'Benvenuto in Aulico'}
                 </span>
                 <h1 className="text-[30px] sm:text-[44px] font-extrabold tracking-tight leading-[1.05] mt-3">
@@ -499,7 +499,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 <Briefcase className="w-6 h-6" />
               </div>
               <b className="block text-[#161616] text-[16px] font-extrabold">{t('portal.projectPrep.title')}</b>
-              <p className="text-[13.5px] text-[#8a8a8a] mt-2 mb-4 leading-relaxed">
+              <p className="text-[13.5px] text-[#6b6b6b] mt-2 mb-4 leading-relaxed">
                 {t('portal.projectPrep.text')}
               </p>
             </div>
@@ -521,7 +521,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           <div className="flex items-center justify-between mb-5">
             <div>
               <h1 className="text-[20px] font-extrabold text-[#161616]">{t('portal.cantieri')}</h1>
-              <p className="text-[12.5px] text-[#8a8a8a]">{t('portal.partnerCompany', { name: profile.name })}</p>
+              <p className="text-[12.5px] text-[#6b6b6b]">{t('portal.partnerCompany', { name: profile.name })}</p>
             </div>
             <div className="flex items-center gap-2">
             <LangToggle />
@@ -748,20 +748,20 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 <div className="grid grid-cols-3 gap-3 mt-4">
                   <div className="text-center">
                     <div className="text-[26px] font-extrabold leading-none" style={{ color: score >= 70 ? '#059669' : score >= 40 ? '#d97706' : '#dc2626' }}>{score}</div>
-                    <div className="text-[11px] text-[#8a8a8a] mt-1">Indice 0–100</div>
+                    <div className="text-[12px] text-[#6b6b6b] mt-1">Indice 0–100</div>
                   </div>
                   <div className="text-center">
                     <div className="text-[26px] font-extrabold leading-none text-[#161616]">{pts}</div>
-                    <div className="text-[11px] text-[#8a8a8a] mt-1">Punti totali</div>
+                    <div className="text-[12px] text-[#6b6b6b] mt-1">Punti totali</div>
                   </div>
                   <div className="text-center">
                     <div className="text-[26px] font-extrabold leading-none text-[#161616]">{nt ? nt.remaining : '—'}</div>
-                    <div className="text-[11px] text-[#8a8a8a] mt-1">{nt ? `pt a ${nt.tier.label}` : 'Livello max'}</div>
+                    <div className="text-[12px] text-[#6b6b6b] mt-1">{nt ? `pt a ${nt.tier.label}` : 'Livello max'}</div>
                   </div>
                 </div>
                 {recent.length > 0 && (
                   <div className="mt-4 flex flex-col gap-1.5">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Ultime valutazioni</span>
+                    <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Ultime valutazioni</span>
                     {recent.map((e) => (
                       <div key={e.id} className="flex items-center justify-between gap-3 text-[12.5px] py-1 border-b border-[#f0f0f0] last:border-0">
                         <span className="truncate text-[#161616]">{e.label}</span>
@@ -811,7 +811,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
       <div className={`flex items-center justify-between px-6 py-3.5 ${portalStyle.headerBg} border-b ${portalStyle.headerBorder} sticky top-0 z-[45] transition-all`}>
         <div className="flex items-center gap-3">
           <span className={`font-extrabold text-[20px] tracking-tight ${portalStyle.headerText}`}>Aulico</span>
-          <span className={`hidden sm:inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-md tracking-wider border ${portalStyle.badgeBg}`}>
+          <span className={`hidden sm:inline-block px-2.5 py-0.5 text-[11px] font-bold uppercase rounded-md tracking-wider border ${portalStyle.badgeBg}`}>
             {portalStyle.portalLabel}
           </span>
         </div>
@@ -848,11 +848,11 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           <div className="bg-white border border-[#e5e5e5] rounded-[24px] p-4 shadow-xs">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 font-sans">
               <div>
-                <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest block">Dashboard di Simulazione Account</span>
+                <span className="text-[11px] font-black text-rose-600 uppercase tracking-widest block">Dashboard di Simulazione Account</span>
                 <h4 className="text-[14px] font-black text-[#1a1a1a] mt-0.5 flex items-center gap-1.5">
                   🕹️ Esplora i 4 Portali Attivi Onirico
                 </h4>
-                <p className="text-[#8a8a8a] text-[11px] font-semibold mt-0.5 leading-normal">
+                <p className="text-[#6b6b6b] text-[12px] font-semibold mt-0.5 leading-normal">
                   Fai clic per simulare istantaneamente il layout, i documenti e i flussi di lavoro visibili da quel corrispondente account cliente o partner:
                 </p>
               </div>
@@ -861,7 +861,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 <button
                   id="portal-btn-studio"
                   onClick={() => handlePortalSwitch('studio')}
-                  className={`text-[11px] font-extrabold px-3 py-1.5 rounded-xl transition-all cursor-pointer border flex items-center gap-1.5 ${
+                  className={`text-[12px] font-extrabold px-3 py-1.5 rounded-xl transition-all cursor-pointer border flex items-center gap-1.5 ${
                     activePortal === 'studio'
                       ? 'bg-zinc-950 text-white border-zinc-950 shadow-xs'
                       : 'bg-[#fafafa] text-zinc-600 hover:bg-zinc-100 border-gray-200'
@@ -873,7 +873,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 <button
                   id="portal-btn-strategico"
                   onClick={() => handlePortalSwitch('strategico')}
-                  className={`text-[11px] font-extrabold px-3 py-1.5 rounded-xl transition-all cursor-pointer border flex items-center gap-1.5 ${
+                  className={`text-[12px] font-extrabold px-3 py-1.5 rounded-xl transition-all cursor-pointer border flex items-center gap-1.5 ${
                     activePortal === 'strategico'
                       ? 'bg-zinc-950 text-white border-zinc-950 shadow-xs'
                       : 'bg-[#fafafa] text-zinc-600 hover:bg-zinc-100 border-gray-200'
@@ -885,7 +885,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 <button
                   id="portal-btn-materico-cliente"
                   onClick={() => handlePortalSwitch('materico_cliente')}
-                  className={`text-[11px] font-extrabold px-3 py-1.5 rounded-xl transition-all cursor-pointer border flex items-center gap-1.5 ${
+                  className={`text-[12px] font-extrabold px-3 py-1.5 rounded-xl transition-all cursor-pointer border flex items-center gap-1.5 ${
                     activePortal === 'materico_cliente'
                       ? 'bg-zinc-950 text-white border-zinc-950 shadow-xs'
                       : 'bg-[#fafafa] text-zinc-600 hover:bg-zinc-100 border-gray-200'
@@ -897,7 +897,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 <button
                   id="portal-btn-materico-partner"
                   onClick={() => handlePortalSwitch('materico_partner')}
-                  className={`text-[11px] font-extrabold px-3 py-1.5 rounded-xl transition-all cursor-pointer border flex items-center gap-1.5 ${
+                  className={`text-[12px] font-extrabold px-3 py-1.5 rounded-xl transition-all cursor-pointer border flex items-center gap-1.5 ${
                     activePortal === 'materico_partner'
                       ? 'bg-zinc-950 text-white border-zinc-950 shadow-xs'
                       : 'bg-[#fafafa] text-zinc-600 hover:bg-zinc-100 border-gray-200'
@@ -917,7 +917,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             <h1 className="text-[30px] md:text-[34px] font-extrabold tracking-tight text-[#161616] leading-tight font-sans">
               {t('home.greeting', { name: profile.name })}
             </h1>
-            <div className="text-[13.5px] text-[#8a8a8a] mt-1 font-semibold leading-relaxed">
+            <div className="text-[13.5px] text-[#6b6b6b] mt-1 font-semibold leading-relaxed">
               {activePortal === 'strategico' ? (
                 <span>{t('home.sub.strategico.a')}<span className="text-[#E2A93E] font-black">{p.name}</span>{t('home.sub.strategico.b')}</span>
               ) : activePortal === 'materico_cliente' ? (
@@ -1021,11 +1021,11 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
             const Tile: React.FC<{ icon: React.ComponentType<{ className?: string }>; label: string; sub?: string; badge?: number; onClick: () => void; accent?: string }> = ({ icon: Icon, label, sub, badge, onClick, accent = portalStyle.accentColor }) => (
               <button onClick={onClick} className="relative bg-white border border-[#e5e5e5] rounded-[20px] p-4 text-left cursor-pointer transition-all active:scale-[0.97] hover:border-[#161616] flex flex-col gap-2.5 min-h-[104px]">
-                {badge ? <span className="absolute top-3 right-3 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">{badge}</span> : null}
+                {badge ? <span className="absolute top-3 right-3 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[11px] font-bold flex items-center justify-center">{badge}</span> : null}
                 <span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: accent }}><Icon className="w-[18px] h-[18px] text-white" /></span>
                 <div className="min-w-0">
                   <div className="text-[13.5px] font-extrabold text-[#161616] leading-tight">{label}</div>
-                  {sub && <div className="text-[11px] text-[#8a8a8a] truncate mt-0.5">{sub}</div>}
+                  {sub && <div className="text-[12px] text-[#6b6b6b] truncate mt-0.5">{sub}</div>}
                 </div>
               </button>
             );
@@ -1042,9 +1042,9 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-[14px] font-extrabold text-[#161616]">Avanzamento progetti</div>
-                    <div className="text-[11.5px] text-[#8a8a8a] mt-0.5">{mine.length} progett{mine.length === 1 ? 'o' : 'i'} · apri</div>
+                    <div className="text-[11.5px] text-[#6b6b6b] mt-0.5">{mine.length} progett{mine.length === 1 ? 'o' : 'i'} · apri</div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#8a8a8a] shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-[#6b6b6b] shrink-0" />
                 </button>
 
                 {/* Griglia widget */}
@@ -1087,7 +1087,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               <div className="flex flex-col gap-3 animate-[riseIn_0.22s_ease_both]">
                 <h2 className="text-[20px] font-extrabold tracking-tight text-[#161616] px-1">I tuoi progetti</h2>
                 {mine.length === 0 ? (
-                  <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[20px] p-8 text-center text-[13px] text-[#8a8a8a]">Nessun progetto ancora collegato al tuo account.</div>
+                  <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[20px] p-8 text-center text-[13px] text-[#6b6b6b]">Nessun progetto ancora collegato al tuo account.</div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {mine.map((proj) => {
@@ -1097,9 +1097,9 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                         <div key={proj.id} className="bg-white rounded-[20px] p-4 border border-[#e5e5e5]">
                           <button onClick={() => enterProject(proj.id)} className="w-full text-left bg-transparent border-none p-0 cursor-pointer">
                             <b className="text-[15px] text-[#161616] truncate block">{proj.name}</b>
-                            <div className="text-[11.5px] text-[#8a8a8a] capitalize mt-0.5">{proj.status || 'attivo'}{proj.location ? ` · ${proj.location.split(',')[0]}` : ''}</div>
+                            <div className="text-[11.5px] text-[#6b6b6b] capitalize mt-0.5">{proj.status || 'attivo'}{proj.location ? ` · ${proj.location.split(',')[0]}` : ''}</div>
                             <div className="h-2 rounded-full bg-[#f0f0f0] overflow-hidden mt-2.5"><div className="h-full rounded-full transition-all" style={{ width: `${ppc}%`, background: portalStyle.accentColor }} /></div>
-                            <div className="text-[11px] text-[#8a8a8a] mt-1">{ppc}% avanzamento</div>
+                            <div className="text-[12px] text-[#6b6b6b] mt-1">{ppc}% avanzamento</div>
                           </button>
                           <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-[#f2f2f2]">
                             {projectMenu.map((tb) => { const Icon = tb.icon; return (
@@ -1160,7 +1160,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                       <h3 className="text-[15px] font-extrabold text-[#1a1a1a] mb-1 flex items-center gap-1.5 font-sans">
                         <Target className="w-4 h-4 text-[#E2A93E]" /> {t('demo.funnel.title')}
                       </h3>
-                      <p className="text-[#8a8a8a] text-[12px] mb-3.5 font-semibold">
+                      <p className="text-[#6b6b6b] text-[12px] mb-3.5 font-semibold">
                         {t('demo.funnel.sub')}
                       </p>
                     </div>
@@ -1178,7 +1178,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                         <span className="text-[12px] font-medium text-amber-100">{t('demo.funnel.s3')}</span>
                         <b className="text-[14px] font-black font-mono">{t('demo.funnel.s3v')}</b>
                       </div>
-                      <div className="text-[10px] text-gray-400 font-bold border-t border-amber-100/30 pt-2 flex items-center justify-between">
+                      <div className="text-[11px] text-gray-400 font-bold border-t border-amber-100/30 pt-2 flex items-center justify-between">
                         <span>{t('demo.funnel.cpc')}</span>
                         <span>{t('demo.funnel.roi')}</span>
                       </div>
@@ -1190,7 +1190,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                       <h3 className="text-[15px] font-extrabold text-[#1a1a1a] mb-1 flex items-center gap-1.5 font-sans">
                         <Sparkle className="w-4 h-4 text-[#C87A53]" /> {t('demo.palette.title')}
                       </h3>
-                      <p className="text-[#8a8a8a] text-[12px] mb-3.5 font-semibold">
+                      <p className="text-[#6b6b6b] text-[12px] mb-3.5 font-semibold">
                         {t('demo.palette.sub')}
                       </p>
                     </div>
@@ -1205,9 +1205,9 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                         <div key={idx} className="bg-[#FAF8F5] border border-orange-100/80 p-3 rounded-2xl flex flex-col justify-between shadow-[0_1px_2px_rgba(0,0,0,0.02)] gap-2">
                           <div className="flex items-center gap-2">
                             <span className="w-5 h-5 rounded-full shadow-inner border border-zinc-200" style={{ backgroundColor: mat.code }} />
-                            <b className="text-[11px] font-extrabold text-zinc-900 truncate">{mat.name}</b>
+                            <b className="text-[12px] font-extrabold text-zinc-900 truncate">{mat.name}</b>
                           </div>
-                          <span className="text-[9.5px] text-[#C87A53] font-bold block">{mat.desc}</span>
+                          <span className="text-[10.5px] text-[#C87A53] font-bold block">{mat.desc}</span>
                           <span className="text-[8px] bg-amber-50 text-amber-800 self-start border border-amber-100 font-extrabold tracking-wider px-1 rounded uppercase">
                             {t('demo.matstatus.' + mat.status)}
                           </span>
@@ -1221,7 +1221,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                       <h3 className="text-[15px] font-extrabold text-[#1a1a1a] mb-1 flex items-center gap-1.5 font-sans">
                         <Briefcase className="w-4 h-4 text-slate-500" /> {t('demo.b2b.title')}
                       </h3>
-                      <p className="text-[#8a8a8a] text-[12px] mb-3.5 font-semibold">
+                      <p className="text-[#6b6b6b] text-[12px] mb-3.5 font-semibold">
                         {t('demo.b2b.sub')}
                       </p>
                     </div>
@@ -1233,9 +1233,9 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                         { name: t('demo.b2b.lot3'), qty: '1 conf', status: t('demo.b2b.lot3s'), pct: 100 }
                       ].map((lot, idx) => (
                         <div key={idx} className="bg-slate-50 p-3 border border-slate-200/80 rounded-2xl shadow-2xs">
-                          <div className="flex justify-between items-center text-[11px] mb-1">
+                          <div className="flex justify-between items-center text-[12px] mb-1">
                             <span className="font-extrabold text-slate-800">{lot.name}</span>
-                            <span className="text-slate-500 text-[10px] font-mono">{lot.status}</span>
+                            <span className="text-slate-500 text-[11px] font-mono">{lot.status}</span>
                           </div>
                           <div className="w-full bg-slate-200 rounded-full h-1">
                             <div className="bg-slate-600 h-1 rounded-full" style={{ width: `${lot.pct}%` }} />
@@ -1250,7 +1250,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                       <h3 className="text-[15px] font-extrabold text-[#161616] mb-1 flex items-center gap-1.5 font-sans">
                         <Sparkles className="w-4 h-4 text-amber-500" /> {t('demo.cantiere3d.title')}
                       </h3>
-                      <p className="text-[#8a8a8a] text-[12px] mb-3.5 font-semibold">
+                      <p className="text-[#6b6b6b] text-[12px] mb-3.5 font-semibold">
                         {t('demo.cantiere3d.sub')}
                       </p>
                     </div>
@@ -1269,13 +1269,13 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                   <div className="flex justify-between items-center bg-white border border-[#e2e2e2] rounded-[26px] p-4 shadow-sm">
                     <div className="text-left">
                       <h3 className="text-[15px] font-extrabold text-[#161616] flex items-center gap-1.5 font-sans">
-                        <ClipboardList className="w-4 h-4 text-[#8a8a8a]" /> {t('work.title')}
+                        <ClipboardList className="w-4 h-4 text-[#6b6b6b]" /> {t('work.title')}
                       </h3>
-                      <p className="text-[#8a8a8a] text-[12px] mt-0.5 font-semibold">
+                      <p className="text-[#6b6b6b] text-[12px] mt-0.5 font-semibold">
                         {t('work.sub')}
                       </p>
                     </div>
-                    <span className="text-[11px] bg-[#fafafa] border border-[#e2e2e2] text-[#161616] font-bold px-3 py-1.5 rounded-xl whitespace-nowrap">
+                    <span className="text-[12px] bg-[#fafafa] border border-[#e2e2e2] text-[#161616] font-bold px-3 py-1.5 rounded-xl whitespace-nowrap">
                       {t('work.completedOf', { done, tot })}
                     </span>
                   </div>
@@ -1309,15 +1309,15 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                               <div className="min-w-0 text-left">
                                 <b className="block text-[14px] font-extrabold text-[#161616] leading-tight truncate">{ph.name}</b>
                                 <div className="flex items-center gap-2 mt-1">
-                                  <span className={`px-2 py-0.5 rounded border text-[9px] font-extrabold uppercase tracking-wide ${phBadgeColor}`}>
+                                  <span className={`px-2 py-0.5 rounded border text-[10px] font-extrabold uppercase tracking-wide ${phBadgeColor}`}>
                                     {phStatus === 'completato' ? t('work.phaseCompleted') : phStatus === 'in_corso' ? t('status.inCorso') : t('work.phaseTodo')}
                                   </span>
-                                  <span className="text-[12.5px] text-[#8a8a8a] font-semibold">{completedCount}/{totalCount} {t('work.tasksWord')}</span>
+                                  <span className="text-[12.5px] text-[#6b6b6b] font-semibold">{completedCount}/{totalCount} {t('work.tasksWord')}</span>
                                 </div>
                               </div>
                             </div>
 
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" className={`w-3.5 h-3.5 text-[#8a8a8a] transition-all flex-shrink-0 ${isOpen ? 'transform rotate-180 text-gray-950' : ''}`}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" className={`w-3.5 h-3.5 text-[#6b6b6b] transition-all flex-shrink-0 ${isOpen ? 'transform rotate-180 text-gray-950' : ''}`}>
                               <polyline points="6 9 12 15 18 9" />
                             </svg>
                           </div>
@@ -1353,7 +1353,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                                               </svg>
                                             )}
                                           </span>
-                                          <b className={`text-[13.5px] font-semibold text-[#161616] text-left ${t.done ? 'line-through text-[#8a8a8a]' : ''}`}>
+                                          <b className={`text-[13.5px] font-semibold text-[#161616] text-left ${t.done ? 'line-through text-[#6b6b6b]' : ''}`}>
                                             {t.title}
                                           </b>
                                         </div>
@@ -1361,7 +1361,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                                       </div>
                                     ))
                                   ) : (
-                                    <p className="text-[12px] text-[#8a8a8a] italic py-2 text-center">{t('work.emptyPhase')}</p>
+                                    <p className="text-[12px] text-[#6b6b6b] italic py-2 text-center">{t('work.emptyPhase')}</p>
                                   )}
                                 </div>
                               </motion.div>
@@ -1381,15 +1381,15 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               {/* General Project Metadata - Real estate data box */}
               <div className="bg-white border border-[#e2e2e2] rounded-[26px] overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100">
                 <div className="p-5 flex flex-col justify-center">
-                  <div className="text-[10px] uppercase font-bold text-[#8a8a8a] tracking-wider">{t('docs.address')}</div>
+                  <div className="text-[11px] uppercase font-bold text-[#6b6b6b] tracking-wider">{t('docs.address')}</div>
                   <b className="block text-[13.5px] mt-1 text-[#161616] truncate" title={p.indirizzoImmobile || p.location || '—'}>{p.indirizzoImmobile || p.location || '—'}</b>
                 </div>
                 <div className="p-5 flex flex-col justify-center">
-                  <div className="text-[10px] uppercase font-bold text-[#8a8a8a] tracking-wider">{t('docs.interventionType')}</div>
+                  <div className="text-[11px] uppercase font-bold text-[#6b6b6b] tracking-wider">{t('docs.interventionType')}</div>
                   <b className="block text-[13.5px] mt-1 text-[#161616] truncate">{p.tipoIntervento || p.templateName || '—'}</b>
                 </div>
                 <div className="p-5 flex flex-col justify-center">
-                  <div className="text-[10px] uppercase font-bold text-[#8a8a8a] tracking-wider">{t('docs.cadastral')}</div>
+                  <div className="text-[11px] uppercase font-bold text-[#6b6b6b] tracking-wider">{t('docs.cadastral')}</div>
                   <b className="block text-[13.5px] mt-1 text-[#161616]">{p.foglio ? `${p.foglio} / ${p.particella} / ${p.sub || '—'}` : '—'}</b>
                 </div>
               </div>
@@ -1417,7 +1417,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                     <div className="flex justify-between items-center mb-4">
                       <div>
                         <h3 className="text-[16px] font-extrabold text-[#161616]">{t('docs.title')}</h3>
-                        <p className="text-[12px] text-[#8a8a8a]">{t('docs.sub')}</p>
+                        <p className="text-[12px] text-[#6b6b6b]">{t('docs.sub')}</p>
                       </div>
                       {!isPreview && (
                         <label className="bg-[#1b1b1b] hover:bg-black text-white text-[12px] font-bold py-1.5 px-3.5 rounded-xl flex items-center gap-1 cursor-pointer transition-all active:scale-95 border-none">
@@ -1428,7 +1428,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                     </div>
 
                     {uploading && (
-                      <div className="text-center text-[12px] text-[#8a8a8a] py-2.5 flex items-center gap-1.5 justify-center bg-[#fafafa] border border-[#e2e2e2] rounded-xl mb-2 animate-pulse">
+                      <div className="text-center text-[12px] text-[#6b6b6b] py-2.5 flex items-center gap-1.5 justify-center bg-[#fafafa] border border-[#e2e2e2] rounded-xl mb-2 animate-pulse">
                         <Loader2 className="w-4 h-4 animate-spin text-[#161616]" /> {t('docs.uploading')}
                       </div>
                     )}
@@ -1439,7 +1439,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                           <div key={d.id} className="flex items-center justify-between p-3 bg-[#fafafa] border border-[#ececec] rounded-xl text-[13px] group hover:bg-gray-100/50 transition-all duration-150">
                             <div className="min-w-0 flex-1 pr-2">
                               <span className="block font-bold text-[#161616] truncate" title={d.name}>{d.name}</span>
-                              <span className="text-[10px] text-[#8a8a8a] font-bold uppercase">{d.size ? Math.round(d.size / 1024) + ' KB' : '—'}</span>
+                              <span className="text-[11px] text-[#6b6b6b] font-bold uppercase">{d.size ? Math.round(d.size / 1024) + ' KB' : '—'}</span>
                             </div>
                             <div className="dw-container flex-shrink-0">
                               <label className="dw-label" title={t('chat.docDownload')}>
@@ -1472,7 +1472,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                           </div>
                         ))
                       ) : (
-                        <p className="text-[12.5px] text-[#8a8a8a] text-center italic py-8 bg-[#fafafa] rounded-xl border border-dashed border-[#e2e2e2]">
+                        <p className="text-[12.5px] text-[#6b6b6b] text-center italic py-8 bg-[#fafafa] rounded-xl border border-dashed border-[#e2e2e2]">
                           {t('chat.noDocs')}
                         </p>
                       )}
@@ -1485,7 +1485,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="text-[16px] font-extrabold text-[#161616]">{t('chat.title')}</h3>
-                      <p className="text-[12px] text-[#8a8a8a] mb-3.5">{t('chat.sub')}</p>
+                      <p className="text-[12px] text-[#6b6b6b] mb-3.5">{t('chat.sub')}</p>
                     </div>
                     {!isPreview && onRequestAppointment && studioMembers && studioMembers.length > 0 && (
                       <button
@@ -1511,7 +1511,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                             }`}>
                               {m.text}
                             </div>
-                            <span className="inline-flex items-center gap-1 text-[9.5px] font-bold text-[#8a8a8a] mt-1 px-1">
+                            <span className="inline-flex items-center gap-1 text-[10.5px] font-bold text-[#6b6b6b] mt-1 px-1">
                               {m.name}
                               {m.from === profile.uid && onDeleteMessage && (
                                 <ChatDeleteButton at={m.at || 0} onDelete={() => onDeleteMessage(p.id, m.id)} />
@@ -1522,7 +1522,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                       })
                     ) : (
                       <div className="my-auto py-10 flex flex-col items-center text-center">
-                        <p className="text-[12.5px] text-[#8a8a8a] italic">{t('chat.empty')}</p>
+                        <p className="text-[12.5px] text-[#6b6b6b] italic">{t('chat.empty')}</p>
                       </div>
                     )}
                   </div>
@@ -1544,7 +1544,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                       </button>
                     </div>
                   ) : (
-                    <p className="text-[11.5px] text-[#8a8a8a] mt-3 italic text-center flex-shrink-0">{t('chat.previewDisabled')}</p>
+                    <p className="text-[11.5px] text-[#6b6b6b] mt-3 italic text-center flex-shrink-0">{t('chat.previewDisabled')}</p>
                   )}
                 </div>
               </div>
@@ -1561,7 +1561,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                        <ClipboardList className="w-4 h-4 text-slate-600" />
                        {t('b2b.commesseTitle')}
                     </h3>
-                    <p className="text-[12.5px] text-[#8a8a8a] mt-1 pr-6 leading-relaxed font-semibold">
+                    <p className="text-[12.5px] text-[#6b6b6b] mt-1 pr-6 leading-relaxed font-semibold">
                       {t('b2b.commesseDesc.a')}<b className="text-zinc-900">{p.name}</b>{t('b2b.commesseDesc.b')}
                     </p>
                   </div>
@@ -1584,14 +1584,14 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                         <div key={est.id} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex flex-col gap-4">
                           <div className="flex justify-between items-start flex-wrap gap-2">
                             <div>
-                              <span className="bg-slate-100 text-slate-700 text-[10px] font-mono font-bold px-2.5 py-1 rounded-md uppercase">
+                              <span className="bg-slate-100 text-slate-700 text-[11px] font-mono font-bold px-2.5 py-1 rounded-md uppercase">
                                 {t('b2b.lotId')}{est.id.slice(0, 5).toUpperCase()}
                               </span>
                               <h4 className="text-[15.5px] font-extrabold text-[#111] mt-2">{est.itemName}</h4>
                               <p className="text-[12.5px] text-[#555] mt-1">{est.itemDescription}</p>
                             </div>
                             
-                            <span className={`text-[10px] font-mono tracking-wider font-extrabold px-3 py-1 rounded-full uppercase border ${
+                            <span className={`text-[11px] font-mono tracking-wider font-extrabold px-3 py-1 rounded-full uppercase border ${
                               est.status === 'accettato' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                               est.status === 'rifiutato' ? 'bg-rose-50 text-rose-700 border-rose-200' :
                               est.status === 'preventivato_partner' ? 'bg-slate-100 text-slate-700 border-slate-300' :
@@ -1607,7 +1607,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
                             <div>
-                              <label className="text-[10.5px] font-black text-gray-400 uppercase tracking-widest block mb-1.5">{t('b2b.notesLabel')}</label>
+                              <label className="text-[11.5px] font-black text-gray-400 uppercase tracking-widest block mb-1.5">{t('b2b.notesLabel')}</label>
                               <textarea
                                 value={currentNotes}
                                 onChange={(e) => setB2bNotesInputs(prev => ({ ...prev, [est.id]: e.target.value }))}
@@ -1618,7 +1618,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
                             <div className="flex flex-col justify-between">
                               <div>
-                                <label className="text-[10.5px] font-black text-gray-400 uppercase tracking-widest block mb-1">{t('b2b.costLabel')}</label>
+                                <label className="text-[11.5px] font-black text-gray-400 uppercase tracking-widest block mb-1">{t('b2b.costLabel')}</label>
                                 <div className="relative">
                                   <span className="absolute left-3 top-2 text-xs font-bold text-gray-400">€</span>
                                   <input
@@ -1631,7 +1631,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                                 </div>
                               </div>
 
-                              <div className="bg-slate-50/80 border border-slate-150 p-2 text-[11px] rounded-xl font-sans text-gray-500 mt-2 flex justify-between items-center">
+                              <div className="bg-slate-50/80 border border-slate-150 p-2 text-[12px] rounded-xl font-sans text-gray-500 mt-2 flex justify-between items-center">
                                 <span>{t('b2b.clientPrice', { pct: markupPct })}</span>
                                 <b className="font-mono text-zinc-950 font-black">{eur(calculatedClientPrice)}</b>
                               </div>
@@ -1671,7 +1671,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                   <MessageSquare className="w-4 h-4 text-slate-500" />
                   <h3 className="text-[16px] font-extrabold text-[#1a1a1a]">{t('b2b.chatTitle')}</h3>
                 </div>
-                <p className="text-[12.5px] text-[#8a8a8a] mb-4 leading-relaxed">
+                <p className="text-[12.5px] text-[#6b6b6b] mb-4 leading-relaxed">
                   {t('b2b.chatDesc')}
                 </p>
 
@@ -1680,7 +1680,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                     const isSelf = m.sender.startsWith("Vincenzo") || m.sender.includes("(Partner)");
                     return (
                       <div key={m.id} className={`flex flex-col max-w-[80%] ${isSelf ? 'self-end bg-[#161616] text-white rounded-l-2xl rounded-tr-2xl' : 'self-start bg-white text-zinc-950 rounded-r-2xl rounded-tl-2xl border border-gray-200'} p-3 shadow-xs`}>
-                        <span className={`text-[9.5px] ${isSelf ? 'text-slate-300' : 'text-slate-500'} font-bold`}>{m.sender}</span>
+                        <span className={`text-[10.5px] ${isSelf ? 'text-slate-300' : 'text-slate-500'} font-bold`}>{m.sender}</span>
                         <p className="text-[12.5px] mt-1 font-semibold leading-relaxed">{m.text}</p>
                         <span className={`text-[8px] ${isSelf ? 'text-slate-400' : 'text-gray-450'} mt-1 self-end font-mono`}>{m.time}</span>
                       </div>
@@ -1735,35 +1735,35 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-white border border-[#ececec] rounded-2xl p-4.5">
                   <div className="flex justify-between items-start">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8a8a8a] uppercase font-bold">{t('mkt.kpi.budget')}</span>
+                    <span className="text-[11px] font-mono tracking-widest text-[#6b6b6b] uppercase font-bold">{t('mkt.kpi.budget')}</span>
                     <DollarSign className="w-3.5 h-3.5 text-[#161616]" />
                   </div>
                   <p className="text-[20px] font-extrabold text-[#161616] mt-2">{t('mkt.kpi.budgetVal')}</p>
-                  <p className="text-[11px] text-[#8a8a8a] mt-0.5 font-sans">{t('mkt.kpi.budgetSub')}</p>
+                  <p className="text-[12px] text-[#6b6b6b] mt-0.5 font-sans">{t('mkt.kpi.budgetSub')}</p>
                 </div>
                 <div className="bg-white border border-[#ececec] rounded-2xl p-4.5">
                   <div className="flex justify-between items-start">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8a8a8a] uppercase font-bold">{t('mkt.kpi.spent')}</span>
+                    <span className="text-[11px] font-mono tracking-widest text-[#6b6b6b] uppercase font-bold">{t('mkt.kpi.spent')}</span>
                     <TrendingUp className="w-3.5 h-3.5 text-green-500" />
                   </div>
                   <p className="text-[20px] font-extrabold text-[#161616] mt-2">{t('mkt.kpi.spentVal')}</p>
-                  <p className="text-[11px] text-green-600 font-semibold mt-0.5 font-sans">{t('mkt.kpi.spentSub')}</p>
+                  <p className="text-[12px] text-green-600 font-semibold mt-0.5 font-sans">{t('mkt.kpi.spentSub')}</p>
                 </div>
                 <div className="bg-white border border-[#ececec] rounded-2xl p-4.5">
                   <div className="flex justify-between items-start">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8a8a8a] uppercase font-bold">Click-Through Rate</span>
+                    <span className="text-[11px] font-mono tracking-widest text-[#6b6b6b] uppercase font-bold">Click-Through Rate</span>
                     <Target className="w-3.5 h-3.5 text-blue-500" />
                   </div>
                   <p className="text-[20px] font-extrabold text-[#161616] mt-2">3.82%</p>
-                  <p className="text-[11px] text-blue-600 font-semibold mt-0.5 font-sans">{t('mkt.kpi.ctrSub')}</p>
+                  <p className="text-[12px] text-blue-600 font-semibold mt-0.5 font-sans">{t('mkt.kpi.ctrSub')}</p>
                 </div>
                 <div className="bg-white border border-[#ececec] rounded-2xl p-4.5">
                   <div className="flex justify-between items-start">
-                    <span className="text-[10px] font-mono tracking-widest text-[#8a8a8a] uppercase font-bold">{t('mkt.kpi.cpa')}</span>
+                    <span className="text-[11px] font-mono tracking-widest text-[#6b6b6b] uppercase font-bold">{t('mkt.kpi.cpa')}</span>
                     <Smartphone className="w-3.5 h-3.5 text-[#161616]" />
                   </div>
                   <p className="text-[20px] font-extrabold text-[#161616] mt-2">{t('mkt.kpi.cpaVal')}</p>
-                  <p className="text-[11px] text-[#8a8a8a] mt-0.5 font-sans">{t('mkt.kpi.cpaSub')}</p>
+                  <p className="text-[12px] text-[#6b6b6b] mt-0.5 font-sans">{t('mkt.kpi.cpaSub')}</p>
                 </div>
               </div>
 
@@ -1776,7 +1776,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                       <Sparkles className="w-4 h-4 text-amber-500" />
                       <h3 className="text-[16px] font-extrabold text-[#1a1a1a]">Social Feed & Campaign Approval Hub</h3>
                     </div>
-                    <p className="text-[12.5px] text-[#8a8a8a] mb-5 leading-relaxed font-sans">
+                    <p className="text-[12.5px] text-[#6b6b6b] mb-5 leading-relaxed font-sans">
                       {t('mkt.hub.sub')}
                     </p>
 
@@ -1812,15 +1812,15 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                           <div key={post.id} className="border border-[#ececec] rounded-2xl p-4 flex flex-col md:flex-row gap-4 hover:shadow-xs transition-shadow">
                             <div className="w-full md:w-[130px] h-[130px] rounded-xl overflow-hidden bg-[#fafafa] flex-shrink-0 relative border border-[#f0f0f0]">
                               <img src={post.src} alt={post.title} loading="lazy" decoding="async" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                              <span className="absolute bottom-1.5 left-1.5 bg-black/75 text-white text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md uppercase tracking-tight">
+                              <span className="absolute bottom-1.5 left-1.5 bg-black/75 text-white text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md uppercase tracking-tight">
                                 {post.type}
                               </span>
                             </div>
                             <div className="flex-1 flex flex-col justify-between text-left">
                               <div>
                                 <div className="flex items-center gap-1.5 flex-wrap">
-                                  <span className="text-[10px] font-mono text-[#8a8a8a]">{post.length}</span>
-                                  <span className={`text-[10px] uppercase font-bold py-0.5 px-2 rounded-full ${
+                                  <span className="text-[11px] font-mono text-[#6b6b6b]">{post.length}</span>
+                                  <span className={`text-[11px] uppercase font-bold py-0.5 px-2 rounded-full ${
                                     approved 
                                       ? 'bg-green-50 text-green-600 border border-green-200' 
                                       : 'bg-amber-50 text-amber-600 border border-amber-200'
@@ -1845,7 +1845,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                                       onClick={() => {
                                         setApprovedMarketingPosts(prev => ({ ...prev, [post.id]: true }));
                                       }}
-                                      className="bg-[#161616] hover:bg-black text-white text-[11px] font-bold py-1.5 px-3 rounded-lg border-none cursor-pointer flex items-center gap-1 transition-all active:scale-95"
+                                      className="bg-[#161616] hover:bg-black text-white text-[12px] font-bold py-1.5 px-3 rounded-lg border-none cursor-pointer flex items-center gap-1 transition-all active:scale-95"
                                     >
                                       {t('mkt.post.approveBtn')}
                                     </button>
@@ -1866,25 +1866,25 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                     <h3 className="text-[14.5px] font-extrabold text-[#1a1a1a] mb-2 font-sans">{t('mkt.side.title')}</h3>
                     <div className="flex flex-col gap-3">
                       <div>
-                        <span className="text-[10px] font-mono text-[#8a8a8a] uppercase block">{t('mkt.side.campaignName')}</span>
+                        <span className="text-[11px] font-mono text-[#6b6b6b] uppercase block">{t('mkt.side.campaignName')}</span>
                         <b className="text-[12.5px] text-[#161616] block mt-0.5">ONIRICO-WEB-SUMMER-2026</b>
                       </div>
                       <div>
-                        <span className="text-[10px] font-mono text-[#8a8a8a] uppercase block">Geotargeting</span>
+                        <span className="text-[11px] font-mono text-[#6b6b6b] uppercase block">Geotargeting</span>
                         <b className="text-[12.5px] text-[#161616] block mt-0.5">{t('mkt.side.geoVal')}</b>
                       </div>
                       <div>
-                        <span className="text-[10px] font-mono text-[#8a8a8a] uppercase block">{t('mkt.side.channels')}</span>
+                        <span className="text-[11px] font-mono text-[#6b6b6b] uppercase block">{t('mkt.side.channels')}</span>
                         <div className="flex flex-wrap gap-1.5 mt-1">
-                          <span className="bg-[#fafafa] border border-[#e2e2e2] text-[#161616] text-[10.5px] font-semibold py-0.5 px-2 rounded-lg">Instagram Feed</span>
-                          <span className="bg-[#fafafa] border border-[#e2e2e2] text-[#161616] text-[10.5px] font-semibold py-0.5 px-2 rounded-lg">Facebook Ads</span>
-                          <span className="bg-[#fafafa] border border-[#e2e2e2] text-[#161616] text-[10.5px] font-semibold py-0.5 px-2 rounded-lg">Google Location Search</span>
+                          <span className="bg-[#fafafa] border border-[#e2e2e2] text-[#161616] text-[11.5px] font-semibold py-0.5 px-2 rounded-lg">Instagram Feed</span>
+                          <span className="bg-[#fafafa] border border-[#e2e2e2] text-[#161616] text-[11.5px] font-semibold py-0.5 px-2 rounded-lg">Facebook Ads</span>
+                          <span className="bg-[#fafafa] border border-[#e2e2e2] text-[#161616] text-[11.5px] font-semibold py-0.5 px-2 rounded-lg">Google Location Search</span>
                         </div>
                       </div>
                       <div className="border-t border-[#f5f5f5] pt-3">
-                        <span className="text-[10px] font-mono text-[#8a8a8a] uppercase block">{t('mkt.side.ref')}</span>
+                        <span className="text-[11px] font-mono text-[#6b6b6b] uppercase block">{t('mkt.side.ref')}</span>
                         <b className="text-[12.5px] text-[#161616] block mt-0.5">Arch. Mario Bianchi (Brand Director & Strategist)</b>
-                        <p className="text-[11px] text-gray-400 mt-1 font-sans">{t('mkt.side.refNote')}</p>
+                        <p className="text-[12px] text-gray-400 mt-1 font-sans">{t('mkt.side.refNote')}</p>
                       </div>
                     </div>
                   </div>
@@ -1904,16 +1904,16 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                        <ClipboardList className="w-4 h-4 text-emerald-500" />
                        {t('prev.title')}
                     </h3>
-                    <p className="text-[12.5px] text-[#8a8a8a] mt-1 pr-6 leading-relaxed font-sans">
+                    <p className="text-[12.5px] text-[#6b6b6b] mt-1 pr-6 leading-relaxed font-sans">
                       {t('prev.desc')}
                     </p>
                   </div>
                   <div className="bg-[#fafafa] border border-[#e2e2e2] rounded-2xl p-4 flex flex-col min-w-[200px] text-center">
-                    <span className="text-[9px] font-mono text-gray-400 uppercase tracking-widest block font-bold">{t('prev.totalApproved')}</span>
+                    <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest block font-bold">{t('prev.totalApproved')}</span>
                     <b className="text-[20px] font-mono font-extrabold text-emerald-600 mt-1">
                       {eur(projEstimates.filter(x => x.status === 'accettato').reduce((acc, cr) => acc + cr.finalPrice, 0))}
                     </b>
-                    <span className="text-[10px] text-gray-400 mt-0.5">
+                    <span className="text-[11px] text-gray-400 mt-0.5">
                       {t('prev.confirmedCount', { n: projEstimates.filter(x => x.status === 'accettato').length })}
                     </span>
                   </div>
@@ -1925,7 +1925,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                       <ClipboardList className="w-5 h-5" />
                     </div>
                     <b className="text-[#161616] text-[15px] font-extrabold block">{t('prev.empty')}</b>
-                    <p className="text-[13px] text-[#8a8a8a] mt-1 max-w-[400px] mx-auto leading-relaxed font-sans">
+                    <p className="text-[13px] text-[#6b6b6b] mt-1 max-w-[400px] mx-auto leading-relaxed font-sans">
                       {t('prev.emptyDesc')}
                     </p>
                   </div>
@@ -1936,11 +1936,11 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                         <div key={est.id} className="bg-white border border-[#ececec] rounded-2xl p-5 flex flex-col md:flex-row gap-5 items-start justify-between hover:shadow-xs transition-shadow">
                           <div className="flex-1 text-left">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="bg-[#f0f0f0] text-gray-700 text-[10px] font-mono py-0.5 px-2 rounded-md font-bold uppercase">
+                              <span className="bg-[#f0f0f0] text-gray-700 text-[11px] font-mono py-0.5 px-2 rounded-md font-bold uppercase">
                                 {t('prev.supplierPartner', { name: est.partnerName })}
                               </span>
                               
-                              <span className={`text-[10px] font-bold uppercase py-0.5 px-2 rounded-md ${
+                              <span className={`text-[11px] font-bold uppercase py-0.5 px-2 rounded-md ${
                                 est.status === 'accettato' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : ''
                               } ${
                                 est.status === 'rifiutato' ? 'bg-rose-50 text-rose-600 border border-rose-200' : ''
@@ -1965,7 +1965,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                             )}
 
                             {est.notes && (
-                              <p className="text-[11.5px] text-[#8a8a8a] mt-1.5 leading-relaxed font-sans">
+                              <p className="text-[11.5px] text-[#6b6b6b] mt-1.5 leading-relaxed font-sans">
                                 <span className="font-bold text-[#161616]">{t('prev.dlNotes')}</span> {est.notes}
                               </p>
                             )}
@@ -1973,11 +1973,11 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
                           <div className="flex flex-col items-end gap-3 min-w-[210px] w-full md:w-auto border-t md:border-t-0 border-[#f5f5f5] pt-3 md:pt-0">
                             <div className="text-right flex flex-col md:items-end w-full">
-                              <span className="text-[9px] font-mono text-[#8a8a8a] uppercase block tracking-wider font-semibold">{t('prev.finalPrice')}</span>
+                              <span className="text-[10px] font-mono text-[#6b6b6b] uppercase block tracking-wider font-semibold">{t('prev.finalPrice')}</span>
                               <b className="text-[20px] font-mono font-extrabold text-[#161616] block mt-0.5">
                                 {eur(est.finalPrice)}
                               </b>
-                              <span className="text-[10px] text-[#8a8a8a] block mt-0.5 font-mono">
+                              <span className="text-[11px] text-[#6b6b6b] block mt-0.5 font-mono">
                                 {t('prev.base', { base: eur(est.basePrice), pct: est.markupPercent })}
                               </span>
                             </div>
@@ -2121,7 +2121,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                     <DollarSign className="w-4 h-4 text-emerald-600" />
                     {t('fin.title')}
                   </h3>
-                  <p className="text-[12.5px] text-[#8a8a8a] leading-relaxed">
+                  <p className="text-[12.5px] text-[#6b6b6b] leading-relaxed">
                     {t('fin.desc.a')}<b className="text-[#161616]">{p.name}</b>{t('fin.desc.b')}
                   </p>
                 </div>
@@ -2132,24 +2132,24 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                     <b className="text-[14px] font-black text-[#161616] block mb-3">{t('fin.quadro')}</b>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <div className="bg-stone-50/60 border border-stone-200 rounded-xl p-3">
-                        <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">{t('fin.computo')}</span>
+                        <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">{t('fin.computo')}</span>
                         <b className="text-[14px] font-black text-[#1a1a1a]">{eur(econ?.computoTotal || 0)}</b>
                       </div>
                       <div className="bg-stone-50/60 border border-stone-200 rounded-xl p-3">
-                        <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">{t('fin.arrediFissi')}</span>
+                        <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">{t('fin.arrediFissi')}</span>
                         <b className="text-[14px] font-black text-[#1a1a1a]">{eur(econ?.arrediFissi || 0)}</b>
                       </div>
                       <div className="bg-stone-50/60 border border-stone-200 rounded-xl p-3">
-                        <span className="text-[9.5px] uppercase font-black text-stone-400 tracking-wider block">{t('fin.arrediMobili')}</span>
+                        <span className="text-[10.5px] uppercase font-black text-stone-500 tracking-wider block">{t('fin.arrediMobili')}</span>
                         <b className="text-[14px] font-black text-[#1a1a1a]">{eur(econ?.arrediMobili || 0)}</b>
                       </div>
                       <div className="bg-indigo-50/60 border border-indigo-200 rounded-xl p-3">
-                        <span className="text-[9.5px] uppercase font-black text-indigo-700 tracking-wider block">{t('fin.onorari', { pct: Math.round((parc.feePct || 0.15) * 100) })}</span>
+                        <span className="text-[10.5px] uppercase font-black text-indigo-700 tracking-wider block">{t('fin.onorari', { pct: Math.round((parc.feePct || 0.15) * 100) })}</span>
                         <b className="text-[14px] font-black text-indigo-800">{eur(parc.onorari || 0)}</b>
                       </div>
                     </div>
                     <div className="flex items-center justify-between mt-3 bg-[#1b1b1b] text-white rounded-xl px-4 py-3">
-                      <span className="text-[11px] uppercase font-black tracking-wider text-stone-300">
+                      <span className="text-[12px] uppercase font-black tracking-wider text-stone-300">
                         {t('fin.totaleParcella')}{parc.managesMobili ? t('fin.inclMobili', { pct: Math.round((parc.mobiliFeePct || 0.2) * 100) }) : ''}
                       </span>
                       <b className="text-[18px] font-black text-green-400">{eur(parc.totaleParcella || 0)}</b>
@@ -2160,21 +2160,21 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 {/* KPI Boxes */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-white border border-[#e5e5e5] rounded-2xl p-5 shadow-xs">
-                    <span className="text-[10px] uppercase font-bold text-[#8a8a8a] tracking-wider block">{t('fin.fatturato')}</span>
+                    <span className="text-[11px] uppercase font-bold text-[#6b6b6b] tracking-wider block">{t('fin.fatturato')}</span>
                     <b className="text-[20px] font-black mt-1 block text-stone-800">{eur(totalInvoiced)}</b>
-                    <span className="text-[11px] text-stone-500 mt-1 block">{t('fin.fattureEmesse', { n: projInvoices.length })}</span>
+                    <span className="text-[12px] text-stone-500 mt-1 block">{t('fin.fattureEmesse', { n: projInvoices.length })}</span>
                   </div>
 
                   <div className="bg-emerald-50/20 border border-emerald-100 rounded-2xl p-5 shadow-xs">
-                    <span className="text-[10px] uppercase font-bold text-emerald-800 tracking-wider block">{t('fin.ricevuto')}</span>
+                    <span className="text-[11px] uppercase font-bold text-emerald-800 tracking-wider block">{t('fin.ricevuto')}</span>
                     <b className="text-[20px] font-black mt-1 block text-emerald-700">{eur(paidInvoices)}</b>
-                    <span className="text-[11px] text-emerald-600 mt-1 block">{t('fin.giaSaldati')}</span>
+                    <span className="text-[12px] text-emerald-600 mt-1 block">{t('fin.giaSaldati')}</span>
                   </div>
 
                   <div className={`rounded-2xl p-5 border shadow-xs ${pendingInvoices > 0 ? 'bg-amber-50/10 border-amber-200' : 'bg-white border-[#e5e5e5]'}`}>
-                    <span className="text-[10px] uppercase font-bold text-[#8a8a8a] tracking-wider block">{t('fin.inAttesaSaldo')}</span>
+                    <span className="text-[11px] uppercase font-bold text-[#6b6b6b] tracking-wider block">{t('fin.inAttesaSaldo')}</span>
                     <b className="text-[20px] font-black mt-1 block text-amber-700">{eur(pendingInvoices)}</b>
-                    <span className="text-[11px] text-stone-500 mt-1 block">{t('fin.aScadenze')}</span>
+                    <span className="text-[12px] text-stone-500 mt-1 block">{t('fin.aScadenze')}</span>
                   </div>
                 </div>
 
@@ -2184,12 +2184,12 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                   <div className="lg:col-span-7 bg-white border border-[#e5e5e5] rounded-[24px] p-6 shadow-xs">
                     <div className="flex justify-between items-center border-b border-[#f5f5f5] pb-4 mb-4">
                       <b className="text-[14px] font-black text-[#161616]">{t('fin.fattureAttive')}</b>
-                      <span className="text-[10.5px] bg-slate-100 text-[#1a1a1a] font-bold px-2 py-0.5 rounded-lg border border-slate-200">{t('fin.canale')}</span>
+                      <span className="text-[11.5px] bg-slate-100 text-[#1a1a1a] font-bold px-2 py-0.5 rounded-lg border border-slate-200">{t('fin.canale')}</span>
                     </div>
 
                     <div className="flex flex-col gap-3">
                       {projInvoices.length === 0 ? (
-                        <div className="py-12 text-center text-stone-400 italic text-[12.5px] bg-stone-50/30 rounded-2xl border border-dashed border-stone-200">
+                        <div className="py-12 text-center text-stone-500 italic text-[12.5px] bg-stone-50/30 rounded-2xl border border-dashed border-stone-200">
                           {t('fin.noFatture')}
                         </div>
                       ) : (
@@ -2199,15 +2199,15 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                               <div className="flex items-center gap-2">
                                 <b className="text-[13.5px] font-black text-stone-950">{inv.id || `FAT-${inv.date?.replace(/-/g, '') || '2026-003'}`}</b>
                                 {inv.isSal && (
-                                  <span className="text-[9.5px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded uppercase">SAL</span>
+                                  <span className="text-[10.5px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded uppercase">SAL</span>
                                 )}
                               </div>
-                              <span className="text-[11px] text-stone-500 font-medium block mt-1">{inv.description || inv.desc || t('fin.invDescFallback')}</span>
-                              <span className="text-[10px] text-stone-400 font-semibold block mt-1 font-mono">{fmtDay(inv.date || inv.dueDate)}</span>
+                              <span className="text-[12px] text-stone-500 font-medium block mt-1">{inv.description || inv.desc || t('fin.invDescFallback')}</span>
+                              <span className="text-[11px] text-stone-500 font-semibold block mt-1 font-mono">{fmtDay(inv.date || inv.dueDate)}</span>
                             </div>
                             <div className="flex items-center gap-3 mt-2 sm:mt-0 font-mono">
                               <span className="text-[14px] font-black text-stone-800">{eur(Number(inv.amount))}</span>
-                              <span className={`text-[10.5px] font-semibold px-2.5 py-0.5 rounded-lg border ${
+                              <span className={`text-[11.5px] font-semibold px-2.5 py-0.5 rounded-lg border ${
                                 inv.status === 'pagata' || inv.status === 'Paid'
                                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                   : 'bg-amber-50 text-amber-700 border-amber-200'
@@ -2225,12 +2225,12 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                   <div className="lg:col-span-5 bg-white border border-[#e5e5e5] rounded-[24px] p-6 shadow-xs">
                     <div className="border-b border-[#f5f5f5] pb-4 mb-4">
                       <b className="text-[14px] font-black block text-[#161616]">{t('fin.scadenziario')}</b>
-                      <span className="text-[11px] text-[#8a8a8a] mt-0.5 block">{t('fin.scadSub')}</span>
+                      <span className="text-[12px] text-[#6b6b6b] mt-0.5 block">{t('fin.scadSub')}</span>
                     </div>
 
                     <div className="flex flex-col gap-3">
                       {projScadenze.length === 0 ? (
-                        <div className="py-8 text-center text-stone-400 italic text-[12px] bg-stone-50/30 rounded-2xl border border-dashed border-stone-200">
+                        <div className="py-8 text-center text-stone-500 italic text-[12px] bg-stone-50/30 rounded-2xl border border-dashed border-stone-200">
                           {t('fin.noScadenze')}
                         </div>
                       ) : (
@@ -2238,11 +2238,11 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                           <div key={sc.id} className="p-3.5 rounded-xl border border-stone-150 flex justify-between items-center bg-stone-50/25">
                             <div>
                               <b className="text-[12.5px] font-bold text-stone-800 block leading-tight">{sc.desc || sc.description || t('fin.scadDescFallback')}</b>
-                              <span className="text-[10.5px] text-stone-400 font-semibold block mt-1 font-mono">{fmtDay(sc.date || sc.dueDate)}</span>
+                              <span className="text-[11.5px] text-stone-500 font-semibold block mt-1 font-mono">{fmtDay(sc.date || sc.dueDate)}</span>
                             </div>
                             <div className="text-right font-mono">
                               <span className="text-[13px] font-black block text-stone-800">{eur(Number(sc.amount))}</span>
-                              <span className={`text-[10px] font-bold ${sc.isPaid ? 'text-emerald-700' : 'text-amber-600'}`}>
+                              <span className={`text-[11px] font-bold ${sc.isPaid ? 'text-emerald-700' : 'text-amber-600'}`}>
                                 {sc.isPaid ? t('fin.saldata') : t('fin.daSaldare')}
                               </span>
                             </div>
@@ -2281,7 +2281,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                       {/* Back Button */}
                       <button
                         onClick={() => setSelectedPostId(null)}
-                        className="inline-flex items-center gap-2 text-[12.5px] font-extrabold text-[#8a8a8a] hover:text-[#161616] mb-6 border-none bg-transparent cursor-pointer transition-colors"
+                        className="inline-flex items-center gap-2 text-[12.5px] font-extrabold text-[#6b6b6b] hover:text-[#161616] mb-6 border-none bg-transparent cursor-pointer transition-colors"
                       >
                         <ArrowLeft className="w-4 h-4" /> {t('blog.backAll')}
                       </button>
@@ -2294,13 +2294,13 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                           className="w-full h-full object-cover"
                           referrerPolicy="no-referrer"
                         />
-                        <span className="absolute top-4 left-4 bg-black/75 backdrop-blur-xs text-white text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border border-white/20">
+                        <span className="absolute top-4 left-4 bg-black/75 backdrop-blur-xs text-white text-[11px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border border-white/20">
                           {post.category}
                         </span>
                       </div>
 
                       {/* Metadata & Title */}
-                      <div className="flex items-center gap-4 text-xs font-semibold text-[#8a8a8a] mb-3">
+                      <div className="flex items-center gap-4 text-xs font-semibold text-[#6b6b6b] mb-3">
                         <span className="flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5" /> {post.date}
                         </span>
@@ -2334,7 +2334,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
                         {post.quote && (
                           <div className="bg-amber-50/50 border border-amber-200/50 rounded-2xl p-5 my-4 italic text-amber-900 font-bold relative text-[13px]">
-                            <span className="absolute -top-3 left-4 bg-white border border-amber-200/50 text-[9px] font-extrabold uppercase py-0.5 px-2.5 rounded-full text-amber-800">
+                            <span className="absolute -top-3 left-4 bg-white border border-amber-200/50 text-[10px] font-extrabold uppercase py-0.5 px-2.5 rounded-full text-amber-800">
                               {t('blog.quoteLabel')}
                             </span>
                             "{post.quote}"
@@ -2360,7 +2360,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                           </span>
                           <div className="text-left">
                             <b className="block text-[13px] font-extrabold text-[#161616]">{t('blog.author')}</b>
-                            <small className="block text-[11px] text-[#8a8a8a] font-semibold">{t('blog.authorRole')}</small>
+                            <small className="block text-[12px] text-[#6b6b6b] font-semibold">{t('blog.authorRole')}</small>
                           </div>
                         </div>
 
@@ -2385,7 +2385,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                       <div>
                         <div className="flex items-center gap-2 mb-1.5">
                           <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-                          <span className="text-[10px] uppercase font-bold tracking-widest text-[#a8a8a8]">Design your vision</span>
+                          <span className="text-[11px] uppercase font-bold tracking-widest text-[#a8a8a8]">Design your vision</span>
                         </div>
                         <h2 className="text-[21px] md:text-[24px] font-black tracking-tight leading-tight mb-2">Onirico Blog</h2>
                         <p className="text-[12.5px] text-[#cccccc] font-semibold max-w-[500px]">
@@ -2462,14 +2462,14 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                                   className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
                                   referrerPolicy="no-referrer"
                                 />
-                                <span className="absolute top-3 left-3 bg-[#161616] text-white text-[9px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full">
+                                <span className="absolute top-3 left-3 bg-[#161616] text-white text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full">
                                   {post.category}
                                 </span>
                               </div>
 
                               {/* Info */}
                               <div className="p-5 pb-2">
-                                <div className="flex items-center gap-3 text-[10.5px] font-bold text-gray-400 mb-2">
+                                <div className="flex items-center gap-3 text-[11.5px] font-bold text-gray-400 mb-2">
                                   <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {post.date}</span>
                                   <span>•</span>
                                   <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {post.readTime}</span>
@@ -2477,7 +2477,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                                 <h3 className="text-[15px] font-black text-[#161616] leading-snug mb-2 font-sans tracking-tight">
                                   {post.title}
                                 </h3>
-                                <p className="text-[12px] text-[#8a8a8a] font-semibold line-clamp-3 leading-relaxed mb-4">
+                                <p className="text-[12px] text-[#6b6b6b] font-semibold line-clamp-3 leading-relaxed mb-4">
                                   {post.excerpt}
                                 </p>
                               </div>
@@ -2523,14 +2523,14 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 {/* Header section - Luxury light theme matching app */}
                 <div className="bg-white p-6 pb-4 border-b border-[#f5f5f5] flex flex-col gap-1.5">
                   <div className="flex justify-between items-center">
-                    <span className="text-[9px] tracking-wider font-extrabold uppercase bg-amber-400 text-black px-2.5 py-0.5 rounded font-mono">
+                    <span className="text-[10px] tracking-wider font-extrabold uppercase bg-amber-400 text-black px-2.5 py-0.5 rounded font-mono">
                       {info.badge || t('taskdetail.generic.badge')}
                     </span>
                   </div>
                   <h3 className="text-[17.5px] font-black leading-tight tracking-tight mt-1 text-[#161616]">
                     {selectedTaskForModal.title}
                   </h3>
-                  <p className="text-[10px] text-[#8a8a8a] tracking-wide uppercase font-bold">
+                  <p className="text-[11px] text-[#6b6b6b] tracking-wide uppercase font-bold">
                     {t('taskmodal.phase', { phase: selectedTaskForModal.phase })}
                   </p>
                 </div>
@@ -2538,7 +2538,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                 {/* Content body */}
                 <div className="p-6 flex flex-col gap-4 font-sans text-sm">
                   <div>
-                    <h4 className="text-[11px] font-extrabold uppercase tracking-widest text-[#8a8a8a] mb-1">{t('taskmodal.descLabel')}</h4>
+                    <h4 className="text-[12px] font-extrabold uppercase tracking-widest text-[#6b6b6b] mb-1">{t('taskmodal.descLabel')}</h4>
                     <p className="text-[#333] text-[13.5px] leading-relaxed font-semibold">
                       {info.desc}
                     </p>
@@ -2548,13 +2548,13 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <h4 className="text-[11px] font-extrabold uppercase tracking-widest text-[#8a8a8a] mb-1">{t('taskmodal.roleLabel')}</h4>
+                      <h4 className="text-[12px] font-extrabold uppercase tracking-widest text-[#6b6b6b] mb-1">{t('taskmodal.roleLabel')}</h4>
                       <p className="text-[#161616] text-[13px] font-extrabold">
                         {info.role}
                       </p>
                     </div>
                     <div>
-                      <h4 className="text-[11px] font-extrabold uppercase tracking-widest text-[#8a8a8a] mb-1">{t('taskmodal.dueLabel')}</h4>
+                      <h4 className="text-[12px] font-extrabold uppercase tracking-widest text-[#6b6b6b] mb-1">{t('taskmodal.dueLabel')}</h4>
                       <p className="text-[#161616] text-[13px] font-extrabold">
                         {selectedTaskForModal.done ? t('taskmodal.completed') : info.dueTime}
                       </p>
@@ -2613,20 +2613,20 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
             <div className="p-5">
               {dashModal === 'sogno' && (onCreateClientRequest ? (
                 <ClientRequestPanel profile={profile} requests={clientRequests || []} matericoRequests={(matericoRequests || []).filter((r) => r.clientUid === profile.uid)} onCreate={onCreateClientRequest} onCreateMatericoRequest={onCreateMatericoRequest} />
-              ) : <p className="text-[13px] text-[#8a8a8a]">Funzione non disponibile.</p>)}
+              ) : <p className="text-[13px] text-[#6b6b6b]">Funzione non disponibile.</p>)}
 
               {dashModal === 'avvisi' && (
                 <div className="flex flex-col gap-2">
                   {(unicoPositions || []).length > 0 && <MyInvestmentsPanel positions={unicoPositions || []} />}
                   <MarketingPortalPanel profile={profile} events={mktEvents || []} surveys={mktSurveys || []} responses={mktResponses || {}} onRsvp={onRsvpEvent} onSubmitSurvey={onSubmitSurvey} />
                   {cStudioMsgs.length === 0 && cReqUpdates.length === 0 ? (
-                    <p className="text-[13px] text-[#8a8a8a] text-center py-4">Nessun avviso recente.</p>
+                    <p className="text-[13px] text-[#6b6b6b] text-center py-4">Nessun avviso recente.</p>
                   ) : (
                     <>
                       {cReqUpdates.map((r: any) => (
                         <div key={r.id} className="rounded-xl border border-[#ececec] bg-[#fafafa] p-3">
                           <div className="text-[12.5px] font-bold text-[#161616]">Richiesta "{r.title}"</div>
-                          <div className="text-[11.5px] text-[#8a8a8a] capitalize">{String(r.status).replace('_', ' ')}</div>
+                          <div className="text-[11.5px] text-[#6b6b6b] capitalize">{String(r.status).replace('_', ' ')}</div>
                         </div>
                       ))}
                       {cStudioMsgs.slice(0, 10).map((msg: any, i: number) => {
@@ -2634,7 +2634,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
                         return (
                           <button key={msg.id || i} onClick={() => { setDashModal(null); onSetActivePid(msg.pid); setActiveSubTab('documenti'); }} className="text-left rounded-xl border border-[#ececec] bg-white p-3 hover:border-[#161616] cursor-pointer">
                             <div className="text-[12.5px] text-[#161616] line-clamp-2">{msg.text || msg.body || 'Nuovo messaggio dallo studio'}</div>
-                            <div className="text-[11px] text-[#8a8a8a] mt-0.5">{proj?.name || 'Progetto'}</div>
+                            <div className="text-[12px] text-[#6b6b6b] mt-0.5">{proj?.name || 'Progetto'}</div>
                           </button>
                         );
                       })}
@@ -2650,13 +2650,13 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               {dashModal === 'percorso' && (
                 <div className="flex flex-col gap-3">
                   <div className="h-2.5 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${cGPct}%`, background: cGame.level.color }} /></div>
-                  <div className="flex items-center justify-between text-[11.5px] text-[#8a8a8a]"><span>{cGame.completed}/{cGame.objectives.length} obiettivi · {cGame.level.label}</span><span>{cGame.next ? `${cGame.next.remaining} pt a "${cGame.next.level.label}"` : 'Massimo 🎉'}</span></div>
+                  <div className="flex items-center justify-between text-[11.5px] text-[#6b6b6b]"><span>{cGame.completed}/{cGame.objectives.length} obiettivi · {cGame.level.label}</span><span>{cGame.next ? `${cGame.next.remaining} pt a "${cGame.next.level.label}"` : 'Massimo 🎉'}</span></div>
                   <div className="grid grid-cols-1 gap-2">
                     {cGame.objectives.map((o) => (
                       <div key={o.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border ${o.done ? 'border-emerald-200 bg-emerald-50' : 'border-[#ececec] bg-[#fafafa]'}`}>
-                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${o.done ? 'bg-emerald-500 text-white' : 'bg-[#e2e2e2] text-[#8a8a8a]'}`}>{o.done ? '✓' : ''}</span>
-                        <div className="min-w-0 flex-1"><div className={`text-[12.5px] font-bold truncate ${o.done ? 'text-emerald-900' : 'text-[#161616]'}`}>{o.label}</div><div className="text-[11px] text-[#8a8a8a] truncate">{o.hint}</div></div>
-                        <span className="text-[11px] font-bold text-[#8a8a8a] shrink-0">+{o.points}</span>
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0 ${o.done ? 'bg-emerald-500 text-white' : 'bg-[#e2e2e2] text-[#8a8a8a]'}`}>{o.done ? '✓' : ''}</span>
+                        <div className="min-w-0 flex-1"><div className={`text-[12.5px] font-bold truncate ${o.done ? 'text-emerald-900' : 'text-[#161616]'}`}>{o.label}</div><div className="text-[12px] text-[#6b6b6b] truncate">{o.hint}</div></div>
+                        <span className="text-[12px] font-bold text-[#6b6b6b] shrink-0">+{o.points}</span>
                       </div>
                     ))}
                   </div>
@@ -2740,7 +2740,7 @@ const AppointmentRequestModal: React.FC<{
               <div className="text-center py-6">
                 <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
                 <b className="text-[16px] text-[#161616] block">{t('appt.requestSent')}</b>
-                <p className="text-[13px] text-[#8a8a8a] mt-1">{t('appt.requestSentSub')}</p>
+                <p className="text-[13px] text-[#6b6b6b] mt-1">{t('appt.requestSentSub')}</p>
               </div>
             ) : (
               <>
@@ -2750,23 +2750,23 @@ const AppointmentRequestModal: React.FC<{
                 </div>
                 <div className="flex flex-col gap-3 text-left">
                   <label className="flex flex-col gap-1.5">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">{t('appt.with')}</span>
+                    <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">{t('appt.with')}</span>
                     <select value={member} onChange={(e) => setMember(e.target.value)} className="h-10 border border-[#e2e2e2] rounded-xl px-3 text-[14px]">
                       {members.map((m) => <option key={m.uid} value={m.uid}>{m.name}</option>)}
                     </select>
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <label className="flex flex-col gap-1.5">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">{t('common.date')}</span>
+                      <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">{t('common.date')}</span>
                       <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-10 border border-[#e2e2e2] rounded-xl px-3 text-[14px]" />
                     </label>
                     <label className="flex flex-col gap-1.5">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">{t('appt.time')}</span>
+                      <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">{t('appt.time')}</span>
                       <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="h-10 border border-[#e2e2e2] rounded-xl px-3 text-[14px]" />
                     </label>
                   </div>
                   <label className="flex flex-col gap-1.5">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">{t('appt.reason')}</span>
+                    <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">{t('appt.reason')}</span>
                     <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} className="border border-[#e2e2e2] rounded-xl p-3 text-[14px] resize-none" placeholder={t('appt.reasonPlaceholder')} />
                   </label>
                   <button onClick={submit} className="mt-1 py-2.5 rounded-xl bg-[#1b1b1b] hover:bg-black text-white font-bold text-[13px] cursor-pointer border-none flex items-center justify-center gap-2">
@@ -2799,7 +2799,7 @@ const MyInvestmentsPanel: React.FC<{ positions: UnicoInvestorPosition[] }> = ({ 
         <div className="w-9 h-9 rounded-xl bg-indigo-50 text-[#4338ca] flex items-center justify-center"><Gem className="w-5 h-5" /></div>
         <div>
           <b className="text-[16px] tracking-tight block">I miei investimenti</b>
-          <span className="text-[12px] text-stone-400">Le tue posizioni nelle operazioni immobiliari Unico</span>
+          <span className="text-[12px] text-stone-500">Le tue posizioni nelle operazioni immobiliari Unico</span>
         </div>
       </div>
 
@@ -2816,11 +2816,11 @@ const MyInvestmentsPanel: React.FC<{ positions: UnicoInvestorPosition[] }> = ({ 
             <div key={p.dealId} className="border border-[#ececec] rounded-[18px] p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <span className="text-[10px] font-bold uppercase tracking-wide text-stone-400">{p.type}</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wide text-stone-500">{p.type}</span>
                   <b className="block text-[15px] tracking-tight truncate">{p.title}</b>
                   <span className="flex items-center gap-1 text-[12px] text-stone-500 mt-0.5"><MapPin className="w-3.5 h-3.5" /> {p.location}</span>
                 </div>
-                <span className="shrink-0 text-[10.5px] font-bold px-2.5 py-1 rounded-full border bg-indigo-50 text-indigo-700 border-indigo-200">{INV_STATUS_LABEL[p.status] || p.status}</span>
+                <span className="shrink-0 text-[11.5px] font-bold px-2.5 py-1 rounded-full border bg-indigo-50 text-indigo-700 border-indigo-200">{INV_STATUS_LABEL[p.status] || p.status}</span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-center">
@@ -2834,7 +2834,7 @@ const MyInvestmentsPanel: React.FC<{ positions: UnicoInvestorPosition[] }> = ({ 
                 <div className="h-1.5 w-full bg-[#eee] rounded-full overflow-hidden">
                   <div className="h-full rounded-full" style={{ width: `${funded}%`, background: '#4338ca' }} />
                 </div>
-                <div className="flex items-center justify-between text-[11px] text-stone-500 mt-1.5 font-semibold">
+                <div className="flex items-center justify-between text-[12px] text-stone-500 mt-1.5 font-semibold">
                   <span>Raccolto {eur(p.raised)} / {eur(p.goal)}</span>
                   <span>{p.durationMonths ? `${p.durationMonths} mesi` : ''}{p.spvName ? ` · ${p.spvName}` : ''}</span>
                 </div>
@@ -2844,15 +2844,15 @@ const MyInvestmentsPanel: React.FC<{ positions: UnicoInvestorPosition[] }> = ({ 
               {p.fasi && Object.keys(p.fasi).length > 0 && (
                 <div className="mt-3 pt-3 border-t border-[#f3f3f3]">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10.5px] font-bold uppercase tracking-wide text-stone-400 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" /> Avanzamento operazione</span>
-                    <span className="text-[11px] font-bold text-[#4338ca]">{unicoFasiAvg(p.fasi)}%</span>
+                    <span className="text-[11.5px] font-bold uppercase tracking-wide text-stone-500 flex items-center gap-1.5"><ListChecks className="w-3.5 h-3.5" /> Avanzamento operazione</span>
+                    <span className="text-[12px] font-bold text-[#4338ca]">{unicoFasiAvg(p.fasi)}%</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
                     {UNICO_FASI.map((f) => {
                       const v = Math.min(100, Math.max(0, Number((p.fasi || {})[f.id]) || 0));
                       return (
                         <div key={f.id}>
-                          <div className="flex items-center justify-between text-[11px] font-semibold">
+                          <div className="flex items-center justify-between text-[12px] font-semibold">
                             <span className="text-stone-600 truncate">{f.label}</span>
                             <b className="shrink-0 ml-2" style={{ color: v >= 100 ? '#059669' : '#161616' }}>{v}%</b>
                           </div>
@@ -2860,7 +2860,7 @@ const MyInvestmentsPanel: React.FC<{ positions: UnicoInvestorPosition[] }> = ({ 
                             <div className="h-full rounded-full" style={{ width: `${v}%`, background: v >= 100 ? '#059669' : '#4338ca' }} />
                           </div>
                           {(() => { const fi = (p as any).fasiInfo?.[f.id]; if (!fi) return null; const bits = [fi.responsabile && `Resp. ${fi.responsabile}`, fi.dataEffettiva ? `fatta il ${new Date(fi.dataEffettiva + 'T00:00').toLocaleDateString('it-IT')}` : fi.dataPrevista ? `prevista ${new Date(fi.dataPrevista + 'T00:00').toLocaleDateString('it-IT')}` : null].filter(Boolean).join(' · '); return (
-                            <div className="text-[10.5px] text-stone-500 mt-0.5 leading-snug">
+                            <div className="text-[11.5px] text-stone-500 mt-0.5 leading-snug">
                               {bits}{fi.note ? <span className="block">{fi.note}</span> : null}
                               {fi.link && safeUrl(fi.link) ? <a href={safeUrl(fi.link) || '#'} target="_blank" rel="noreferrer" className="font-bold text-[#4338ca]">Foto e documenti</a> : null}
                             </div>
@@ -2874,13 +2874,13 @@ const MyInvestmentsPanel: React.FC<{ positions: UnicoInvestorPosition[] }> = ({ 
 
               {(p.updates || []).length > 0 && (
                 <div className="mt-3 pt-3 border-t border-[#f3f3f3]">
-                  <span className="text-[10.5px] font-bold uppercase tracking-wide text-stone-400 flex items-center gap-1.5 mb-2"><Megaphone className="w-3.5 h-3.5" /> Aggiornamenti</span>
+                  <span className="text-[11.5px] font-bold uppercase tracking-wide text-stone-500 flex items-center gap-1.5 mb-2"><Megaphone className="w-3.5 h-3.5" /> Aggiornamenti</span>
                   <div className="flex flex-col gap-2">
                     {p.updates.slice(0, 4).map((u) => (
                       <div key={u.id} className="bg-[#fafafa] border border-[#ececec] rounded-xl px-3 py-2">
                         <div className="flex items-center gap-2">
                           <b className="text-[12.5px] flex-1 truncate">{u.title}</b>
-                          <span className="text-[10.5px] text-stone-400 shrink-0">{new Date(u.at).toLocaleDateString('it-IT')}</span>
+                          <span className="text-[11.5px] text-stone-500 shrink-0">{new Date(u.at).toLocaleDateString('it-IT')}</span>
                         </div>
                         <p className="text-[11.5px] text-stone-600 mt-0.5 whitespace-pre-wrap">{u.body}</p>
                       </div>
@@ -2891,7 +2891,7 @@ const MyInvestmentsPanel: React.FC<{ positions: UnicoInvestorPosition[] }> = ({ 
 
               {(p.distributions || []).length > 0 && (
                 <div className="mt-3 pt-3 border-t border-[#f3f3f3]">
-                  <span className="text-[10.5px] font-bold uppercase tracking-wide text-stone-400 flex items-center gap-1.5 mb-2"><HandCoins className="w-3.5 h-3.5" /> Distribuzioni ricevute</span>
+                  <span className="text-[11.5px] font-bold uppercase tracking-wide text-stone-500 flex items-center gap-1.5 mb-2"><HandCoins className="w-3.5 h-3.5" /> Distribuzioni ricevute</span>
                   <div className="flex flex-col gap-1.5">
                     {p.distributions.map((x) => (
                       <div key={x.id} className="flex items-center justify-between text-[12px]">
@@ -2911,7 +2911,7 @@ const MyInvestmentsPanel: React.FC<{ positions: UnicoInvestorPosition[] }> = ({ 
 };
 const MiniInv: React.FC<{ icon?: React.ReactNode; label: string; value: string; accent?: string; compact?: boolean }> = ({ icon, label, value, accent, compact }) => (
   <div className={`bg-[#fafafa] border border-[#ececec] rounded-xl ${compact ? 'py-2 px-2' : 'py-2.5 px-3'}`}>
-    <span className="flex items-center gap-1 text-[9.5px] font-bold uppercase tracking-wide text-stone-400 justify-center">{icon}{label}</span>
+    <span className="flex items-center gap-1 text-[10.5px] font-bold uppercase tracking-wide text-stone-500 justify-center">{icon}{label}</span>
     <b className={`block ${compact ? 'text-[12.5px]' : 'text-[15px]'} mt-0.5 text-center`} style={accent ? { color: accent } : undefined}>{value}</b>
   </div>
 );
@@ -2952,7 +2952,7 @@ const MarketingPortalPanel: React.FC<{
         <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white" style={{ background: MKT_ACCENT }}><Megaphone className="w-5 h-5" /></div>
         <div>
           <b className="text-[16px] tracking-tight block">Inviti & sondaggi</b>
-          <span className="text-[12px] text-stone-400">Eventi a cui sei invitato e questionari da Onirico</span>
+          <span className="text-[12px] text-stone-500">Eventi a cui sei invitato e questionari da Onirico</span>
         </div>
       </div>
 
@@ -2964,7 +2964,7 @@ const MarketingPortalPanel: React.FC<{
               <div key={e.id} className="border border-[#ececec] rounded-[16px] p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    {e.kind && <span className="text-[10px] font-bold uppercase tracking-wide text-stone-400">{e.kind}</span>}
+                    {e.kind && <span className="text-[11px] font-bold uppercase tracking-wide text-stone-500">{e.kind}</span>}
                     <b className="block text-[14.5px] truncate">{e.title}</b>
                     <span className="flex items-center gap-1 text-[12px] text-stone-500 mt-0.5"><Clock className="w-3.5 h-3.5" /> {e.date ? new Date(e.date).toLocaleString('it-IT', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'}</span>
                     {e.location && <span className="flex items-center gap-1 text-[12px] text-stone-500 mt-0.5"><MapPin className="w-3.5 h-3.5" /> {e.location}</span>}

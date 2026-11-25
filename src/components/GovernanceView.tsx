@@ -291,7 +291,7 @@ export const GovernanceView: React.FC<Props> = ({ org, sops, members, canEdit = 
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Network className="w-5.5 h-5.5" /> Governance & Organizzazione</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Chi fa cosa nel gruppo: organigrammi, mansionari, procedure, team e credenziali.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Chi fa cosa nel gruppo: organigrammi, mansionari, procedure, team e credenziali.</p>
         </div>
       </div>
 
@@ -306,7 +306,7 @@ export const GovernanceView: React.FC<Props> = ({ org, sops, members, canEdit = 
       {tab === 'organigramma' && <Organigramma nodes={nodes} members={members} canEdit={canEdit} onSaveNode={onSaveNode} onDeleteNode={onDeleteNode} onSeed={onSeed} />}
       {tab === 'mansionari' && <Mansionari nodes={nodes} mansionari={mansionari} canEdit={canEdit} onSave={onSaveMansionario} onDelete={onDeleteMansionario} />}
       {tab === 'sop' && <SopTab sops={sops} canEdit={canEdit} onSaveSop={onSaveSop} onDeleteSop={onDeleteSop} />}
-      {tab === 'team' && <div>{teamSlot || <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Sezione Team non disponibile.</p>}</div>}
+      {tab === 'team' && <div>{teamSlot || <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Sezione Team non disponibile.</p>}</div>}
       {tab === 'password' && <PasswordVault vault={vault} config={vaultConfig} canEdit={canEdit} onSave={onSaveVaultEntry} onDelete={onDeleteVaultEntry} onSetConfig={onSetVaultConfig} />}
     </div>
   );
@@ -357,8 +357,8 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; members: Member[]; canEdit: boo
       <div className="w-full h-full rounded-[14px] bg-white flex flex-col items-center justify-center text-center px-2.5 pt-2.5 pb-1.5 relative" style={{ border: isSel ? `2px solid ${meta.color}` : '1px solid #e2e2e2', boxShadow: isSel ? `0 8px 18px ${meta.color}26` : '0 2px 8px rgba(0,0,0,0.08)' }}>
         <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-6 h-6 rounded-lg flex items-center justify-center shadow-sm shrink-0" style={{ background: meta.color, color: '#fff' }}><Icon className="w-3.5 h-3.5" /></span>
         <span className="text-[12px] font-extrabold text-[#161616] leading-[1.12] mt-1 break-words line-clamp-2">{n.label}</span>
-        {n.person && <span className="text-[10px] text-[#6b6b6b] font-semibold leading-tight mt-0.5 break-words line-clamp-1">{n.person}</span>}
-        {n.desc && <span className="text-[9px] text-[#9a9a9a] leading-tight mt-0.5 break-words line-clamp-1">{n.desc}</span>}
+        {n.person && <span className="text-[11px] text-[#6b6b6b] font-semibold leading-tight mt-0.5 break-words line-clamp-1">{n.person}</span>}
+        {n.desc && <span className="text-[10px] text-[#767676] leading-tight mt-0.5 break-words line-clamp-1">{n.desc}</span>}
       </div>
     );
   };
@@ -373,14 +373,14 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; members: Member[]; canEdit: boo
             ))}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] rounded-full text-[11px] font-bold text-[#6b6b6b]">
+            <div className="inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] rounded-full text-[12px] font-bold text-[#6b6b6b]">
               <button onClick={() => setCollapsed({})} className="px-2.5 h-7 flex items-center hover:text-[#161616] cursor-pointer bg-transparent border-none">Espandi</button>
               <span className="w-px h-4 bg-[#dcdcdc]" />
               <button onClick={() => { const c: Record<string, boolean> = {}; items.forEach((n) => { if (childCount(n.id)) c[n.id] = true; }); setCollapsed(c); }} className="px-2.5 h-7 flex items-center hover:text-[#161616] cursor-pointer bg-transparent border-none">Comprimi</button>
             </div>
             <div className="inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] rounded-full">
               <button onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))} className="w-7 h-7 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">−</button>
-              <span className="text-[11px] font-bold text-[#6b6b6b] w-9 text-center">{Math.round(zoom * 100)}%</span>
+              <span className="text-[12px] font-bold text-[#6b6b6b] w-9 text-center">{Math.round(zoom * 100)}%</span>
               <button onClick={() => setZoom((z) => Math.min(2, +(z + 0.1).toFixed(2)))} className="w-7 h-7 flex items-center justify-center text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">+</button>
             </div>
             {canEdit && (
@@ -395,7 +395,7 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; members: Member[]; canEdit: boo
         {layout.pos.size === 0 ? (
           <div className="text-center py-14">
             <Network className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-[13px] text-[#8a8a8a] mb-4">Organigramma {chart} vuoto.{canEdit ? ' Caricalo dalle immagini o aggiungi a mano.' : ''}</p>
+            <p className="text-[13px] text-[#6b6b6b] mb-4">Organigramma {chart} vuoto.{canEdit ? ' Caricalo dalle immagini o aggiungi a mano.' : ''}</p>
             {canEdit && <button onClick={seed} className="px-4 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Carica organigrammi (come da immagini)</button>}
           </div>
         ) : (
@@ -435,7 +435,7 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; members: Member[]; canEdit: boo
                     )}
                     {/* controlli in basso: comprimi + aggiungi figlio */}
                     <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
-                      {kids > 0 && <button onClick={(e) => { e.stopPropagation(); setCollapsed((c) => ({ ...c, [n.id]: !c[n.id] })); }} title={isCol ? `Espandi (${kids})` : 'Comprimi'} className="min-w-5 h-5 px-1 rounded-full bg-white border border-[#c9c9c9] flex items-center justify-center text-[#555] hover:text-[#161616] hover:border-[#161616] shadow-sm cursor-pointer text-[10px] font-black leading-none">{isCol ? `+${kids}` : '−'}</button>}
+                      {kids > 0 && <button onClick={(e) => { e.stopPropagation(); setCollapsed((c) => ({ ...c, [n.id]: !c[n.id] })); }} title={isCol ? `Espandi (${kids})` : 'Comprimi'} className="min-w-5 h-5 px-1 rounded-full bg-white border border-[#c9c9c9] flex items-center justify-center text-[#555] hover:text-[#161616] hover:border-[#161616] shadow-sm cursor-pointer text-[11px] font-black leading-none">{isCol ? `+${kids}` : '−'}</button>}
                       {canEdit && n.kind !== 'ruolo' && <button onClick={(e) => { e.stopPropagation(); addChild(n); }} title="Aggiungi figlio (sotto)" className="w-5 h-5 rounded-full bg-[#161616] text-white flex items-center justify-center hover:bg-black shadow-sm cursor-pointer border-none opacity-0 group-hover:opacity-100 transition-opacity"><Plus className="w-3 h-3" /></button>}
                     </div>
                   </div>
@@ -449,7 +449,7 @@ const Organigramma: React.FC<{ nodes: OrgNode[]; members: Member[]; canEdit: boo
       {/* Pannello dettaglio nodo */}
       <div className="lg:w-[340px] w-full lg:sticky lg:top-4 bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm">
         {!sel ? (
-          <p className="text-[13px] text-[#9a9a9a] text-center py-10 leading-relaxed">Seleziona un box per modificarlo.<br /><span className="text-[11.5px]">In hover su un box: <b className="text-[#4338ca]">↰</b> aggiunge un <b>genitore</b> sopra, <b className="text-[#161616]">＋</b> un <b>figlio</b> sotto, <b>−</b> comprime.</span></p>
+          <p className="text-[13px] text-[#767676] text-center py-10 leading-relaxed">Seleziona un box per modificarlo.<br /><span className="text-[11.5px]">In hover su un box: <b className="text-[#4338ca]">↰</b> aggiunge un <b>genitore</b> sopra, <b className="text-[#161616]">＋</b> un <b>figlio</b> sotto, <b>−</b> comprime.</span></p>
         ) : (
           <NodeEditor key={sel.id} node={sel} allNodes={items} members={members} canEdit={canEdit} onSave={onSaveNode} onDelete={(id) => { onDeleteNode(id); setSelId(null); }} hasChildren={childCount(sel.id) > 0} onAddChild={() => addChild(sel)} onAddParent={() => addParent(sel)} />
         )}
@@ -503,7 +503,7 @@ const NodeEditor: React.FC<{ node: OrgNode; allNodes: OrgNode[]; members: Member
   const meta = KIND_META[node.kind];
   const set = (c: Partial<OrgNode>) => setD((p) => ({ ...p, ...c }));
   const save = () => onSave({ ...d, parentId: (d.parents && d.parents.length === 1) ? d.parents[0].id : null, updatedAt: Date.now() });
-  const Lbl: React.FC<{ children: React.ReactNode }> = ({ children }) => <span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">{children}</span>;
+  const Lbl: React.FC<{ children: React.ReactNode }> = ({ children }) => <span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">{children}</span>;
   const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white';
   const nameOf = (id: string) => allNodes.find((n) => n.id === id)?.label || '—';
   const setParentQuota = (pid: string, q: string) => setD((p) => ({ ...p, parents: (p.parents || []).map((x) => (x.id === pid ? { ...x, quota: q === '' ? null : Number(q) } : x)) }));
@@ -520,7 +520,7 @@ const NodeEditor: React.FC<{ node: OrgNode; allNodes: OrgNode[]; members: Member
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: `${meta.color}14`, color: meta.color }}>{meta.label}</span>
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: `${meta.color}14`, color: meta.color }}>{meta.label}</span>
         {canEdit && <button onClick={() => onDelete(node.id)} className="text-rose-500 hover:text-rose-700 cursor-pointer bg-transparent border-none" title={hasChildren ? 'Elimina (ripulisce i riferimenti nei figli)' : 'Elimina'}><Trash2 className="w-4 h-4" /></button>}
       </div>
 
@@ -543,7 +543,7 @@ const NodeEditor: React.FC<{ node: OrgNode; allNodes: OrgNode[]; members: Member
       {/* Genitori (con quota sull'arco) */}
       <div className="flex flex-col gap-1.5">
         <Lbl>Genitori & quote %</Lbl>
-        {(d.parents || []).length === 0 && <p className="text-[11.5px] text-[#b0b0b0] italic">Nessun genitore (nodo radice).</p>}
+        {(d.parents || []).length === 0 && <p className="text-[11.5px] text-[#8f8f8f] italic">Nessun genitore (nodo radice).</p>}
         {(d.parents || []).map((p) => (
           <div key={p.id} className="flex items-center gap-1.5">
             <span className="flex-1 text-[12px] font-semibold text-[#333] truncate bg-gray-50 border border-[#eee] rounded-lg px-2 py-1.5">{nameOf(p.id)}</span>
@@ -607,7 +607,7 @@ const Mansionari: React.FC<{ nodes: OrgNode[]; mansionari: Record<string, Govern
         </div>
       )}
       {list.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Nessun mansionario.{canEdit ? ' Crea il primo o importalo dall\'organigramma.' : ''}</p>
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Nessun mansionario.{canEdit ? ' Crea il primo o importalo dall\'organigramma.' : ''}</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {list.map((m) => (
@@ -615,16 +615,16 @@ const Mansionari: React.FC<{ nodes: OrgNode[]; mansionari: Record<string, Govern
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <b className="text-[14px] text-[#161616]">{m.role || 'Senza titolo'}</b>
-                  {(m.person || m.area) && <p className="text-[11.5px] text-[#8a8a8a] mt-0.5">{[m.person, m.area].filter(Boolean).join(' · ')}</p>}
+                  {(m.person || m.area) && <p className="text-[11.5px] text-[#6b6b6b] mt-0.5">{[m.person, m.area].filter(Boolean).join(' · ')}</p>}
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  {m.identita && <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700">{m.identita}</span>}
+                  {m.identita && <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700">{m.identita}</span>}
                   {canEdit && <><button onClick={() => setEditing(m)} className="p-1.5 rounded-lg hover:bg-gray-100 text-[#666] cursor-pointer bg-transparent border-none"><Pencil className="w-3.5 h-3.5" /></button><button onClick={() => onDelete?.(m.id)} className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button></>}
                 </div>
               </div>
-              {m.mansioni && <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">Mansioni</p><p className="text-[12.5px] text-[#333] leading-relaxed whitespace-pre-line">{m.mansioni}</p></div>}
-              {m.pfv && <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">PFV</p><p className="text-[12.5px] text-[#161616] font-medium italic">{m.pfv}</p></div>}
-              {m.requisiti && <div><p className="text-[9.5px] text-[#b0b0b0] font-bold uppercase">Requisiti</p><p className="text-[12.5px] text-[#555] leading-relaxed whitespace-pre-line">{m.requisiti}</p></div>}
+              {m.mansioni && <div><p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase">Mansioni</p><p className="text-[12.5px] text-[#333] leading-relaxed whitespace-pre-line">{m.mansioni}</p></div>}
+              {m.pfv && <div><p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase">PFV</p><p className="text-[12.5px] text-[#161616] font-medium italic">{m.pfv}</p></div>}
+              {m.requisiti && <div><p className="text-[10.5px] text-[#8f8f8f] font-bold uppercase">Requisiti</p><p className="text-[12.5px] text-[#555] leading-relaxed whitespace-pre-line">{m.requisiti}</p></div>}
             </div>
           ))}
         </div>
@@ -648,14 +648,14 @@ const MansionarioEditor: React.FC<{ mans: GovernanceMansionario; onClose: () => 
             <input value={d.person || ''} onChange={(e) => set({ person: e.target.value || null })} placeholder="Persona" className={inp} />
             <input value={d.area || ''} onChange={(e) => set({ area: e.target.value || null })} placeholder="Area / società" className={inp} />
           </div>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Identità societaria</span>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Identità societaria</span>
             <select value={d.identita || ''} onChange={(e) => set({ identita: (e.target.value || null) as any })} className={inp}>
               <option value="">—</option>{IDENTITA.map((i) => <option key={i.id} value={i.id}>{i.label}</option>)}
             </select>
           </label>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Mansioni (compiti & responsabilità)</span><textarea value={d.mansioni || ''} onChange={(e) => set({ mansioni: e.target.value || null })} rows={4} className={`${inp} resize-none`} /></label>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">PFV — Prodotto Finale di Valore</span><textarea value={d.pfv || ''} onChange={(e) => set({ pfv: e.target.value || null })} rows={2} className={`${inp} resize-none`} placeholder="Es. l'emozione suscitata nel cliente" /></label>
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Requisiti / competenze</span><textarea value={d.requisiti || ''} onChange={(e) => set({ requisiti: e.target.value || null })} rows={2} className={`${inp} resize-none`} /></label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Mansioni (compiti & responsabilità)</span><textarea value={d.mansioni || ''} onChange={(e) => set({ mansioni: e.target.value || null })} rows={4} className={`${inp} resize-none`} /></label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">PFV — Prodotto Finale di Valore</span><textarea value={d.pfv || ''} onChange={(e) => set({ pfv: e.target.value || null })} rows={2} className={`${inp} resize-none`} placeholder="Es. l'emozione suscitata nel cliente" /></label>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Requisiti / competenze</span><textarea value={d.requisiti || ''} onChange={(e) => set({ requisiti: e.target.value || null })} rows={2} className={`${inp} resize-none`} /></label>
           <button onClick={() => onSave({ ...d, role: d.role.trim(), updatedAt: Date.now() })} disabled={!d.role.trim()} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Salva mansionario</button>
         </div>
       </div>
@@ -672,21 +672,21 @@ const SopTab: React.FC<{ sops: Record<string, GovernanceSop>; canEdit: boolean; 
   return (
     <div className="flex flex-col gap-3">
       {canEdit && <button onClick={() => setEditing(blank())} className="self-start inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuova procedura</button>}
-      {list.length === 0 ? <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Nessuna procedura operativa.</p> : (
+      {list.length === 0 ? <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Nessuna procedura operativa.</p> : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {list.map((s) => (
             <div key={s.id} className="bg-white border border-[#e2e2e2] rounded-[20px] p-4 shadow-sm">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <b className="text-[14px] text-[#161616] inline-flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-[#8a8a8a]" /> {s.title || 'Senza titolo'}</b>
-                  {s.area && <p className="text-[11.5px] text-[#8a8a8a] mt-0.5">{s.area}</p>}
+                  <b className="text-[14px] text-[#161616] inline-flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-[#6b6b6b]" /> {s.title || 'Senza titolo'}</b>
+                  {s.area && <p className="text-[11.5px] text-[#6b6b6b] mt-0.5">{s.area}</p>}
                 </div>
                 {canEdit && <div className="flex items-center gap-1 shrink-0"><button onClick={() => setEditing(s)} className="p-1.5 rounded-lg hover:bg-gray-100 text-[#666] cursor-pointer bg-transparent border-none"><Pencil className="w-3.5 h-3.5" /></button><button onClick={() => onDeleteSop(s.id)} className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button></div>}
               </div>
               {s.description && <p className="text-[12.5px] text-[#555] mt-1.5">{s.description}</p>}
               <ol className="mt-2.5 flex flex-col gap-1.5">
                 {(s.steps || []).filter(Boolean).map((st, i) => (
-                  <li key={i} className="flex items-start gap-2 text-[12.5px] text-[#333]"><span className="w-5 h-5 rounded-full bg-[#161616] text-white text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span><span className="leading-relaxed">{st}</span></li>
+                  <li key={i} className="flex items-start gap-2 text-[12.5px] text-[#333]"><span className="w-5 h-5 rounded-full bg-[#161616] text-white text-[11px] font-bold flex items-center justify-center shrink-0">{i + 1}</span><span className="leading-relaxed">{st}</span></li>
                 ))}
               </ol>
             </div>
@@ -714,10 +714,10 @@ const SopEditor: React.FC<{ sop: GovernanceSop; onClose: () => void; onSave: (s:
           <input value={d.area || ''} onChange={(e) => set({ area: e.target.value || null })} placeholder="Area / strumento (facoltativo)" className={inp} />
           <textarea value={d.description || ''} onChange={(e) => set({ description: e.target.value || null })} placeholder="Descrizione breve" rows={2} className={`${inp} resize-none`} />
           <div className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#9a9a9a]">Passi</span>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#767676]">Passi</span>
             {d.steps.map((st, i) => (
               <div key={i} className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-[#161616] text-white text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
+                <span className="w-5 h-5 rounded-full bg-[#161616] text-white text-[11px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
                 <input value={st} onChange={(e) => setStep(i, e.target.value)} placeholder={`Passo ${i + 1}`} className={inp} />
                 {d.steps.length > 1 && <button onClick={() => rmStep(i)} className="text-rose-400 hover:text-rose-600 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button>}
               </div>
@@ -793,22 +793,22 @@ const VaultLock: React.FC<{ config: VaultConfig; canEdit: boolean; onUnlock: () 
       <h3 className="text-[18px] font-extrabold text-[#161616]">Cassaforte password</h3>
       {!hasPass && !setup && (
         <>
-          <p className="text-[12.5px] text-[#8a8a8a] leading-relaxed">Nessuna password di sezione impostata.{canEdit ? ' Impostane una per proteggere le credenziali.' : ' Chiedi a un amministratore di impostarla.'}</p>
+          <p className="text-[12.5px] text-[#6b6b6b] leading-relaxed">Nessuna password di sezione impostata.{canEdit ? ' Impostane una per proteggere le credenziali.' : ' Chiedi a un amministratore di impostarla.'}</p>
           {canEdit && <button onClick={() => { setSetup(true); setErr(''); }} className="mt-1 px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Imposta password</button>}
         </>
       )}
       {hasPass && !setup && (
         <>
-          <p className="text-[12.5px] text-[#8a8a8a]">Inserisci la password per accedere alle credenziali.</p>
+          <p className="text-[12.5px] text-[#6b6b6b]">Inserisci la password per accedere alle credenziali.</p>
           <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') tryUnlock(); }} placeholder="Password sezione" className={inp} autoFocus />
           {err && <p className="text-[12px] text-rose-600 font-semibold">{err}</p>}
           <button onClick={tryUnlock} disabled={busy || !pass} className="w-full px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Sblocca</button>
-          {canEdit && <button onClick={() => { setSetup(true); setErr(''); setNp1(''); setNp2(''); }} className="text-[11.5px] font-semibold text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none">Reimposta password (amministratore)</button>}
+          {canEdit && <button onClick={() => { setSetup(true); setErr(''); setNp1(''); setNp2(''); }} className="text-[11.5px] font-semibold text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">Reimposta password (amministratore)</button>}
         </>
       )}
       {setup && canEdit && (
         <>
-          <p className="text-[12.5px] text-[#8a8a8a]">{hasPass ? 'Reimposta la password di sezione.' : 'Imposta la password di sezione.'} Modificabile in seguito dal profilo amministratori.</p>
+          <p className="text-[12.5px] text-[#6b6b6b]">{hasPass ? 'Reimposta la password di sezione.' : 'Imposta la password di sezione.'} Modificabile in seguito dal profilo amministratori.</p>
           <input type="password" value={np1} onChange={(e) => setNp1(e.target.value)} placeholder="Nuova password" className={inp} autoFocus />
           <input type="password" value={np2} onChange={(e) => setNp2(e.target.value)} placeholder="Ripeti password" className={inp} />
           {err && <p className="text-[12px] text-rose-600 font-semibold">{err}</p>}
@@ -818,7 +818,7 @@ const VaultLock: React.FC<{ config: VaultConfig; canEdit: boolean; onUnlock: () 
           </div>
         </>
       )}
-      <p className="text-[10.5px] text-[#b8b8b8] leading-relaxed mt-1">Protezione di livello UI: le credenziali sono condivise nel gruppo. Non inserire qui password personali/bancarie critiche.</p>
+      <p className="text-[11.5px] text-[#b8b8b8] leading-relaxed mt-1">Protezione di livello UI: le credenziali sono condivise nel gruppo. Non inserire qui password personali/bancarie critiche.</p>
     </div>
   );
 };
@@ -841,7 +841,7 @@ const VaultContents: React.FC<{ vault: Record<string, VaultEntry>; canEdit: bool
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="relative flex-1 min-w-[180px] max-w-xs">
-          <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#8f8f8f] absolute left-3 top-1/2 -translate-y-1/2" />
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Cerca credenziale…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white" />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -858,7 +858,7 @@ const VaultContents: React.FC<{ vault: Record<string, VaultEntry>; canEdit: bool
       </div>
 
       {list.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Nessuna credenziale{query || cat !== 'all' ? ' per il filtro attivo' : ''}.</p>
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[22px] p-8 text-center">Nessuna credenziale{query || cat !== 'all' ? ' per il filtro attivo' : ''}.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {list.map((e) => {
@@ -870,7 +870,7 @@ const VaultContents: React.FC<{ vault: Record<string, VaultEntry>; canEdit: bool
                     <span className="w-8 h-8 rounded-lg bg-[#161616]/[0.06] text-[#161616] flex items-center justify-center shrink-0"><Icon className="w-4 h-4" /></span>
                     <div className="min-w-0">
                       <b className="text-[13.5px] text-[#161616] truncate block">{e.label || 'Senza nome'}</b>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#a0a0a0]">{m.label}</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#a0a0a0]">{m.label}</span>
                     </div>
                   </div>
                   {canEdit && <div className="flex items-center gap-1 shrink-0"><button onClick={() => setEditing(e)} className="p-1.5 rounded-lg hover:bg-gray-100 text-[#666] cursor-pointer bg-transparent border-none"><Pencil className="w-3.5 h-3.5" /></button><button onClick={() => onDelete?.(e.id)} className="p-1.5 rounded-lg hover:bg-rose-50 text-rose-500 cursor-pointer bg-transparent border-none"><Trash2 className="w-3.5 h-3.5" /></button></div>}
@@ -879,19 +879,19 @@ const VaultContents: React.FC<{ vault: Record<string, VaultEntry>; canEdit: bool
                 {e.username && (
                   <div className="flex items-center justify-between gap-2 bg-gray-50 border border-[#eee] rounded-lg px-2.5 py-1.5">
                     <span className="text-[12px] text-[#333] truncate"><span className="text-[#a0a0a0]">Utente:</span> {e.username}</span>
-                    <button onClick={() => copy(e.username!, `u-${e.id}`)} className="text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none shrink-0" title="Copia utente">{copied === `u-${e.id}` ? <span className="text-[10px] font-bold text-emerald-600">✓</span> : <Copy className="w-3.5 h-3.5" />}</button>
+                    <button onClick={() => copy(e.username!, `u-${e.id}`)} className="text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none shrink-0" title="Copia utente">{copied === `u-${e.id}` ? <span className="text-[11px] font-bold text-emerald-600">✓</span> : <Copy className="w-3.5 h-3.5" />}</button>
                   </div>
                 )}
                 {e.password && (
                   <div className="flex items-center justify-between gap-2 bg-gray-50 border border-[#eee] rounded-lg px-2.5 py-1.5">
                     <span className="text-[12px] text-[#333] font-mono truncate">{shown ? e.password : '•'.repeat(Math.min(12, e.password.length))}</span>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <button onClick={() => setReveal((r) => ({ ...r, [e.id]: !r[e.id] }))} className="text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none" title={shown ? 'Nascondi' : 'Mostra'}>{shown ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}</button>
-                      <button onClick={() => copy(e.password!, `p-${e.id}`)} className="text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none" title="Copia password">{copied === `p-${e.id}` ? <span className="text-[10px] font-bold text-emerald-600">✓</span> : <Copy className="w-3.5 h-3.5" />}</button>
+                      <button onClick={() => setReveal((r) => ({ ...r, [e.id]: !r[e.id] }))} className="text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none" title={shown ? 'Nascondi' : 'Mostra'}>{shown ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}</button>
+                      <button onClick={() => copy(e.password!, `p-${e.id}`)} className="text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none" title="Copia password">{copied === `p-${e.id}` ? <span className="text-[11px] font-bold text-emerald-600">✓</span> : <Copy className="w-3.5 h-3.5" />}</button>
                     </div>
                   </div>
                 )}
-                {e.note && <p className="text-[11.5px] text-[#8a8a8a] leading-relaxed">{e.note}</p>}
+                {e.note && <p className="text-[11.5px] text-[#6b6b6b] leading-relaxed">{e.note}</p>}
               </div>
             );
           })}
@@ -915,14 +915,14 @@ const VaultEditor: React.FC<{ entry: VaultEntry; onClose: () => void; onSave: (e
         <div className="flex items-center justify-between mb-3"><h3 className="text-[16px] font-extrabold text-[#161616]">{entry.label ? 'Modifica credenziale' : 'Nuova credenziale'}</h3><button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button></div>
         <div className="flex flex-col gap-3">
           <input value={d.label} onChange={(e) => set({ label: e.target.value })} placeholder="Nome (es. Google Workspace, Instagram, AutoCAD)" className={inp} />
-          <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Categoria</span>
+          <label className="flex flex-col gap-1"><span className="text-[11px] font-bold uppercase tracking-wider text-[#767676]">Categoria</span>
             <select value={d.category || 'sito'} onChange={(e) => set({ category: e.target.value as VaultCategory })} className={inp}>{VAULT_CATS.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}</select>
           </label>
           <input value={d.url || ''} onChange={(e) => set({ url: e.target.value || null })} placeholder="URL / link (https://…)" className={inp} />
           <input value={d.username || ''} onChange={(e) => set({ username: e.target.value || null })} placeholder="Utente / email" className={inp} />
           <div className="relative">
             <input type={show ? 'text' : 'password'} value={d.password || ''} onChange={(e) => set({ password: e.target.value || null })} placeholder="Password / chiave" className={`${inp} pr-10`} />
-            <button onClick={() => setShow((s) => !s)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8a8a8a] hover:text-[#161616] cursor-pointer bg-transparent border-none">{show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
+            <button onClick={() => setShow((s) => !s)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6b6b6b] hover:text-[#161616] cursor-pointer bg-transparent border-none">{show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button>
           </div>
           <textarea value={d.note || ''} onChange={(e) => set({ note: e.target.value || null })} placeholder="Note (2FA, recupero, riferimenti…)" rows={2} className={`${inp} resize-none`} />
           <button onClick={() => onSave({ ...d, label: d.label.trim(), updatedAt: Date.now() })} disabled={!d.label.trim()} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Salva credenziale</button>
@@ -948,7 +948,7 @@ const VaultChangePass: React.FC<{ onClose: () => void; onSetConfig: (cfg: VaultC
       <div className="bg-white rounded-[24px] w-full max-w-sm p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3"><h3 className="text-[16px] font-extrabold text-[#161616] inline-flex items-center gap-1.5"><KeyRound className="w-4 h-4" /> Password di sezione</h3><button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button></div>
         <div className="flex flex-col gap-3">
-          <p className="text-[12px] text-[#8a8a8a]">Imposta la nuova password per accedere alla cassaforte.</p>
+          <p className="text-[12px] text-[#6b6b6b]">Imposta la nuova password per accedere alla cassaforte.</p>
           <input type="password" value={np1} onChange={(e) => setNp1(e.target.value)} placeholder="Nuova password" className={inp} autoFocus />
           <input type="password" value={np2} onChange={(e) => setNp2(e.target.value)} placeholder="Ripeti password" className={inp} />
           {err && <p className="text-[12px] text-rose-600 font-semibold">{err}</p>}

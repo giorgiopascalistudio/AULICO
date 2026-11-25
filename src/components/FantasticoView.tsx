@@ -22,7 +22,7 @@ const STATUS: { id: FantTicketStatus; label: string; color: string }[] = [
 ];
 const CATS = ['manutenzione', 'giardinaggio', 'pulizie', 'trasporti', 'ospiti', 'altro'] as const;
 const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white disabled:bg-[#f7f7f5]';
-const lbl = 'text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]';
+const lbl = 'text-[11px] font-bold uppercase tracking-wider text-[#767676]';
 const fmtD = (d?: string | null) => (d ? new Date(d).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) : null);
 
 interface Props {
@@ -61,7 +61,7 @@ export const FantasticoView: React.FC<Props> = ({ immobili, tickets, rubrica, co
             <button onClick={() => setOpenImm(null)} className="w-9 h-9 rounded-xl border border-[#e2e2e2] bg-white hover:bg-[#f5f5f3] flex items-center justify-center cursor-pointer shrink-0"><ArrowLeft className="w-4 h-4" /></button>
             <div className="min-w-0">
               <h2 className="text-[20px] font-black tracking-tight text-[#161616] truncate">{imm.name}</h2>
-              <p className="text-[11.5px] text-[#8a8a8a] font-semibold truncate">{[imm.address, imm.comune, imm.ownerName ? `proprietario ${imm.ownerName}` : null].filter(Boolean).join(' · ') || '—'}</p>
+              <p className="text-[11.5px] text-[#6b6b6b] font-semibold truncate">{[imm.address, imm.comune, imm.ownerName ? `proprietario ${imm.ownerName}` : null].filter(Boolean).join(' · ') || '—'}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export const FantasticoView: React.FC<Props> = ({ immobili, tickets, rubrica, co
             {canEdit && <button onClick={() => setEditTk(blankTk(imm.id))} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuova richiesta</button>}
           </div>
         </div>
-        {list.length === 0 ? <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna richiesta per questo immobile.</p> : (
+        {list.length === 0 ? <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna richiesta per questo immobile.</p> : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {list.map((t) => <TicketCard key={t.id} t={t} onOpen={() => setEditTk(t)} />)}
           </div>
@@ -86,7 +86,7 @@ export const FantasticoView: React.FC<Props> = ({ immobili, tickets, rubrica, co
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Home className="w-5.5 h-5.5 text-[#161616]" /> Immobili & Servizi</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Gli immobili in gestione e le richieste di servizio smistate ai partner — dal taglio del prato al van per gli ospiti.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Gli immobili in gestione e le richieste di servizio smistate ai partner — dal taglio del prato al van per gli ospiti.</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
@@ -107,14 +107,14 @@ export const FantasticoView: React.FC<Props> = ({ immobili, tickets, rubrica, co
           { l: 'Margine del mese', v: eur(margineMese) },
         ].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[20px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
           </div>
         ))}
       </div>
 
       {tab === 'immobili' && (
-        immobili.length === 0 ? <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessun immobile in gestione. Aggiungi il primo.</p> : (
+        immobili.length === 0 ? <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessun immobile in gestione. Aggiungi il primo.</p> : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {immobili.map((i) => {
               const open = tickets.filter((t) => t.immobileId === i.id && t.status !== 'completato' && t.status !== 'annullato').length;
@@ -122,10 +122,10 @@ export const FantasticoView: React.FC<Props> = ({ immobili, tickets, rubrica, co
                 <button key={i.id} onClick={() => setOpenImm(i.id)} className={`text-left bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer ${i.active === false ? 'opacity-60' : ''}`}>
                   <div className="flex items-center justify-between gap-2">
                     <b className="text-[14px] text-[#161616] truncate">{i.name}</b>
-                    {open > 0 && <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-[#161616] text-white shrink-0">{open} apert{open === 1 ? 'a' : 'e'}</span>}
+                    {open > 0 && <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-[#161616] text-white shrink-0">{open} apert{open === 1 ? 'a' : 'e'}</span>}
                   </div>
-                  <p className="text-[11.5px] text-[#8a8a8a] mt-0.5 truncate">{[i.address, i.comune].filter(Boolean).join(', ') || '—'}</p>
-                  <p className="text-[11px] text-[#9a9a9a] mt-1 truncate">{i.ownerName ? `Proprietario: ${i.ownerName}` : '—'}{i.canoneMensile ? ` · canone ${eur(i.canoneMensile)}/mese` : ''}</p>
+                  <p className="text-[11.5px] text-[#6b6b6b] mt-0.5 truncate">{[i.address, i.comune].filter(Boolean).join(', ') || '—'}</p>
+                  <p className="text-[12px] text-[#767676] mt-1 truncate">{i.ownerName ? `Proprietario: ${i.ownerName}` : '—'}{i.canoneMensile ? ` · canone ${eur(i.canoneMensile)}/mese` : ''}</p>
                 </button>
               );
             })}
@@ -139,10 +139,10 @@ export const FantasticoView: React.FC<Props> = ({ immobili, tickets, rubrica, co
             const col = tickets.filter((t) => t.status === st.id).sort((a, b) => (a.dueDate || '9').localeCompare(b.dueDate || '9'));
             return (
               <div key={st.id} className="min-w-[240px] w-[240px] shrink-0 flex flex-col gap-2">
-                <div className="flex items-center gap-1.5 px-1"><span className="w-2.5 h-2.5 rounded-full" style={{ background: st.color }} /><span className="text-[12px] font-extrabold text-[#161616]">{st.label}</span><span className="text-[#b0b0b0] font-bold text-[11px]">({col.length})</span></div>
+                <div className="flex items-center gap-1.5 px-1"><span className="w-2.5 h-2.5 rounded-full" style={{ background: st.color }} /><span className="text-[12px] font-extrabold text-[#161616]">{st.label}</span><span className="text-[#8f8f8f] font-bold text-[12px]">({col.length})</span></div>
                 <div className="flex flex-col gap-2 bg-[#f6f6f4] border border-[#eee] rounded-[16px] p-2 min-h-[120px]">
                   {col.map((t) => <TicketCard key={t.id} t={t} compact immobile={immobili.find((i) => i.id === t.immobileId)} onOpen={() => setEditTk(t)} />)}
-                  {col.length === 0 && <p className="text-[11px] text-[#b0b0b0] text-center py-4">—</p>}
+                  {col.length === 0 && <p className="text-[12px] text-[#8f8f8f] text-center py-4">—</p>}
                 </div>
               </div>
             );
@@ -165,10 +165,10 @@ const TicketCard: React.FC<{ t: FantTicket; compact?: boolean; immobile?: FantIm
         <b className={`${compact ? 'text-[12.5px]' : 'text-[13.5px]'} text-[#161616] leading-tight`}>{t.title || 'Richiesta'}</b>
         {t.priority === 'urgente' && <span className="text-[8.5px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-rose-50 text-rose-600 shrink-0">urgente</span>}
       </div>
-      <p className="text-[10.5px] text-[#9a9a9a] mt-0.5 capitalize">{[t.category, immobile?.name, t.partnerName, fmtD(t.dueDate)].filter(Boolean).join(' · ')}</p>
+      <p className="text-[11.5px] text-[#767676] mt-0.5 capitalize">{[t.category, immobile?.name, t.partnerName, fmtD(t.dueDate)].filter(Boolean).join(' · ')}</p>
       <div className="flex items-center justify-between mt-1.5">
-        <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white" style={{ background: st.color }}>{st.label}</span>
-        {(t.prezzoCliente || t.costoPartner) ? <span className={`text-[10.5px] font-extrabold ${margine >= 0 ? 'text-emerald-700' : 'text-rose-600'}`}>{eur(margine)} marg.</span> : null}
+        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white" style={{ background: st.color }}>{st.label}</span>
+        {(t.prezzoCliente || t.costoPartner) ? <span className={`text-[11.5px] font-extrabold ${margine >= 0 ? 'text-emerald-700' : 'text-rose-600'}`}>{eur(margine)} marg.</span> : null}
       </div>
     </div>
   );

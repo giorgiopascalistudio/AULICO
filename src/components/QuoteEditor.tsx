@@ -147,7 +147,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
         {/* righe macro-voci */}
         <div className="border border-[#eee] rounded-2xl p-3 bg-[#fafafa]">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Voci per macro-categoria (importi imponibili)</span>
+            <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Voci per macro-categoria (importi imponibili)</span>
             <div className="flex items-center gap-2">
               {myPriceList.length > 0 && (
                 <select value="" onChange={(e) => { if (e.target.value) addFromPrice(e.target.value); e.target.value = ''; }} className="qi text-[12px] h-8 w-[160px]" title="Aggiungi dal listino della società">
@@ -178,17 +178,17 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
                 </div>
                 <label className="inline-flex items-center gap-1.5 cursor-pointer" title="Nel preventivo interattivo del portale il cliente NON potrà escludere questa voce">
                   <input type="checkbox" checked={!!l.locked} onChange={(e) => updLine(l.id, { locked: e.target.checked })} className="w-3.5 h-3.5 accent-[#161616]" />
-                  <span className="text-[11px] font-bold text-[#8a8a8a]">Voce obbligatoria (il cliente non può toglierla dal portale)</span>
+                  <span className="text-[12px] font-bold text-[#6b6b6b]">Voce obbligatoria (il cliente non può toglierla dal portale)</span>
                 </label>
               </div>
             ))}
-            {(draft.lines || []).length === 0 && <p className="text-[12px] italic text-[#9a9a9a]">Nessuna voce. Aggiungi una riga.</p>}
+            {(draft.lines || []).length === 0 && <p className="text-[12px] italic text-[#767676]">Nessuna voce. Aggiungi una riga.</p>}
           </div>
         </div>
 
         {/* Sconto / maggiorazione rapidi (% sull'imponibile delle righe) */}
         <div className="border border-[#eee] rounded-2xl p-3 bg-[#fafafa]">
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] block mb-2">Sconto / maggiorazione</span>
+          <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] block mb-2">Sconto / maggiorazione</span>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <label className="flex items-center gap-2.5 rounded-xl border border-[#e2e2e2] bg-white px-3 py-2.5">
               <span className="text-[12.5px] font-bold text-[#161616] flex-1">Sconto</span>
@@ -198,7 +198,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
                 inputMode="decimal" placeholder="0"
                 className="qi w-[64px] text-right"
               />
-              <span className="text-[12px] font-bold text-[#8a8a8a]">%</span>
+              <span className="text-[12px] font-bold text-[#6b6b6b]">%</span>
               {totals.sconto > 0 && <span className="text-[11.5px] font-bold text-rose-600">−{eur(totals.sconto)}</span>}
             </label>
             <label className="flex items-center gap-2.5 rounded-xl border border-[#e2e2e2] bg-white px-3 py-2.5">
@@ -209,12 +209,12 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
                 inputMode="decimal" placeholder="0"
                 className="qi w-[64px] text-right"
               />
-              <span className="text-[12px] font-bold text-[#8a8a8a]">%</span>
+              <span className="text-[12px] font-bold text-[#6b6b6b]">%</span>
               {totals.maggiorazione > 0 && <span className="text-[11.5px] font-bold text-emerald-700">+{eur(totals.maggiorazione)}</span>}
             </label>
           </div>
           {(totals.sconto > 0 || totals.maggiorazione > 0) && (
-            <p className="text-[11px] text-[#9a9a9a] font-semibold mt-2">Righe {eur(totals.righe)} → imponibile {eur(totals.imponibile)} (lo sconto/maggiorazione si applica prima di cassa e IVA).</p>
+            <p className="text-[12px] text-[#767676] font-semibold mt-2">Righe {eur(totals.righe)} → imponibile {eur(totals.imponibile)} (lo sconto/maggiorazione si applica prima di cassa e IVA).</p>
           )}
         </div>
 
@@ -224,7 +224,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
           const vv = quoteValue(draft);
           return (
             <div className="border border-[#eee] rounded-2xl p-3 bg-[#fafafa]">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] block mb-2">Valore immobile (preventivo interattivo)</span>
+              <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] block mb-2">Valore immobile (preventivo interattivo)</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <label className="flex items-center gap-2.5 rounded-xl border border-[#e2e2e2] bg-white px-3 py-2.5">
                   <span className="text-[12.5px] font-bold text-[#161616] flex-1">Valore stato dei luoghi</span>
@@ -234,16 +234,16 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
                     inputMode="decimal" placeholder="es. 100000"
                     className="qi w-[110px] text-right font-mono"
                   />
-                  <span className="text-[12px] font-bold text-[#8a8a8a]">€</span>
+                  <span className="text-[12px] font-bold text-[#6b6b6b]">€</span>
                 </label>
                 <div className="flex items-center gap-2.5 rounded-xl border border-[#e2e2e2] bg-white px-3 py-2.5">
                   <span className="text-[12.5px] font-bold text-[#161616] flex-1">Valore a fine opera</span>
                   {vv.base > 0
-                    ? <b className="text-[14px] text-emerald-700">{eur(vv.value)} <span className="text-[11px] text-[#8a8a8a] font-bold">(+{vv.upliftPct}%)</span></b>
-                    : <span className="text-[11.5px] text-[#9a9a9a] font-semibold">inserisci il valore base</span>}
+                    ? <b className="text-[14px] text-emerald-700">{eur(vv.value)} <span className="text-[12px] text-[#6b6b6b] font-bold">(+{vv.upliftPct}%)</span></b>
+                    : <span className="text-[11.5px] text-[#767676] font-semibold">inserisci il valore base</span>}
                 </div>
               </div>
-              <p className="text-[11px] text-[#9a9a9a] font-semibold mt-2">
+              <p className="text-[12px] text-[#767676] font-semibold mt-2">
                 Nel portale il cliente vede il valore stimato dell'immobile salire/scendere spuntando le voci:
                 ogni voce contribuisce con la sua <b>% valore</b> (impostala qui sulle righe o nel Listino).
               </p>
@@ -253,7 +253,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
 
         {/* IVA & Cassa previdenziale spuntabili + riepilogo totali */}
         <div className="border border-[#eee] rounded-2xl p-3 bg-[#fafafa]">
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] block mb-2">IVA &amp; Cassa previdenziale</span>
+          <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] block mb-2">IVA &amp; Cassa previdenziale</span>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <label className="flex items-center gap-2.5 rounded-xl border border-[#e2e2e2] bg-white px-3 py-2.5 cursor-pointer">
               <input type="checkbox" checked={draft.vatEnabled ?? true} onChange={(e) => setDraft((d) => ({ ...d, vatEnabled: e.target.checked }))} className="w-4 h-4 accent-[#161616] cursor-pointer" />
@@ -265,7 +265,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
                 inputMode="decimal"
                 className="qi w-[64px] text-right disabled:opacity-40"
               />
-              <span className="text-[12px] font-bold text-[#8a8a8a]">%</span>
+              <span className="text-[12px] font-bold text-[#6b6b6b]">%</span>
             </label>
             <label className="flex items-center gap-2.5 rounded-xl border border-[#e2e2e2] bg-white px-3 py-2.5 cursor-pointer">
               <input type="checkbox" checked={!!draft.cassaEnabled} onChange={(e) => setDraft((d) => ({ ...d, cassaEnabled: e.target.checked }))} className="w-4 h-4 accent-[#161616] cursor-pointer" />
@@ -277,7 +277,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
                 inputMode="decimal"
                 className="qi w-[64px] text-right disabled:opacity-40"
               />
-              <span className="text-[12px] font-bold text-[#8a8a8a]">%</span>
+              <span className="text-[12px] font-bold text-[#6b6b6b]">%</span>
             </label>
           </div>
           <div className="mt-2.5 pt-2.5 border-t border-[#e2e2e2] grid grid-cols-2 sm:grid-cols-4 gap-2 text-right">
@@ -291,7 +291,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
         {/* piano pagamenti */}
         <div className="border border-[#eee] rounded-2xl p-3 bg-[#fafafa]">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Piano pagamenti — importi imponibili (acconto / rate / saldo)</span>
+            <span className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Piano pagamenti — importi imponibili (acconto / rate / saldo)</span>
             <button onClick={addMilestone} className="inline-flex items-center gap-1 text-[12px] font-bold text-[#161616] cursor-pointer bg-transparent border-none"><Plus className="w-3.5 h-3.5" /> Rata</button>
           </div>
           <div className="flex flex-col gap-2">
@@ -308,7 +308,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
                 </div>
               </div>
             ))}
-            {(draft.paymentPlan || []).length === 0 && <p className="text-[12px] italic text-[#9a9a9a]">Nessuna rata. Aggiungi acconto/rate/saldo.</p>}
+            {(draft.paymentPlan || []).length === 0 && <p className="text-[12px] italic text-[#767676]">Nessuna rata. Aggiungi acconto/rate/saldo.</p>}
           </div>
         </div>
 
@@ -322,7 +322,7 @@ export const QuoteEditor: React.FC<QuoteEditorProps> = ({ initial, isNew, client
 
 const L: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1">
-    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">{label}</span>
+    <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">{label}</span>
     {children}
   </label>
 );

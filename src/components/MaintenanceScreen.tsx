@@ -27,7 +27,7 @@ export const MaintenanceScreen: React.FC<{ email?: string | null; onLogout?: () 
           <Wrench className="w-6 h-6" />
         </motion.div>
         <b className="text-[16px] text-[#161616]">Aulico è in aggiornamento</b>
-        <p className="text-[13px] text-[#8a8a8a] leading-relaxed">
+        <p className="text-[13px] text-[#6b6b6b] leading-relaxed">
           Stiamo sistemando e migliorando il gestionale. Tornerà disponibile a breve:
           i tuoi dati sono al sicuro e ritroverai tutto com'era.
         </p>
@@ -40,13 +40,13 @@ export const MaintenanceScreen: React.FC<{ email?: string | null; onLogout?: () 
         </div>
         {email ? (
           <>
-            <p className="text-[12px] text-stone-400 font-semibold mt-2">{email}</p>
+            <p className="text-[12px] text-stone-500 font-semibold mt-2">{email}</p>
             <button onClick={onLogout} className="btn bg-gray-100 hover:bg-gray-200 border-none text-[#161616] font-bold justify-center mt-1 w-full inline-flex items-center gap-2">
               <LogOut className="w-4 h-4" /> Esci
             </button>
           </>
         ) : (
-          <button onClick={() => { loginWithGoogle().catch(() => {}); }} className="mt-3 text-[11.5px] font-bold text-stone-400 hover:text-[#161616] bg-transparent border-none cursor-pointer">
+          <button onClick={() => { loginWithGoogle().catch(() => {}); }} className="mt-3 text-[11.5px] font-bold text-stone-500 hover:text-[#161616] bg-transparent border-none cursor-pointer">
             Accesso amministratore
           </button>
         )}

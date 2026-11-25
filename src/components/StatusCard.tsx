@@ -86,12 +86,12 @@ export const StatusCard: React.FC<StatusCardProps> = ({
     <div className="bg-[#161616] text-white rounded-2xl p-[22px] pb-[18px] w-full shadow-lg relative overflow-hidden text-left font-sans select-none">
       <div className="flex justify-between items-start gap-4 mb-2">
         <div className="flex flex-col gap-1 min-w-0 max-w-[46%]">
-          <span className="text-[12px] font-bold text-[#bdbdbd] truncate">{fromCity}</span>
-          <span className="text-[11px] text-[#8a8a8a] truncate min-h-[16px]">{fromTime}</span>
+          <span className="text-[12px] font-bold text-[#9a9a9a] truncate">{fromCity}</span>
+          <span className="text-[12px] text-[#6b6b6b] truncate min-h-[16px]">{fromTime}</span>
         </div>
         <div className="flex flex-col gap-1 min-w-0 max-w-[46%] text-right items-end">
-          <span className="text-[12px] font-bold text-[#bdbdbd] truncate">{toCity}</span>
-          <span className="text-[11px] text-[#8a8a8a] truncate min-h-[16px]">{toTime}</span>
+          <span className="text-[12px] font-bold text-[#9a9a9a] truncate">{toCity}</span>
+          <span className="text-[12px] text-[#6b6b6b] truncate min-h-[16px]">{toTime}</span>
         </div>
       </div>
 
@@ -122,14 +122,14 @@ export const StatusCard: React.FC<StatusCardProps> = ({
 
       <div className="flex justify-between items-center border-t border-[#2c2c2c] pt-[14px] gap-3">
         <div className="flex flex-col gap-[2px] min-w-0 max-w-[60%]">
-          <span className="text-[9.5px] uppercase font-bold text-[#7a7a7a] tracking-wider truncate">{nextLabel}</span>
+          <span className="text-[10.5px] uppercase font-bold text-[#7a7a7a] tracking-wider truncate">{nextLabel}</span>
           <span className="text-[13.5px] font-bold text-white truncate">{nextVal}</span>
         </div>
         <span className="text-[21px] font-extrabold tracking-tight tabular-nums select-all flex-shrink-0">
           <SmartText value={`${progress}%`} />
         </span>
         <div className="flex flex-col gap-[2px] min-w-0 max-w-[35%] text-right items-end">
-          <span className="text-[9.5px] uppercase font-bold text-[#7a7a7a] tracking-wider truncate">{rightLabel}</span>
+          <span className="text-[10.5px] uppercase font-bold text-[#7a7a7a] tracking-wider truncate">{rightLabel}</span>
           <span className="text-[13.5px] font-bold text-white truncate">{rightVal}</span>
         </div>
       </div>

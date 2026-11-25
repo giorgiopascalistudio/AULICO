@@ -231,7 +231,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                 setSearchQuery('');
               }}
               className={`flex items-center gap-1.5 text-[12.5px] font-bold px-[15px] py-1.5 rounded-full transition-all cursor-pointer border-none bg-transparent ${
-                peopleTab === 'team' ? 'bg-white text-[#161616] shadow-xs font-extrabold' : 'text-[#8a8a8a] hover:text-[#161616]'
+                peopleTab === 'team' ? 'bg-white text-[#161616] shadow-xs font-extrabold' : 'text-[#6b6b6b] hover:text-[#161616]'
               }`}
             >
               <Users className="w-3.5 h-3.5" /> Team
@@ -242,7 +242,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                 setSearchQuery('');
               }}
               className={`flex items-center gap-1.5 text-[12.5px] font-bold px-[15px] py-1.5 rounded-full transition-all cursor-pointer border-none bg-transparent ${
-                peopleTab === 'partner' ? 'bg-white text-[#161616] shadow-xs font-extrabold' : 'text-[#8a8a8a] hover:text-[#161616]'
+                peopleTab === 'partner' ? 'bg-white text-[#161616] shadow-xs font-extrabold' : 'text-[#6b6b6b] hover:text-[#161616]'
               }`}
             >
               <Briefcase className="w-3.5 h-3.5" /> Partner
@@ -264,7 +264,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                     className={`text-[12px] font-bold px-3 py-1.5 rounded-full cursor-pointer border-none transition-all ${
                       active 
                         ? 'bg-[#161616] text-white shadow-xs font-extrabold' 
-                        : 'text-[#8a8a8a] bg-transparent hover:text-[#161616]'
+                        : 'text-[#6b6b6b] bg-transparent hover:text-[#161616]'
                     }`}
                   >
                     {label}
@@ -275,7 +275,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
           )}
 
           {/* Quick Stats Summary */}
-          <div className="text-[11px] font-mono font-bold text-[#8a8a8a] bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-full uppercase tracking-wider">
+          <div className="text-[12px] font-mono font-bold text-[#6b6b6b] bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-full uppercase tracking-wider">
             {peopleTab === 'team' 
               ? `${teamList.length} membri` 
               : peopleTab === 'partner'
@@ -306,7 +306,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 border-none bg-transparent text-[10px] text-gray-450 hover:text-black font-semibold cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 border-none bg-transparent text-[11px] text-gray-450 hover:text-black font-semibold cursor-pointer"
               >
                 Annulla
               </button>
@@ -318,7 +318,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
             <button
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-full border-none cursor-pointer transition-all ${
-                viewMode === 'grid' ? 'bg-white text-[#161616] shadow-xs' : 'text-[#8a8a8a] bg-transparent hover:text-black'
+                viewMode === 'grid' ? 'bg-white text-[#161616] shadow-xs' : 'text-[#6b6b6b] bg-transparent hover:text-black'
               }`}
               title="Vista Griglia"
             >
@@ -327,7 +327,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
             <button
               onClick={() => setViewMode('table')}
               className={`p-1.5 rounded-full border-none cursor-pointer transition-all ${
-                viewMode === 'table' ? 'bg-white text-[#161616] shadow-xs' : 'text-[#8a8a8a] bg-transparent hover:text-black'
+                viewMode === 'table' ? 'bg-white text-[#161616] shadow-xs' : 'text-[#6b6b6b] bg-transparent hover:text-black'
               }`}
               title="Vista Tabella"
             >
@@ -356,7 +356,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
         </div>
       </div>
 
-      <p className="text-[13px] text-[#8a8a8a] -mt-2 max-w-[700px] leading-relaxed">
+      <p className="text-[13px] text-[#6b6b6b] -mt-2 max-w-[700px] leading-relaxed">
         {peopleTab === 'team'
           ? "Gestisci l'organico e assegna i ruoli di sicurezza dello studio. Gli amministratori possiedono l'intero controllo, i PM sovrintendono ad avanzamenti e fatturazioni, mentre lo staff opera sulle commesse."
           : peopleTab === 'partner'
@@ -454,13 +454,13 @@ export const TeamView: React.FC<TeamViewProps> = ({
                             {u.name}
                           </h4>
                           {isMe && (
-                            <span className="text-[10px] uppercase font-bold tracking-wider font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md">Tu</span>
+                            <span className="text-[11px] uppercase font-bold tracking-wider font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md">Tu</span>
                           )}
                         </div>
 
                         {/* Badge Ruolo */}
                         <div className="mt-1.5">
-                          <span className={`inline-flex px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider ${badges[u.role] || badges.staff}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${badges[u.role] || badges.staff}`}>
                             {labels[u.role] || u.role}
                           </span>
                         </div>
@@ -509,7 +509,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                         {fns.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-3">
                             {fns.map(f => (
-                              <span key={f} className="text-[9px] bg-slate-50 text-slate-800 border border-slate-200/55 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                              <span key={f} className="text-[10px] bg-slate-50 text-slate-800 border border-slate-200/55 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                                 {f}
                               </span>
                             ))}
@@ -518,7 +518,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
 
                         {/* Managed Projects Pill counter */}
                         {mProjs.length > 0 && (
-                          <div className="mt-3.5 flex items-center gap-1.5 text-[11px] font-bold text-zinc-900 bg-zinc-50 border border-zinc-150 rounded-xl px-2.5 py-1.5 w-fit">
+                          <div className="mt-3.5 flex items-center gap-1.5 text-[12px] font-bold text-zinc-900 bg-zinc-50 border border-zinc-150 rounded-xl px-2.5 py-1.5 w-fit">
                             <Briefcase className="w-3.5 h-3.5" />
                             <span>Controlla {mProjs.length} pratiche</span>
                           </div>
@@ -586,11 +586,11 @@ export const TeamView: React.FC<TeamViewProps> = ({
                         </h4>
                         
                         <div className="mt-1.5 flex items-center gap-1.5">
-                          <span className="text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full bg-purple-50 text-purple-800 border-purple-200">
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full bg-purple-50 text-purple-800 border-purple-200">
                             Partner B2B
                           </span>
                           {u.telefono && (
-                            <span className="text-[10px] font-bold text-gray-400">∙ {u.telefono}</span>
+                            <span className="text-[11px] font-bold text-gray-400">∙ {u.telefono}</span>
                           )}
                         </div>
 
@@ -614,7 +614,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
 
                       {/* Connected Projects Pill List */}
                       <div className="mt-4 pt-3.5 border-t border-dashed border-[#ececec]">
-                        <span className="text-[9px] uppercase tracking-wider font-extrabold text-gray-400 block mb-2 font-sans">
+                        <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 block mb-2 font-sans">
                           Pratiche edilizie collegate
                         </span>
                         {clientProjs.length > 0 ? (
@@ -626,7 +626,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                                   e.stopPropagation();
                                   onNav(`progetto/${p.id}`);
                                 }}
-                                className="inline-flex items-center gap-1 bg-[#f1f1f1] hover:bg-black text-[#161616] hover:text-white px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border-none cursor-pointer text-left truncate max-w-full"
+                                className="inline-flex items-center gap-1 bg-[#f1f1f1] hover:bg-black text-[#161616] hover:text-white px-2.5 py-1 rounded-lg text-[12px] font-bold transition-all border-none cursor-pointer text-left truncate max-w-full"
                               >
                                 <Folder className="w-3 h-3 shrink-0" /> 
                                 <span className="truncate">{p.name}</span>
@@ -701,7 +701,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                         </h4>
                         
                         <div className="mt-1.5 flex items-center gap-1.5">
-                          <span className={`text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${
+                          <span className={`text-[10px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${
                             u.sector === 'strategico'
                               ? 'bg-amber-50 text-amber-800 border-amber-200'
                               : u.sector === 'materico'
@@ -715,7 +715,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                               : 'Studio'}
                           </span>
                           {u.telefono && (
-                            <span className="text-[10px] font-bold text-gray-400">∙ {u.telefono}</span>
+                            <span className="text-[11px] font-bold text-gray-400">∙ {u.telefono}</span>
                           )}
                         </div>
 
@@ -739,7 +739,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
 
                       {/* Connected Projects Pill List */}
                       <div className="mt-4 pt-3.5 border-t border-dashed border-[#ececec]">
-                        <span className="text-[9px] uppercase tracking-wider font-extrabold text-gray-400 block mb-2 font-sans font-extrabold">
+                        <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 block mb-2 font-sans font-extrabold">
                           Pratiche edilizie collegate
                         </span>
                         {clientProjs.length > 0 ? (
@@ -751,7 +751,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                                   e.stopPropagation();
                                   onNav(`progetto/${p.id}`);
                                 }}
-                                className="inline-flex items-center gap-1 bg-[#f1f1f1] hover:bg-black text-[#161616] hover:text-white px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border-none cursor-pointer text-left truncate max-w-full"
+                                className="inline-flex items-center gap-1 bg-[#f1f1f1] hover:bg-black text-[#161616] hover:text-white px-2.5 py-1 rounded-lg text-[12px] font-bold transition-all border-none cursor-pointer text-left truncate max-w-full"
                               >
                                 <Folder className="w-3 h-3 shrink-0" /> 
                                 <span className="truncate">{p.name}</span>
@@ -791,10 +791,10 @@ export const TeamView: React.FC<TeamViewProps> = ({
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="border-b border-[#e2e2e2] bg-[#fafafa]">
-                  <th className="font-bold text-[11px] text-[#8a8a8a] uppercase tracking-wider py-4 px-5">Utente</th>
-                  <th className="font-bold text-[11px] text-[#8a8a8a] uppercase tracking-wider py-4 px-5">{peopleTab === 'team' ? 'Ruolo' : 'Tipologia'}</th>
-                  <th className="font-bold text-[11px] text-[#8a8a8a] uppercase tracking-wider py-4 px-5">{peopleTab === 'team' ? 'Incarico Operativo / Note' : 'Pratiche Collegate'}</th>
-                  <th className="font-bold text-[11px] text-[#8a8a8a] uppercase tracking-wider py-4 px-5">Stato</th>
+                  <th className="font-bold text-[12px] text-[#6b6b6b] uppercase tracking-wider py-4 px-5">Utente</th>
+                  <th className="font-bold text-[12px] text-[#6b6b6b] uppercase tracking-wider py-4 px-5">{peopleTab === 'team' ? 'Ruolo' : 'Tipologia'}</th>
+                  <th className="font-bold text-[12px] text-[#6b6b6b] uppercase tracking-wider py-4 px-5">{peopleTab === 'team' ? 'Incarico Operativo / Note' : 'Pratiche Collegate'}</th>
+                  <th className="font-bold text-[12px] text-[#6b6b6b] uppercase tracking-wider py-4 px-5">Stato</th>
                   <th className="py-4 px-5 text-right w-[60px]"></th>
                 </tr>
               </thead>
@@ -829,7 +829,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                           </td>
 
                           <td className="py-3 px-5 whitespace-nowrap">
-                            <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider ${badges[u.role] || badges.staff}`}>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${badges[u.role] || badges.staff}`}>
                               {labels[u.role] || u.role}
                             </span>
                           </td>
@@ -838,7 +838,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                             {fns.length > 0 ? (
                               <div className="flex flex-wrap gap-1">
                                 {fns.map(f => (
-                                  <span key={f} className="text-[9px] bg-slate-50 border border-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                  <span key={f} className="text-[10px] bg-slate-50 border border-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                                     {f}
                                   </span>
                                 ))}
@@ -850,7 +850,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
 
                           <td className="py-3 px-5 whitespace-nowrap">
                             {u.active === false ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] font-extrabold bg-red-100 text-red-800 border border-red-200 uppercase tracking-widest">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-red-100 text-red-800 border border-red-200 uppercase tracking-widest">
                                 Disattivato
                               </span>
                             ) : (
@@ -864,7 +864,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                             {!isMe && (
                               <button
                                 onClick={(e) => handleMenuClick(e, u.uid)}
-                                className="w-8 h-8 rounded-lg flex items-center justify-center text-[#8a8a8a] bg-transparent hover:bg-[#ececec] hover:text-[#161616] cursor-pointer border-none transition-colors"
+                                className="w-8 h-8 rounded-lg flex items-center justify-center text-[#6b6b6b] bg-transparent hover:bg-[#ececec] hover:text-[#161616] cursor-pointer border-none transition-colors"
                               >
                                 <MoreHorizontal className="w-4 h-4" />
                               </button>
@@ -905,7 +905,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                           </td>
 
                           <td className="py-4 px-5 whitespace-nowrap">
-                            <span className="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider border bg-purple-50 text-purple-800 border-purple-200">
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border bg-purple-50 text-purple-800 border-purple-200">
                               Partner B2B
                             </span>
                           </td>
@@ -920,7 +920,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                                       e.stopPropagation();
                                       onNav(`progetto/${p.id}`);
                                     }}
-                                    className="inline-flex items-center gap-1 bg-[#ececec] text-[#161616] hover:bg-black hover:text-white px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer"
+                                    className="inline-flex items-center gap-1 bg-[#ececec] text-[#161616] hover:bg-black hover:text-white px-2 py-0.5 rounded-lg text-[12px] font-bold transition-all cursor-pointer"
                                   >
                                     <Folder className="w-3 h-3 block" /> {p.name}
                                   </span>
@@ -933,7 +933,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
 
                           <td className="py-4 px-5 whitespace-nowrap">
                             {u.active === false ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] font-extrabold bg-red-100 text-red-800 border border-red-200 uppercase tracking-widest">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-red-100 text-red-800 border border-red-200 uppercase tracking-widest">
                                 Disabilitato
                               </span>
                             ) : (
@@ -946,7 +946,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                           <td className="py-4 px-5 text-right whitespace-nowrap">
                             <button
                               onClick={(e) => handleMenuClick(e, u.uid)}
-                              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#8a8a8a] bg-transparent hover:bg-[#ececec] hover:text-[#161616] cursor-pointer border-none transition-colors"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#6b6b6b] bg-transparent hover:bg-[#ececec] hover:text-[#161616] cursor-pointer border-none transition-colors"
                             >
                               <MoreHorizontal className="w-4 h-4" />
                             </button>
@@ -986,7 +986,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                           </td>
 
                           <td className="py-4 px-5 whitespace-nowrap">
-                            <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider border ${
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${
                               u.sector === 'strategico'
                                 ? 'bg-amber-50 text-amber-800 border-amber-200'
                                 : u.sector === 'materico'
@@ -1011,7 +1011,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                                       e.stopPropagation();
                                       onNav(`progetto/${p.id}`);
                                     }}
-                                    className="inline-flex items-center gap-1 bg-[#ececec] text-[#161616] hover:bg-black hover:text-white px-2 py-0.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer"
+                                    className="inline-flex items-center gap-1 bg-[#ececec] text-[#161616] hover:bg-black hover:text-white px-2 py-0.5 rounded-lg text-[12px] font-bold transition-all cursor-pointer"
                                   >
                                     <Folder className="w-3 h-3 block" /> {p.name}
                                   </span>
@@ -1024,7 +1024,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
 
                           <td className="py-4 px-5 whitespace-nowrap">
                             {u.active === false ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9.5px] font-extrabold bg-red-100 text-red-800 border border-red-200 uppercase tracking-widest">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-red-100 text-red-800 border border-red-200 uppercase tracking-widest">
                                 Disabilitato
                               </span>
                             ) : (
@@ -1037,7 +1037,7 @@ export const TeamView: React.FC<TeamViewProps> = ({
                           <td className="py-4 px-5 text-right whitespace-nowrap">
                             <button
                               onClick={(e) => handleMenuClick(e, u.uid)}
-                              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#8a8a8a] bg-transparent hover:bg-[#ececec] hover:text-[#161616] cursor-pointer border-none transition-colors"
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-[#6b6b6b] bg-transparent hover:bg-[#ececec] hover:text-[#161616] cursor-pointer border-none transition-colors"
                             >
                               <MoreHorizontal className="w-4 h-4" />
                             </button>
@@ -1106,10 +1106,10 @@ const IncentivesBoard: React.FC<{
         <h3 className="inline-flex items-center gap-2 text-[14.5px] font-extrabold text-[#161616]">
           <ShieldCheck className="w-4.5 h-4.5" /> {audience === 'team' ? 'Incentivi & classifica' : 'Affidabilità & classifica partner'}
         </h3>
-        <span className="text-[11.5px] text-[#8a8a8a]">{audience === 'team' ? 'Produttività/qualità → bonus' : 'Puntualità/precisione → affidabilità'}</span>
+        <span className="text-[11.5px] text-[#6b6b6b]">{audience === 'team' ? 'Produttività/qualità → bonus' : 'Puntualità/precisione → affidabilità'}</span>
       </div>
       {board.length === 0 ? (
-        <p className="text-[12.5px] text-[#8a8a8a]">Nessun iscritto.</p>
+        <p className="text-[12.5px] text-[#6b6b6b]">Nessun iscritto.</p>
       ) : (
         <div className="flex flex-col gap-1.5">
           {board.map((row, i) => {
@@ -1117,11 +1117,11 @@ const IncentivesBoard: React.FC<{
             const nt = nextTier(row.points);
             return (
               <div key={row.uid} className="flex items-center gap-3 px-3 py-2 rounded-xl border border-[#ececec] hover:bg-[#fafafa]">
-                <span className="w-6 text-center text-[13px] font-extrabold text-[#8a8a8a]">{i + 1}</span>
-                <div className="w-8 h-8 rounded-full bg-[#161616] text-white flex items-center justify-center text-[11px] font-bold shrink-0">{initials(nameOf(row.uid))}</div>
+                <span className="w-6 text-center text-[13px] font-extrabold text-[#6b6b6b]">{i + 1}</span>
+                <div className="w-8 h-8 rounded-full bg-[#161616] text-white flex items-center justify-center text-[12px] font-bold shrink-0">{initials(nameOf(row.uid))}</div>
                 <div className="min-w-0 flex-1">
                   <div className="text-[13px] font-bold text-[#161616] truncate">{nameOf(row.uid)}</div>
-                  <div className="text-[11px] text-[#8a8a8a]">
+                  <div className="text-[12px] text-[#6b6b6b]">
                     <span className="font-bold" style={{ color: tier.color }}>{tier.label}</span>
                     {audience === 'team' && tier.bonusPct ? ` · bonus ${tier.bonusPct}%` : ''}
                     {nt ? ` · ${nt.remaining} pt a ${nt.tier.label}` : ' · max'}
@@ -1129,7 +1129,7 @@ const IncentivesBoard: React.FC<{
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-[15px] font-extrabold text-[#161616]">{row.points}</div>
-                  <div className="text-[10.5px] text-[#8a8a8a]">{row.events} eventi</div>
+                  <div className="text-[11.5px] text-[#6b6b6b]">{row.events} eventi</div>
                 </div>
                 {canAssign && (
                   <button onClick={() => setAssignFor(members.find((m) => m.uid === row.uid))}
@@ -1150,7 +1150,7 @@ const IncentivesBoard: React.FC<{
               className="bg-white w-full max-w-[440px] rounded-[24px] shadow-2xl p-6 flex flex-col gap-3 text-left">
               <b className="text-[15px] tracking-tight">Assegna punti a {assignFor.name}</b>
               <label className="flex flex-col gap-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Attività</span>
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Attività</span>
                 <select value={actId} onChange={(e) => setActId(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[13.5px]">
                   <option value="">Seleziona…</option>
                   {Array.from(new Set(cat.map((a) => a.category))).map((category) => (
@@ -1162,12 +1162,12 @@ const IncentivesBoard: React.FC<{
               </label>
               {actId === 'manual' && (
                 <label className="flex flex-col gap-1.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Punti (anche negativi)</span>
+                  <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Punti (anche negativi)</span>
                   <input type="number" value={custom} onChange={(e) => setCustom(e.target.value)} className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
                 </label>
               )}
               <label className="flex flex-col gap-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Nota (opzionale)</span>
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Nota (opzionale)</span>
                 <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Motivazione…" className="input border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px]" />
               </label>
               <div className="flex gap-2 mt-1">
@@ -1234,14 +1234,14 @@ const ProductivityDashboard: React.FC<{ members: any[]; tasks: Task[] }> = ({ me
           return (
             <div key={u.uid} className="px-3 py-2.5 rounded-2xl border border-[#eee] bg-[#fafafa]">
               <div className="flex items-center gap-2 mb-2">
-                <span className="w-7 h-7 rounded-full bg-[#161616] text-white flex items-center justify-center text-[10px] font-bold">{initials(u.name)}</span>
+                <span className="w-7 h-7 rounded-full bg-[#161616] text-white flex items-center justify-center text-[11px] font-bold">{initials(u.name)}</span>
                 <b className="text-[12.5px] text-[#161616] truncate">{u.name}</b>
               </div>
               <div className="grid grid-cols-4 gap-1.5 text-center">
-                <div><div className="text-[15px] font-black text-[#161616]">{s.open}</div><div className="text-[8.5px] font-bold uppercase text-[#9a9a9a]">Aperti</div></div>
-                <div><div className={`text-[15px] font-black ${s.urgent ? 'text-rose-600' : 'text-[#161616]'}`}>{s.urgent}</div><div className="text-[8.5px] font-bold uppercase text-[#9a9a9a]">Urgenti</div></div>
-                <div><div className={`text-[15px] font-black ${s.overdue ? 'text-amber-600' : 'text-[#161616]'}`}>{s.overdue}</div><div className="text-[8.5px] font-bold uppercase text-[#9a9a9a]">Scaduti</div></div>
-                <div><div className="text-[15px] font-black text-emerald-600">{s.completed}</div><div className="text-[8.5px] font-bold uppercase text-[#9a9a9a]">Fatti</div></div>
+                <div><div className="text-[15px] font-black text-[#161616]">{s.open}</div><div className="text-[8.5px] font-bold uppercase text-[#767676]">Aperti</div></div>
+                <div><div className={`text-[15px] font-black ${s.urgent ? 'text-rose-600' : 'text-[#161616]'}`}>{s.urgent}</div><div className="text-[8.5px] font-bold uppercase text-[#767676]">Urgenti</div></div>
+                <div><div className={`text-[15px] font-black ${s.overdue ? 'text-amber-600' : 'text-[#161616]'}`}>{s.overdue}</div><div className="text-[8.5px] font-bold uppercase text-[#767676]">Scaduti</div></div>
+                <div><div className="text-[15px] font-black text-emerald-600">{s.completed}</div><div className="text-[8.5px] font-bold uppercase text-[#767676]">Fatti</div></div>
               </div>
             </div>
           );

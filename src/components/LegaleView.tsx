@@ -24,7 +24,7 @@ import { SOCIETY_COLOR } from '../societyConfig';
 import ContractPrintDoc, { CONTRACT_TEMPLATES, type ContractTemplateId } from './ContractPrintDoc';
 
 const inp = 'px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white disabled:bg-[#f7f7f5]';
-const lbl = 'text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]';
+const lbl = 'text-[11px] font-bold uppercase tracking-wider text-[#767676]';
 
 const KIND_LABEL: Record<LegalDocKind, string> = {
   contratto: 'Contratto', liberatoria: 'Liberatoria', informativa: 'Informativa privacy',
@@ -91,7 +91,7 @@ export const LegaleView: React.FC<Props> = ({ rubrica, users, mktAccounts, mktCo
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2">
             <Scale className="w-5.5 h-5.5 text-[#161616]" /> Area Legale
           </h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">
             Contrattualistica, liberatorie e privacy di tutte le società del gruppo — gestita da Strategico.
           </p>
         </div>
@@ -145,7 +145,7 @@ const RegistroTab: React.FC<{
           { l: 'Totale registro', v: String(docs.length) },
         ].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[20px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
           </div>
         ))}
@@ -153,7 +153,7 @@ const RegistroTab: React.FC<{
 
       {inScadenza.length > 0 && (
         <div className="bg-white border border-[#f3d9b1] rounded-[20px] p-4">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#b45309] inline-flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> In scadenza</p>
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#b45309] inline-flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> In scadenza</p>
           <div className="flex flex-col gap-1">
             {inScadenza.slice(0, 5).map((d) => (
               <button key={d.id} onClick={() => setEditing(d)} className="text-left text-[12.5px] text-[#555] hover:text-[#161616] cursor-pointer bg-transparent border-none p-0 font-semibold">
@@ -166,7 +166,7 @@ const RegistroTab: React.FC<{
 
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-[320px]">
-          <Search className="w-4 h-4 text-[#b0b0b0] absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#8f8f8f] absolute left-3 top-1/2 -translate-y-1/2" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cerca documento, controparte…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white" />
         </div>
         <select value={socF} onChange={(e) => setSocF(e.target.value)} className={`${inp} w-auto font-bold cursor-pointer`}>
@@ -181,7 +181,7 @@ const RegistroTab: React.FC<{
       </div>
 
       {list.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">
           Nessun documento nel registro.{canEdit ? ' Inizia con "Nuovo documento".' : ''}
         </p>
       ) : (
@@ -195,16 +195,16 @@ const RegistroTab: React.FC<{
                 <span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-[#f5f5f3] text-[#161616]"><FileText className="w-4.5 h-4.5" /></span>
                 <div className="min-w-0 flex-1">
                   <b className="text-[13.5px] text-[#161616] flex items-center gap-1.5 truncate"><span className="w-2 h-2 rounded-full shrink-0" style={{ background: socColor(d.soc) }} />{d.title || 'Senza titolo'}</b>
-                  <p className="text-[11px] text-[#8a8a8a] truncate">
+                  <p className="text-[12px] text-[#6b6b6b] truncate">
                     {KIND_LABEL[d.kind]} · {socLabel(d.soc)}{d.counterparty ? ` · ${d.counterparty}` : ''}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0 flex-wrap">
                   {d.expiry && d.status === 'attivo' && !expired && gg != null && gg <= 60 && (
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">scade tra {gg}gg</span>
+                    <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">scade tra {gg}gg</span>
                   )}
-                  {d.expiry && <span className="text-[11px] text-[#9a9a9a] font-semibold">→ {fmtD(d.expiry)}</span>}
-                  <span className={`text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${st.cls}`}>{st.label}</span>
+                  {d.expiry && <span className="text-[12px] text-[#767676] font-semibold">→ {fmtD(d.expiry)}</span>}
+                  <span className={`text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full ${st.cls}`}>{st.label}</span>
                 </div>
               </button>
             );
@@ -290,7 +290,7 @@ const ModelliTab: React.FC<{ rubrica: ClientRecord[] }> = ({ rubrica }) => {
   const [open, setOpen] = React.useState<{ id: ContractTemplateId; soc: string } | null>(null);
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-[12.5px] text-[#8a8a8a] font-semibold">
+      <p className="text-[12.5px] text-[#6b6b6b] font-semibold">
         I contratti da modello con carta intestata (gli stessi del Centro Commerciale): campi auto-compilati dalla rubrica, ogni sezione modificabile prima della Stampa/PDF.
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -300,7 +300,7 @@ const ModelliTab: React.FC<{ rubrica: ClientRecord[] }> = ({ rubrica }) => {
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: socColor(tp.soc) }} />
               <FileSignature className="w-4 h-4 text-[#161616]" /> {tp.label}
             </p>
-            <p className="text-[11.5px] text-[#8a8a8a] mt-1">{socLabel(tp.soc)} · {tp.desc}</p>
+            <p className="text-[11.5px] text-[#6b6b6b] mt-1">{socLabel(tp.soc)} · {tp.desc}</p>
           </button>
         ))}
       </div>
@@ -329,7 +329,7 @@ const PrivacyTab: React.FC<{ users: Record<string, UserProfile>; mktAccounts: Mk
           { l: 'Consensi GDPR attivi', v: `${granted}/${consents.length}` },
         ].map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[18px] p-4 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[20px] font-black mt-1 leading-none" style={{ color: k.c || '#161616' }}>{k.v}</p>
           </div>
         ))}
@@ -338,48 +338,48 @@ const PrivacyTab: React.FC<{ users: Record<string, UserProfile>; mktAccounts: Mk
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
         {/* Liberatorie marketing clienti terzi */}
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Liberatorie marketing — clienti terzi</p>
-          {terzi.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a] italic">Nessun cliente terzo gestito nel Centro Marketing.</p> : (
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">Liberatorie marketing — clienti terzi</p>
+          {terzi.length === 0 ? <p className="text-[12.5px] text-[#767676] italic">Nessun cliente terzo gestito nel Centro Marketing.</p> : (
             <div className="flex flex-col gap-1.5">
               {terzi.map((a) => (
                 <div key={a.id} className="flex items-center justify-between gap-2 text-[12.5px]">
                   <span className="font-semibold text-[#161616] truncate">{a.name}</span>
                   {a.liberatoria
-                    ? <span className="inline-flex items-center gap-1 text-[10.5px] font-extrabold text-emerald-700 shrink-0"><CheckCircle2 className="w-3.5 h-3.5" /> firmata</span>
-                    : <span className="inline-flex items-center gap-1 text-[10.5px] font-extrabold text-rose-600 shrink-0"><Ban className="w-3.5 h-3.5" /> NON PUBBLICARE</span>}
+                    ? <span className="inline-flex items-center gap-1 text-[11.5px] font-extrabold text-emerald-700 shrink-0"><CheckCircle2 className="w-3.5 h-3.5" /> firmata</span>
+                    : <span className="inline-flex items-center gap-1 text-[11.5px] font-extrabold text-rose-600 shrink-0"><Ban className="w-3.5 h-3.5" /> NON PUBBLICARE</span>}
                 </div>
               ))}
             </div>
           )}
-          <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-2">La liberatoria si attiva dalla scheda account nel Centro Marketing.</p>
+          <p className="text-[11.5px] text-[#767676] font-semibold mt-2">La liberatoria si attiva dalla scheda account nel Centro Marketing.</p>
         </div>
 
         {/* Registro consensi GDPR (mktConsents) */}
         <div className="bg-white border border-[#e2e2e2] rounded-[20px] p-4">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">Registro consensi GDPR</p>
-          {consents.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a] italic">Nessun consenso registrato.</p> : (
+          <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676] mb-2">Registro consensi GDPR</p>
+          {consents.length === 0 ? <p className="text-[12.5px] text-[#767676] italic">Nessun consenso registrato.</p> : (
             <div className="flex flex-col gap-1.5">
               {consents.slice(0, 6).map((c) => (
                 <div key={c.id} className="flex items-center justify-between gap-2 text-[12.5px]">
-                  <span className="font-semibold text-[#161616] truncate">{c.subject}<span className="text-[10.5px] text-[#9a9a9a] font-semibold"> · {(c.scopes || []).join(', ')}</span></span>
+                  <span className="font-semibold text-[#161616] truncate">{c.subject}<span className="text-[11.5px] text-[#767676] font-semibold"> · {(c.scopes || []).join(', ')}</span></span>
                   {c.granted
-                    ? <span className="text-[10.5px] font-extrabold text-emerald-700 shrink-0">concesso</span>
-                    : <span className="text-[10.5px] font-extrabold text-rose-600 shrink-0">revocato</span>}
+                    ? <span className="text-[11.5px] font-extrabold text-emerald-700 shrink-0">concesso</span>
+                    : <span className="text-[11.5px] font-extrabold text-rose-600 shrink-0">revocato</span>}
                 </div>
               ))}
             </div>
           )}
-          <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-2">Gestione completa in Strategico → Marketing → Consensi.</p>
+          <p className="text-[11.5px] text-[#767676] font-semibold mt-2">Gestione completa in Strategico → Marketing → Consensi.</p>
         </div>
       </div>
 
       {/* Consensi account portale */}
       <div className="bg-white border border-[#e2e2e2] rounded-[20px] overflow-x-auto">
-        <div className="px-4 pt-3.5 pb-1"><p className="text-[11px] font-extrabold uppercase tracking-wider text-[#9a9a9a]">Consensi degli account portale (registrazione)</p></div>
-        {clienti.length === 0 ? <p className="text-[12.5px] text-[#9a9a9a] italic px-4 pb-4">Nessun account cliente.</p> : (
+        <div className="px-4 pt-3.5 pb-1"><p className="text-[12px] font-extrabold uppercase tracking-wider text-[#767676]">Consensi degli account portale (registrazione)</p></div>
+        {clienti.length === 0 ? <p className="text-[12.5px] text-[#767676] italic px-4 pb-4">Nessun account cliente.</p> : (
           <table className="w-full text-left border-collapse min-w-[520px]">
             <thead><tr className="border-b border-[#eee] bg-[#f7f6f4]">
-              {['Cliente', 'Privacy', 'Newsletter', 'Marketing', 'Data'].map((h, i) => <th key={h} className={`px-4 py-2 text-[10px] font-extrabold uppercase tracking-wider text-[#9a9a9a] ${i > 0 && i < 4 ? 'text-center' : ''}`}>{h}</th>)}
+              {['Cliente', 'Privacy', 'Newsletter', 'Marketing', 'Data'].map((h, i) => <th key={h} className={`px-4 py-2 text-[11px] font-extrabold uppercase tracking-wider text-[#767676] ${i > 0 && i < 4 ? 'text-center' : ''}`}>{h}</th>)}
             </tr></thead>
             <tbody>
               {conConsensi.map((u: any) => (
@@ -390,10 +390,10 @@ const PrivacyTab: React.FC<{ users: Record<string, UserProfile>; mktAccounts: Mk
                       <span className={`inline-block w-2.5 h-2.5 rounded-full ${u.consents?.[k] ? 'bg-emerald-500' : 'bg-[#e0e0e0]'}`} />
                     </td>
                   ))}
-                  <td className="px-4 py-2 text-[11.5px] text-[#9a9a9a]">{u.consentsAt ? new Date(u.consentsAt).toLocaleDateString('it-IT') : '—'}</td>
+                  <td className="px-4 py-2 text-[11.5px] text-[#767676]">{u.consentsAt ? new Date(u.consentsAt).toLocaleDateString('it-IT') : '—'}</td>
                 </tr>
               ))}
-              {conConsensi.length === 0 && <tr><td colSpan={5} className="px-4 py-3 text-[12.5px] text-[#9a9a9a] italic">Nessun account con consensi registrati (spunte in registrazione).</td></tr>}
+              {conConsensi.length === 0 && <tr><td colSpan={5} className="px-4 py-3 text-[12.5px] text-[#767676] italic">Nessun account con consensi registrati (spunte in registrazione).</td></tr>}
             </tbody>
           </table>
         )}

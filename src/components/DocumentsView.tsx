@@ -133,7 +133,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] leading-none">Documenti</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1.5">
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1.5">
             Archivio pratiche per cliente e generatore di modulistica.
           </p>
         </div>
@@ -160,15 +160,15 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
         {/* Crea contratto: box predisposto, da attivare in un secondo momento */}
         <div className="text-left bg-white border border-dashed border-[#d8d8d8] rounded-[24px] p-5 flex items-center gap-4 opacity-80">
           <div className="w-12 h-12 rounded-2xl bg-[#f3f3f3] flex items-center justify-center shrink-0">
-            <FileSignature className="w-6 h-6 text-[#9a9a9a]" />
+            <FileSignature className="w-6 h-6 text-[#767676]" />
           </div>
           <div className="flex-grow min-w-0">
             <b className="text-[15px] block text-[#161616]">Crea contratto</b>
-            <span className="text-[12.5px] text-[#9a9a9a] block mt-0.5">
+            <span className="text-[12.5px] text-[#767676] block mt-0.5">
               Generazione guidata dei contratti (incarico, fornitura, subappalto).
             </span>
           </div>
-          <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full shrink-0">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full shrink-0">
             In preparazione
           </span>
         </div>
@@ -230,7 +230,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
           {canEdit && (
             <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-5 shadow-sm flex flex-col sm:flex-row sm:items-end gap-3">
               <label className="flex flex-col gap-1 flex-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Carica un contratto sulla pratica</span>
+                <span className="text-[12px] font-bold uppercase tracking-wider text-[#6b6b6b]">Carica un contratto sulla pratica</span>
                 <select
                   value={contractProjId}
                   onChange={(e) => setContractProjId(e.target.value)}
@@ -253,7 +253,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
           {contractsByProject.length === 0 ? (
             <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
               <FileSignature className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-              <p className="text-[13.5px] text-[#8a8a8a] font-semibold">Nessun contratto archiviato.</p>
+              <p className="text-[13.5px] text-[#6b6b6b] font-semibold">Nessun contratto archiviato.</p>
             </div>
           ) : (
             contractsByProject.map(({ project: p, docs }) => (
@@ -261,7 +261,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                 <div className="flex items-center justify-between gap-3 mb-4">
                   <div className="min-w-0">
                     <b className="text-[15px] text-[#161616] block truncate">{p.name}</b>
-                    <span className="text-[11px] text-[#8a8a8a]">{p.client || '—'}{p.code ? ` · ${p.code}` : ''}</span>
+                    <span className="text-[12px] text-[#6b6b6b]">{p.client || '—'}{p.code ? ` · ${p.code}` : ''}</span>
                   </div>
                   {canEdit && (
                     <button
@@ -280,7 +280,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                       </div>
                       <div className="min-w-0 flex-grow">
                         <b className="text-[13px] text-[#161616] block truncate">{d.name}</b>
-                        <span className="text-[11px] text-[#8a8a8a]">
+                        <span className="text-[12px] text-[#6b6b6b]">
                           {['Contratto', d.byName, fmtWhen(d.at), fmtSize(d.size)].filter(Boolean).join(' · ')}
                         </span>
                       </div>
@@ -325,7 +325,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
       ) : clients.length === 0 ? (
         <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
           <FolderOpen className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-          <p className="text-[13.5px] text-[#8a8a8a] font-semibold">Nessun cliente in questo settore.</p>
+          <p className="text-[13.5px] text-[#6b6b6b] font-semibold">Nessun cliente in questo settore.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -342,7 +342,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                   <span className="w-11 h-11 rounded-full flex items-center justify-center font-extrabold text-[14px] border border-white bg-gradient-to-tr from-sky-100 to-sky-200 text-sky-850">
                     {initials(u.name)}
                   </span>
-                  <span className="flex items-center gap-1.5 text-[11px] font-extrabold text-[#161616] bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full">
+                  <span className="flex items-center gap-1.5 text-[12px] font-extrabold text-[#161616] bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full">
                     <FileText className="w-3.5 h-3.5" /> {nDocs}
                   </span>
                 </div>
@@ -350,7 +350,7 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                 <div>
                   <h4 className="text-[14.5px] font-extrabold text-[#161616] tracking-tight truncate">{u.name}</h4>
                   <div className="mt-1.5">
-                    <span className={`text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${sectorBadge(u.sector)}`}>
+                    <span className={`text-[10px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${sectorBadge(u.sector)}`}>
                       {sectorLabel(u.sector)}
                     </span>
                   </div>
@@ -362,10 +362,10 @@ export const DocumentsView: React.FC<DocumentsViewProps> = ({
                 </div>
 
                 <div className="pt-3 border-t border-dashed border-[#ececec]">
-                  <span className="text-[9px] uppercase tracking-wider font-extrabold text-gray-400 block mb-1.5">
+                  <span className="text-[10px] uppercase tracking-wider font-extrabold text-gray-400 block mb-1.5">
                     {projs.length} {projs.length === 1 ? 'pratica' : 'pratiche'}
                   </span>
-                  <span className="text-[12px] font-bold text-[#8a8a8a] group-hover:text-black transition-colors">
+                  <span className="text-[12px] font-bold text-[#6b6b6b] group-hover:text-black transition-colors">
                     Apri documenti →
                   </span>
                 </div>
@@ -441,7 +441,7 @@ const ClientDocuments: React.FC<{
 
   return (
     <div className="flex flex-col gap-5">
-      <button onClick={onBack} className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#8a8a8a] hover:text-[#161616] w-fit">
+      <button onClick={onBack} className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#6b6b6b] hover:text-[#161616] w-fit">
         <ChevronLeft className="w-4 h-4" /> Tutti i clienti
       </button>
 
@@ -452,7 +452,7 @@ const ClientDocuments: React.FC<{
         <div>
           <h2 className="text-[22px] font-black tracking-tight leading-none">{client.name}</h2>
           <div className="mt-1.5">
-            <span className={`text-[9px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${sectorBadge(client.sector)}`}>
+            <span className={`text-[10px] font-extrabold uppercase tracking-wider border px-2 py-0.5 rounded-full ${sectorBadge(client.sector)}`}>
               {sectorLabel(client.sector)}
             </span>
           </div>
@@ -462,7 +462,7 @@ const ClientDocuments: React.FC<{
       {projects.length === 0 ? (
         <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
           <FolderOpen className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-          <p className="text-[13.5px] text-[#8a8a8a] font-semibold">Nessuna pratica collegata a questo cliente.</p>
+          <p className="text-[13.5px] text-[#6b6b6b] font-semibold">Nessuna pratica collegata a questo cliente.</p>
         </div>
       ) : (
         projects.map((p) => {
@@ -475,7 +475,7 @@ const ClientDocuments: React.FC<{
               <div className="flex items-center justify-between gap-3 mb-3">
                 <div className="min-w-0">
                   <b className="text-[15px] text-[#161616] block truncate">{p.name}</b>
-                  {p.code && <span className="text-[11px] text-[#8a8a8a] font-mono">{p.code}</span>}
+                  {p.code && <span className="text-[12px] text-[#6b6b6b] font-mono">{p.code}</span>}
                 </div>
                 {canEdit && (
                   <button
@@ -491,7 +491,7 @@ const ClientDocuments: React.FC<{
               <div className="flex flex-wrap items-center gap-1.5 mb-3">
                 <button
                   onClick={() => setActiveFolder((prev) => ({ ...prev, [p.id]: '' }))}
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-colors ${!curFolder ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2] hover:border-[#b0b0b0]'}`}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-bold border transition-colors ${!curFolder ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2] hover:border-[#b0b0b0]'}`}
                 >
                   Tutti
                 </button>
@@ -499,7 +499,7 @@ const ClientDocuments: React.FC<{
                   <button
                     key={f}
                     onClick={() => setActiveFolder((prev) => ({ ...prev, [p.id]: f }))}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border transition-colors ${curFolder === f ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2] hover:border-[#b0b0b0]'}`}
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-bold border transition-colors ${curFolder === f ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#6b6b6b] border-[#e2e2e2] hover:border-[#b0b0b0]'}`}
                   >
                     <Folder className="w-3 h-3" /> {f}
                     <span className="opacity-60">({docs.filter((d) => (d.folder || '') === f).length})</span>
@@ -515,13 +515,13 @@ const ClientDocuments: React.FC<{
                       placeholder="Nome cartella"
                       className="h-7 w-36 border border-[#e2e2e2] rounded-full px-3 text-[11.5px] outline-none focus:border-[#161616]"
                     />
-                    <button onClick={() => createFolder(p.id)} className="text-[11px] font-bold text-white bg-[#161616] rounded-full px-2.5 py-1 cursor-pointer border-none">Crea</button>
+                    <button onClick={() => createFolder(p.id)} className="text-[12px] font-bold text-white bg-[#161616] rounded-full px-2.5 py-1 cursor-pointer border-none">Crea</button>
                     <button onClick={() => { setNewFolderFor(null); setNewFolderName(''); }} className="text-gray-400 hover:text-[#161616]"><X className="w-3.5 h-3.5" /></button>
                   </span>
                 ) : (
                   <button
                     onClick={() => { setNewFolderFor(p.id); setNewFolderName(''); }}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border border-dashed border-[#cfcfcf] text-[#8a8a8a] hover:text-[#161616] hover:border-[#161616] bg-white transition-colors"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[12px] font-bold border border-dashed border-[#cfcfcf] text-[#6b6b6b] hover:text-[#161616] hover:border-[#161616] bg-white transition-colors"
                   >
                     <FolderPlus className="w-3 h-3" /> Nuova cartella
                   </button>
@@ -529,7 +529,7 @@ const ClientDocuments: React.FC<{
               </div>
 
               {visibleDocs.length === 0 ? (
-                <p className="text-[12.5px] italic text-[#8a8a8a]">{curFolder ? 'Cartella vuota: sposta qui un documento con "Sposta in…".' : 'Nessun documento.'}</p>
+                <p className="text-[12.5px] italic text-[#6b6b6b]">{curFolder ? 'Cartella vuota: sposta qui un documento con "Sposta in…".' : 'Nessun documento.'}</p>
               ) : (
                 <div className="flex flex-col gap-2">
                   {visibleDocs.map((d) => (
@@ -541,10 +541,10 @@ const ClientDocuments: React.FC<{
                         <b className="text-[13px] text-[#161616] block truncate">
                           {d.name}
                           {d.kind === 'contratto' && (
-                            <span className="ml-2 text-[9px] font-extrabold uppercase tracking-wider bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full align-middle">Contratto</span>
+                            <span className="ml-2 text-[10px] font-extrabold uppercase tracking-wider bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full align-middle">Contratto</span>
                           )}
                         </b>
-                        <span className="text-[11px] text-[#8a8a8a]">
+                        <span className="text-[12px] text-[#6b6b6b]">
                           {[d.folder ? `📁 ${d.folder}` : null, d.byName, fmtWhen(d.at), fmtSize(d.size)].filter(Boolean).join(' · ')}
                         </span>
                       </div>
@@ -552,7 +552,7 @@ const ClientDocuments: React.FC<{
                         <select
                           value={d.folder || ''}
                           onChange={(e) => onMove(p.id, d.id, e.target.value || null)}
-                          className="h-8 max-w-[130px] border border-[#e2e2e2] rounded-lg px-2 text-[11px] font-bold text-[#6b6b6b] bg-white outline-none focus:border-[#161616] shrink-0"
+                          className="h-8 max-w-[130px] border border-[#e2e2e2] rounded-lg px-2 text-[12px] font-bold text-[#6b6b6b] bg-white outline-none focus:border-[#161616] shrink-0"
                           title="Sposta in cartella"
                         >
                           <option value="">Sposta in…</option>

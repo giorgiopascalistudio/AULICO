@@ -31,7 +31,7 @@ export const ChatDeleteButton: React.FC<{
     <button
       onClick={onDelete}
       title="Elimina messaggio (entro 60s dall'invio)"
-      className="inline-flex items-center justify-center w-5 h-5 rounded-md text-[#b0b0b0] hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0"
+      className="inline-flex items-center justify-center w-5 h-5 rounded-md text-[#8f8f8f] hover:text-rose-600 hover:bg-rose-50 transition-colors shrink-0"
     >
       <Trash2 className="w-3 h-3" />
     </button>

@@ -70,7 +70,7 @@ export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Target className="w-5.5 h-5.5" /> Preventivi & Contratti {socLabel ? `· ${socLabel}` : ''}</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Un'unica pagina: preventivo, firma OTP (vale come contratto), catalogazione e attività al tecnico.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Un'unica pagina: preventivo, firma OTP (vale come contratto), catalogazione e attività al tecnico.</p>
         </div>
         {canEdit && onOpenEditor && <button onClick={onOpenEditor} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161616] hover:bg-black text-white text-[12.5px] font-bold cursor-pointer border-none"><Plus className="w-4 h-4" /> Nuovo preventivo</button>}
       </div>
@@ -78,7 +78,7 @@ export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {KPI.map((k) => (
           <div key={k.l} className="bg-white border border-[#e2e2e2] rounded-[16px] p-3.5 shadow-sm">
-            <p className="text-[9.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
+            <p className="text-[10.5px] font-bold uppercase tracking-wider text-[#a0a0a0]">{k.l}</p>
             <p className="text-[18px] font-black text-[#161616] mt-1 leading-none">{typeof k.v === 'number' ? k.v : k.v}</p>
           </div>
         ))}
@@ -100,7 +100,7 @@ export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [
       {list.length === 0 ? (
         <div className="bg-white border border-dashed border-[#e2e2e2] rounded-[24px] p-10 text-center">
           <FileText className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-          <p className="text-[13.5px] text-[#8a8a8a] font-semibold">Nessun preventivo per il filtro attivo.</p>
+          <p className="text-[13.5px] text-[#6b6b6b] font-semibold">Nessun preventivo per il filtro attivo.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -113,16 +113,16 @@ export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <b className="text-[14px] text-[#161616]">{q.clientName || 'Cliente'}</b>
-                    <p className="text-[11px] text-[#8a8a8a] font-mono mt-0.5">{q.number} · {q.docKind === 'parcella' ? 'Parcella' : 'Preventivo'}</p>
+                    <p className="text-[12px] text-[#6b6b6b] font-mono mt-0.5">{q.number} · {q.docKind === 'parcella' ? 'Parcella' : 'Preventivo'}</p>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
-                    {q.sharedWithClient && <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-50 text-teal-700">Nel portale</span>}
-                    {signed && <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Firmato</span>}
-                    <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white" style={{ background: scad && q.status !== 'accettato' ? '#dc2626' : s.color }}>{scad && q.status !== 'accettato' ? 'Scaduto' : s.label}</span>
+                    {q.sharedWithClient && <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-50 text-teal-700">Nel portale</span>}
+                    {signed && <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 inline-flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Firmato</span>}
+                    <span className="text-[10.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white" style={{ background: scad && q.status !== 'accettato' ? '#dc2626' : s.color }}>{scad && q.status !== 'accettato' ? 'Scaduto' : s.label}</span>
                   </div>
                 </div>
                 {choice && (
-                  <p className={`text-[11px] font-bold rounded-lg px-2.5 py-1.5 ${choice.accepted ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
+                  <p className={`text-[12px] font-bold rounded-lg px-2.5 py-1.5 ${choice.accepted ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
                     Risposta cliente: {choice.accepted ? 'ACCETTATO' : 'selezione inviata'}{excludedCount ? ` · ${excludedCount} voc${excludedCount === 1 ? 'e esclusa' : 'i escluse'}` : ' · tutte le voci'}
                     {choice.comment ? ` — "${choice.comment}"` : ''}
                   </p>
@@ -130,14 +130,14 @@ export const CommercialeView: React.FC<Props> = ({ quotes, socLabel, members = [
                 <div className="flex items-center justify-between">
                   <span className="text-[16px] font-black text-[#161616]">{eur(q.total || 0)}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-[#9a9a9a]">Valido fino: {fmt(q.validUntil)}</span>
-                    {canEdit && <button onClick={() => setPrinting(q)} title="Genera documento da modello (carta intestata)" className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[10.5px] font-bold cursor-pointer"><FileText className="w-3 h-3" /> Documento</button>}
+                    <span className="text-[12px] text-[#767676]">Valido fino: {fmt(q.validUntil)}</span>
+                    {canEdit && <button onClick={() => setPrinting(q)} title="Genera documento da modello (carta intestata)" className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[11.5px] font-bold cursor-pointer"><FileText className="w-3 h-3" /> Documento</button>}
                   </div>
                 </div>
                 {/* Tecnico di riferimento */}
                 {members.length > 0 && (
                   <div className="flex items-center gap-2">
-                    <User className="w-3.5 h-3.5 text-[#b0b0b0] shrink-0" />
+                    <User className="w-3.5 h-3.5 text-[#8f8f8f] shrink-0" />
                     <select disabled={!canEdit || q.status === 'accettato'} value={q.tecnicoUid || ''} onChange={(e) => onSaveQuote?.({ ...q, tecnicoUid: e.target.value || null, updatedAt: Date.now() })} className="flex-1 px-2 py-1.5 rounded-lg border border-[#e2e2e2] text-[12px] outline-none focus:border-[#161616] bg-white disabled:opacity-70">
                       <option value="">Tecnico di riferimento…</option>
                       {members.map((m) => <option key={m.uid} value={m.uid}>{m.name}</option>)}
@@ -183,12 +183,12 @@ const SignModal: React.FC<{ quote: Quote; onClose: () => void; onSaveQuote?: (q:
       <div className="bg-white rounded-[24px] w-full max-w-md p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-3"><h3 className="text-[16px] font-extrabold text-[#161616] inline-flex items-center gap-1.5"><ShieldCheck className="w-4 h-4" /> Firma preventivo {q.number}</h3><button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500 cursor-pointer bg-transparent border-none"><X className="w-4 h-4" /></button></div>
         <div className="flex flex-col gap-3">
-          <p className="text-[12.5px] text-[#8a8a8a]">La firma con OTP accetta il preventivo (vale come contratto) per <b className="text-[#161616]">{q.clientName}</b> · {eur(q.total || 0)}.</p>
+          <p className="text-[12.5px] text-[#6b6b6b]">La firma con OTP accetta il preventivo (vale come contratto) per <b className="text-[#161616]">{q.clientName}</b> · {eur(q.total || 0)}.</p>
           <div className="flex items-center gap-2 flex-wrap">
             <button onClick={gen} className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#e2e2e2] hover:border-black text-[#161616] text-[12px] font-bold cursor-pointer"><Send className="w-3.5 h-3.5" /> {q.otp ? 'Rigenera OTP' : 'Genera OTP'}</button>
             {q.otp && <span className="text-[15px] font-black tracking-[0.25em] text-[#161616] bg-gray-50 border border-[#e2e2e2] rounded-lg px-3 py-1.5">{q.otp}</span>}
           </div>
-          {q.otp && <p className="text-[11px] text-[#9a9a9a]">Comunica il codice al cliente, poi inseriscilo qui sotto.</p>}
+          {q.otp && <p className="text-[12px] text-[#767676]">Comunica il codice al cliente, poi inseriscilo qui sotto.</p>}
           {q.otp && (
             <div className="flex items-center gap-2">
               <input value={input} onChange={(e) => setInput(e.target.value)} maxLength={6} placeholder="OTP a 6 cifre" className="w-40 px-3 py-2 rounded-lg border border-[#e2e2e2] text-[14px] tracking-widest text-center outline-none focus:border-[#161616] bg-white" />
@@ -196,7 +196,7 @@ const SignModal: React.FC<{ quote: Quote; onClose: () => void; onSaveQuote?: (q:
             </div>
           )}
           {err && <p className="text-[12px] text-rose-600 font-semibold">{err}</p>}
-          <p className="text-[10.5px] text-[#b8b8b8]">All'accettazione: le righe del preventivo diventano attività assegnate al tecnico di riferimento e (se serve) nasce la commessa.</p>
+          <p className="text-[11.5px] text-[#b8b8b8]">All'accettazione: le righe del preventivo diventano attività assegnate al tecnico di riferimento e (se serve) nasce la commessa.</p>
         </div>
       </div>
     </div>

@@ -48,7 +48,7 @@ interface Props {
 }
 
 const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white disabled:bg-[#f7f7f5]';
-const lbl = 'text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]';
+const lbl = 'text-[11px] font-bold uppercase tracking-wider text-[#767676]';
 const doneCount = (o: UnicoOpportunity) => OPP_STEPS.filter((s) => o.steps?.[s.id]?.done).length;
 
 export const UnicoOpportunitaView: React.FC<Props> = ({ opps, rubrica, color = '#4338ca', canEdit = false, onSave, onDelete, onCreateDeal, onOpenInvestimenti }) => {
@@ -71,7 +71,7 @@ export const UnicoOpportunitaView: React.FC<Props> = ({ opps, rubrica, color = '
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h2 className="text-[22px] font-black tracking-tight text-[#161616] inline-flex items-center gap-2"><Search className="w-5.5 h-5.5 text-[#161616]" /> Ricerca Opportunità</h2>
-          <p className="text-[12.5px] text-[#8a8a8a] font-semibold mt-1">Workflow a step obbligatori: dal contatto all'atto. A checklist di due diligence completa si sblocca la manifestazione d'interesse; all'atto nasce l'investimento.</p>
+          <p className="text-[12.5px] text-[#6b6b6b] font-semibold mt-1">Workflow a step obbligatori: dal contatto all'atto. A checklist di due diligence completa si sblocca la manifestazione d'interesse; all'atto nasce l'investimento.</p>
         </div>
         <div className="flex items-center gap-2">
           <div className="pillbar inline-flex items-center bg-[#f0f0f0] border border-[#e2e2e2] p-[3px] rounded-full gap-[2px]">
@@ -84,7 +84,7 @@ export const UnicoOpportunitaView: React.FC<Props> = ({ opps, rubrica, color = '
       </div>
 
       {list.length === 0 ? (
-        <p className="text-[13px] text-[#9a9a9a] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna opportunità {filter === 'attive' ? 'attiva' : filter}.</p>
+        <p className="text-[13px] text-[#767676] bg-white border border-[#e2e2e2] rounded-[20px] p-8 text-center">Nessuna opportunità {filter === 'attive' ? 'attiva' : filter}.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {list.map((o) => {
@@ -94,11 +94,11 @@ export const UnicoOpportunitaView: React.FC<Props> = ({ opps, rubrica, color = '
               <button key={o.id} onClick={() => setOpenId(o.id)} className="text-left bg-white border border-[#e2e2e2] rounded-[22px] p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
                 <div className="flex items-center justify-between gap-2">
                   <b className="text-[14px] text-[#161616] truncate">{o.title}</b>
-                  {o.status === 'acquisita' && <span className="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 shrink-0">Acquisita</span>}
+                  {o.status === 'acquisita' && <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 shrink-0">Acquisita</span>}
                 </div>
-                <p className="text-[11.5px] text-[#8a8a8a] mt-0.5 truncate">{[o.comune, o.contactName].filter(Boolean).join(' · ') || '—'}</p>
+                <p className="text-[11.5px] text-[#6b6b6b] mt-0.5 truncate">{[o.comune, o.contactName].filter(Boolean).join(' · ') || '—'}</p>
                 <div className="mt-2.5 h-2 rounded-full bg-[#f0f0f0] overflow-hidden"><div className="h-full rounded-full" style={{ width: `${(n / OPP_STEPS.length) * 100}%`, background: '#161616' }} /></div>
-                <p className="text-[10.5px] text-[#9a9a9a] font-semibold mt-1">{n}/{OPP_STEPS.length} step{next ? ` · prossimo: ${next.label}` : ' · completata'}</p>
+                <p className="text-[11.5px] text-[#767676] font-semibold mt-1">{n}/{OPP_STEPS.length} step{next ? ` · prossimo: ${next.label}` : ' · completata'}</p>
                 {o.prezzoRichiesto != null && <p className="text-[12px] font-extrabold text-[#161616] mt-1">{eur(o.prezzoRichiesto)}</p>}
               </button>
             );
@@ -146,7 +146,7 @@ const OppDetail: React.FC<{
               onChange={(e) => set({ title: e.target.value })}
               className="text-[20px] font-black tracking-tight text-[#161616] bg-transparent border-none outline-none w-full min-w-0 p-0"
             />
-            <p className="text-[11.5px] text-[#8a8a8a] font-semibold">{doneCount(o)}/{OPP_STEPS.length} step · {o.status}</p>
+            <p className="text-[11.5px] text-[#6b6b6b] font-semibold">{doneCount(o)}/{OPP_STEPS.length} step · {o.status}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -170,24 +170,24 @@ const OppDetail: React.FC<{
                   onClick={() => toggleStep(s.id, idx)}
                   className={`flex items-center gap-2.5 rounded-xl border px-3 py-2.5 transition-colors ${done ? 'border-emerald-200 bg-emerald-50/60' : locked ? 'border-[#f0f0f0] bg-[#fafafa] opacity-60' : 'border-[#e6e6e6] bg-white'} ${canEdit && !locked && !(gated) ? 'cursor-pointer hover:border-[#161616]' : ''}`}
                 >
-                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black shrink-0 ${done ? 'bg-emerald-500 text-white' : locked ? 'bg-[#ececec] text-[#b0b0b0]' : 'text-white'}`} style={!done && !locked ? { background: '#161616' } : undefined}>
+                  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-black shrink-0 ${done ? 'bg-emerald-500 text-white' : locked ? 'bg-[#ececec] text-[#b0b0b0]' : 'text-white'}`} style={!done && !locked ? { background: '#161616' } : undefined}>
                     {done ? <CheckCircle2 className="w-4 h-4" /> : locked ? <Lock className="w-3 h-3" /> : idx + 1}
                   </span>
                   <div className="min-w-0 flex-1">
                     <b className={`block text-[13px] ${done ? 'text-emerald-900' : 'text-[#161616]'}`}>{s.label}</b>
-                    <span className="block text-[10.5px] text-[#9a9a9a]">{gated ? 'Completa prima la checklist di due diligence.' : s.hint}</span>
+                    <span className="block text-[11.5px] text-[#767676]">{gated ? 'Completa prima la checklist di due diligence.' : s.hint}</span>
                   </div>
                   {s.id === 'manifestazione' && !locked && (
                     <div className="flex items-center gap-1 shrink-0">
-                      <button onClick={(e) => { e.stopPropagation(); setShowManif(true); }} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[11px] font-bold cursor-pointer"><FileText className="w-3 h-3" /> Genera</button>
+                      <button onClick={(e) => { e.stopPropagation(); setShowManif(true); }} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12px] font-bold cursor-pointer"><FileText className="w-3 h-3" /> Genera</button>
                       {(() => {
                         // Invio: il PDF si salva da "Genera → Stampa/PDF" e si allega; qui il messaggio è pronto.
                         const c = rubrica.find((x) => x.id === o.clientRecordId);
                         const txt = `Buongiorno${o.contactName ? ' ' + o.contactName : ''}, in allegato la nostra manifestazione d'interesse per l'immobile ${o.title}${o.address ? ' in ' + o.address : ''}. Restiamo a disposizione. UNICO`;
                         const tel = (c?.whatsapp || c?.phone || '').replace(/[^0-9]/g, '');
                         return (<>
-                          {c?.email && <a onClick={(e) => e.stopPropagation()} href={`mailto:${c.email}?subject=${encodeURIComponent(`Manifestazione d'interesse — ${o.title}`)}&body=${encodeURIComponent(txt)}`} className="px-2 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[11px] font-bold no-underline">Email</a>}
-                          {tel && <a onClick={(e) => e.stopPropagation()} href={`https://wa.me/${tel.startsWith('39') || tel.length > 10 ? tel : '39' + tel}?text=${encodeURIComponent(txt)}`} target="_blank" rel="noreferrer" className="px-2 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[11px] font-bold no-underline">WhatsApp</a>}
+                          {c?.email && <a onClick={(e) => e.stopPropagation()} href={`mailto:${c.email}?subject=${encodeURIComponent(`Manifestazione d'interesse — ${o.title}`)}&body=${encodeURIComponent(txt)}`} className="px-2 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12px] font-bold no-underline">Email</a>}
+                          {tel && <a onClick={(e) => e.stopPropagation()} href={`https://wa.me/${tel.startsWith('39') || tel.length > 10 ? tel : '39' + tel}?text=${encodeURIComponent(txt)}`} target="_blank" rel="noreferrer" className="px-2 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[12px] font-bold no-underline">WhatsApp</a>}
                         </>);
                       })()}
                     </div>
