@@ -35,6 +35,9 @@ nav.tabs a[aria-current="page"] .n { background: color-mix(in srgb, var(--bg) 22
 .intro p { color: var(--muted); margin: 6px 0 0; max-width: 64ch; }
 ol.steps { list-style: none; margin: 18px 0 0; padding: 0; position: relative; }
 ol.steps::before { content: ""; position: absolute; left: 17px; top: 8px; bottom: 8px; width: 2px; background: var(--line); }
+.phase { position: relative; padding-left: 50px; margin: 26px 0 12px; font-family: var(--display); font-weight: 700; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.phase:first-child { margin-top: 4px; }
+.phase::before { content: ""; position: absolute; left: 12px; top: 50%; width: 12px; height: 12px; margin-top: -6px; border-radius: 3px; background: var(--soc); }
 .step { position: relative; padding-left: 50px; margin-bottom: 18px; }
 .num { position: absolute; left: 0; top: 2px; width: 36px; height: 36px; border-radius: 50%; background: var(--surface); border: 2px solid var(--soc, var(--ink)); display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; min-width: 0; }
@@ -85,6 +88,7 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 2px sol
 
 <script>
 const S = {
+  bb: { label: 'Esempio: B&B', color: 'var(--idea)', intro: "Un caso completo, inventato ma realistico: una coppia ha un fabbricato rurale da ristrutturare da zero, con ampliamento e piscina, per aprire un B&B da 6 camere. Coinvolge Onirico, Materico, Strategico e Fantastico. Nomi e cifre sono di esempio." },
   tutti: { label: 'Comune a tutti', color: 'var(--tutti)', intro: "Il modo in cui un contatto entra in Aulico, come il cliente segue il lavoro e cosa gira da solo, uguale per tutte le società." },
   onirico: { label: 'Onirico', color: 'var(--onirico)', intro: "Studio di progettazione: dal primo contatto al sopralluogo, al preventivo, alla pratica fino all'agibilità." },
   materico: { label: 'Materico', color: 'var(--materico)', intro: "General contractor: richieste di lavori, imprese partner, contratti, cantiere e margini." },
@@ -94,6 +98,91 @@ const S = {
 };
 
 const STEPS = {
+  bb: [
+    { ph: '1 · Primo contatto', id: 'bb-1', t: 'Il cliente si presenta', who: 'Cliente', where: 'Sito → Portale clienti → "Raccontaci il tuo sogno"', s: 'fatto',
+      what: "Esempio: Marco e Giulia hanno comprato un vecchio fabbricato rurale di circa 180 mq in campagna, da ristrutturare completamente. Vogliono un B&B da 6 camere, con un ampliamento di circa 60 mq per sala colazioni e reception, e una piscina. Si registrano sul sito e descrivono l'idea, con foto e un link alla posizione.",
+      auto: ['Lo staff riceve la notifica e trova la richiesta in Strategico → Point of Entry', 'Il contatto entra in rubrica con i loro dati'] },
+    { id: 'bb-2', t: 'Smistamento e primo appuntamento', who: 'Direzione', where: 'Strategico → Point of Entry', s: 'fatto',
+      what: "La richiesta tocca più società (progetto, lavori, marketing, gestione): si smista a Onirico, che fa da capofila, e si fissa una telefonata di inquadramento.",
+      auto: ['Notifica al team Onirico', "La telefonata diventa un appuntamento in agenda, colorato col verde di Onirico"] },
+
+    { ph: '2 · Sopralluogo e fattibilità', id: 'bb-3', t: 'Sopralluogo con rilievo', who: 'Tecnico Onirico', where: 'Onirico → Commerciale → Sopralluoghi & Rilievi', s: 'fatto',
+      what: "Il tecnico va sul posto con il tablet: crea il sopralluogo (cliente dalla rubrica, indirizzo, data), annota cosa chiedono e carica il link alle foto. Sceglie il pacchetto \"Rilievo + restituzione\" su 240 mq (esistente + ampliamento previsto), dettaglio medio.",
+      auto: ["Il sopralluogo era già nella sua agenda", 'Stima del rilievo calcolata sul posto: con le tariffe di partenza circa 2.400 € (laser, nuvola, piante, prospetti e sezioni)'] },
+    { id: 'bb-4', t: 'Stima preliminare dei lavori', who: 'Tecnico / direzione', where: 'Commerciale → Stima Preliminare (gestita nel Centro Commerciale)', s: 'fatto',
+      what: "Per rispondere subito alla domanda \"quanto mi costa tutto?\": 240 mq di abitazione a livello medio, piscina medio, cisterna, Imhoff, cancello automatico, fotovoltaico con batteria. Cifre di esempio: circa 720.000 € di opere + 60.000 € piscina + 40–60.000 € di esterni e impianti a corpo.",
+      auto: ['Budget calcolato da solo e stampabile su carta intestata Onirico'], gap: "Il simulatore usa costi da nuova costruzione: per una ristrutturazione completa andrebbe aggiunta una voce \"recupero esistente\" con i suoi €/mq." },
+    { id: 'bb-5', t: 'Verifiche di fattibilità', who: 'Architetto Onirico', where: 'Pratica → Attività (fase Pianificazione)', s: 'parziale',
+      what: "Prima di promettere l'ampliamento: zona urbanistica e indici, vincoli paesaggistici, stato catastale e legittimità dell'esistente, possibilità di cambio d'uso a struttura ricettiva, scarichi (fognatura o Imhoff), accessi.",
+      auto: ["Le verifiche sono attività della fase Pianificazione, assegnate per mansione"], gap: "Non c'è una checklist di fattibilità strutturata come la due diligence di Unico: oggi sono attività libere." },
+
+    { ph: '3 · Preventivo e incarico', id: 'bb-6', t: 'Preventivo di progettazione', who: 'Direzione Onirico', where: 'Sopralluogo → Crea il preventivo → Centro Commerciale', s: 'fatto',
+      what: "Dal sopralluogo nasce il preventivo del rilievo; in Centro Commerciale si aggiungono progettazione architettonica, strutturale, impiantistica, pratiche edilizie e paesaggistica, direzione lavori. Compenso Onirico al 15% del costo delle opere, con acconto all'accettazione e rate a SAL.",
+      auto: ['Ogni riga porta le sue attività già pronte', 'IVA 22% e cassa 4% calcolate', 'Il piano rate diventerà fatture e scadenze'] },
+    { id: 'bb-7', t: 'Il cliente sceglie e firma', who: 'Cliente', where: 'Portale → I tuoi preventivi', s: 'fatto',
+      what: "Marco e Giulia aprono il preventivo dal portale, vedono cosa perdono se tolgono una voce (es. il 3D) e quanto aumenta il valore dell'immobile a fine lavori, poi accettano. La firma avviene con codice OTP.",
+      auto: ['La direzione vede la scelta in tempo reale'] },
+    { id: 'bb-8', t: 'Nasce la commessa', who: 'Automatico', where: 'Onirico → Progetti', s: 'fatto',
+      what: "Pratica \"Marco e Giulia — [Località]\" con fasi e attività dal preventivo. Si apre la finestra di assegnazione: rilievo al tecnico, progetto all'architetto, strutture all'ingegnere, pratiche all'addetto pratiche, con le date.",
+      auto: ['Ognuno trova le sue attività in agenda', 'Il cliente vede la pratica nel portale e riceve un avviso'] },
+
+    { ph: '4 · Progettazione', id: 'bb-9', t: 'Rilievo e stato di fatto', who: 'Tecnico + architetto', where: 'Agenda → Pratica', s: 'fatto',
+      what: "Laser scanner, allineamento nuvola, restituzione di piante, prospetti e sezioni. Ogni attività spuntata in agenda risulta fatta nella pratica.",
+      auto: ['Avanzamento della pratica aggiornato da solo', "A fase chiusa il cliente riceve \"Fase completata\""] },
+    { id: 'bb-10', t: 'Cosa vuole il cliente', who: 'Cliente + architetto', where: 'Pratica → Questionario · Arredi & Moodboard', s: 'fatto',
+      what: "Il cliente compila il questionario dal portale: stile (es. mediterraneo contemporaneo), materiali (pietra, calce, legno), numero camere e bagni, sala colazioni, piscina, budget. Insieme si costruisce la moodboard 3D.",
+      auto: ['Le risposte alimentano presentazione e preventivi'] },
+    { id: 'bb-11', t: 'Concept e presentazione', who: 'Architetto', where: 'Onirico → Render AI · Pratica → Presentazione', s: 'fatto',
+      what: "Render AI preliminare dalla foto del fabbricato e dalle risposte del questionario, poi la presentazione con analisi del sito, moodboard e soluzioni, esportabile in PowerPoint.",
+      auto: ['Presentazione composta da sola dai dati della pratica'] },
+    { id: 'bb-12', t: 'Progetto definitivo ed esecutivo', who: 'Architetto + ingegnere + impiantista', where: 'Pratica → fasi Progettuale ed Esecutiva', s: 'fatto',
+      what: "Distribuzione delle 6 camere con bagno, accessibilità di almeno una camera, cucina per colazioni, ampliamento in muratura coerente con l'esistente, strutture (adeguamento sismico), impianti, piscina, esterni. Computo metrico delle opere.",
+      auto: ['Il computo alimenta parcella e contabilità della commessa'] },
+    { id: 'bb-13', t: 'Scelte di arredi e finiture', who: 'Cliente + architetto', where: 'Pratica → Arredi & Moodboard', s: 'fatto',
+      what: "Arredi fissi (sanitari, rubinetteria, infissi, porte, luci, cucina) con contratto integrativo compreso nel 15%; arredi mobili delle camere con servizio FF&E al 20% sulle forniture approvate.",
+      auto: ['Ogni scelta vincolante ha 60 giorni: promemoria giornalieri al cliente', 'Se scade, avviso di blocco cantiere a cliente e studio'] },
+
+    { ph: '5 · Permessi', id: 'bb-14', t: 'Titolo edilizio e autorizzazioni', who: 'Addetto pratiche', where: 'Pratica → fase Abilitativa', s: 'fatto',
+      what: "Con ampliamento e cambio d'uso a ricettivo serve di norma il Permesso di Costruire, più l'autorizzazione paesaggistica se c'è vincolo, il deposito strutturale e la relazione energetica. Le attività sono nella fase Abilitativa della pratica.",
+      auto: ['Ogni pratica inviata e ottenuta si spunta e avvisa il cliente a fase chiusa'], gap: "Le scadenze dei procedimenti comunali (termini, integrazioni) non hanno un promemoria dedicato: vanno messe come attività con data." },
+
+    { ph: '6 · Lavori (Materico)', id: 'bb-15', t: 'Dal progetto al cantiere', who: 'Direzione Materico', where: 'Materico → Potenziale Cantiere', s: 'parziale',
+      what: "Il progetto esecutivo passa a Materico come potenziale commessa: disciplina mista, responsabile edile per le opere e responsabile impianti per gli impianti.",
+      auto: ['La commessa compare in "Le mie commesse" dei responsabili'], gap: "Il passaggio da pratica Onirico a commessa Materico si fa a mano: manca il tasto \"manda in esecuzione\"." },
+    { id: 'bb-16', t: 'Computo, preventivo lavori, contratto con il cliente', who: 'Materico', where: 'Potenziale Cantiere → Genera preventivo → Centro Commerciale', s: 'fatto',
+      what: "Computo dal listino interno (costo imprese, materiali, margine), preventivo lavori al cliente, firma OTP.",
+      auto: ['Preventivo generato dal computo', 'Controllo del margine prima di firmare'] },
+    { id: 'bb-17', t: 'Contratti con le imprese', who: 'Materico', where: 'Centro Commerciale → Contratti imprese', s: 'fatto',
+      what: "Un contratto per impresa: demolizioni e opere edili, strutture, impianti elettrici e idraulici, piscina, infissi. Ogni contratto ha date, importo e penale per giorno di ritardo.",
+      auto: ["Alla prima firma nasce il cantiere, con l'impresa assegnata", 'Ogni contratto entra nel cronoprogramma', "Il responsabile riceve l'avviso"] },
+    { id: 'bb-18', t: 'Cantiere', who: 'Responsabili Materico + imprese + direzione lavori Onirico', where: 'Pratica → Cantiere · portale imprese', s: 'fatto',
+      what: "Giornale dei lavori, foto con data e posizione, presenze, materiali, documenti di sicurezza (POS, PSC, DURC) con scadenza, verbali, chat con le imprese. La direzione lavori di Onirico approva i rapportini.",
+      auto: ['Documenti in scadenza avvisano da soli', 'Cronoprogramma che si colora in corso o in ritardo', 'Ogni venerdì il cliente riceve il report con foto e avanzamento'] },
+    { id: 'bb-19', t: 'SAL, pagamenti e ritardi', who: 'Materico + amministrazione', where: 'Cantiere → SAL · Contratti · Contabilità', s: 'fatto',
+      what: "A ogni stato avanzamento approvato parte la bozza di fattura; se un'impresa sfora la fine prevista, la penale si calcola da sola.",
+      auto: ['SAL approvato = bozza di fattura', 'Penale applicata avvisa impresa e direzione'] },
+
+    { ph: '7 · Chiusura lavori', id: 'bb-20', t: 'Documenti di fine lavori', who: 'Onirico', where: 'Onirico → Produzione → Fase abilitativa', s: 'fatto',
+      what: "Nella colonna della pratica: collaudo statico, idoneità statica, tipo mappale (per l'ampliamento), DOCFA (nuovo accatastamento), autorizzazione allo scarico (Imhoff), dichiarazioni di conformità degli impianti, APE, agibilità.",
+      auto: ["Ogni casella assegnata va nell'agenda della persona", 'Agibilità, APE e DOCFA fatti avvisano il cliente'] },
+    { id: 'bb-21', t: 'Apertura della struttura ricettiva', who: 'Cliente con supporto Onirico', where: '—', s: 'manca',
+      what: "Comunicazione di avvio dell'attività ricettiva al Comune, codice identificativo della struttura, comunicazioni degli ospiti alla Questura, imposta di soggiorno.",
+      auto: [], gap: "Oggi Aulico non ha una checklist per l'apertura di un'attività ricettiva: si può aggiungere come voci della Fase abilitativa o come servizio a parte." },
+
+    { ph: '8 · Lancio e gestione', id: 'bb-22', t: 'Brand e lancio del B&B', who: 'Strategico', where: 'Centro Marketing → account del cliente', s: 'fatto',
+      what: "Marco e Giulia diventano un cliente terzo di Strategico: nome e logo del B&B, sito, profili social, schede sui portali di prenotazione, servizio fotografico della struttura finita. Preventivo e firma come le altre società.",
+      auto: ['Calendario editoriale dedicato', 'KPI mensili e report al cliente', 'Le foto del cantiere sono già disponibili nel Centro Marketing'] },
+    { id: 'bb-23', t: 'Gestione quotidiana', who: 'Fantastico', where: 'Fantastico → Immobili & Servizi', s: 'parziale',
+      what: "Il B&B entra tra gli immobili gestiti, con un canone mensile: pulizie e cambio biancheria, giardino e piscina, manutenzioni, transfer degli ospiti, tutto affidato a partner con il proprio margine.",
+      auto: ['Il partner con account riceve la richiesta', 'Margine del mese calcolato da solo'], gap: "Il proprietario non può aprire richieste dal portale e i servizi completati non generano ancora la fattura." },
+    { id: 'bb-24', t: 'Contabilità finale e chiusura della pratica', who: 'Amministrazione', where: 'Contabilità di commessa · Centro Direzione', s: 'fatto',
+      what: "Saldo della parcella Onirico (ricalcolata sul costo effettivo delle opere), saldo FF&E, ultimi SAL Materico, tutto nel consolidato di gruppo.",
+      auto: ['Pratica completata: messaggio di ringraziamento al cliente', 'Le ore spese finiscono nei report del team'] },
+
+    { ph: 'In alternativa · con investitori', id: 'bb-25', t: 'Se il B&B lo fa Unico con investitori', who: 'Unico', where: 'Unico → Ricerca Opportunità → Operazioni & Investitori', s: 'fatto',
+      what: "Se invece fosse un'operazione immobiliare (comprare, trasformare in B&B, vendere o mettere a reddito): il fabbricato passa i 9 passi della ricerca opportunità, poi diventa un investimento con scenario economico, investitori e commesse interne a Onirico, Materico e Strategico.",
+      auto: ['Gli investitori seguono le 8 fasi dal portale', "Rendiconto finale e divisione dell'utile dopo il rientro del capitale"] },
+  ],
   tutti: [
     { id: 'tutti-1', t: 'Il contatto entra', who: 'Cliente o staff', where: 'Portale clienti · Strategico → Point of Entry', s: 'fatto',
       what: "Il cliente si registra dal sito (privato o azienda, approvato in automatico) e invia \"Raccontaci il tuo sogno\" per Onirico, Materico o Strategico. I contatti commerciali arrivano nel Point of Entry di Strategico.",
@@ -219,12 +308,12 @@ const STEPS = {
   ],
 };
 
-const ORDER = ['tutti', 'onirico', 'materico', 'unico', 'strategico', 'fantastico'];
+const ORDER = ['bb', 'tutti', 'onirico', 'materico', 'unico', 'strategico', 'fantastico'];
 const notes = {};        // stepId -> {verdict, text, updatedAt}
 let db = null, userId = null, dbReady = false, dbError = null;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const current = () => { const h = (location.hash || '').slice(1); return ORDER.includes(h) ? h : 'tutti'; };
+const current = () => { const h = (location.hash || '').slice(1); return ORDER.includes(h) ? h : 'bb'; };
 
 function renderTabs() {
   const cur = current();
@@ -278,7 +367,7 @@ function render() {
   document.getElementById('view').innerHTML = `
     <section class="intro"><h2><span class="dot" style="background:${S[k].color};width:12px;height:12px"></span>${esc(S[k].label)}</h2><p>${esc(S[k].intro)}</p>
     ${db ? '' : '<div class="notice">Per salvare le note apri la pagina da claude.ai con il tuo account.</div>'}</section>
-    <ol class="steps">${STEPS[k].map((st, i) => stepHtml(k, st, i)).join('')}</ol>`;
+    <ol class="steps">${STEPS[k].map((st, i) => (st.ph ? `<li class="phase" style="--soc:${S[k].color}">${esc(st.ph)}</li>` : '') + stepHtml(k, st, i)).join('')}</ol>`;
   Object.entries(drafts).forEach(([id, d]) => {
     const c = document.querySelector(`.card[data-step="${id}"]`); if (!c) return;
     const saved = notes[id] || {};
