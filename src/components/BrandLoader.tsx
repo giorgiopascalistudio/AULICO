@@ -19,7 +19,7 @@ export const BrandLoader: React.FC<{ full?: boolean; label?: string }> = ({ full
         preload="auto"
         aria-hidden="true"
         className={full ? 'w-[min(420px,80vw)] h-auto' : 'w-[240px] h-auto'}
-        style={{ background: '#F5F5F3', WebkitMaskImage: 'radial-gradient(ellipse 50% 50% at center, #000 72%, transparent 100%)', maskImage: 'radial-gradient(ellipse 50% 50% at center, #000 72%, transparent 100%)' }}
+        style={{ background: '#F5F5F3', WebkitMaskImage: 'radial-gradient(ellipse 50% 50% at center, #000 86%, transparent 100%)', maskImage: 'radial-gradient(ellipse 50% 50% at center, #000 86%, transparent 100%)' }}
         onLoadedMetadata={(e) => { (e.currentTarget as HTMLVideoElement).playbackRate = 1.6; }}
       />
       {label && <span className="text-[11.5px] font-bold uppercase tracking-wider text-stone-400">{label}</span>}
