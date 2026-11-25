@@ -26,7 +26,7 @@ import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
   Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
-  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles, Bug, ClipboardCheck, MapPinned,
+  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles, Bug, ClipboardCheck, MapPinned, HardHat,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
 import { SOCIETA_LABEL, canView, resolveSectionAccess, resolveAccess, rankOf, atLeast, sectionOverride } from './access';
@@ -393,6 +393,7 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
   s.push({ id: 'home', label: 'Home', icon: LayoutGrid, module: 'produzione', kind: 'group', dashLabel: 'Quadro generale' });
   s.push({ id: 'home-agenda', label: 'Agenda', icon: Calendar, parent: 'home', module: 'produzione', legacyRoute: 'calendario', shared: true });
   s.push({ id: 'home-cicli', label: 'Lista dei cicli', icon: Layers, parent: 'home', module: 'produzione', legacyRoute: 'progetti', preset: { division: div } });
+  if (isMat) s.push({ id: 'home-mie', label: 'Le mie commesse', icon: HardHat, parent: 'home', module: 'produzione', view: 'mie-commesse', note: 'Dashboard del responsabile di produzione (edile/impianti): solo le proprie commesse, cantieri, ritardi e attività.' });
   s.push({ id: 'home-piano', label: 'Piano di Battaglia', icon: Swords, parent: 'home', module: 'produzione', view: 'piano-battaglia', note: 'La settimana operativa: porta qui i cicli quando vanno lavorati (PDF: Agenda ↔ Cicli ↔ Piano di Battaglia dialogano).' });
   s.push({ id: 'home-notifiche', label: 'Notifiche', icon: Bell, parent: 'home', module: 'produzione', view: 'notifiche', note: 'Notifiche/messaggi della società e chat coi clienti (progetti della società).' });
   s.push({ id: 'home-chat', label: 'Chat di società', icon: MessageSquare, parent: 'home', module: 'produzione', view: 'society-chat', note: 'Chat di gruppo del team della società (una stanza per società, visibile a chi ha accesso).' });
@@ -622,7 +623,7 @@ export function firstAuthorizedHash(profile: Parameters<typeof canView>[0]): str
 export const PRIMARY_SECTIONS: Record<string, string[]> = {
   strategico: ['point-of-entry', 'mkt-centro', 'comm-centro', 'amm-centro', 'hr-team'],
   studio: ['prod-progetti', 'comm-sopralluoghi', 'prod-abilitativa', 'comm-preventivi', 'home-agenda'],
-  materico: ['prod-progetti', 'prod-potenziale', 'comm-preventivi', 'comm-clienti', 'home-agenda'],
+  materico: ['home-mie', 'prod-progetti', 'prod-potenziale', 'comm-preventivi', 'comm-clienti', 'home-agenda'],
   unico: ['prod-opportunita', 'prod-progetti', 'comm-preventivi', 'home-agenda'],
   fantastico: ['prod-gestione', 'comm-preventivi', 'home-agenda'],
 };

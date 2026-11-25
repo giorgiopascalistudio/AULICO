@@ -23,6 +23,17 @@ interface Props {
   canEdit?: boolean;
   onSave?: (c: MatericoContract) => void;
   onDelete?: (id: string) => void;
+  /** Stato dei cantieri (per il calcolo automatico delle penali). */
+  cantieri?: Record<string, { status?: string; progressPct?: number | null }>;
+}
+
+/** Ritardo e penale maturata: contratto firmato, fine prevista passata, cantiere non concluso. */
+export function penaleMaturata(c: MatericoContract, cant?: { status?: string; progressPct?: number | null } | null): { giorni: number; importo: number } | null {
+  if (c.status !== 'firmato' || !c.endDate) return null;
+  if (cant && (cant.status === 'concluso' || (cant.progressPct ?? 0) >= 100)) return null;
+  const giorni = Math.floor((Date.now() - new Date(c.endDate + 'T23:59:59').getTime()) / 864e5);
+  if (giorni <= 0) return null;
+  return { giorni, importo: Math.round(giorni * (c.penaleGiorno || 0)) };
 }
 
 const ST: Record<MatericoContract['status'], { label: string; color: string }> = {
@@ -63,7 +74,7 @@ export function buildContractBody(c: MatericoContract): string {
   return L.join('\n');
 }
 
-export const MatericoContractsView: React.FC<Props> = ({ contracts, deals = [], partners = [], canEdit = false, onSave, onDelete }) => {
+export const MatericoContractsView: React.FC<Props> = ({ contracts, deals = [], partners = [], canEdit = false, onSave, onDelete, cantieri }) => {
   const [editing, setEditing] = React.useState<MatericoContract | null>(null);
   const list = Object.values(contracts).sort((a, b) => (b.updatedAt || b.createdAt) - (a.updatedAt || a.createdAt));
   const blank = (): MatericoContract => ({ id: `ctr-${Date.now()}`, number: `CTR-MAT-${new Date().getFullYear()}-${String(list.length + 1).padStart(3, '0')}`, partnerName: '', status: 'bozza', createdAt: Date.now() });
@@ -95,6 +106,15 @@ export const MatericoContractsView: React.FC<Props> = ({ contracts, deals = [], 
                 <span className="text-[9.5px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: s.color }}>{s.label}</span>
               </div>
               {c.lavorazioni && <p className="text-[12px] text-[#555] mt-1.5 line-clamp-2">{c.lavorazioni}</p>}
+              {(() => { const pm = penaleMaturata(c, c.cantiereId ? cantieri?.[c.cantiereId] : null); if (!pm) return null; return (
+                <div className="mt-2 flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-rose-50 border border-rose-100">
+                  <span className="text-[11.5px] font-bold text-rose-700">Ritardo {pm.giorni} gg{pm.importo ? ` · penale ${eur(pm.importo)}` : ' · imposta la penale €/giorno'}</span>
+                  {canEdit && onSave && pm.importo > 0 && (!c.penaleApplicata || c.penaleApplicata.giorni !== pm.giorni) && (
+                    <button onClick={(e) => { e.stopPropagation(); onSave({ ...c, penaleApplicata: { giorni: pm.giorni, importo: pm.importo, at: Date.now() }, updatedAt: Date.now() }); }} className="text-[11px] font-bold px-2 py-1 rounded-lg bg-rose-600 text-white border-none cursor-pointer">Applica</button>
+                  )}
+                  {c.penaleApplicata && c.penaleApplicata.giorni === pm.giorni && <span className="text-[10.5px] font-bold text-rose-700">applicata</span>}
+                </div>
+              ); })()}
               <div className="flex items-center justify-between mt-2">
                 <span className="text-[13px] font-black text-[#161616]">{c.importo != null ? eur(c.importo) : '—'}</span>
                 {c.status === 'firmato' && c.signedAt && <span className="text-[10.5px] font-bold text-emerald-600 inline-flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> {fmtDate(new Date(c.signedAt).toISOString())}</span>}
@@ -199,6 +219,7 @@ const ContractEditor: React.FC<{ contract: MatericoContract; deals: MatericoDeal
           <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Modalità di pagamento</span><input disabled={locked} value={d.modalitaPagamento || ''} onChange={(e) => set({ modalitaPagamento: e.target.value || null })} placeholder="A SAL, saldo a fine lavori…" className={inp} /></label>
           <div className="grid grid-cols-2 gap-2">
             <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Penali</span><input disabled={locked} value={d.penali || ''} onChange={(e) => set({ penali: e.target.value || null })} className={inp} /></label>
+            <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Penale €/giorno di ritardo</span><input disabled={!canEdit} type="number" min={0} value={d.penaleGiorno ?? ''} onChange={(e) => set({ penaleGiorno: e.target.value === '' ? null : Number(e.target.value) })} className={inp} placeholder="si calcola da sola oltre la fine prevista" /></label>
             <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Responsabilità</span><input disabled={locked} value={d.responsabilita || ''} onChange={(e) => set({ responsabilita: e.target.value || null })} className={inp} /></label>
           </div>
 

@@ -220,6 +220,7 @@ const UnicoOpportunitaView = React.lazy(() => import('./components/UnicoOpportun
 const StimaPreliminareView = React.lazy(() => import('./components/StimaPreliminareView').then((m) => ({ default: m.StimaPreliminareView })));
 const ComputiView = React.lazy(() => import('./components/ComputiView').then((m) => ({ default: m.ComputiView })));
 const LegaleView = React.lazy(() => import('./components/LegaleView').then((m) => ({ default: m.LegaleView })));
+const MieCommesseView = React.lazy(() => import('./components/MieCommesseView').then((m) => ({ default: m.MieCommesseView })));
 const SopralluoghiView = React.lazy(() => import('./components/SopralluoghiView').then((m) => ({ default: m.SopralluoghiView })));
 const AbilitativaView = React.lazy(() => import('./components/AbilitativaView').then((m) => ({ default: m.AbilitativaView })));
 const RenderAiView = React.lazy(() => import('./components/RenderAiView').then((m) => ({ default: m.RenderAiView })));
@@ -4509,7 +4510,72 @@ export default function App() {
     const enriched: MatericoContract = { ...c, createdBy: c.createdBy || currentUser?.uid || null };
     setMatericoContracts((prev) => ({ ...prev, [c.id]: enriched }));
     writeNode(`matericoContracts/${c.id}`, enriched).catch(() => showToast('Errore contratti (controlla regole).', 'err'));
-    if (c.status === 'firmato' && matericoContracts[c.id]?.status !== 'firmato') logAudit('update', 'contratti', `Contratto firmato (OTP) · ${c.partnerName}`, c.number);
+    // Penale applicata: resta nel contratto, avvisa l'impresa (se ha il portale) e la direzione
+    if (c.penaleApplicata && c.penaleApplicata.at !== matericoContracts[c.id]?.penaleApplicata?.at) {
+      const pu = c.partnerRecordId ? clients[c.partnerRecordId]?.accountUid : null;
+      const msg = { type: 'cantiere', title: `Penale per ritardo: ${eur(c.penaleApplicata.importo)}`, body: `${c.number} · ${c.penaleApplicata.giorni} giorni oltre la fine prevista`, link: '#materico' };
+      if (pu) pushNotification(pu, msg);
+      notifyStudio(msg, currentUser?.uid);
+      logAudit('update', 'contratti', `Penale ${eur(c.penaleApplicata.importo)} · ${c.partnerName}`, c.number);
+    }
+    if (c.status === 'firmato' && matericoContracts[c.id]?.status !== 'firmato') {
+      logAudit('update', 'contratti', `Contratto firmato (OTP) · ${c.partnerName}`, c.number);
+      startCantiereFromContract(enriched);
+    }
+  };
+  // Doc Materico: "con la firma dei contratti NASCE il cantiere". Alla prima firma:
+  // pratica (se manca) → cantiere collegato a commessa e contratto → impresa assegnata
+  // (portale se ha l'account) → cronoprogramma dalla durata del contratto → responsabile avvisato.
+  const startCantiereFromContract = (c: MatericoContract) => {
+    const deal = c.dealId ? matericoDeals[c.dealId] : null;
+    let cid = c.cantiereId || deal?.cantiereId || null;
+    const isNew = !cid || !cantieri[cid];
+    if (isNew) {
+      let pid = deal?.projectId || null;
+      if (!pid || !projects[pid]) {
+        pid = `p-${Date.now()}`;
+        const phId = `ph-${Date.now()}`;
+        const tId = `t-${Date.now()}`;
+        const proj: Project = {
+          id: pid, name: deal?.title || `Commessa ${c.number}`, client: deal?.clientName || null,
+          clientRecordId: deal?.clientRecordId || null, location: deal?.address || null,
+          manager: deal?.responsabileUid || null, startDate: c.startDate || todayISO(), dueDate: c.endDate || null,
+          status: 'attivo', division: 'materico', icon: 'folder', createdAt: Date.now(), updatedAt: Date.now(),
+          phases: { [phId]: { id: phId, name: 'Esecuzione', order: 0, tasks: { [tId]: { id: tId, title: c.lavorazioni || 'Lavorazioni affidate', order: 0, done: false, assignee: deal?.responsabileUid || null, due: c.endDate || null } } } },
+        } as Project;
+        setProjects((prev) => ({ ...prev, [pid!]: proj }));
+        writeNode(`projects/${pid}`, clean(proj)).catch(() => showToast('Errore creazione commessa (controlla regole).', 'err'));
+      }
+      cid = `cant-${Date.now().toString(36)}`;
+      const cant: Cantiere = {
+        id: cid, projectId: pid!, name: deal?.title || `Cantiere ${c.number}`, status: 'in_corso', division: 'materico',
+        partnerRecordIds: c.partnerRecordId ? { [c.partnerRecordId]: true } : undefined,
+        progressPct: 0, startDate: c.startDate || todayISO(), dueDate: c.endDate || null, location: deal?.address || null,
+        notes: `Avviato dalla firma del contratto ${c.number}`, createdBy: currentUser?.uid || '', createdAt: Date.now(),
+      };
+      handleSaveCantiere(cant);
+      if (deal) handleSaveMatericoDeal({ ...deal, cantiereId: cid, projectId: pid, stage: 'vinta' as any });
+    }
+    // Impresa: accesso dal portale se la scheda in rubrica ha un account
+    const partnerUid = c.partnerRecordId ? clients[c.partnerRecordId]?.accountUid : null;
+    if (partnerUid && !cantieri[cid!]?.partnerUids?.[partnerUid]) handleAssignPartner(cid!, partnerUid, c.partnerName, true);
+    // Cronoprogramma: la lavorazione del contratto entra come barra del Gantt
+    if (c.startDate || c.endDate) {
+      handleSaveCantEntity('cantiereRecords', cid!, {
+        id: `cr-${c.id}`, section: 'cronoprogramma', title: `${c.partnerName}: ${c.lavorazioni || 'lavorazioni'}`,
+        date: c.startDate || todayISO(), dateEnd: c.endDate || null, status: 'Pianificata',
+        fields: { contratto: c.number }, by: currentUser?.uid || '', byName: currentUser?.name || null, role: 'studio', at: Date.now(),
+      });
+    }
+    if (c.cantiereId !== cid) {
+      const linked = { ...c, cantiereId: cid };
+      setMatericoContracts((prev) => ({ ...prev, [c.id]: linked }));
+      writeNode(`matericoContracts/${c.id}`, clean(linked)).catch(() => {});
+    }
+    if (deal?.responsabileUid && deal.responsabileUid !== currentUser?.uid) {
+      pushNotification(deal.responsabileUid, { type: 'cantiere', title: isNew ? `Cantiere avviato: ${deal.title}` : `Nuovo contratto sul cantiere ${deal.title}`, body: `${c.partnerName} · ${c.number}`, link: `#progetto/${deal.projectId || ''}` });
+    }
+    showToast(isNew ? 'Contratto firmato: cantiere avviato.' : 'Contratto firmato e collegato al cantiere.', 'ok');
   };
   const handleDeleteMatericoContract = (id: string) => {
     const c = matericoContracts[id];
@@ -6487,6 +6553,22 @@ export default function App() {
               </React.Suspense>
             );
           }
+          case 'mie-commesse':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <MieCommesseView
+                  myUid={currentUser.uid}
+                  isBoss={currentUser.role === 'admin' || currentUser.role === 'manager'}
+                  team={Object.values(users).filter((u: any) => u && u.active && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
+                  deals={Object.values(matericoDeals)}
+                  cantieri={Object.values(cantieri)}
+                  contracts={Object.values(matericoContracts)}
+                  projects={Object.values(projects)}
+                  tasks={Object.values(tasks)}
+                  onToggleTask={handleToggleTask}
+                />
+              </React.Suspense>
+            );
           case 'sopralluoghi': {
             const studioTeam = Object.values(users).filter((u: any) => u && u.active && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }));
             return (
@@ -6899,6 +6981,7 @@ export default function App() {
                   canEdit={isStudioRole(currentUser.role) && secOp}
                   onSave={handleSaveMatericoContract}
                   onDelete={handleDeleteMatericoContract}
+                  cantieri={cantieri}
                 />
               </React.Suspense>
             );

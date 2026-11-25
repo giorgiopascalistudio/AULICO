@@ -1635,6 +1635,10 @@ export interface MatericoContract {
   endDate?: string | null;       // cronoprogramma: fine
   modalitaPagamento?: string | null;
   penali?: string | null;
+  /** Penale € per giorno di ritardo oltre `endDate`: calcolata in automatico a cantiere non concluso. */
+  penaleGiorno?: number | null;
+  /** Penale applicata (registrata e comunicata all'impresa). */
+  penaleApplicata?: { giorni: number; importo: number; at: number; by?: string | null } | null;
   responsabilita?: string | null;
   body?: string | null;          // testo del contratto (generato, modificabile)
   status: 'bozza' | 'inviato' | 'firmato' | 'annullato';

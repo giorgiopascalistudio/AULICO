@@ -31,7 +31,20 @@ const barColor = (status?: string | null, overdue?: boolean): string => {
   return '#64748b';                                                                     // pianificata (slate)
 };
 
-export const GanttChart: React.FC<{ items: GenericRecord[]; accent?: string }> = ({ items, accent = '#161616' }) => {
+/** Stato AUTOMATICO dalla data e dall'avanzamento del cantiere (doc Materico: "il cronoprogramma
+ *  si aggiorna automaticamente"): completata se segnata o se il cantiere è al 100%, altrimenti
+ *  pianificata → in corso quando arriva l'inizio → in ritardo oltre la fine. */
+export function autoStatus(r: GenericRecord, progressPct?: number | null): string {
+  const v = (r.status || '').toLowerCase();
+  if (['completat', 'chius', 'ok'].some((k) => v.includes(k)) || (progressPct ?? 0) >= 100) return 'Completata';
+  const now = Date.now();
+  const s = parse(r.date); const e = parse(r.dateEnd) ?? s;
+  if (e !== null && e + DAY < now) return 'In ritardo';
+  if (s !== null && s <= now) return 'In corso';
+  return r.status || 'Pianificata';
+}
+
+export const GanttChart: React.FC<{ items: GenericRecord[]; accent?: string; progressPct?: number | null }> = ({ items, accent = '#161616', progressPct }) => {
   // Solo voci con inizio valido; fine = dateEnd o inizio (barra minima 1 giorno).
   const rows = items
     .map((r) => {
@@ -111,8 +124,9 @@ export const GanttChart: React.FC<{ items: GenericRecord[]; accent?: string }> =
           {/* Righe */}
           <div className="flex flex-col gap-1 mt-1">
             {rows.map(({ r, s, e }) => {
-              const overdue = e < today && !['completat', 'chius'].some((k) => (r.status || '').toLowerCase().includes(k));
-              const col = barColor(r.status, overdue);
+              const st = autoStatus(r, progressPct);
+              const overdue = st === 'In ritardo';
+              const col = barColor(st, overdue);
               const left = pct(s);
               const width = Math.max(pct(e) - left, 1.2);
               return (
@@ -128,9 +142,9 @@ export const GanttChart: React.FC<{ items: GenericRecord[]; accent?: string }> =
                     <div
                       className="absolute top-1.5 bottom-1.5 rounded-md flex items-center px-2 min-w-[6px] shadow-xs"
                       style={{ left: `${left}%`, width: `${width}%`, background: col }}
-                      title={`${r.title}${r.status ? ` · ${r.status}` : ''}`}
+                      title={`${r.title} · ${st}`}
                     >
-                      {width > 12 && <span className="text-[10px] font-bold text-white truncate">{r.status || ''}</span>}
+                      {width > 12 && <span className="text-[10px] font-bold text-white truncate">{st}</span>}
                     </div>
                   </div>
                 </div>

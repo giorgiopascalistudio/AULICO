@@ -221,6 +221,14 @@ export const HOWTO: Record<string, HowTo> = {
     title: 'Segnalazioni',
     steps: ['Bug e richieste inviati dal pulsante "Segnala un problema". Cambia lo stato quando sono risolti.'],
   },
+  'home-mie': {
+    title: 'Le mie commesse',
+    steps: [
+      'Vedi solo le commesse di cui sei responsabile, con i cantieri e il loro avanzamento.',
+      'In rosso i contratti in ritardo con la penale già calcolata.',
+      'A destra le attività da fare: spuntale da qui.',
+    ],
+  },
   cantiere: {
     title: 'Come funziona il cantiere',
     steps: [

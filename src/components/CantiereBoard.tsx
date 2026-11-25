@@ -379,7 +379,7 @@ const CantiereDetail: React.FC<CantiereBoardProps & {
       return (
         <div className="flex flex-col gap-3">
           {/* Cronoprogramma: diagramma di Gantt sopra la tabella (stessi record). */}
-          {r.section === 'cronoprogramma' && <GanttChart items={recItems} />}
+          {r.section === 'cronoprogramma' && <GanttChart items={recItems} progressPct={c.progressPct} />}
           <RecordRegistry
             items={recItems}
             columns={r.columns}
