@@ -24,10 +24,12 @@ import { COMPANY_COLOR } from '../finance';
 import { useLang } from '../i18n';
 import { fmtDay } from '../utils';
 import { callAiImage } from '../firebase';
+import { classifica } from '../smistamento';
+import { BRIEF_QUESTIONS } from '../projectBrief';
 
 const Moodboard3D = lazy(() => import('./moodboard3d/Moodboard3D'));
 
-type Division = 'studio' | 'materico' | 'strategico' | 'unico';
+type Division = 'studio' | 'materico' | 'strategico' | 'unico' | 'fantastico';
 
 // name = brand (uguale in IT/EN); sub/desc tradotti via t('div.<key>.sub|desc')
 const DIVISIONS: { key: Division; name: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -70,7 +72,10 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
 }) => {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<1 | 2>(1);
+  // Il cliente non sceglie più la società: scrive cosa vuole e Aulico smista (src/smistamento.ts)
+  const [step, setStep] = useState<1 | 2>(2);
+  const [brief, setBrief] = useState<Record<string, string>>({});
+  const [briefOpen, setBriefOpen] = useState(false);
   const [division, setDivision] = useState<Division>('studio');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -93,7 +98,7 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
   const useMoodboard = division !== 'materico'; // moodboard 3D per le divisioni di progettazione
 
   const reset = () => {
-    setStep(1); setDivision('studio'); setTitle(''); setDescription('');
+    setStep(2); setDivision('studio'); setBrief({}); setBriefOpen(false); setTitle(''); setDescription('');
     setBudget(''); setLocation(''); setLinksText(''); setMoodboard([]); setErr(null);
     setPhotoB64(null); setStyle('Moderno'); setAmbiente('Soggiorno'); setPalette('Neutri'); setAtmosfera('Luminosa'); setDraftImage(null); setGenErr(null);
   };
@@ -130,26 +135,17 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
     const links = linksText.split(/[\n,]/).map((s) => s.trim()).filter(Boolean);
     const now = Date.now();
 
-    if (division === 'materico') {
-      const req: MatericoRequest = {
-        id: `mr-${now}`,
-        clientUid: profile.uid,
-        clientName: profile.name,
-        title: title.trim(),
-        description: description.trim(),
-        note: budget.trim() ? t('req.budgetNote', { budget: budget.trim() }) : undefined,
-        links: links.length ? links : undefined,
-        status: 'nuova',
-        createdAt: now,
-      };
-      onCreateMatericoRequest?.(req);
-    } else {
+    const sugg = classifica(`${title} ${description} ${location}`);
+    // Una sola richiesta: la società la propone lo smistamento, lo staff conferma nel Point of Entry
       const req: ClientRequest = {
         id: `cr-${now}`,
         clientUid: profile.uid,
         clientName: profile.name,
         clientEmail: profile.email || null,
-        division,
+        division: sugg[0].soc as ClientRequest['division'],
+        suggested: sugg,
+        routed: false,
+        brief: Object.values(brief).some((v) => (v || '').trim()) ? brief : null,
         title: title.trim(),
         description: description.trim(),
         budget: budget.trim() ? Number(String(budget).replace(/[^\d.]/g, '')) || null : null,
@@ -161,7 +157,6 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
         createdAt: now,
       };
       onCreate(req);
-    }
     close();
   };
 
@@ -171,7 +166,7 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
     ...(matericoRequests || []).map((r) => ({ id: r.id, division: 'materico' as Division, title: r.title, status: r.status, at: r.createdAt, mood: 0 })),
   ].sort((a, b) => b.at - a.at);
 
-  const divMeta = (d: Division) => DIVISIONS.find((x) => x.key === d)!;
+  const divMeta = (d: Division) => DIVISIONS.find((x) => x.key === d) || DIVISIONS[0];
 
   return (
     <div className="bg-white border border-[#e2e2e2] rounded-[24px] shadow-sm overflow-hidden">
@@ -207,7 +202,7 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
               const stLabel = STATUS_CLS[r.status] ? t('reqstatus.' + r.status) : r.status;
               return (
                 <div key={r.id} className="flex items-center gap-3 p-3 rounded-2xl border border-[#ececec] bg-[#fafafa]">
-                  <span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-white" style={{ backgroundColor: COMPANY_COLOR[r.division] }}>
+                  <span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-white" style={{ backgroundColor: (COMPANY_COLOR as any)[r.division] || '#7c3aed' }}>
                     <m.icon className="w-4 h-4" />
                   </span>
                   <div className="min-w-0 flex-1">
@@ -239,14 +234,10 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
             {/* head */}
             <div className="sticky top-0 bg-white/95 backdrop-blur border-b border-[#f0f0f0] px-5 sm:px-6 py-4 flex items-center justify-between z-10">
               <div className="flex items-center gap-2.5">
-                {step === 2 && (
-                  <button onClick={() => setStep(1)} className="w-8 h-8 rounded-lg hover:bg-[#f2f2f0] flex items-center justify-center cursor-pointer">
-                    <ArrowLeft className="w-4 h-4" />
-                  </button>
-                )}
+
                 <div>
-                  <b className="text-[15px] text-[#161616]">{step === 1 ? t('req.step1Title') : t('req.step2Title')}</b>
-                  <div className="text-[11.5px] text-[#6b6b6b]">{t('req.stepOf', { step })}</div>
+                  <b className="text-[15px] text-[#161616]">Raccontaci cosa ti serve</b>
+                  <div className="text-[11.5px] text-[#6b6b6b]">Ti mettiamo in contatto noi con le persone giuste del gruppo.</div>
                 </div>
               </div>
               <button onClick={close} className="w-8 h-8 rounded-lg hover:bg-[#f2f2f0] flex items-center justify-center cursor-pointer">
@@ -280,10 +271,6 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
 
               {step === 2 && (
                 <div className="flex flex-col gap-3.5">
-                  <div className="flex items-center gap-2 text-[12px] font-bold text-white px-3 py-2 rounded-xl" style={{ backgroundColor: COMPANY_COLOR[division] }}>
-                    {React.createElement(divMeta(division).icon, { className: 'w-4 h-4' })}
-                    {divMeta(division).name} · {t('div.' + division + '.sub')}
-                  </div>
 
                   <label className="flex flex-col gap-1.5">
                     <span className="text-[11.5px] font-bold text-[#555] flex items-center gap-1.5"><PenSquare className="w-3.5 h-3.5" /> {t('req.title')}</span>
@@ -294,6 +281,32 @@ export const ClientRequestPanel: React.FC<ClientRequestPanelProps> = ({
                     <span className="text-[11.5px] font-bold text-[#555]">{t('req.idea')}</span>
                     <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder={t('req.ideaPlaceholder')} className="input w-full px-3.5 py-2.5 text-[14px] resize-y" />
                   </label>
+
+                  {/* Questionario anticipato (nota utente bb-10): serve a fare un preventivo giusto */}
+                  <div className="rounded-2xl border border-[#ececec] bg-[#fafaf8]">
+                    <button type="button" onClick={() => setBriefOpen((v) => !v)} className="w-full flex items-center justify-between px-3.5 py-3 text-left cursor-pointer bg-transparent border-none">
+                      <span className="text-[13px] font-bold text-[#161616]">Raccontaci di più <span className="font-semibold text-[#6b6b6b]">(facoltativo, ci aiuta a prepararti una proposta giusta)</span></span>
+                      <span className="text-[12px] font-bold text-[#6b6b6b]">{briefOpen ? 'Chiudi' : 'Apri'}</span>
+                    </button>
+                    {briefOpen && (
+                      <div className="px-3.5 pb-3.5 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {BRIEF_QUESTIONS.filter((bq) => ['stile', 'ambienti', 'composizione', 'must', 'tempistiche', 'priorita', 'materiali'].includes(bq.id)).map((bq) => (
+                          <label key={bq.id} className={`flex flex-col gap-1 ${bq.type === 'textarea' ? 'sm:col-span-2' : ''}`}>
+                            <span className="text-[11.5px] font-bold text-[#555]">{bq.label}</span>
+                            {bq.type === 'select' ? (
+                              <select value={brief[bq.id] || ''} onChange={(e) => setBrief({ ...brief, [bq.id]: e.target.value })} className="input w-full h-10 px-3 text-[13.5px]">
+                                <option value="">—</option>{(bq.options || []).map((o) => <option key={o}>{o}</option>)}
+                              </select>
+                            ) : bq.type === 'textarea' ? (
+                              <textarea rows={2} value={brief[bq.id] || ''} placeholder={bq.placeholder} onChange={(e) => setBrief({ ...brief, [bq.id]: e.target.value })} className="input w-full px-3 py-2 text-[13.5px]" />
+                            ) : (
+                              <input value={brief[bq.id] || ''} placeholder={bq.placeholder} onChange={(e) => setBrief({ ...brief, [bq.id]: e.target.value })} className="input w-full h-10 px-3 text-[13.5px]" />
+                            )}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <label className="flex flex-col gap-1.5">

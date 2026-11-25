@@ -20,7 +20,8 @@ const SOC_OPTS: { id: 'studio' | 'strategico' | 'materico'; label: string; color
   { id: 'strategico', label: 'Strategico', color: '#b45309' },
   { id: 'materico', label: 'Materico', color: '#c2410c' },
 ];
-const DIV_LABEL: Record<string, string> = { studio: 'Onirico', strategico: 'Strategico', unico: 'Unico', materico: 'Materico' };
+const DIV_LABEL: Record<string, string> = { studio: 'Onirico', strategico: 'Strategico', unico: 'Unico', materico: 'Materico', fantastico: 'Fantastico' };
+const ALL_SOC = ['studio', 'materico', 'strategico', 'unico', 'fantastico'];
 const fmtD = (ms?: number | null) => (ms ? new Date(ms).toLocaleDateString('it-IT', { day: '2-digit', month: 'short' }) : '—');
 
 interface Props {
@@ -34,11 +35,13 @@ interface Props {
   onTakeCharge?: (req: ClientRequest) => void;
   onConvert?: (req: ClientRequest) => void;
   onCloseRequest?: (req: ClientRequest) => void;
+  /** Conferma (o corregge) la società proposta dallo smistamento automatico. */
+  onRouteRequest?: (req: ClientRequest, soc: string) => void;
   onOpenCrm?: () => void;
   onOpenRichieste?: () => void;
 }
 
-export const PointOfEntryView: React.FC<Props> = ({ leads, requests, myName, color = '#b45309', canEdit = false, onSaveLeads, onRouteLead, onTakeCharge, onConvert, onCloseRequest, onOpenCrm, onOpenRichieste }) => {
+export const PointOfEntryView: React.FC<Props> = ({ leads, requests, myName, color = '#b45309', canEdit = false, onSaveLeads, onRouteLead, onTakeCharge, onConvert, onCloseRequest, onRouteRequest, onOpenCrm, onOpenRichieste }) => {
   const daSmistare = leads.filter((l) => !l.routed && l.stage !== 'perso' && l.stage !== 'vinto');
   const nuoveRichieste = requests.filter((r) => r.status === 'inviata').sort((a, b) => b.createdAt - a.createdAt);
   const inCarico = requests.filter((r) => r.status === 'presa_in_carico').sort((a, b) => b.createdAt - a.createdAt);
@@ -122,6 +125,24 @@ export const PointOfEntryView: React.FC<Props> = ({ leads, requests, myName, col
                 <span className={`text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${r.status === 'inviata' ? 'bg-amber-50 text-amber-700' : 'bg-indigo-50 text-indigo-700'}`}>{r.status === 'inviata' ? 'Nuova' : `In carico${r.handledByName ? ` · ${r.handledByName}` : ''}`}</span>
               </div>
               {r.description && <p className="text-[12px] text-[#555] mt-1.5 line-clamp-2">{r.description}</p>}
+              {/* Smistamento automatico: Aulico propone, lo staff conferma con un clic */}
+              {canEdit && onRouteRequest && !r.routed && r.status !== 'convertita' && (
+                <div className="mt-2.5 rounded-xl bg-[#fafaf8] border border-[#efefef] p-2.5">
+                  <p className="text-[11.5px] font-bold text-[#6b6b6b] mb-1.5">Aulico propone{(r.suggested || []).length > 1 ? ' (la richiesta tocca più società)' : ''}: conferma a chi va</p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {[...(r.suggested || []).map((x) => x.soc), ...ALL_SOC.filter((s) => !(r.suggested || []).some((x) => x.soc === s))].map((s, i) => {
+                      const proposed = (r.suggested || []).some((x) => x.soc === s);
+                      return (
+                        <button key={s} onClick={() => onRouteRequest(r, s)}
+                          className={`px-2.5 py-1.5 rounded-lg text-[12px] font-bold cursor-pointer border ${i === 0 && proposed ? 'bg-[#161616] text-white border-[#161616]' : proposed ? 'bg-white text-[#161616] border-[#161616]' : 'bg-white text-[#8a8a8a] border-[#e2e2e2]'}`}>
+                          {DIV_LABEL[s]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              {r.brief && <p className="text-[11.5px] font-semibold text-emerald-700 mt-1.5">Questionario compilato dal cliente: passerà alla pratica.</p>}
               {canEdit && (
                 <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
                   {r.status === 'inviata' && onTakeCharge && <button onClick={() => onTakeCharge(r)} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#161616] hover:bg-black text-white text-[12px] font-bold cursor-pointer border-none"><User className="w-3 h-3" /> Prendi in carico</button>}

@@ -1810,6 +1810,26 @@ export default function App() {
     saveClientRequest({ ...req, status: 'chiusa', updatedAt: Date.now() });
     showToast('Richiesta chiusa.');
   };
+  // Smistamento confermato nel Point of Entry (nota utente tutti-1). Materico ha il suo flusso
+  // (richiesta → offerte delle imprese): la richiesta diventa anche una MatericoRequest.
+  const handleRouteClientRequest = (req: ClientRequest, soc: string) => {
+    const routed: ClientRequest = { ...req, division: soc as ClientRequest['division'], routed: true, handledBy: currentUser!.uid, handledByName: currentUser!.name, updatedAt: Date.now() };
+    saveClientRequest(routed);
+    if (soc === 'materico') {
+      const links = (req.links || []).filter(Boolean);
+      const mr: MatericoRequest = {
+        id: `mr-${Date.now()}`, clientUid: req.clientUid, clientName: req.clientName, title: req.title, description: req.description,
+        note: req.budget ? `Budget indicativo: ${eur(req.budget)}` : undefined, links: links.length ? links : undefined, status: 'nuova', createdAt: Date.now(),
+      } as MatericoRequest;
+      saveMatericoRequest(mr);
+      if (req.clientUid) writeNode(`clientMaterico/${req.clientUid}/${mr.id}`, true).catch(() => {});
+      saveClientRequest({ ...routed, status: 'presa_in_carico' });
+    }
+    const label = ({ studio: 'Onirico', materico: 'Materico', strategico: 'Strategico', unico: 'Unico', fantastico: 'Fantastico' } as Record<string, string>)[soc] || soc;
+    notifyStudio({ type: 'lead', title: `Richiesta assegnata a ${label}`, body: `${req.clientName}: ${req.title}`, link: '#strategico/point-of-entry' }, currentUser?.uid);
+    logAudit('update', 'richieste', `${req.title} → ${label}`, 'smistamento');
+    showToast(`Richiesta assegnata a ${label}.`, 'ok');
+  };
   const handleConvertClientRequest = (req: ClientRequest) => {
     const pid = `p-${Date.now()}`;
     const proj: Project = {
@@ -1850,6 +1870,10 @@ export default function App() {
     }
     // Porta la moodboard 3D dell'idea sul progetto
     if ((req.moodboard || []).length) handleSaveMoodboard3d(pid, req.moodboard as any[]);
+    // Il questionario compilato al primo contatto diventa il questionario della pratica
+    if (req.brief && Object.keys(req.brief).length) {
+      handleSaveProjectBrief({ pid, answers: req.brief, budget: req.budget || null, updatedAt: Date.now(), completedByClient: true, completedAt: req.createdAt } as ProjectBrief);
+    }
     // Aggiorna la richiesta come convertita
     saveClientRequest({ ...req, status: 'convertita', projectId: pid, handledBy: currentUser!.uid, handledByName: currentUser!.name, updatedAt: Date.now() });
     // Avvisa il cliente
@@ -6565,6 +6589,7 @@ export default function App() {
                   onTakeCharge={handleTakeChargeClientRequest}
                   onConvert={handleConvertClientRequest}
                   onCloseRequest={handleCloseClientRequest}
+                  onRouteRequest={handleRouteClientRequest}
                   onOpenCrm={() => { window.location.hash = '#strategico/hr-crm'; }}
                   onOpenRichieste={() => { window.location.hash = '#richieste-clienti'; }}
                 />

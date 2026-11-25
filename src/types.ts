@@ -1879,7 +1879,13 @@ export interface ClientRequest {
   clientUid: string;
   clientName: string;
   clientEmail?: string | null;
-  division: 'studio' | 'strategico' | 'unico';   // Materico → MatericoRequest separata
+  division: 'studio' | 'strategico' | 'unico' | 'materico' | 'fantastico'; // società assegnata (proposta in automatico, confermata nel Point of Entry)
+  /** Società suggerite dallo smistamento automatico (src/smistamento.ts), dalla più probabile. */
+  suggested?: { soc: string; score: number }[] | null;
+  /** true quando lo staff ha confermato la società nel Point of Entry. */
+  routed?: boolean;
+  /** Questionario anticipato (stesse domande del brief di progetto): passa alla pratica alla conversione. */
+  brief?: Record<string, string> | null;
   title: string;
   description: string;                            // "descrivi la tua idea"
   budget?: number | null;
