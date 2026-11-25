@@ -220,6 +220,7 @@ const UnicoOpportunitaView = React.lazy(() => import('./components/UnicoOpportun
 const StimaPreliminareView = React.lazy(() => import('./components/StimaPreliminareView').then((m) => ({ default: m.StimaPreliminareView })));
 const ComputiView = React.lazy(() => import('./components/ComputiView').then((m) => ({ default: m.ComputiView })));
 const LegaleView = React.lazy(() => import('./components/LegaleView').then((m) => ({ default: m.LegaleView })));
+const AbilitativaView = React.lazy(() => import('./components/AbilitativaView').then((m) => ({ default: m.AbilitativaView })));
 const RenderAiView = React.lazy(() => import('./components/RenderAiView').then((m) => ({ default: m.RenderAiView })));
 const RecruitingView = React.lazy(() => import('./components/RecruitingView').then((m) => ({ default: m.RecruitingView })));
 const TimeReportView = React.lazy(() => import('./components/TimeReportView').then((m) => ({ default: m.TimeReportView })));
@@ -246,6 +247,7 @@ import { Modal } from './components/Modal';
 import { AppleSwitch } from './components/AppleSwitch';
 import { injectSmartTextStyles } from './components/SmartText';
 import { AuthFlow } from './components/AuthFlow';
+import { ABIL_VOCI } from './abilitativa';
 import { MaintenanceScreen } from './components/MaintenanceScreen';
 import { isMaintenanceBlocked } from './maintenance';
 import { LangProvider } from './i18n';
@@ -476,6 +478,7 @@ export default function App() {
   const [battlePlan, setBattlePlan] = useState<Record<string, BattleItem>>({});
   const [unicoOpps, setUnicoOpps] = useState<Record<string, UnicoOpportunity>>({});
   const [stimePreliminari, setStimePreliminari] = useState<Record<string, any>>({});
+  const [abilitativa, setAbilitativa] = useState<Record<string, any>>({}); // Onirico · Fase abilitativa (pid → voce → cella)
   const [recruiting, setRecruiting] = useState<Record<string, any>>({});
   const [fantImmobili, setFantImmobili] = useState<Record<string, any>>({});
   const [fantTickets, setFantTickets] = useState<Record<string, any>>({});
@@ -1933,6 +1936,7 @@ export default function App() {
       add('battlePlan', setBattlePlan);
       add('unicoOpportunita', setUnicoOpps);
       add('stimePreliminari', setStimePreliminari);
+      add('abilitativa', setAbilitativa);
       add('recruiting', setRecruiting);
       add('fantImmobili', setFantImmobili);
       add('fantTickets', setFantTickets);
@@ -4168,6 +4172,48 @@ export default function App() {
       showToast('Opportunità spostata nel Cestino.', 'err');
     });
   };
+  // ---- Onirico · Fase abilitativa (abilitativa/<pid>/<voce>) ----
+  // Assegnando una casella nasce/si aggiorna l'attività in agenda `tasks/abil-<pid>-<voce>`.
+  const handleSaveAbilitativa = (pid: string, voce: string, cell: any | null) => {
+    const proj = projects[pid];
+    const label = ABIL_VOCI.find((v) => v.id === voce)?.label || voce;
+    const taskId = `abil-${pid}-${voce}`;
+    const prevCell = abilitativa[pid]?.[voce];
+    const dropTask = () => {
+      if (!tasks[taskId]) return;
+      setTasks((prev) => { const n = { ...prev }; delete n[taskId]; return n; });
+      removeNode(`tasks/${taskId}`).catch(() => {});
+    };
+    if (!cell) {
+      setAbilitativa((prev) => { const n = { ...prev, [pid]: { ...(prev[pid] || {}) } }; delete n[pid][voce]; return n; });
+      removeNode(`abilitativa/${pid}/${voce}`).catch(() => showToast('Errore fase abilitativa (controlla regole).', 'err'));
+      dropTask();
+      return;
+    }
+    const wantsTask = !!cell.assignee && cell.stato !== 'non_serve';
+    const enriched = { ...cell, taskId: wantsTask ? taskId : null, updatedAt: Date.now(), by: currentUser?.uid || null };
+    setAbilitativa((prev) => ({ ...prev, [pid]: { ...(prev[pid] || {}), [voce]: enriched } }));
+    writeNode(`abilitativa/${pid}/${voce}`, clean(enriched))
+      .then(() => showToast('Fase abilitativa aggiornata.', 'ok'))
+      .catch(() => showToast('Errore fase abilitativa (controlla regole).', 'err'));
+    if (!wantsTask) { dropTask(); return; }
+    const old: any = tasks[taskId];
+    const t: any = {
+      ...(old || {}),
+      id: taskId, title: `${label} — ${proj?.name || 'pratica'}`,
+      date: cell.due || old?.date || todayISO(), time: old?.time || null, frequency: 'once',
+      priority: old?.priority || 'media', tipo: 'Pratiche', societa: 'studio',
+      assignee: cell.assignee, assignees: [cell.assignee], projectId: pid,
+      notes: cell.note || 'Fase abilitativa', done: cell.stato === 'fatto',
+      createdAt: old?.createdAt || Date.now(), updatedAt: Date.now(), createdBy: old?.createdBy || currentUser?.uid || '',
+    };
+    setTasks((prev) => ({ ...prev, [taskId]: t }));
+    writeNode(`tasks/${taskId}`, clean(t)).catch(() => showToast('Errore creazione attività in agenda.', 'err'));
+    if (cell.assignee !== currentUser?.uid && cell.assignee !== prevCell?.assignee) {
+      pushNotification(cell.assignee, { type: 'task', title: `Fase abilitativa: ${label}`, body: proj?.name || '', link: '#calendario' });
+    }
+  };
+
   // ---- Onirico · Stime Preliminari (stimePreliminari) ----
   const handleSaveStima = (s: any) => {
     const enriched = { ...s, createdBy: s.createdBy || currentUser?.uid || null, updatedAt: Date.now() };
@@ -6238,6 +6284,20 @@ export default function App() {
               </React.Suspense>
             );
           }
+          case 'abilitativa':
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <AbilitativaView
+                  projects={Object.values(projects).filter((p) => p.division === 'studio' && !p.archived && p.status !== 'completato' && p.status !== 'annullato')}
+                  cells={abilitativa}
+                  tasks={tasks}
+                  team={Object.values(users).filter((u: any) => u && u.active && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }))}
+                  myUid={currentUser.uid}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
+                  onSave={handleSaveAbilitativa}
+                />
+              </React.Suspense>
+            );
           case 'render-ai':
             return (
               <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
