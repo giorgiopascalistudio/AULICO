@@ -220,6 +220,7 @@ const UnicoOpportunitaView = React.lazy(() => import('./components/UnicoOpportun
 const StimaPreliminareView = React.lazy(() => import('./components/StimaPreliminareView').then((m) => ({ default: m.StimaPreliminareView })));
 const ComputiView = React.lazy(() => import('./components/ComputiView').then((m) => ({ default: m.ComputiView })));
 const LegaleView = React.lazy(() => import('./components/LegaleView').then((m) => ({ default: m.LegaleView })));
+const SopralluoghiView = React.lazy(() => import('./components/SopralluoghiView').then((m) => ({ default: m.SopralluoghiView })));
 const AbilitativaView = React.lazy(() => import('./components/AbilitativaView').then((m) => ({ default: m.AbilitativaView })));
 const RenderAiView = React.lazy(() => import('./components/RenderAiView').then((m) => ({ default: m.RenderAiView })));
 const RecruitingView = React.lazy(() => import('./components/RecruitingView').then((m) => ({ default: m.RecruitingView })));
@@ -248,6 +249,7 @@ import { AppleSwitch } from './components/AppleSwitch';
 import { injectSmartTextStyles } from './components/SmartText';
 import { AuthFlow } from './components/AuthFlow';
 import { ABIL_VOCI } from './abilitativa';
+import { type Sopralluogo, type RilievoTariffe, DEFAULT_TARIFFE, stimaRighe, righeToQuoteLines } from './sopralluogo';
 import { MaintenanceScreen } from './components/MaintenanceScreen';
 import { isMaintenanceBlocked } from './maintenance';
 import { LangProvider } from './i18n';
@@ -478,6 +480,8 @@ export default function App() {
   const [battlePlan, setBattlePlan] = useState<Record<string, BattleItem>>({});
   const [unicoOpps, setUnicoOpps] = useState<Record<string, UnicoOpportunity>>({});
   const [stimePreliminari, setStimePreliminari] = useState<Record<string, any>>({});
+  const [sopralluoghi, setSopralluoghi] = useState<Record<string, Sopralluogo>>({});
+  const [rilievoTariffe, setRilievoTariffe] = useState<RilievoTariffe | null>(null);
   const projectsServerRef = useRef<Record<string, any>>({}); // ultimo stato `projects` dal DB (diff in syncState)
   const [abilitativa, setAbilitativa] = useState<Record<string, any>>({}); // Onirico · Fase abilitativa (pid → voce → cella)
   const [recruiting, setRecruiting] = useState<Record<string, any>>({});
@@ -884,7 +888,9 @@ export default function App() {
     if (key === 'projects') {
       // Solo le pratiche cambiate (update multi-path atomico): riscrivere l'intero nodo
       // cancellava le modifiche fatte nel frattempo da altri utenti.
-      const prev = projectsServerRef.current || {};
+      // Confronto con lo stato DB già normalizzato (completamento %): il diff contiene solo
+      // le pratiche toccate davvero, così lo staff può CREARE senza "modificare" le altre.
+      const prev = autoUpdateProjectsCompletion(projectsServerRef.current || {});
       const next = val || {};
       const patch: Record<string, any> = {};
       Object.keys(next).forEach((id) => {
@@ -1961,6 +1967,8 @@ export default function App() {
       add('unicoOpportunita', setUnicoOpps);
       add('stimePreliminari', setStimePreliminari);
       add('abilitativa', setAbilitativa);
+      add('sopralluoghi', setSopralluoghi);
+      subs.push(watchNode('rilievoTariffe', (v) => setRilievoTariffe(v || null), () => {}));
       add('recruiting', setRecruiting);
       add('fantImmobili', setFantImmobili);
       add('fantTickets', setFantTickets);
@@ -2485,6 +2493,10 @@ export default function App() {
         case 'stima':
           setStimePreliminari((prev) => ({ ...prev, [id]: pl }));
           writeNode(`stimePreliminari/${id}`, pl).catch(() => {});
+          break;
+        case 'sopralluogo':
+          setSopralluoghi((prev) => ({ ...prev, [id]: pl }));
+          writeNode(`sopralluoghi/${id}`, pl).catch(() => {});
           break;
         case 'recruiting':
           setRecruiting((prev) => ({ ...prev, [id]: pl }));
@@ -3221,10 +3233,11 @@ export default function App() {
       showToast('Inserisci il nome del progetto!', 'err');
       return;
     }
-    // Le regole del DB fanno creare pratiche solo ad admin/manager: meglio dirlo subito
-    // che far comparire "creato" e poi far sparire la commessa (segnalazione test).
-    if (currentUser?.role !== 'admin' && currentUser?.role !== 'manager') {
-      showToast('Non hai il permesso di creare commesse: chiedi a un amministratore o manager.', 'err');
+    // Regole DB: admin/manager modificano tutto, lo staff può CREARE nuove pratiche
+    // (projects/$pid create-only). Chi non può riceve subito il messaggio invece di
+    // vedere "creato" e poi la commessa sparire (segnalazione periodo di test).
+    if (!currentUser || !isStudioRole(currentUser.role)) {
+      showToast('Non hai il permesso di creare commesse.', 'err');
       return;
     }
 
@@ -4250,6 +4263,91 @@ export default function App() {
     setStimePreliminari((prev) => ({ ...prev, [s.id]: enriched }));
     writeNode(`stimePreliminari/${s.id}`, clean(enriched)).catch(() => showToast('Errore stima preliminare (controlla regole).', 'err'));
   };
+  // ---- Commerciale · Sopralluoghi & Rilievi (sopralluoghi / rilievoTariffe) ----
+  // Collegamenti: rubrica (cliente nuovo → clients), agenda (tasks/sopr-<id> al tecnico),
+  // preventivo (quotes, con le attività per riga) → commessa all'accettazione.
+  const handleSaveSopralluogo = (s: Sopralluogo) => {
+    let rec = s;
+    const canClients = currentUser?.role === 'admin' || currentUser?.role === 'manager' || atLeast(moduleCapability(currentUser, 'commerciale'), 'operate');
+    if (!s.clientRecordId && s.clientName.trim() && canClients) {
+      const cid = `cl-${Date.now().toString(36)}`;
+      handleSaveClient({ id: cid, category: 'cliente', type: 'privato', name: s.clientName.trim(), phone: s.phone || null, email: s.email || null, address: s.address || null, responsabili: s.tecnicoUid ? { [s.tecnicoUid]: true } : undefined, createdAt: Date.now() } as any);
+      rec = { ...s, clientRecordId: cid };
+    }
+    // Attività in agenda per chi va dal cliente
+    const taskId = `sopr-${rec.id}`;
+    if (rec.tecnicoUid && rec.date && rec.stato !== 'perso') {
+      const old: any = tasks[taskId];
+      const t: any = {
+        ...(old || {}), id: taskId, title: `Sopralluogo — ${rec.clientName}`, date: rec.date, time: rec.time || null,
+        frequency: 'once', priority: old?.priority || 'alta', tipo: 'Sopralluogo', societa: rec.soc,
+        assignee: rec.tecnicoUid, assignees: [rec.tecnicoUid], projectId: rec.projectId || null,
+        notes: [rec.address, rec.phone, rec.esigenze].filter(Boolean).join(' · ') || null,
+        done: rec.stato !== 'programmato' || !!old?.done,
+        createdAt: old?.createdAt || Date.now(), updatedAt: Date.now(), createdBy: old?.createdBy || currentUser?.uid || '',
+      };
+      setTasks((prev) => ({ ...prev, [taskId]: t }));
+      writeNode(`tasks/${taskId}`, clean(t)).catch(() => showToast('Errore attività in agenda.', 'err'));
+      if (rec.tecnicoUid !== currentUser?.uid && rec.tecnicoUid !== sopralluoghi[rec.id]?.tecnicoUid) {
+        pushNotification(rec.tecnicoUid, { type: 'task', title: `Sopralluogo: ${rec.clientName}`, body: `${rec.date}${rec.time ? ' ' + rec.time : ''}${rec.address ? ' · ' + rec.address : ''}`, link: '#calendario' });
+      }
+      rec = { ...rec, taskId };
+    } else if (tasks[taskId]) {
+      setTasks((prev) => { const n = { ...prev }; delete n[taskId]; return n; });
+      removeNode(`tasks/${taskId}`).catch(() => {});
+      rec = { ...rec, taskId: null };
+    }
+    const enriched = { ...rec, updatedAt: Date.now(), by: rec.by || currentUser?.uid || null };
+    setSopralluoghi((prev) => ({ ...prev, [enriched.id]: enriched }));
+    writeNode(`sopralluoghi/${enriched.id}`, clean(enriched))
+      .then(() => showToast('Sopralluogo salvato.', 'ok'))
+      .catch(() => showToast('Errore sopralluogo (controlla regole).', 'err'));
+    return enriched;
+  };
+  const handleDeleteSopralluogo = (id: string) => {
+    const s = sopralluoghi[id];
+    askDelete('Eliminare questo sopralluogo?', s ? `"${s.clientName}"` : null, () => {
+      if (s) moveToTrash('sopralluogo', `Sopralluogo ${s.clientName}`, s, undefined, s.address || undefined);
+      setSopralluoghi((prev) => { const n = { ...prev }; delete n[id]; return n; });
+      removeNode(`sopralluoghi/${id}`).catch(() => {});
+      if (tasks[`sopr-${id}`]) { setTasks((prev) => { const n = { ...prev }; delete n[`sopr-${id}`]; return n; }); removeNode(`tasks/sopr-${id}`).catch(() => {}); }
+      showToast('Sopralluogo spostato nel Cestino.', 'err');
+    });
+  };
+  const handleCreateQuoteFromSopralluogo = (s: Sopralluogo) => {
+    const saved = handleSaveSopralluogo(s);
+    const rows = stimaRighe(saved, rilievoTariffeEff);
+    if (!rows.length) return;
+    const yr = new Date().getFullYear();
+    const n = Object.values(quotes).filter((q) => (q.number || '').startsWith(`PRV-ONI-${yr}`)).length + 1;
+    const qid = `q-${Date.now().toString(36)}`;
+    const lines = righeToQuoteLines(rows);
+    const q: Quote = {
+      id: qid, number: `PRV-ONI-${yr}-${String(n).padStart(3, '0')}`, docKind: 'preventivo',
+      clientRecordId: saved.clientRecordId || null, clientName: saved.clientName,
+      division: (saved.soc === 'studio' ? 'studio' : saved.soc) as any, status: 'elaborato' as any,
+      lines, total: lines.reduce((a, l) => a + l.amount, 0),
+      vatEnabled: true, vatPct: 22, cassaEnabled: true, cassaPct: 4,
+      validUntil: new Date(Date.now() + 3 * 864e5).toISOString().slice(0, 10), // "Validità preventivo: 3 gg" (modello Onirico)
+      notes: [saved.tipologia, saved.address, saved.mq ? `${saved.mq} mq` : null, saved.esigenze].filter(Boolean).join(' · ') || null,
+      tecnicoUid: saved.tecnicoUid || null, sopralluogoId: saved.id,
+      createdAt: Date.now(), createdBy: currentUser?.uid,
+    } as Quote;
+    handleSaveQuote(q);
+    const linked = { ...saved, quoteId: qid, stato: 'preventivo' as const, updatedAt: Date.now() };
+    setSopralluoghi((prev) => ({ ...prev, [linked.id]: linked }));
+    writeNode(`sopralluoghi/${linked.id}`, clean(linked)).catch(() => {});
+    logAudit('create', 'preventivi', q.number, `da sopralluogo ${saved.clientName}`);
+    notifyStudio({ type: 'preventivo', title: `Preventivo rilievo ${q.number}`, body: `${saved.clientName} · ${eur(q.total)}`, link: '#strategico/comm-centro' }, currentUser?.uid);
+    showToast(`Preventivo ${q.number} creato: lo trovi nel Centro Commerciale.`, 'ok');
+  };
+  const handleSaveRilievoTariffe = (t: RilievoTariffe) => {
+    const enriched = { ...t, updatedAt: Date.now(), by: currentUser?.uid || null };
+    setRilievoTariffe(enriched);
+    writeNode('rilievoTariffe', clean(enriched)).then(() => showToast('Tariffe salvate.', 'ok')).catch(() => showToast('Errore tariffe (controlla regole).', 'err'));
+  };
+  const rilievoTariffeEff: RilievoTariffe = rilievoTariffe && Array.isArray(rilievoTariffe.servizi) && rilievoTariffe.servizi.length ? rilievoTariffe : DEFAULT_TARIFFE;
+
   const handleDeleteStima = (id: string) => {
     const s = stimePreliminari[id];
     askDelete('Eliminare questa stima preliminare?', s ? `"${s.title}"` : null, () => {
@@ -5012,9 +5110,15 @@ export default function App() {
       present.forEach((m, pi) => {
         const phId = `ph-${Date.now()}-${pi}`;
         const tasks: Record<string, any> = {};
-        (q.lines || []).filter((l) => l.macro === m).forEach((l, ti) => {
-          const tId = `t-${Date.now()}-${pi}-${ti}`;
-          tasks[tId] = { id: tId, title: l.desc || MACRO_PHASE[m], order: ti, done: false, role: 'Progettazione' };
+        let ti = 0;
+        (q.lines || []).filter((l) => l.macro === m).forEach((l) => {
+          // Una riga può portare più attività (es. rilievo → laser + allineamento nuvola)
+          const titles = l.tasks && l.tasks.length ? l.tasks : [l.desc || MACRO_PHASE[m]];
+          titles.forEach((title) => {
+            const tId = `t-${Date.now()}-${pi}-${ti}`;
+            tasks[tId] = { id: tId, title, order: ti, done: false, role: l.role || 'Progettazione' };
+            ti++;
+          });
         });
         phases[phId] = { id: phId, name: MACRO_PHASE[m] || m, order: pi, tasks };
       });
@@ -5024,14 +5128,21 @@ export default function App() {
       phases[phId] = { id: phId, name: 'Avvio', order: 0, tasks: { [tId]: { id: tId, title: 'Apertura commessa', order: 0, done: false, role: 'Progettazione' } } };
     }
     // Naming "Cliente + Località" quando disponibile (prima parte dell'indirizzo).
-    const locality = rec?.address ? rec.address.split(',')[0].trim() : '';
+    // Se nasce da un sopralluogo, l'indirizzo è quello dell'IMMOBILE visitato.
+    const sopr = q.sopralluogoId ? sopralluoghi[q.sopralluogoId] : null;
+    const where = sopr?.address || rec?.address || '';
+    const locality = where ? where.split(',').slice(-1)[0].trim() : '';
     const proj: Project = {
       id: pid,
       name: locality ? `${q.clientName} — ${locality}` : q.clientName,
       code: `${q.division.slice(0, 3).toUpperCase()}-${String(Date.now()).slice(-4)}`,
       client: q.clientName,
       clientUid,
-      location: rec?.address || null,
+      clientRecordId: q.clientRecordId || null,
+      manager: q.tecnicoUid || null,
+      startDate: todayISO(),
+      indirizzoImmobile: sopr?.address || null,
+      location: where || null,
       status: 'attivo',
       division: q.division,
       icon: 'folder',
@@ -5055,6 +5166,12 @@ export default function App() {
       pushNotification(clientUid, { type: 'progetto', title: 'Preventivo accettato: progetto attivato', body: `"${proj.name}" è ora un progetto: seguilo dal tuo portale.`, link: `#progetto/${pid}` });
     }
     logAudit('create', 'progetti', proj.name, 'da preventivo accettato');
+    // Chiude il cerchio col sopralluogo d'origine (stato "commessa" + link alla pratica)
+    if (sopr) {
+      const linked = { ...sopr, projectId: pid, stato: 'commessa' as const, updatedAt: Date.now() };
+      setSopralluoghi((prev) => ({ ...prev, [sopr.id]: linked }));
+      writeNode(`sopralluoghi/${sopr.id}`, clean(linked)).catch(() => {});
+    }
     return pid;
   };
 
@@ -5095,9 +5212,12 @@ export default function App() {
     const openCount = computeOpenCount();
     const rec = q.clientRecordId ? clients[q.clientRecordId] : null;
     const fallbackTecnico = q.tecnicoUid || (rec?.responsabili ? Object.keys(rec.responsabili).filter((u) => rec.responsabili![u])[0] : null) || null;
-    const rows = lines.map((l, i) => {
-      const suggested = suggestAssignee(l.role, openCount);
-      return { key: `${q.id}-${i}`, title: l.desc || MACRO_PHASE[l.macro] || 'Attività', role: l.role || null, assignee: suggested || fallbackTecnico || null, date: todayISO() };
+    const rows = lines.flatMap((l, i) => {
+      const titles = l.tasks && l.tasks.length ? l.tasks : [l.desc || MACRO_PHASE[l.macro] || 'Attività'];
+      return titles.map((title, k) => {
+        const suggested = suggestAssignee(l.role, openCount);
+        return { key: `${q.id}-${i}-${k}`, title, role: l.role || null, assignee: suggested || fallbackTecnico || null, date: todayISO() };
+      });
     });
     setTaskGenModal({ quoteId: q.id, pid: pid || q.projectId || null, rows });
   };
@@ -6310,6 +6430,30 @@ export default function App() {
                   onSaveProfileReport={handleSaveProfileReport}
                   onEditTask={handleEditTask}
                   onNewTask={() => openNewTaskEditor()}
+                />
+              </React.Suspense>
+            );
+          }
+          case 'sopralluoghi': {
+            const studioTeam = Object.values(users).filter((u: any) => u && u.active && (u.role === 'admin' || u.role === 'manager' || u.role === 'staff')).map((u: any) => ({ uid: u.uid, name: u.name }));
+            return (
+              <React.Suspense fallback={<div className="text-[13px] text-[#8a8a8a] p-8 text-center">Carico…</div>}>
+                <SopralluoghiView
+                  soc={activeSocieta as string}
+                  items={Object.values(sopralluoghi).filter((s) => (s.soc || 'studio') === activeSocieta)}
+                  quotes={quotes}
+                  tasks={tasks}
+                  rubrica={Object.values(clients)}
+                  team={studioTeam}
+                  tariffe={rilievoTariffeEff}
+                  myUid={currentUser.uid}
+                  canEdit={isStudioRole(currentUser.role) && secOp}
+                  canQuote={currentUser.role === 'admin' || currentUser.role === 'manager' || canEditCommerce}
+                  canTariffe={currentUser.role === 'admin' || currentUser.role === 'manager'}
+                  onSave={(s) => { handleSaveSopralluogo(s); }}
+                  onDelete={handleDeleteSopralluogo}
+                  onCreateQuote={handleCreateQuoteFromSopralluogo}
+                  onSaveTariffe={handleSaveRilievoTariffe}
                 />
               </React.Suspense>
             );

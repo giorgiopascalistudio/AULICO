@@ -26,7 +26,7 @@ import {
   LayoutGrid, Calendar, Layers, Target, Megaphone, DollarSign, Briefcase, Users,
   BookUser, ScrollText, Trash2, Inbox, FileText, Scale, Code2, Network, Building2,
   Truck, UserPlus, BarChart3, ListChecks, FileSignature, MapPin,
-  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles, Bug, ClipboardCheck,
+  Bell, Calculator, Award, Lock, Gift, CheckSquare, MessageSquare, Swords, Search, Home, Sparkles, Bug, ClipboardCheck, MapPinned,
 } from 'lucide-react';
 import type { AccessLevel, Societa, UserProfile, Project, Task, Appointment, ClientRequest, ProjectMessage } from './types';
 import { SOCIETA_LABEL, canView, resolveSectionAccess, resolveAccess, rankOf, atLeast, sectionOverride } from './access';
@@ -410,6 +410,9 @@ function standardSections(soc: 'studio' | 'unico' | 'materico' | 'fantastico'): 
 
   // ---- COMMERCIALE (consultazione: gestione centralizzata nel Centro Commerciale di Strategico) ----
   s.push({ id: 'commerciale', label: 'Commerciale', icon: Target, module: 'commerciale', kind: 'group' });
+  // Sopralluoghi: strumento OPERATIVO per chi va dal cliente (modulo produzione → accessibile ai tecnici);
+  // il preventivo che ne nasce richiede comunque il permesso Commerciale (regole quotes).
+  if (soc === 'studio') s.push({ id: 'comm-sopralluoghi', label: 'Sopralluoghi & Rilievi', icon: MapPinned, parent: 'commerciale', module: 'produzione', view: 'sopralluoghi', note: 'Dal cliente al preventivo: sopralluogo in agenda, parametri del rilievo con stima automatica, preventivo con un tasto; firmato = commessa con le attività.' });
   s.push({ id: 'comm-preventivi', label: 'Preventivi & Contratti', icon: FileText, parent: 'commerciale', module: 'commerciale', view: 'commerciale', note: 'Consultazione dei preventivi della società — la gestione (nuovi preventivi, firma, portale, documenti) è in Strategico → Centro Commerciale.' });
   s.push({ id: 'comm-stime', label: 'Stima Preliminare', icon: Calculator, parent: 'commerciale', module: 'commerciale', view: 'stima-preliminare', note: 'Le stime della società in sola consultazione — la gestione è in Strategico → Centro Commerciale → Stime.' });
   s.push({ id: 'comm-clienti', label: isMat ? 'Imprese & Fornitori' : 'Registro clienti', icon: isMat ? Truck : BookUser, parent: 'commerciale', module: 'crm', legacyRoute: 'crm', preset: { crmTab: isMat ? 'fornitori' : 'clienti' } });

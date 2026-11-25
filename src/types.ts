@@ -270,6 +270,9 @@ export interface QuoteLine {
   role?: string | null;
   /** Incremento % del valore dell'immobile portato da questa voce (dal listino, editabile). */
   valuePct?: number | null;
+  /** Attività che la riga genera nella commessa/in agenda all'accettazione
+   *  (es. rilievo laser → "Laser scanner in situ"). Assente = una attività col titolo della riga. */
+  tasks?: string[] | null;
 }
 
 /** Scelta del cliente sul preventivo interattivo (scritta dal cliente su
@@ -324,6 +327,7 @@ export interface Quote {
   notes?: string | null;
   // --- Commerciale unificato: preventivo+contratto, firma OTP, catalogazione ---
   tecnicoUid?: string | null;    // tecnico di riferimento (a cui vanno le attività all'accettazione)
+  sopralluogoId?: string | null; // sopralluogo da cui è nato (Commerciale → Sopralluoghi)
   archived?: boolean;            // catalogazione Attivi/Archiviati
   otp?: string | null;           // codice firma OTP corrente
   otpAt?: number | null;
