@@ -81,6 +81,24 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
   const [search, setSearch] = React.useState('');
   const [soc, setSoc] = React.useState<'all' | string>('all');
   const [role, setRole] = React.useState<'all' | string>('all');
+  // Liste separate ma consultabili insieme (nota utente tutti-2): un contatto può stare in più liste
+  const [lista, setLista] = React.useState<string>('all');
+  const LISTE: { id: string; label: string; roles: string[] }[] = [
+    { id: 'all', label: 'Tutti', roles: [] },
+    { id: 'clienti', label: 'Clienti', roles: ['cliente', 'lead', 'ex_cliente'] },
+    { id: 'imprese', label: 'Imprese', roles: ['impresa'] },
+    { id: 'fornitori', label: 'Fornitori', roles: ['fornitore'] },
+    { id: 'investitori', label: 'Investitori', roles: ['investitore', 'investitore_potenziale'] },
+    { id: 'agenzie', label: 'Agenzie', roles: ['agenzia_immobiliare'] },
+    { id: 'altri', label: 'Altri', roles: ['sponsor', 'conoscente', 'istituzionale'] },
+  ];
+  const inLista = (c: ClientRecord, id: string) => {
+    const l = LISTE.find((x) => x.id === id);
+    if (!l || id === 'all') return true;
+    // contatti senza tipo: clienti se categoria cliente, imprese se partner
+    if (!Object.values(c.roles || {}).some(Boolean)) return id === ((c.category || 'cliente') === 'partner' ? 'imprese' : 'clienti');
+    return l.roles.some((r) => c.roles?.[r]);
+  };
   const [minStars, setMinStars] = React.useState(0);
   const [detTab, setDetTab] = React.useState<'anagrafica' | 'brand' | 'credenziali' | 'storia'>('anagrafica');
   const [pwShown, setPwShown] = React.useState<Record<string, boolean>>({});
@@ -88,6 +106,7 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
   const list = clients
     .filter((c) => {
       if (restrictRoles && !restrictRoles.some((r) => c.roles?.[r])) return false;
+      if (!restrictRoles && !inLista(c, lista)) return false;
       const q = search.trim().toLowerCase();
       if (q && !(`${c.name} ${c.companyName || ''} ${c.email || ''} ${c.phone || ''} ${c.codiceReferenza || ''} ${(c.targetTags || []).join(' ')}`.toLowerCase().includes(q))) return false;
       if (soc !== 'all' && !c.societies?.[soc]) return false;
@@ -182,6 +201,20 @@ export const CrmRegistro: React.FC<Props> = ({ clients, societies, roles, onSave
             <Search className="w-4 h-4 text-[#8f8f8f] absolute left-3 top-1/2 -translate-y-1/2" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cerca nome, azienda, email, codice…" className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#e2e2e2] text-[12.5px] outline-none focus:border-[#161616]" />
           </div>
+          {/* Liste a schede con conteggio (solo nel registro generale) */}
+          {!restrictRoles && (
+            <div className="flex gap-1 flex-wrap">
+              {LISTE.map((l) => {
+                const n = clients.filter((c) => inLista(c, l.id)).length;
+                if (l.id !== 'all' && n === 0) return null;
+                return (
+                  <button key={l.id} onClick={() => setLista(l.id)} className={`px-2.5 py-1 rounded-full text-[12px] font-bold border cursor-pointer ${lista === l.id ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#555] border-[#e2e2e2]'}`}>
+                    {l.label} <span className={lista === l.id ? 'text-white/70' : 'text-[#8f8f8f]'}>{n}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
           {/* Filtri compatti — differenziati clienti / fornitori */}
           <div className="flex items-center gap-2">
             {isFornitori ? (
