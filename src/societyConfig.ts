@@ -613,3 +613,16 @@ export function firstAuthorizedHash(profile: Parameters<typeof canView>[0]): str
   }
   return '#aulico/dashboard';
 }
+
+/**
+ * Sezioni IN EVIDENZA per società (semplificazione 25/11, scelta utente "struttura attuale,
+ * sfoltita"): la barra laterale mostra queste voci dirette; TUTTE le altre restano
+ * raggiungibili sotto "Altre sezioni" (non si elimina nulla). Ordine = ordine in barra.
+ */
+export const PRIMARY_SECTIONS: Record<string, string[]> = {
+  strategico: ['point-of-entry', 'mkt-centro', 'comm-centro', 'amm-centro', 'hr-team'],
+  studio: ['prod-progetti', 'comm-sopralluoghi', 'prod-abilitativa', 'comm-preventivi', 'home-agenda'],
+  materico: ['prod-progetti', 'prod-potenziale', 'comm-preventivi', 'comm-clienti', 'home-agenda'],
+  unico: ['prod-opportunita', 'prod-progetti', 'comm-preventivi', 'home-agenda'],
+  fantastico: ['prod-gestione', 'comm-preventivi', 'home-agenda'],
+};

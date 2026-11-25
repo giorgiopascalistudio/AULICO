@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { UserProfile, Societa } from '../types';
 import { initials } from '../utils';
 import {
-  SOCIETY_REGISTRY, getSociety, canViewSection, societaSlug, type SectionConfig, type SocietyConfig,
+  SOCIETY_REGISTRY, getSociety, canViewSection, societaSlug, PRIMARY_SECTIONS, type SectionConfig, type SocietyConfig,
 } from '../societyConfig';
 
 /** Le 5 categorie-società (livello 1) mostrate come accordion, in ordine. */
@@ -136,13 +136,28 @@ export const AulicoSidebar: React.FC<AulicoSidebarProps> = ({
                 {open && (
                   <motion.div key={`${soc}:body`} {...slide} style={{ overflow: 'hidden' }}>
                     <div className="flex flex-col gap-[2px] mt-[2px] mb-1.5">
+                      {/* In evidenza: le sezioni di tutti i giorni come accessi diretti.
+                          Sotto restano TUTTI i gruppi di sempre (nessuna sezione nascosta). */}
+                      {(() => {
+                        const prim = (PRIMARY_SECTIONS[soc] || [])
+                          .map((id) => society.sections.find((x) => x.id === id))
+                          .filter((x): x is SectionConfig => !!x && canViewSection(profile, soc, x));
+                        if (!prim.length) return null;
+                        return (
+                          <>
+                            {prim.map((sec) => itemBtn(soc, sec, 1))}
+                            <div className="h-px bg-[#ececec] my-1.5 ml-[26px] mr-1" />
+                          </>
+                        );
+                      })()}
                       {entries.map(({ top, children }) => {
                         // Voce-foglia diretta (società senza sotto-categorie su questa voce).
                         if (children.length === 0) return itemBtn(soc, top, 1);
 
                         // Livello 2 — sotto-categoria: link al suo PORTALE (non si espande).
                         const SubIcon = top.icon;
-                        const active = activeSocieta === soc && (activeSection === top.id || children.some((c) => c.id === activeSection));
+                        // Se la voce attiva è già evidenziata in alto, il gruppo non si accende (niente doppio evidenziato).
+                        const active = activeSocieta === soc && !(PRIMARY_SECTIONS[soc] || []).includes(activeSection || '') && (activeSection === top.id || children.some((c) => c.id === activeSection));
                         return (
                           <button
                             key={`${soc}:${top.id}`}

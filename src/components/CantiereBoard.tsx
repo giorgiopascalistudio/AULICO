@@ -11,6 +11,7 @@
  */
 
 import React, { useState } from 'react';
+import { HowToBox } from './HowToBox';
 import {
   HardHat, Plus, Trash2, Check, Clock, Users, ImageIcon, Boxes, ListChecks,
   FileText, TrendingUp, History, MapPin, Calendar as CalIcon,
@@ -135,6 +136,8 @@ export const CantiereBoard: React.FC<CantiereBoardProps> = (props) => {
 
   return (
     <div className="flex flex-col gap-3">
+      {/* Guida: come si usa il cantiere (src/howto.ts → 'cantiere') */}
+      <HowToBox id="cantiere" className="-mb-1" />
       {/* Header + lista cantieri */}
       <div className="bg-white border border-[#e2e2e2] rounded-[24px] p-4">
         <div className="flex items-center justify-between mb-3">

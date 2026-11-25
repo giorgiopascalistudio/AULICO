@@ -251,6 +251,8 @@ import { AuthFlow } from './components/AuthFlow';
 import { ABIL_VOCI } from './abilitativa';
 import { type Sopralluogo, type RilievoTariffe, DEFAULT_TARIFFE, stimaRighe, righeToQuoteLines } from './sopralluogo';
 import { MaintenanceScreen } from './components/MaintenanceScreen';
+import { HowToBox } from './components/HowToBox';
+import { BrandLoader } from './components/BrandLoader';
 import { isMaintenanceBlocked } from './maintenance';
 import { LangProvider } from './i18n';
 import { AccessRequests } from './components/AccessRequests';
@@ -299,11 +301,7 @@ interface Toast {
 }
 
 // Fallback Suspense per le viste lazy (code-splitting per route)
-const ViewLoader: React.FC = () => (
-  <div className="w-full flex items-center justify-center py-24">
-    <span className="text-[13px] font-bold text-[#8a8a8a] animate-pulse">Caricamento…</span>
-  </div>
-);
+const ViewLoader: React.FC = () => <BrandLoader />;
 
 // Metadati divisioni (settori): il modale "nuova commessa" si adatta al settore selezionato in Progetti.
 const DIVISION_META: Record<'studio' | 'strategico' | 'materico' | 'unico', { label: string; color: string; desc: string; cta: string }> = {
@@ -5380,16 +5378,7 @@ export default function App() {
 
   // Auth gate: wait for Firebase, then require Google sign-in.
   if (!authReady) {
-    return (
-      <div className="min-h-screen bg-[#F5F5F3] flex items-center justify-center font-sans">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-stone-300 border-t-[#161616] animate-spin" />
-          <span className="text-[12px] font-bold uppercase tracking-wider text-stone-400">
-            Aulico
-          </span>
-        </div>
-      </div>
-    );
+    return <BrandLoader full />;
   }
 
   // Modalità manutenzione (src/maintenance.ts): tutti fuori tranne il proprietario.
@@ -5407,16 +5396,7 @@ export default function App() {
 
   // Account creato ma non ancora caricato/approvato
   if (!accountsReady) {
-    return (
-      <div className="min-h-screen bg-[#F5F5F3] flex items-center justify-center font-sans">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-stone-300 border-t-[#161616] animate-spin" />
-          <span className="text-[12px] font-bold uppercase tracking-wider text-stone-400">
-            Verifica accesso…
-          </span>
-        </div>
-      </div>
-    );
+    return <BrandLoader full label="Verifica accesso…" />;
   }
 
   // Sessione non ancora attiva (currentUser = profilo approvato CON ruolo).
@@ -7275,6 +7255,8 @@ export default function App() {
               onSelect={(id) => { window.location.hash = `#${groupCtx.slug}/${id}`; }}
             />
           )}
+          {/* Guida "Come funziona" della sezione corrente (testi in src/howto.ts) */}
+          <HowToBox key={`howto:${route === 'sview' ? activeSection : route}`} id={route === 'sview' ? activeSection : (route === 'calendario' ? (activeSocieta === 'holding' ? 'agenda' : 'home-agenda') : route === 'progetti' ? 'prod-progetti' : route === 'crm' ? 'comm-clienti' : (route === 'sdash' || route === 'dashboard') && activeSocieta === 'holding' ? 'dashboard' : route)} />
           <AnimatePresence mode="wait">
             <motion.div
               key={route}
