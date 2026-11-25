@@ -4247,6 +4247,23 @@ export default function App() {
   // ---- Unico · Ricerca Opportunità (unicoOpportunita) ----
   const handleSaveUnicoOpp = (o: UnicoOpportunity) => {
     const enriched: UnicoOpportunity = { ...o, createdBy: o.createdBy || currentUser?.uid || null, updatedAt: Date.now() };
+    // Doc Unico: ogni passo spuntato GENERA l'attività successiva in agenda (e chiude la sua).
+    const STEPS: [string, string][] = [['contatto', 'Contatto'], ['sopralluogo', 'Sopralluogo'], ['raccolta', 'Raccolta documentazione'], ['analisi', 'Analisi tecnica'], ['duediligence', 'Due diligence'], ['manifestazione', "Manifestazione d'interesse"], ['negoziazione', 'Negoziazione'], ['preliminare', 'Contratto preliminare'], ['atto', 'Atto notarile']];
+    const prevO = unicoOpps[o.id];
+    STEPS.forEach(([sid], i) => {
+      const nowDone = !!(o.steps as any)?.[sid]?.done; const wasDone = !!(prevO?.steps as any)?.[sid]?.done;
+      if (!nowDone || wasDone) return;
+      const own = tasks[`uopp-${o.id}-${sid}`];
+      if (own && !own.done) { const nt = { ...own, done: true, updatedAt: Date.now() }; setTasks((p) => ({ ...p, [nt.id]: nt })); writeNode(`tasks/${nt.id}`, clean(nt)).catch(() => {}); }
+      const next = STEPS.slice(i + 1).find(([nid]) => !(o.steps as any)?.[nid]?.done);
+      if (!next || o.status !== 'attiva') return;
+      const tid = `uopp-${o.id}-${next[0]}`;
+      if (tasks[tid]) return;
+      const t: any = { id: tid, title: `${next[1]} — ${o.title}`, date: new Date(Date.now() + 3 * 864e5).toISOString().slice(0, 10), time: null, frequency: 'once', priority: 'media', tipo: 'Unico', societa: 'unico', assignee: currentUser?.uid || null, assignees: currentUser ? [currentUser.uid] : null, projectId: null, notes: 'Prossimo passo della Ricerca Opportunità', done: false, createdAt: Date.now(), updatedAt: Date.now(), createdBy: currentUser?.uid || '' };
+      setTasks((p) => ({ ...p, [tid]: t }));
+      writeNode(`tasks/${tid}`, clean(t)).catch(() => {});
+      showToast(`In agenda: ${next[1]} (tra 3 giorni).`, 'ok');
+    });
     setUnicoOpps((prev) => ({ ...prev, [o.id]: enriched }));
     writeNode(`unicoOpportunita/${o.id}`, clean(enriched)).catch(() => showToast('Errore opportunità (controlla regole).', 'err'));
   };

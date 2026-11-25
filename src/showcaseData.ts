@@ -629,6 +629,7 @@ export function dealToInvestorPositions(d: UnicoDeal): Record<string, UnicoInves
       expectedReturn: Math.round(expectedReturn),
       distributed: myDist.reduce((s, x) => s + (Number(x.amount) || 0), 0),
       fasi: d.fasi || null,
+      fasiInfo: d.fasiInfo || null,
       updates,
       distributions: myDist
         .map((x) => ({ id: x.id, amount: Number(x.amount) || 0, date: x.date, kind: x.kind, note: x.note || null }))

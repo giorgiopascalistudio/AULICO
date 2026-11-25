@@ -178,7 +178,19 @@ const OppDetail: React.FC<{
                     <span className="block text-[10.5px] text-[#9a9a9a]">{gated ? 'Completa prima la checklist di due diligence.' : s.hint}</span>
                   </div>
                   {s.id === 'manifestazione' && !locked && (
-                    <button onClick={(e) => { e.stopPropagation(); setShowManif(true); }} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[11px] font-bold cursor-pointer shrink-0"><FileText className="w-3 h-3" /> Genera</button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button onClick={(e) => { e.stopPropagation(); setShowManif(true); }} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[11px] font-bold cursor-pointer"><FileText className="w-3 h-3" /> Genera</button>
+                      {(() => {
+                        // Invio: il PDF si salva da "Genera → Stampa/PDF" e si allega; qui il messaggio è pronto.
+                        const c = rubrica.find((x) => x.id === o.clientRecordId);
+                        const txt = `Buongiorno${o.contactName ? ' ' + o.contactName : ''}, in allegato la nostra manifestazione d'interesse per l'immobile ${o.title}${o.address ? ' in ' + o.address : ''}. Restiamo a disposizione. UNICO`;
+                        const tel = (c?.whatsapp || c?.phone || '').replace(/[^0-9]/g, '');
+                        return (<>
+                          {c?.email && <a onClick={(e) => e.stopPropagation()} href={`mailto:${c.email}?subject=${encodeURIComponent(`Manifestazione d'interesse — ${o.title}`)}&body=${encodeURIComponent(txt)}`} className="px-2 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[11px] font-bold no-underline">Email</a>}
+                          {tel && <a onClick={(e) => e.stopPropagation()} href={`https://wa.me/${tel.startsWith('39') || tel.length > 10 ? tel : '39' + tel}?text=${encodeURIComponent(txt)}`} target="_blank" rel="noreferrer" className="px-2 py-1.5 rounded-lg bg-white border border-[#e2e2e2] hover:border-[#161616] text-[#161616] text-[11px] font-bold no-underline">WhatsApp</a>}
+                        </>);
+                      })()}
+                    </div>
                   )}
                 </div>
                 {/* Checklist Due Diligence inline */}

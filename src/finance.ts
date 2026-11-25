@@ -367,6 +367,15 @@ export interface RoeResult {
   equity: number;         // capitale conferito (cap table)
   roe: number;            // netMargin / equity (0 se equity = 0)
   paybackMonths: number | null; // mesi tra acquisto e rivendita (se date presenti)
+  // Scenario economico completo
+  oneriComune: number;
+  worksVat: number;
+  marketingCost: number;
+  imprevisti: number;
+  capitaleNecessario: number; // tutto ciò che va speso PRIMA della vendita
+  quotaInvestitori: number;   // utile agli investitori (dopo rientro del capitale)
+  quotaUnico: number;         // utile a UNICO RE
+  investorSharePct: number;
 }
 
 /** Differenza in mesi (arrotondata) tra due date ISO; null se mancanti/non valide. */
@@ -397,8 +406,17 @@ export function unicoRoe(cfg: UnicoRoeConfig, equity: number): RoeResult {
   const oniricoCost = worksCost * (oniricoPct / 100);
   const strategicoCost = strategicoFee;
   const resaleCost = resalePrice * (resalePct / 100);
-  const totalCost = landCost + agencyCost + notaryCost + oniricoCost + worksCost + strategicoCost + resaleCost;
+  const oneriComune = cfg.oneriComune || 0;
+  const worksVat = worksCost * ((cfg.worksVatPct || 0) / 100);
+  const marketingCost = cfg.marketingCost || 0;
+  const imprevisti = cfg.imprevisti || 0;
+  const investorSharePct = cfg.investorSharePct ?? 50;
+  const capitaleNecessario = landCost + agencyCost + notaryCost + oneriComune + worksCost + worksVat + oniricoCost + strategicoCost + marketingCost + imprevisti;
+  const totalCost = capitaleNecessario + resaleCost;
   const netMargin = resalePrice - totalCost;
+  // Prima si rientra del capitale, poi l'utile residuo si divide (es. 50/50 investitore/UNICO)
+  const quotaInvestitori = netMargin > 0 ? netMargin * (investorSharePct / 100) : 0;
+  const quotaUnico = netMargin > 0 ? netMargin - quotaInvestitori : 0;
   const eq = equity || 0;
   const roe = eq > 0 ? netMargin / eq : 0;
 
@@ -412,6 +430,7 @@ export function unicoRoe(cfg: UnicoRoeConfig, equity: number): RoeResult {
     equity: eq,
     roe,
     paybackMonths: monthsBetween(cfg.purchaseDate, cfg.resaleDate),
+    oneriComune, worksVat, marketingCost, imprevisti, capitaleNecessario, quotaInvestitori, quotaUnico, investorSharePct,
   };
 }
 

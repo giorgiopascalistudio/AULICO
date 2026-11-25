@@ -14,13 +14,14 @@ import type { ClientRecord } from '../types';
 import { companyDoc } from '../companyInfo';
 import { SOCIETY_COLOR } from '../societyConfig';
 
-export type ContractTemplateId = 'arredi-fissi' | 'ffe' | 'accordo-imprese' | 'manifestazione';
+export type ContractTemplateId = 'arredi-fissi' | 'ffe' | 'accordo-imprese' | 'manifestazione' | 'investitore';
 
 export const CONTRACT_TEMPLATES: { id: ContractTemplateId; soc: string; label: string; desc: string }[] = [
   { id: 'arredi-fissi', soc: 'studio', label: 'Contratto Arredi Fissi', desc: 'Accordo integrativo: selezione e coordinamento di sanitari, rubinetteria, cucina, infissi, porte, luci, opere su misura… (compreso nel 15%).' },
   { id: 'ffe', soc: 'studio', label: 'Contratto FF&E', desc: 'Servizio arredi mobili (Fixture, Furniture & Equipment): compenso 20% sulle forniture approvate, rate e procurement.' },
   { id: 'accordo-imprese', soc: 'materico', label: 'Accordo con imprese', desc: 'Collaborazione e commissione % sui contratti stipulati tra l\'impresa e il cliente.' },
   { id: 'manifestazione', soc: 'unico', label: 'Manifestazione d\'interesse all\'acquisto', desc: 'Proposta non vincolante di acquisto immobile: prezzo offerto, condizioni, validità.' },
+  { id: 'investitore', soc: 'unico', label: "Contratto con l'investitore", desc: "Capitale investito, versamenti, durata, rientro del capitale e divisione dell'utile, rendicontazione." },
 ];
 
 interface Fields { [k: string]: string }
@@ -86,6 +87,29 @@ const DEFS: Record<ContractTemplateId, TemplateDef> = {
         { t: 'Art. 3 — Obblighi dell\'Impresa', b: 'Fornire copia del contratto stipulato con il cliente (costi e servizi inclusi); versare tempestivamente la commissione nei termini; informare il Committente di ogni modifica significativa al contratto col cliente.' },
         { t: 'Art. 4 — Obblighi del Committente', b: 'Fornire supporto commerciale all\'Impresa, facilitandone la presentazione ai potenziali clienti e contribuendo alla negoziazione; comunicare tempestivamente ogni informazione utile alla gestione del progetto e al rispetto delle scadenze.' },
         { t: 'Art. 5-7 — Durata, risoluzione, disposizioni finali', b: 'Il contratto ha la medesima durata del contratto Impresa-Cliente, rinnovabile previo accordo. In caso di inadempimento la parte adempiente può risolvere con effetto immediato, previa comunicazione scritta. Non cedibile a terzi senza consenso scritto; modifiche solo per iscritto; foro competente Brindisi.' },
+      ],
+    }),
+  },
+  'investitore': {
+    title: 'CONTRATTO DI INVESTIMENTO IN OPERAZIONE IMMOBILIARE',
+    fields: [
+      { key: 'investitore', label: 'Investitore' }, { key: 'residenza', label: 'Residenza / sede', wide: true },
+      { key: 'cf', label: 'Codice fiscale / P.IVA' }, { key: 'operazione', label: 'Operazione' },
+      { key: 'immobile', label: 'Immobile sito in', wide: true }, { key: 'veicolo', label: 'Società veicolo (se presente)' },
+      { key: 'capitale', label: 'Capitale investito €' }, { key: 'versamento', label: 'Modalità di versamento', wide: true, placeholder: 'Es. 50% alla firma, 50% al rogito' },
+      { key: 'durata', label: 'Durata prevista (mesi)', placeholder: '24' }, { key: 'quota', label: 'Quota utile investitore %', placeholder: '50' },
+    ],
+    build: (f, co) => ({
+      intro: `Tra ${P(f.investitore)}, residente/con sede in ${P(f.residenza)}, C.F./P.IVA ${P(f.cf)}, di seguito "INVESTITORE", e ${co.legalName}, con sede in ${co.address || '____'}, P.IVA ${co.piva || '____'}, di seguito "UNICO".`,
+      sections: [
+        { t: 'Premesse', b: `UNICO promuove l'operazione immobiliare "${P(f.operazione)}" relativa all'immobile sito in ${P(f.immobile)}${f.veicolo && f.veicolo.trim() ? `, gestita tramite la società veicolo ${f.veicolo.trim()}` : ''}, consistente nell'acquisto, nella riqualificazione e nella successiva vendita dell'immobile. L'Investitore intende partecipare all'operazione apportando capitale alle condizioni che seguono.` },
+        { t: 'Capitale investito e versamenti', b: `L'Investitore apporta un capitale di € ${P(f.capitale)}, da versare secondo le seguenti modalità: ${P(f.versamento, 'come concordato tra le Parti')}. Il capitale è destinato esclusivamente ai costi dell'operazione (acquisto, oneri, progettazione, realizzazione, commercializzazione, imprevisti) indicati nello scenario economico allegato.` },
+        { t: 'Durata', b: `La durata prevista dell'operazione è di ${P(f.durata, '24')} mesi dalla data di acquisto dell'immobile, salvo proroghe dovute a tempi autorizzativi, di cantiere o di vendita, comunicate tempestivamente all'Investitore.` },
+        { t: "Rientro del capitale e divisione dell'utile", b: `Alla vendita dell'immobile il ricavato, al netto dei costi dell'operazione, è destinato in primo luogo al rimborso del capitale versato dall'Investitore. L'utile residuo è ripartito per il ${P(f.quota, '50')}% all'Investitore e per la parte restante a UNICO. Il rimborso del capitale ha comunque priorità sulla quota di UNICO.` },
+        { t: 'Rendicontazione e trasparenza', b: "UNICO tiene l'Investitore costantemente aggiornato tramite il portale riservato: avanzamento per fasi (acquisto, progettazione, autorizzazioni, esecuzione, commercializzazione, vendita), fotografie, documenti, situazione economica, versamenti effettuati e da effettuare, rendiconto finale con il calcolo della quota spettante." },
+        { t: 'Obblighi delle parti', b: "UNICO si impegna a gestire l'operazione con diligenza professionale, a utilizzare il capitale per le sole finalità indicate e a fornire la documentazione richiesta. L'Investitore si impegna a effettuare i versamenti nei termini concordati; il ritardato versamento può comportare la riduzione proporzionale della quota di utile." },
+        { t: 'Riservatezza e trattamento dati', b: "Le Parti mantengono riservate le informazioni relative all'operazione. I dati personali sono trattati ai sensi del Regolamento UE 2016/679." },
+        { t: 'Foro competente', b: 'Per ogni controversia è competente il Foro della sede di UNICO, salvo diversa disposizione inderogabile di legge.' },
       ],
     }),
   },
@@ -208,7 +232,7 @@ export const ContractPrintDoc: React.FC<Props> = ({ template, soc, rubrica = [],
           <p className="text-[11.5px] mt-5 mb-1">Letto, confermato e sottoscritto.</p>
           <div className="grid grid-cols-2 gap-8 mt-8 mb-3 text-[11px] text-[#555]">
             <div><div className="border-b border-[#9a9a9a] h-8" /><p className="mt-1">FIRMA {co.legalName.toUpperCase()}</p></div>
-            <div><div className="border-b border-[#9a9a9a] h-8" /><p className="mt-1">{template === 'accordo-imprese' ? 'FIRMA IMPRESA' : template === 'manifestazione' ? 'FIRMA PROPONENTE' : 'FIRMA COMMITTENTE'}</p></div>
+            <div><div className="border-b border-[#9a9a9a] h-8" /><p className="mt-1">{template === 'accordo-imprese' ? 'FIRMA IMPRESA' : template === 'manifestazione' ? 'FIRMA PROPONENTE' : template === 'investitore' ? 'FIRMA INVESTITORE' : 'FIRMA COMMITTENTE'}</p></div>
           </div>
           {(co.contacts || co.pec) && (
             <p className="text-[9.5px] text-[#9a9a9a] pt-2 mt-4" style={{ borderTop: `2px solid ${color}` }}>

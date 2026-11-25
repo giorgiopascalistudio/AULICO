@@ -530,19 +530,29 @@ const DealModal: React.FC<{
                   <FieldEl label="Onirico %"><input type="number" className={IN} value={d.roe.oniricoPct ?? ''} placeholder="15" onChange={(e) => setRoe({ oniricoPct: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
                   <FieldEl label="Strategico € fisso"><input type="number" className={IN} value={d.roe.strategicoFee ?? ''} placeholder="10000" onChange={(e) => setRoe({ strategicoFee: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
                   <FieldEl label="Rivendita %"><input type="number" className={IN} value={d.roe.resalePct ?? ''} placeholder="4" onChange={(e) => setRoe({ resalePct: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="Oneri comune €"><input type="number" className={IN} value={d.roe.oneriComune ?? ''} onChange={(e) => setRoe({ oneriComune: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="IVA opere %"><input type="number" className={IN} value={d.roe.worksVatPct ?? ''} placeholder="10" onChange={(e) => setRoe({ worksVatPct: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="Marketing extra €"><input type="number" className={IN} value={d.roe.marketingCost ?? ''} onChange={(e) => setRoe({ marketingCost: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="Imprevisti €"><input type="number" className={IN} value={d.roe.imprevisti ?? ''} onChange={(e) => setRoe({ imprevisti: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
+                  <FieldEl label="Quota investitori %"><input type="number" className={IN} value={d.roe.investorSharePct ?? ''} placeholder="50" onChange={(e) => setRoe({ investorSharePct: e.target.value === '' ? undefined : num(e.target.value) })} disabled={!canEdit} /></FieldEl>
                 </div>
                 <div className="grid grid-cols-2 gap-3 mt-3">
                   <FieldEl label="Data acquisto"><input type="date" className={IN} value={d.roe.purchaseDate || ''} onChange={(e) => setRoe({ purchaseDate: e.target.value || null })} disabled={!canEdit} /></FieldEl>
                   <FieldEl label="Data rivendita"><input type="date" className={IN} value={d.roe.resaleDate || ''} onChange={(e) => setRoe({ resaleDate: e.target.value || null })} disabled={!canEdit} /></FieldEl>
                 </div>
-                {roeResult && (
+                {roeResult && (<>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
                     <Mini label="Costo totale" value={eur(roeResult.totalCost)} />
                     <Mini label="Margine netto" value={eur(roeResult.netMargin)} />
                     <Mini label="ROE" value={`${(roeResult.roe * 100).toFixed(1)}%`} />
                     <Mini label="Payback" value={roeResult.paybackMonths != null ? `${roeResult.paybackMonths} mesi` : '—'} />
+                    <Mini label="Capitale necessario" value={eur(roeResult.capitaleNecessario)} />
+                    <Mini label="Raccolto / mancante" value={`${eur(raised)} / ${eur(Math.max(0, roeResult.capitaleNecessario - raised))}`} />
+                    <Mini label={`Utile investitori (${roeResult.investorSharePct}%)`} value={eur(roeResult.quotaInvestitori)} />
+                    <Mini label="Utile UNICO" value={eur(roeResult.quotaUnico)} />
                   </div>
-                )}
+                  <p className="text-[11.5px] text-stone-500 mt-2">Ogni valore ricalcola tutto. Alla vendita gli investitori rientrano prima del capitale versato, poi l'utile si divide secondo la quota.</p>
+                </>)}
                 {/* Commesse interne generate */}
                 <div className="mt-3 flex flex-col gap-2">
                   {orders.length === 0 && (
@@ -622,6 +632,26 @@ const DealModal: React.FC<{
                 );
               })}
             </div>
+            {/* Dettaglio per fase (visibile all'investitore): responsabile, date, note, link foto/documenti */}
+            <details className="mt-3">
+              <summary className="text-[12px] font-bold text-[#161616] cursor-pointer">Dettagli delle fasi (responsabile, date, foto e documenti)</summary>
+              <div className="flex flex-col gap-2 mt-2">
+              {UNICO_FASI.map((f) => {
+                const fi = (d.fasiInfo || {})[f.id] || {};
+                const setFi = (patch: any) => set({ fasiInfo: { ...(d.fasiInfo || {}), [f.id]: { ...fi, ...patch } } });
+                return (
+                  <div key={f.id} className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 items-center p-2 rounded-xl border border-[#efefef]">
+                    <span className="col-span-2 sm:col-span-1 text-[12px] font-bold text-stone-600">{f.label}</span>
+                    <input className={IN} placeholder="Responsabile" value={fi.responsabile || ''} disabled={!canEdit} onChange={(e) => setFi({ responsabile: e.target.value || null })} />
+                    <input className={IN} type="date" title="Data prevista" value={fi.dataPrevista || ''} disabled={!canEdit} onChange={(e) => setFi({ dataPrevista: e.target.value || null })} />
+                    <input className={IN} type="date" title="Data effettiva" value={fi.dataEffettiva || ''} disabled={!canEdit} onChange={(e) => setFi({ dataEffettiva: e.target.value || null })} />
+                    <input className={IN} placeholder="Link foto/documenti" value={fi.link || ''} disabled={!canEdit} onChange={(e) => setFi({ link: e.target.value || null })} />
+                    <input className={`${IN} col-span-2 sm:col-span-5`} placeholder="Note per l'investitore" value={fi.note || ''} disabled={!canEdit} onChange={(e) => setFi({ note: e.target.value || null })} />
+                  </div>
+                );
+              })}
+              </div>
+            </details>
           </div>
 
           {/* Commessa Materico collegata */}

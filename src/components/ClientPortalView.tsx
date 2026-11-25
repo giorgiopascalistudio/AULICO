@@ -68,7 +68,7 @@ import { ClientQuotesPanel } from './ClientQuotesPanel';
 import { CantiereBoard } from './CantiereBoard';
 import { ChatDeleteButton } from './ChatDeleteButton';
 import { ImpresaArea } from './cantiere/ImpresaArea';
-import { eur, fmtDay, isoDate, isForwardedTo } from '../utils';
+import { eur, fmtDay, isoDate, isForwardedTo, safeUrl } from '../utils';
 import { UNICO_FASI, unicoFasiAvg } from '../showcaseData';
 import { useLang, LangToggle } from '../i18n';
 import { BLOG_POSTS_IT, BLOG_POSTS_EN } from '../blogPosts';
@@ -2859,6 +2859,12 @@ const MyInvestmentsPanel: React.FC<{ positions: UnicoInvestorPosition[] }> = ({ 
                           <div className="h-1 w-full bg-[#eee] rounded-full overflow-hidden mt-1">
                             <div className="h-full rounded-full" style={{ width: `${v}%`, background: v >= 100 ? '#059669' : '#4338ca' }} />
                           </div>
+                          {(() => { const fi = (p as any).fasiInfo?.[f.id]; if (!fi) return null; const bits = [fi.responsabile && `Resp. ${fi.responsabile}`, fi.dataEffettiva ? `fatta il ${new Date(fi.dataEffettiva + 'T00:00').toLocaleDateString('it-IT')}` : fi.dataPrevista ? `prevista ${new Date(fi.dataPrevista + 'T00:00').toLocaleDateString('it-IT')}` : null].filter(Boolean).join(' · '); return (
+                            <div className="text-[10.5px] text-stone-500 mt-0.5 leading-snug">
+                              {bits}{fi.note ? <span className="block">{fi.note}</span> : null}
+                              {fi.link && safeUrl(fi.link) ? <a href={safeUrl(fi.link) || '#'} target="_blank" rel="noreferrer" className="font-bold text-[#4338ca]">Foto e documenti</a> : null}
+                            </div>
+                          ); })()}
                         </div>
                       );
                     })}

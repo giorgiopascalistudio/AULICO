@@ -680,6 +680,8 @@ export interface UnicoDeal {
   matericoProjectId?: string | null; // commessa Materico collegata (ristrutturazione)
   /** Fasi dell'operazione (PDF Unico, monitoraggio portale investitore): fase → % completamento. */
   fasi?: Record<string, number> | null;
+  /** Dettaglio per fase visibile all'investitore: responsabile, date, note, link foto/documenti. */
+  fasiInfo?: Record<string, UnicoFaseInfo> | null;
   published?: boolean;       // pubblicato nella vetrina Unico
   showcase?: UnicoShowcaseConfig | null; // pagina vetrina cinematica (video + scene)
   // ---- Cascata ROE + commesse interne (visione Aulico) ----
@@ -737,6 +739,15 @@ export interface InternalOrder {
 }
 
 /** Configurazione cascata ROE di un'operazione Unico (default override-abili). */
+/** Dettaglio di una fase dell'operazione (doc Unico: % + foto, documenti, note, responsabile, date). */
+export interface UnicoFaseInfo {
+  responsabile?: string | null;
+  dataPrevista?: string | null;
+  dataEffettiva?: string | null;
+  note?: string | null;
+  link?: string | null;   // cartella foto/documenti della fase
+}
+
 export interface UnicoRoeConfig {
   // costi base (input dell'operazione)
   landCost: number;               // terreno/immobile
@@ -748,6 +759,12 @@ export interface UnicoRoeConfig {
   oniricoPct?: number;            // default 15 (su worksCost)
   strategicoFee?: number;         // default 10000 (fisso)
   resalePct?: number;             // default 4 (su resalePrice)
+  // Scenario economico completo (doc "UNICO il processo"): voci aggiuntive, tutte opzionali
+  oneriComune?: number;           // oneri di urbanizzazione / costruzione
+  worksVatPct?: number;           // IVA sulle opere (es. 10)
+  marketingCost?: number;         // marketing extra oltre al fisso Strategico
+  imprevisti?: number;            // accantonamento imprevisti
+  investorSharePct?: number;      // quota utile agli investitori dopo il rientro del capitale (default 50)
   // date per il payback
   purchaseDate?: string | null;
   resaleDate?: string | null;
@@ -867,6 +884,7 @@ export interface UnicoInvestorPosition {
   expectedReturn: number;  // rendimento atteso stimato sul conferito (quota del profitto)
   distributed: number;     // totale già distribuito al destinatario
   fasi?: Record<string, number> | null; // fase operazione → % (monitoraggio PDF)
+  fasiInfo?: Record<string, UnicoFaseInfo> | null;
   updates: UnicoUpdate[];
   distributions: UnicoInvestorPositionDistribution[];
   updatedAt: number;
