@@ -478,6 +478,7 @@ export default function App() {
   const [battlePlan, setBattlePlan] = useState<Record<string, BattleItem>>({});
   const [unicoOpps, setUnicoOpps] = useState<Record<string, UnicoOpportunity>>({});
   const [stimePreliminari, setStimePreliminari] = useState<Record<string, any>>({});
+  const projectsServerRef = useRef<Record<string, any>>({}); // ultimo stato `projects` dal DB (diff in syncState)
   const [abilitativa, setAbilitativa] = useState<Record<string, any>>({}); // Onirico · Fase abilitativa (pid → voce → cella)
   const [recruiting, setRecruiting] = useState<Record<string, any>>({});
   const [fantImmobili, setFantImmobili] = useState<Record<string, any>>({});
@@ -874,7 +875,30 @@ export default function App() {
       return;
     }
     const path = KEY2PATH[key] || key;
-    writeNode(path, val).catch(() => {});
+    const onErr = (err: any) => {
+      const denied = /permission/i.test(String(err?.code || err?.message || ''));
+      showToast(denied
+        ? 'Salvataggio non riuscito: non hai il permesso per questa operazione.'
+        : 'Salvataggio non riuscito. Controlla la connessione e riprova.', 'err');
+    };
+    if (key === 'projects') {
+      // Solo le pratiche cambiate (update multi-path atomico): riscrivere l'intero nodo
+      // cancellava le modifiche fatte nel frattempo da altri utenti.
+      const prev = projectsServerRef.current || {};
+      const next = val || {};
+      const patch: Record<string, any> = {};
+      Object.keys(next).forEach((id) => {
+        if (JSON.stringify(clean(next[id])) !== JSON.stringify(clean(prev[id] ?? null))) patch[id] = next[id];
+      });
+      Object.keys(prev).forEach((id) => { if (!(id in next)) patch[id] = null; });
+      if (!Object.keys(patch).length) return;
+      updateNode(path, patch).catch((err) => {
+        onErr(err);
+        setProjects(autoUpdateProjectsCompletion(projectsServerRef.current)); // torna allo stato reale
+      });
+      return;
+    }
+    writeNode(path, val).catch(onErr);
   };
 
   // ---- CRM: salvataggio + conversione lead in commessa ----
@@ -1879,7 +1903,7 @@ export default function App() {
           })
           .catch(() => {});
       }
-      add('projects', (v) => setProjects(autoUpdateProjectsCompletion(v)));
+      add('projects', (v) => { projectsServerRef.current = v || {}; setProjects(autoUpdateProjectsCompletion(v)); });
       add('tasks', setTasks);
       add('templates', setTemplates);
       add('projectsInternal', setProjectsInternal);
@@ -3195,6 +3219,12 @@ export default function App() {
   const handleCreateProject = () => {
     if (!pName.trim()) {
       showToast('Inserisci il nome del progetto!', 'err');
+      return;
+    }
+    // Le regole del DB fanno creare pratiche solo ad admin/manager: meglio dirlo subito
+    // che far comparire "creato" e poi far sparire la commessa (segnalazione test).
+    if (currentUser?.role !== 'admin' && currentUser?.role !== 'manager') {
+      showToast('Non hai il permesso di creare commesse: chiedi a un amministratore o manager.', 'err');
       return;
     }
 
