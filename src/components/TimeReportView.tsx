@@ -13,7 +13,7 @@
 import React from 'react';
 import { Clock, BarChart3, Users, Printer, ChevronDown, Play, Timer, ListChecks, FileText } from 'lucide-react';
 import type {
-  Appointment, EditorialPost, ProfileReport as TProfileReport, SocMktItem, Task, TimeEntry, UserProfile,
+  Appointment, EditorialPost, ProfileReport as TProfileReport, SocMktItem, MktKpiEntry, Task, TimeEntry, UserProfile,
 } from '../types';
 import { initials } from '../utils';
 import { aggregate, fmtDuration } from '../timetracking';
@@ -32,6 +32,7 @@ interface Props {
   appointments?: Appointment[];
   posts?: EditorialPost[];
   extras?: SocMktItem[];
+  kpi?: MktKpiEntry[];
   accounts?: { id: string; name: string }[];
   profileReports?: Record<string, Record<string, TProfileReport>>;
   onSaveProfileReport?: (r: TProfileReport) => void;
@@ -62,7 +63,7 @@ const TabSwitch: React.FC<{ tab: 'tempi' | 'profilo'; onTab: (t: 'tempi' | 'prof
 
 export const TimeReportView: React.FC<Props> = ({
   tasks, timeEntries, members, color = '#161616', onEditTask, onNewTask,
-  me, isBoss = false, appointments = [], posts = [], extras = [], accounts = [], profileReports = {}, onSaveProfileReport,
+  me, isBoss = false, appointments = [], posts = [], extras = [], kpi = [], accounts = [], profileReports = {}, onSaveProfileReport,
 }) => {
   const [tab, setTab] = React.useState<'tempi' | 'profilo'>('tempi');
   const [range, setRange] = React.useState<Range>('week');
@@ -126,6 +127,7 @@ export const TimeReportView: React.FC<Props> = ({
           appointments={appointments}
           posts={posts}
           extras={extras}
+          kpi={kpi}
           accounts={accounts}
           reports={profileReports}
           onSave={onSaveProfileReport}

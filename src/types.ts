@@ -64,6 +64,9 @@ export interface UserProfile {
   firstName?: string;
   lastName?: string;
   residenza?: string;            // indirizzo di residenza (privato)
+  /** Società con cui lavora di solito (slug agenda: studio/strategico/…): preimpostata
+   *  come "Società di riferimento" nei nuovi impegni/appuntamenti dell'agenda personale. */
+  defaultSocieta?: string | null;
   privacyAccepted?: boolean;
   privacyAcceptedAt?: number;
   /** Consensi spuntati alla registrazione (automatici): privacy, marketing (uso materiali/documenti
@@ -1359,6 +1362,7 @@ export interface MktKpiEntry {
   source?: 'manuale' | 'ga4' | string | null; // provenienza: auto da API (es. GA4) vs inserimento manuale
   syncedAt?: number;               // ultimo aggiornamento automatico via API
   updatedAt: number;
+  updatedBy?: string | null;       // chi ha inserito/aggiornato a mano (→ Report di profilo)
 }
 /** Nodo `mktExpenses/<id>` — spese marketing (piano finanziario di Rosa): registro
  * per account con ponte in Contabilità (fattura passiva sector 'strategico'). */

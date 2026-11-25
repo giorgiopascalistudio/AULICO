@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import type {
   Appointment, EditorialPost, ProfileReport as TProfileReport, ProfileReportSection,
-  SocMktItem, Task, TimeEntry, UserProfile,
+  MktKpiEntry, SocMktItem, Task, TimeEntry, UserProfile,
 } from '../types';
 import { PeriodSelect } from './PeriodSelect';
 import { isoOf, monthPeriod, ymNow, type Period } from '../period';
@@ -39,6 +39,7 @@ interface Props {
   appointments: Appointment[];
   posts: EditorialPost[];                            // calendario editoriale
   extras: SocMktItem[];                              // blog / eventi / gadget
+  kpi?: MktKpiEntry[];                               // KPI marketing inseriti (updatedBy)
   accounts: { id: string; name: string }[];          // account marketing (per i nomi)
   reports: Record<string, Record<string, TProfileReport>>;  // uid → periodo → report
   onSave?: (r: TProfileReport) => void;
@@ -101,10 +102,11 @@ const longRange = (p: Period) => {
   const fmt = (d: Date) => d.toLocaleDateString('it-IT', { day: '2-digit', month: 'long' });
   return `${fmt(f)} – ${fmt(t)} ${t.getFullYear()}`;
 };
+const KPI_PLATFORM_LABEL: Record<string, string> = { instagram: 'Instagram', facebook: 'Facebook', google: 'Google', sito: 'Sito web' };
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 export const ProfileReport: React.FC<Props> = ({
-  me, isBoss, members, tasks, timeEntries, appointments, posts, extras, accounts, reports, onSave,
+  me, isBoss, members, tasks, timeEntries, appointments, posts, extras, kpi = [], accounts, reports, onSave,
   lockUid = false, color = '#161616',
 }) => {
   const [uid, setUid] = React.useState(me.uid);
@@ -138,6 +140,16 @@ export const ProfileReport: React.FC<Props> = ({
       social.push(`Pubblicazione ${plural(n, 'contenuto', 'contenuti')} su ${platform} (${accName(channel)})`);
     });
 
+    // KPI inseriti/aggiornati a mano nel periodo (segnalazione Rosa: "ho inserito i KPI ma
+    // nel report non risulta questa attività"), raggruppati per account.
+    const kpiByAcc = new Map<string, Set<string>>();
+    kpi.filter((k) => k.updatedBy === uid && inRange(isoOf(new Date(k.updatedAt || 0)))).forEach((k) => {
+      const set = kpiByAcc.get(k.accountId) || new Set<string>();
+      set.add(KPI_PLATFORM_LABEL[k.platform] || k.platform);
+      kpiByAcc.set(k.accountId, set);
+    });
+    kpiByAcc.forEach((pls, acc) => social.push(`Aggiornamento KPI ${[...pls].join(', ')} (${accName(acc)})`));
+
     // Blog / eventi / gadget (nodo socMkt)
     const mine = extras.filter((i) => i.by === uid && inRange(i.date));
     const blog = mine.filter((i) => i.kind === 'blog');
@@ -156,7 +168,7 @@ export const ProfileReport: React.FC<Props> = ({
       .forEach((t) => pian.push(t.title));
 
     return { social, sito, pian };
-  }, [uid, period.key, posts, extras, appointments, tasks, accounts]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [uid, period.key, posts, extras, kpi, appointments, tasks, accounts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const derivedCount = derived.social.length + derived.sito.length + derived.pian.length;
 

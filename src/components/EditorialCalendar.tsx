@@ -329,9 +329,16 @@ export const EditorialCalendar: React.FC<Props> = ({
           channels={channels}
           canEdit={canEdit}
           lockChannel={lockChannel}
+          isNew={!posts.some((x) => x.id === editing.id)}
           importProjects={importProjects}
           onClose={() => setEditing(null)}
-          onSave={(p) => { onSave?.(p); setEditing(null); }}
+          onSave={(p, extraPlatforms) => {
+            onSave?.(p);
+            // Stesso contenuto su più piattaforme: una scheda per piattaforma (KPI, workflow e
+            // report restano per-piattaforma), create insieme con un solo salvataggio.
+            (extraPlatforms || []).forEach((pl) => onSave?.({ ...p, id: mkid(), platform: pl, createdAt: Date.now() }));
+            setEditing(null);
+          }}
           onDelete={onDelete ? (id) => { onDelete(id); setEditing(null); } : undefined}
         />
       )}
@@ -381,11 +388,12 @@ const PostEditor: React.FC<{
   channels: EditorialChannel[];
   canEdit: boolean;
   lockChannel?: boolean;
+  isNew?: boolean;
   importProjects: EditorialImportProject[];
   onClose: () => void;
-  onSave: (p: EditorialPost) => void;
+  onSave: (p: EditorialPost, extraPlatforms?: string[]) => void;
   onDelete?: (id: string) => void;
-}> = ({ post, channels, canEdit, lockChannel = false, importProjects, onClose, onSave, onDelete }) => {
+}> = ({ post, channels, canEdit, lockChannel = false, isNew = false, importProjects, onClose, onSave, onDelete }) => {
   // Normalizza il canale legacy (label) alla key dell'account.
   const normCh = channels.find((c) => c.key === post.channel)?.key
     || channels.find((c) => c.label === post.channel)?.key
@@ -400,6 +408,13 @@ const PostEditor: React.FC<{
   const [dropActive, setDropActive] = React.useState(false);
   const fileRef = React.useRef<HTMLInputElement>(null);
   const set = (c: Partial<EditorialPost>) => setD((p) => ({ ...p, ...c }));
+  // Nuovo contenuto: si possono scegliere PIÙ piattaforme (richiesta Rosa, 7 ago).
+  const [platforms, setPlatforms] = React.useState<string[]>(post.platform ? [post.platform] : []);
+  const togglePlatform = (pl: string) => setPlatforms((cur) => {
+    const next = cur.includes(pl) ? cur.filter((x) => x !== pl) : [...cur, pl];
+    set({ platform: next[0] || null });
+    return next;
+  });
   const inp = 'w-full px-3 py-2 rounded-lg border border-[#e2e2e2] text-[13px] outline-none focus:border-[#161616] bg-white disabled:bg-[#f7f7f5]';
   const media = d.media || [];
   const isCarousel = media.length > 1;
@@ -522,9 +537,20 @@ const PostEditor: React.FC<{
               {channels.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
             </select>
           </label>
+          {isNew ? (
+            <div className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Piattaforme <span className="normal-case font-semibold">(anche più di una)</span></span>
+              <div className="flex flex-wrap gap-1">
+                {PLATFORMS.map((p) => (
+                  <button key={p} type="button" disabled={!canEdit} onClick={() => togglePlatform(p)}
+                    className={`px-2 py-1 rounded-lg text-[11px] font-bold border cursor-pointer ${platforms.includes(p) ? 'bg-[#161616] text-white border-[#161616]' : 'bg-white text-[#555] border-[#e2e2e2]'}`}>{p}</button>
+                ))}
+              </div>
+            </div>
+          ) : (
           <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Piattaforma</span>
             <select disabled={!canEdit} value={d.platform || ''} onChange={(e) => set({ platform: e.target.value || null })} className={inp}><option value="">—</option>{PLATFORMS.map((p) => <option key={p} value={p}>{p}</option>)}</select>
           </label>
+          )}
           <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Data</span>
             <input disabled={!canEdit} type="date" value={d.dateISO} onChange={(e) => set({ dateISO: e.target.value })} className={inp} /></label>
           <label className="flex flex-col gap-1"><span className="text-[10px] font-bold uppercase tracking-wider text-[#9a9a9a]">Ora</span>
@@ -565,7 +591,7 @@ const PostEditor: React.FC<{
         </div>
 
         {canEdit && (
-          <button onClick={() => onSave({ ...d, topic: (d.topic || '').trim() || null, updatedAt: Date.now() })} className="mt-4 w-full px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">Salva contenuto</button>
+          <button onClick={() => onSave({ ...d, platform: isNew ? (platforms[0] || null) : d.platform, topic: (d.topic || '').trim() || null, updatedAt: Date.now() }, isNew ? platforms.slice(1) : [])} className="mt-4 w-full px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none">{isNew && platforms.length > 1 ? `Salva su ${platforms.length} piattaforme` : 'Salva contenuto'}</button>
         )}
       </div>
     </div>

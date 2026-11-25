@@ -1517,7 +1517,7 @@ export default function App() {
     setTDateInput(presetDate || todayISO());
     setTTimeInput('');
     setTEndInput('');
-    setTSoc(presetSoc || '');
+    setTSoc(presetSoc || currentUser?.defaultSocieta || '');
     setTFreq('once');
     setTPrio('media');
     setTTipo('');
@@ -1541,7 +1541,7 @@ export default function App() {
     setApptPrivate(false);
     setApptEndTime('');
     setApptArea('');
-    setApptSoc(presetSoc || '');
+    setApptSoc(presetSoc || currentUser?.defaultSocieta || '');
     setApptRepeat('none');
     setApptRepeatEvery(1);
     setApptRepeatUntil('');
@@ -2737,6 +2737,7 @@ export default function App() {
   const [profName, setProfName] = useState('');
   const [profPhone, setProfPhone] = useState('');
   const [profRes, setProfRes] = useState('');
+  const [profSoc, setProfSoc] = useState('');
   
   // Tasks Form (Agenda)
   const [taskEditorOpen, setTaskEditorOpen] = useState(false);
@@ -4088,7 +4089,9 @@ export default function App() {
       showToast('Account marketing spostato nel Cestino.', 'err');
     });
   };
-  const handleSaveMktKpi = (k: MktKpiEntry) => {
+  const handleSaveMktKpi = (k0: MktKpiEntry) => {
+    // `updatedBy`: l'inserimento dei KPI compare tra le attività del Report di profilo
+    const k: MktKpiEntry = { ...k0, updatedAt: Date.now(), updatedBy: k0.source === 'ga4' ? (k0.updatedBy || null) : (currentUser?.uid || null) };
     setMktKpi((prev) => ({ ...prev, [k.id]: k }));
     writeNode(`mktKpi/${k.id}`, k).catch(() => showToast('Errore KPI marketing (controlla regole).', 'err'));
   };
@@ -4725,6 +4728,7 @@ export default function App() {
     setProfName(currentUser?.name || '');
     setProfPhone(currentUser?.telefono || '');
     setProfRes(currentUser?.residenza || '');
+    setProfSoc(currentUser?.defaultSocieta || '');
     setProfileOpen(true);
   };
 
@@ -4739,7 +4743,8 @@ export default function App() {
       ...currentUser,
       name: profName.trim(),
       telefono: profPhone.trim() || undefined,
-      residenza: profRes.trim() || undefined
+      residenza: profRes.trim() || undefined,
+      defaultSocieta: profSoc || null,
     };
     setUsers(prev => {
       const next = { ...prev, [currentUser.uid]: { ...(prev[currentUser.uid] || updated), ...updated } };
@@ -6425,6 +6430,7 @@ export default function App() {
                   appointments={Object.values(appointments)}
                   posts={Object.values(editorialPosts)}
                   extras={Object.values(socMkt)}
+                  kpi={Object.values(mktKpi)}
                   accounts={reportAccounts}
                   profileReports={profileReports}
                   onSaveProfileReport={handleSaveProfileReport}
@@ -7325,6 +7331,19 @@ export default function App() {
             </label>
           </div>
 
+          <label className="flex flex-col gap-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Società di default</span>
+            <select value={profSoc} onChange={(e) => setProfSoc(e.target.value)} className="select border border-[#e2e2e2] rounded-xl h-10 px-3 text-[14px] bg-white">
+              <option value="">— nessuna —</option>
+              <option value="studio">Onirico</option>
+              <option value="strategico">Strategico</option>
+              <option value="materico">Materico</option>
+              <option value="unico">Unico</option>
+              <option value="fantastico">Fantastico</option>
+            </select>
+            <span className="text-[11px] text-[#9a9a9a]">Preimpostata come società di riferimento quando crei impegni e appuntamenti.</span>
+          </label>
+
           <div className="flex flex-col gap-1.5">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8a8a8a]">Mansioni associate</span>
             <div className="flex flex-wrap gap-1.5">
@@ -7374,6 +7393,7 @@ export default function App() {
             appointments={Object.values(appointments)}
             posts={Object.values(editorialPosts)}
             extras={Object.values(socMkt)}
+            kpi={Object.values(mktKpi)}
             accounts={[
               ...(['strategico', 'studio', 'materico', 'unico', 'fantastico'] as const).map((s) => ({ id: s, name: (SOCIETA_LABEL as any)[s] || s })),
               ...Object.values(mktAccounts).filter((a) => a.kind === 'cliente').map((a) => ({ id: a.id, name: a.name })),

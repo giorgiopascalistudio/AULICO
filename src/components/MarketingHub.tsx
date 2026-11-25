@@ -528,6 +528,21 @@ const PanoramicaTab: React.FC<Props & { account: MktAccount }> = ({ account: acc
   const monthPosts = mine.filter((p) => p.dateISO.slice(0, 7) === ym);
   const monthSpend = expenses.filter((e) => e.accountId === acc.id && (e.date || '').slice(0, 7) === ym).reduce((s, e) => s + (e.amount || 0), 0);
   const dirty = JSON.stringify(d) !== JSON.stringify({ ...acc, channels: acc.channels || [] });
+  // Salvataggio automatico della scheda (come i KPI): debounce mentre si scrive +
+  // salvataggio all'uscita, così nessun dato inserito va perso (segnalazione Rosa).
+  const [accSave, setAccSave] = React.useState<'idle' | 'saving' | 'saved'>('idle');
+  const accTimer = React.useRef<number | undefined>(undefined);
+  const accFlush = React.useRef<() => void>(() => {});
+  React.useEffect(() => {
+    if (!canEdit || !onSaveAccount || !dirty) return;
+    setAccSave('saving');
+    window.clearTimeout(accTimer.current);
+    accTimer.current = window.setTimeout(() => { onSaveAccount({ ...d, updatedAt: Date.now() }); setAccSave('saved'); }, 900);
+    return () => window.clearTimeout(accTimer.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [d]);
+  accFlush.current = () => { if (canEdit && onSaveAccount && dirty) onSaveAccount({ ...d, updatedAt: Date.now() }); };
+  React.useEffect(() => () => accFlush.current(), []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -585,7 +600,11 @@ const PanoramicaTab: React.FC<Props & { account: MktAccount }> = ({ account: acc
 
         {canEdit && (
           <div className="flex items-center gap-2 pt-1">
-            <button onClick={() => onSaveAccount?.({ ...d, updatedAt: Date.now() })} disabled={!dirty} className="px-4 py-2.5 rounded-xl bg-[#161616] hover:bg-black text-white text-[13px] font-bold cursor-pointer border-none disabled:opacity-40">Salva scheda</button>
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-bold">
+              {accSave === 'saving' ? <><Loader2 className="w-3.5 h-3.5 animate-spin text-[#8a8a8a]" /><span className="text-[#8a8a8a]">Salvataggio…</span></>
+                : accSave === 'saved' && !dirty ? <><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /><span className="text-emerald-600">Salvato</span></>
+                : <span className="text-[#b0b0b0]">Salvataggio automatico</span>}
+            </span>
             {acc.kind === 'cliente' && onDeleteAccount && (
               <button onClick={() => onDeleteAccount(acc.id)} className="px-3 py-2.5 rounded-xl bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 text-[12.5px] font-bold cursor-pointer">Elimina account</button>
             )}
@@ -1064,7 +1083,7 @@ const ReportTab: React.FC<{
         <div>
           <p className="text-[12px] font-extrabold uppercase tracking-wider text-[#9a9a9a] mb-2">1 · Analisi performance digital <span className="normal-case tracking-normal font-bold text-[#c0c0c0]">— dati del mese di {ymLabel(ym)}</span></p>
           {perfRows.length === 0 ? (
-            <p className="text-[12.5px] text-[#9a9a9a]">Nessun dato KPI inserito per {ymLabel(ym)} (tab KPI).</p>
+            <p className="text-[12.5px] text-[#9a9a9a]">Nessun dato KPI inserito per {ymLabel(ym)} (tab KPI).{(() => { const other = kpi.filter((k) => k.accountId === acc.id && k.ym !== ym).map((k) => k.ym).sort().pop(); return other ? <> Ultimi KPI inseriti: <b className="text-[#161616]">{ymLabel(other)}</b> — scegli quel mese nel selettore del periodo.</> : null; })()}</p>
           ) : perfRows.map((r) => (
             <div key={r.platform} className="mb-2.5">
               <b className="text-[13px] text-[#161616]">{r.platform}</b>
