@@ -36,7 +36,7 @@ export const SplashScreen: React.FC = () => {
             playsInline
             preload="auto"
             className="w-[min(420px,80vw)] h-auto"
-            style={{ background: '#F5F5F3', WebkitMaskImage: 'radial-gradient(ellipse 50% 50% at center, #000 86%, transparent 100%)', maskImage: 'radial-gradient(ellipse 50% 50% at center, #000 86%, transparent 100%)' }}
+            style={{ mixBlendMode: 'multiply' }} /* video su fondo bianco: col 'moltiplica' il bianco sparisce nel fondo della pagina */
             onLoadedMetadata={(e) => { (e.currentTarget as HTMLVideoElement).playbackRate = RATE; }}
             onEnded={() => setShow(false)}
             onError={() => setShow(false)}
