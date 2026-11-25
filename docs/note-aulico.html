@@ -1,0 +1,392 @@
+<title>Note su Aulico</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a sinistra la mappa di Aulico (società → gruppi → sezioni, selezione multipla),
+   a destra le schede "Nuova nota" / "Conversazione" e l'elenco delle note.
+   Su tablet e telefono le due colonne si impilano. */
+:root {
+  --bg: #f5f5f3; --surface: #ffffff; --ink: #161616; --muted: #5f5f5b; --line: #e2e2de; --soft: #efefeb;
+  --ok: #157347; --ok-bg: #e7f4ec; --warn: #9a5b00; --warn-bg: #fbf1e0; --rec: #c0262d; --rec-bg: #fdecea; --accent: #3d4fb8;
+  --onirico: #16a34a; --materico: #ea580c; --unico: #ca9a04; --strategico: #dc2626; --fantastico: #7c3aed; --aulico: #161616;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif; --body: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #131312; --surface: #1c1c1a; --ink: #ecebe6; --muted: #a3a29b; --line: #2f2f2c; --soft: #252523;
+  --ok: #5fcf8f; --ok-bg: #16301f; --warn: #f0b45a; --warn-bg: #33270f; --rec: #ff7a73; --rec-bg: #3a1714; --accent: #9aa8ff; --aulico: #ecebe6; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #131312; --surface: #1c1c1a; --ink: #ecebe6; --muted: #a3a29b; --line: #2f2f2c; --soft: #252523;
+  --ok: #5fcf8f; --ok-bg: #16301f; --warn: #f0b45a; --warn-bg: #33270f; --rec: #ff7a73; --rec-bg: #3a1714; --accent: #9aa8ff; --aulico: #ecebe6; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1200px; margin: 0 auto; padding-block: 22px 60px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-family: var(--display); font-size: clamp(26px, 4vw, 34px); margin: 0; letter-spacing: -0.02em; }
+.lead { color: var(--muted); margin: 6px 0 0; max-width: 70ch; font-size: 14px; }
+.layout { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 16px; margin-top: 18px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; min-width: 0; }
+.soc { border-bottom: 1px solid var(--line); padding: 10px 2px; }
+.soc:last-child { border-bottom: 0; }
+.soc > button.sochead { all: unset; display: flex; align-items: center; gap: 8px; width: 100%; cursor: pointer; font-family: var(--display); font-weight: 700; font-size: 15px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.count { margin-left: auto; font-family: var(--body); font-size: 12px; font-weight: 600; color: var(--muted); }
+.grp { margin: 8px 0 0 18px; }
+.grp p { margin: 6px 0 4px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: inherit; font-size: 13px; font-weight: 600; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip .n { font-size: 11px; color: var(--muted); }
+.chip[aria-pressed="true"] .n { color: var(--bg); opacity: 0.7; }
+.sel { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 30px; }
+.sel .tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 4px 6px 4px 10px; border-radius: 999px; background: var(--soft); }
+.sel .tag button { all: unset; cursor: pointer; font-weight: 700; padding: 0 6px; color: var(--muted); }
+.tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.tabs button { font: inherit; font-weight: 700; font-size: 14px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+textarea, input, select { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; width: 100%; box-sizing: border-box; }
+textarea { min-height: 110px; resize: vertical; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.seg button { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--soft); border-color: var(--ink); }
+.btn { font: inherit; font-weight: 700; font-size: 14px; padding: 10px 16px; border-radius: 12px; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; }
+.btn.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn.rec { background: var(--rec); color: #fff; }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+.note { border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.note.done { opacity: 0.6; }
+.note .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.pill { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 8px; border-radius: 6px; background: var(--soft); color: var(--muted); }
+.pill.alta { background: var(--rec-bg); color: var(--rec); }
+.pill.fatta { background: var(--ok-bg); color: var(--ok); }
+.note p { margin: 0; white-space: pre-wrap; }
+.note .links { display: flex; flex-wrap: wrap; gap: 4px; }
+.note .links span { font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--soft); display: inline-flex; gap: 5px; align-items: center; }
+.note .acts { display: flex; gap: 10px; }
+.note .acts button { all: unset; cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.note .acts button:hover { color: var(--ink); }
+.transcript { min-height: 220px; max-height: 420px; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px; white-space: pre-wrap; font-size: 15px; }
+.partial { color: var(--muted); font-style: italic; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--rec); }
+.live::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--rec); animation: pulse 1.2s infinite; }
+@keyframes pulse { 50% { opacity: 0.25; } }
+@media (prefers-reduced-motion: reduce) { .live::before { animation: none; } }
+.info { font-size: 13px; color: var(--warn); background: var(--warn-bg); border-radius: 12px; padding: 9px 12px; }
+.small { font-size: 12.5px; color: var(--muted); }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 4px 0 10px; }
+button:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+  <h1>Note su Aulico</h1>
+  <p class="lead">Tocca una o più sezioni (anche di società diverse), poi scrivi la nota o avvia la trascrizione della conversazione: resta collegata a tutte le sezioni scelte. Le note le leggo io per fare le modifiche.</p>
+
+  <div class="layout">
+    <section class="panel" aria-label="Società e sezioni">
+      <div class="row" style="justify-content:space-between;margin-bottom:6px">
+        <b style="font-family:var(--display)">Società e sezioni</b>
+        <button class="btn ghost" id="clearSel" type="button" style="padding:6px 12px;font-size:13px">Togli selezione</button>
+      </div>
+      <div id="tree"></div>
+    </section>
+
+    <section class="panel" aria-label="Note e conversazioni">
+      <div class="small" style="margin-bottom:6px">Sezioni collegate</div>
+      <div class="sel" id="sel"></div>
+      <div class="tabs" role="tablist" style="margin-top:12px">
+        <button type="button" role="tab" id="tab-nota" aria-selected="true">Nuova nota</button>
+        <button type="button" role="tab" id="tab-conv" aria-selected="false">Conversazione</button>
+      </div>
+
+      <div id="pane-nota" class="stack">
+        <div class="seg" id="tipo" role="group" aria-label="Tipo"></div>
+        <label class="f">Cosa va fatto<textarea id="testo" placeholder="Es. nel preventivo manca la voce sopralluogo aggiuntivo; il cliente deve poter scegliere la data…"></textarea></label>
+        <div class="row" style="justify-content:space-between">
+          <div class="seg" id="prio" role="group" aria-label="Priorità"></div>
+          <div class="row">
+            <button class="btn ghost" type="button" id="dictNote" hidden>Detta</button>
+            <button class="btn" type="button" id="saveNote">Salva nota</button>
+          </div>
+        </div>
+        <div class="small" id="noteMsg"></div>
+      </div>
+
+      <div id="pane-conv" class="stack" hidden>
+        <div class="info">Prima di avviare, avvisa i presenti che la conversazione viene trascritta e chiedi il loro consenso.</div>
+        <label class="f">Titolo<input id="convTitle" placeholder="Es. Incontro con i committenti del gestionale"></label>
+        <div class="row">
+          <button class="btn rec" type="button" id="recBtn">Avvia trascrizione</button>
+          <span id="recState" class="small"></span>
+        </div>
+        <div class="transcript" id="transcript" aria-live="polite"></div>
+        <div class="row" style="justify-content:space-between">
+          <span class="small" id="convMsg">Il testo si salva da solo mentre parlate. Tieni la pagina aperta e lo schermo acceso.</span>
+          <button class="btn ghost" type="button" id="newConv">Nuova conversazione</button>
+        </div>
+      </div>
+
+      <div style="margin-top:22px">
+        <div class="row" style="justify-content:space-between">
+          <b style="font-family:var(--display)">Note</b>
+          <span class="small" id="noteCount"></span>
+        </div>
+        <div class="filters">
+          <div class="seg" id="filt" role="group" aria-label="Filtro"></div>
+        </div>
+        <div class="stack" id="list"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const SOCS = [
+  { id: 'aulico', label: 'Aulico (comune)', color: 'var(--aulico)', groups: [
+    ['Generale', ['Dashboard', 'Agenda', 'Barra laterale e navigazione', 'Notifiche', 'Registro attività', 'Cestino', 'Login e registrazione']],
+    ['Pratica (fascicolo)', ['Avanzamento e attività', 'Documenti e chat', 'Questionario', 'Arredi & Moodboard', 'Presentazione', 'Contabilità di commessa']],
+    ['Cantiere', ['Panoramica', 'Giornale di cantiere', 'Piano di cantiere', 'Registro getti', 'SAL & avanzamento', 'Cronoprogramma', 'Sicurezza e documenti', 'Area Impresa']],
+    ['Portali', ['Portale cliente', 'Portale impresa', 'Portale investitore']],
+  ]},
+  { id: 'strategico', label: 'Strategico', color: 'var(--strategico)', groups: [
+    ['Home', ['Point of Entry', 'Chat di società']],
+    ['Risorse umane', ['CRM', 'Team & permessi', 'Recruiting', 'Report & Tempi', 'Piano incentivante']],
+    ['Marketing', ['Centro Marketing', 'Calendario editoriale', 'KPI e report']],
+    ['Commerciale', ['Proposte', 'Centro Commerciale', 'Registro clienti', 'Listino']],
+    ['Amministrazione & Contabilità', ['Centro Direzione', 'Contabilità operativa', 'Adempimenti societari', 'Governance']],
+    ['Sviluppo Software', ['Gestionale & Automazioni', 'Segnalazioni']],
+    ['Area Legale', ['Contrattualistica']],
+  ]},
+  { id: 'onirico', label: 'Onirico', color: 'var(--onirico)', groups: [
+    ['Home', ['Agenda', 'Lista dei cicli', 'Piano di battaglia', 'Notifiche', 'Chat di società']],
+    ['Produzione', ['Progetti', 'Fase abilitativa', 'Render AI', 'Computi', 'Mappa operativa']],
+    ['Commerciale', ['Sopralluoghi & Rilievi', 'Proposte', 'Preventivi & Contratti', 'Stima preliminare', 'Registro clienti']],
+    ['Altro', ['Marketing', 'Contabilità & Amministrazione', 'Risorse umane']],
+  ]},
+  { id: 'materico', label: 'Materico', color: 'var(--materico)', groups: [
+    ['Home', ['Agenda', 'Le mie commesse', 'Lista dei cicli', 'Piano di battaglia', 'Notifiche', 'Chat di società']],
+    ['Produzione', ['Progetti', 'Potenziale Cantiere', 'Computi', 'Mappa operativa', 'Richieste e offerte imprese']],
+    ['Commerciale', ['Proposte', 'Preventivi & Contratti', 'Contratti imprese', 'Listino', 'Imprese & Fornitori', 'Valutazione imprese']],
+    ['Altro', ['Marketing', 'Contabilità & Amministrazione', 'Risorse umane']],
+  ]},
+  { id: 'unico', label: 'Unico', color: 'var(--unico)', groups: [
+    ['Home', ['Agenda', 'Lista dei cicli', 'Piano di battaglia', 'Notifiche', 'Chat di società']],
+    ['Produzione', ['Ricerca Opportunità', 'Operazioni & Investitori', 'Scenario economico', 'Vetrina', 'Computi', 'Mappa operativa']],
+    ['Commerciale', ['Proposte', 'Preventivi & Contratti', 'Contratto investitore', 'Registro clienti']],
+    ['Altro', ['Marketing', 'Contabilità & Amministrazione', 'Risorse umane']],
+  ]},
+  { id: 'fantastico', label: 'Fantastico', color: 'var(--fantastico)', groups: [
+    ['Home', ['Agenda', 'Lista dei cicli', 'Piano di battaglia', 'Notifiche']],
+    ['Produzione', ['Immobili & Servizi', 'Apertura attività ricettive', 'Computi', 'Mappa operativa']],
+    ['Commerciale', ['Proposte', 'Preventivi & Contratti', 'Registro clienti']],
+    ['Altro', ['Marketing', 'Contabilità & Amministrazione', 'Risorse umane']],
+  ]},
+];
+const TIPI = [['modifica', 'Modifica da fare'], ['bug', 'Non funziona'], ['idea', 'Idea'], ['domanda', 'Domanda']];
+const PRIO = [['alta', 'Priorità alta'], ['media', 'Media'], ['bassa', 'Bassa']];
+const key = (soc, grp, sec) => `${soc}|${grp}|${sec}`;
+const socOf = (id) => SOCS.find((s) => s.id === id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+let selected = [];                 // [{soc, grp, sec}]
+let open = new Set(['aulico']);    // società aperte nella mappa
+let tipo = 'modifica', prio = 'media', filt = 'aperte';
+const notes = {};                  // id -> nota
+const convs = {};                  // id -> conversazione
+let db = null, userId = null, dict = null;
+
+// ---------------------------------------------------------------- mappa
+function countFor(k) { return Object.values(notes).filter((n) => n.stato !== 'fatta' && (n.sezioni || []).some((s) => key(s.soc, s.grp, s.sec) === k)).length; }
+function renderTree() {
+  document.getElementById('tree').innerHTML = SOCS.map((s) => {
+    const n = Object.values(notes).filter((x) => x.stato !== 'fatta' && (x.sezioni || []).some((y) => y.soc === s.id)).length;
+    const isOpen = open.has(s.id);
+    return `<div class="soc">
+      <button type="button" class="sochead" data-soc="${s.id}" aria-expanded="${isOpen}"><span class="dot" style="background:${s.color}"></span>${esc(s.label)}<span class="count">${n ? n + ' aperte' : ''} ${isOpen ? '▾' : '▸'}</span></button>
+      ${isOpen ? s.groups.map(([g, secs]) => `<div class="grp"><p>${esc(g)}</p><div class="chips">${secs.map((sec) => {
+        const k = key(s.id, g, sec); const on = selected.some((x) => key(x.soc, x.grp, x.sec) === k); const c = countFor(k);
+        return `<button type="button" class="chip" data-k="${esc(k)}" aria-pressed="${on}">${esc(sec)}${c ? `<span class="n">${c}</span>` : ''}</button>`;
+      }).join('')}</div></div>`).join('') : ''}
+    </div>`;
+  }).join('');
+}
+function renderSel() {
+  const el = document.getElementById('sel');
+  el.innerHTML = selected.length
+    ? selected.map((x, i) => `<span class="tag"><span class="dot" style="background:${socOf(x.soc).color}"></span>${esc(socOf(x.soc).label.split(' ')[0])} · ${esc(x.sec)}<button type="button" data-rm="${i}" aria-label="Togli">×</button></span>`).join('')
+    : '<span class="small">Nessuna: tocca una o più sezioni a sinistra (puoi anche salvare una nota generale).</span>';
+}
+document.getElementById('tree').addEventListener('click', (e) => {
+  const h = e.target.closest('.sochead');
+  if (h) { const id = h.dataset.soc; open.has(id) ? open.delete(id) : open.add(id); renderTree(); return; }
+  const c = e.target.closest('.chip');
+  if (c) {
+    const [soc, grp, sec] = c.dataset.k.split('|');
+    const i = selected.findIndex((x) => key(x.soc, x.grp, x.sec) === c.dataset.k);
+    if (i >= 0) selected.splice(i, 1); else selected.push({ soc, grp, sec });
+    renderTree(); renderSel(); renderList();
+  }
+});
+document.getElementById('sel').addEventListener('click', (e) => { const b = e.target.closest('[data-rm]'); if (b) { selected.splice(Number(b.dataset.rm), 1); renderTree(); renderSel(); renderList(); } });
+document.getElementById('clearSel').addEventListener('click', () => { selected = []; renderTree(); renderSel(); renderList(); });
+
+// ---------------------------------------------------------------- tabs e selettori
+function segs() {
+  document.getElementById('tipo').innerHTML = TIPI.map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${tipo === v}">${l}</button>`).join('');
+  document.getElementById('prio').innerHTML = PRIO.map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${prio === v}">${l}</button>`).join('');
+  document.getElementById('filt').innerHTML = [['aperte', 'Da fare'], ['tutte', 'Tutte'], ['fatte', 'Fatte'], ['conv', 'Conversazioni']].map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${filt === v}">${l}</button>`).join('');
+}
+document.getElementById('tipo').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { tipo = b.dataset.v; segs(); } });
+document.getElementById('prio').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { prio = b.dataset.v; segs(); } });
+document.getElementById('filt').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { filt = b.dataset.v; segs(); renderList(); } });
+function showTab(t) {
+  document.getElementById('tab-nota').setAttribute('aria-selected', String(t === 'nota'));
+  document.getElementById('tab-conv').setAttribute('aria-selected', String(t === 'conv'));
+  document.getElementById('pane-nota').hidden = t !== 'nota';
+  document.getElementById('pane-conv').hidden = t !== 'conv';
+}
+document.getElementById('tab-nota').addEventListener('click', () => showTab('nota'));
+document.getElementById('tab-conv').addEventListener('click', () => showTab('conv'));
+
+// ---------------------------------------------------------------- note
+const newId = (p) => `${p}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+document.getElementById('saveNote').addEventListener('click', async () => {
+  const testo = document.getElementById('testo').value.trim();
+  const msg = document.getElementById('noteMsg');
+  if (!testo) { msg.textContent = 'Scrivi cosa va fatto.'; return; }
+  if (!db) { msg.textContent = 'Per salvare apri la pagina da claude.ai con il tuo account.'; return; }
+  const id = newId('n');
+  const body = { testo, tipo, priorita: prio, sezioni: selected.slice(), stato: 'aperta', createdAt: Date.now(), updatedAt: Date.now(), by: userId };
+  const btn = document.getElementById('saveNote'); btn.disabled = true; msg.textContent = 'Salvataggio…';
+  try { await db.collection('note').doc(id).set(body); document.getElementById('testo').value = ''; msg.textContent = 'Nota salvata.'; }
+  catch (err) { msg.textContent = 'Non salvata: ' + (err && err.code === 'not_granted' ? 'non hai il permesso di scrivere qui.' : 'riprova tra poco.'); }
+  finally { btn.disabled = false; }
+});
+
+function linksHtml(sez) {
+  return (sez || []).length ? `<div class="links">${sez.map((x) => `<span><span class="dot" style="background:${(socOf(x.soc) || {}).color}"></span>${esc(((socOf(x.soc) || {}).label || x.soc).split(' ')[0])} · ${esc(x.sec)}</span>`).join('')}</div>` : '<div class="links"><span>Generale</span></div>';
+}
+function matchesSel(sez) {
+  if (!selected.length) return true;
+  return (sez || []).some((x) => selected.some((y) => key(x.soc, x.grp, x.sec) === key(y.soc, y.grp, y.sec)));
+}
+function renderList() {
+  const list = document.getElementById('list');
+  const fmt = (t) => new Date(t).toLocaleString('it-IT', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  if (filt === 'conv') {
+    const cs = Object.entries(convs).filter(([, c]) => matchesSel(c.sezioni)).sort((a, b) => (b[1].startedAt || 0) - (a[1].startedAt || 0));
+    document.getElementById('noteCount').textContent = `${cs.length} conversazioni`;
+    list.innerHTML = cs.length ? cs.map(([id, c]) => `<div class="note">
+      <div class="top"><span class="pill">Conversazione</span><span>${fmt(c.startedAt || Date.now())}</span></div>
+      <p><b>${esc(c.titolo || 'Senza titolo')}</b></p>${linksHtml(c.sezioni)}
+      <details><summary class="small" style="cursor:pointer">Leggi la trascrizione (${(c.testo || '').split(/\s+/).filter(Boolean).length} parole)</summary><p style="margin-top:8px">${esc(c.testo || '')}</p></details>
+    </div>`).join('') : '<p class="small">Nessuna conversazione.</p>';
+    return;
+  }
+  const ns = Object.entries(notes).filter(([, n]) => (filt === 'tutte' || (filt === 'aperte' ? n.stato !== 'fatta' : n.stato === 'fatta')) && matchesSel(n.sezioni))
+    .sort((a, b) => ({ alta: 0, media: 1, bassa: 2 }[a[1].priorita] - { alta: 0, media: 1, bassa: 2 }[b[1].priorita]) || (b[1].createdAt - a[1].createdAt));
+  document.getElementById('noteCount').textContent = `${ns.length} ${selected.length ? 'nelle sezioni scelte' : 'in totale'}`;
+  list.innerHTML = ns.length ? ns.map(([id, n]) => `<div class="note ${n.stato === 'fatta' ? 'done' : ''}" data-id="${id}">
+    <div class="top"><span class="pill">${esc((TIPI.find((t) => t[0] === n.tipo) || [0, 'Nota'])[1])}</span>${n.priorita === 'alta' ? '<span class="pill alta">Alta</span>' : ''}${n.stato === 'fatta' ? '<span class="pill fatta">Fatta</span>' : ''}<span>${fmt(n.createdAt)}</span></div>
+    <p>${esc(n.testo)}</p>${linksHtml(n.sezioni)}
+    <div class="acts"><button type="button" data-act="toggle">${n.stato === 'fatta' ? 'Riapri' : 'Segna fatta'}</button><button type="button" data-act="del">Elimina</button></div>
+  </div>`).join('') : '<p class="small">Nessuna nota qui.</p>';
+}
+const pendingDel = new Set();
+document.getElementById('list').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-act]'); if (!b || !db) return;
+  const id = b.closest('.note').dataset.id; const n = notes[id]; if (!n) return;
+  try {
+    if (b.dataset.act === 'toggle') await db.collection('note').doc(id).update({ stato: n.stato === 'fatta' ? 'aperta' : 'fatta', updatedAt: Date.now() });
+    if (b.dataset.act === 'del') {
+      if (!pendingDel.has(id)) { pendingDel.add(id); b.textContent = 'Conferma eliminazione'; setTimeout(() => { pendingDel.delete(id); if (b.isConnected) b.textContent = 'Elimina'; }, 4000); return; }
+      await db.collection('note').doc(id).delete();
+    }
+  } catch (_) { b.textContent = 'Non riuscito'; }
+});
+
+// ---------------------------------------------------------------- trascrizione
+let convId = null, convText = '', partial = '', saveTimer = null, convStarted = 0;
+function renderTranscript() {
+  const el = document.getElementById('transcript');
+  el.innerHTML = esc(convText) + (partial ? ` <span class="partial">${esc(partial)}</span>` : '');
+  el.scrollTop = el.scrollHeight;
+}
+function scheduleSave() {
+  if (!db) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveConv, 4000);
+}
+async function saveConv() {
+  if (!db || !convId || !convText.trim()) return;
+  try {
+    await db.collection('conversazioni').doc(convId).set({ titolo: document.getElementById('convTitle').value.trim() || 'Conversazione', testo: convText.trim(), sezioni: selected.slice(), startedAt: convStarted, updatedAt: Date.now(), by: userId });
+    document.getElementById('convMsg').textContent = 'Salvata alle ' + new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) + '.';
+  } catch (_) { document.getElementById('convMsg').textContent = 'Salvataggio non riuscito: il testo resta qui, riprovo alla prossima frase.'; }
+}
+const REASON = { time_limit: 'Ogni trascrizione dura al massimo 60 minuti: premi di nuovo per continuare.', hidden: 'La pagina è stata nascosta: premi di nuovo per continuare.', not_granted: 'Microfono non consentito: abilitalo dal menu Permessi della pagina.', unavailable: 'La trascrizione non è disponibile qui: usa Chrome su computer o l\'app desktop di Claude.', rate_limited: 'Microfono occupato: riprova tra poco.', upstream_error: 'Problema con il microfono: riprova.' };
+function setRec(listening, reason) {
+  const b = document.getElementById('recBtn');
+  b.textContent = listening ? 'Ferma' : (convText ? 'Riprendi trascrizione' : 'Avvia trascrizione');
+  document.getElementById('recState').innerHTML = listening ? '<span class="live">Sto trascrivendo</span>' : esc(REASON[reason] || '');
+}
+document.getElementById('recBtn').addEventListener('click', () => {
+  if (!dict) return;
+  if (dict.active()) { dict.stop().then(saveConv); return; }
+  if (!convId) { convId = newId('c'); convStarted = Date.now(); }
+  dict.start({ language: 'it' }).catch((err) => setRec(false, err && err.code));
+});
+document.getElementById('newConv').addEventListener('click', async () => {
+  if (dict && dict.active()) await dict.stop();
+  await saveConv();
+  convId = null; convText = ''; partial = ''; renderTranscript(); setRec(false);
+  document.getElementById('convTitle').value = ''; document.getElementById('convMsg').textContent = 'Pronta per una nuova conversazione.';
+});
+// Dettatura anche nella nota singola
+let dictTarget = 'conv';
+document.getElementById('dictNote').addEventListener('click', () => {
+  if (!dict) return;
+  if (dict.active()) { dict.stop(); return; }
+  dictTarget = 'nota';
+  dict.start({ language: 'it' }).catch(() => {});
+});
+
+// ---------------------------------------------------------------- avvio
+segs(); renderTree(); renderSel(); renderList(); renderTranscript();
+(async () => {
+  try {
+    const [d, u, dc] = await Promise.all([window.claude?.use('db'), window.claude?.use('user'), window.claude?.use('dictation')]);
+    if (u) { try { userId = await u.id(); } catch (_) {} }
+    if (dc) {
+      dict = dc;
+      document.getElementById('dictNote').hidden = false;
+      dict.onPartial(({ text }) => { if (dictTarget === 'conv') { partial = text; renderTranscript(); } });
+      dict.onFinal(({ text }) => {
+        if (dictTarget === 'nota') { const t = document.getElementById('testo'); t.value = t.value ? t.value + text : text.replace(/^\s+/, ''); return; }
+        convText = convText ? convText + text : text.replace(/^\s+/, ''); partial = ''; renderTranscript(); scheduleSave();
+      });
+      dict.onState(({ state, reason }) => {
+        const listening = state !== 'idle';
+        if (dictTarget === 'nota') { document.getElementById('dictNote').textContent = listening ? 'Ferma dettatura' : 'Detta'; if (!listening) dictTarget = 'conv'; return; }
+        setRec(listening, reason); if (!listening) saveConv();
+      });
+    } else {
+      document.getElementById('recBtn').disabled = true;
+      document.getElementById('recState').textContent = 'La trascrizione funziona in Chrome su computer o nell\'app desktop di Claude.';
+    }
+    if (!d) return;
+    db = d;
+    db.collection('note').onSnapshot((snap) => {
+      for (const k of Object.keys(notes)) delete notes[k];
+      snap.docs.forEach((doc) => { const v = doc.data(); if (v) notes[doc.id] = v; });
+      renderTree(); renderList();
+    }, () => {});
+    db.collection('conversazioni').onSnapshot((snap) => {
+      for (const k of Object.keys(convs)) delete convs[k];
+      snap.docs.forEach((doc) => { const v = doc.data(); if (v) convs[doc.id] = v; });
+      if (filt === 'conv') renderList();
+    }, () => {});
+  } catch (_) {}
+})();
+</script>
